@@ -7,6 +7,17 @@ trying to do everything and stepping on its own toes.
 Built by someone juggling ~50 UEFN islands at once. Free, fully documented, works for one island or
 fifty.
 
+## Screenshots
+
+**The Agent Console** — a local real-time dashboard showing which agent is working, a live
+"miniflow" rail for the review-gate sequence, MCP server activity, and token usage:
+
+![Agent Console](docs/images/agent-console.png)
+
+**The full pipeline** — every agent and every hand-off, end to end:
+
+![Pipeline diagram](docs/images/pipeline-diagram.png)
+
 ## What's in the box
 
 - **Twelve agents**, each doing one job: project setup, an independent ambiguity check before any
