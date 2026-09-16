@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [],
+    "deny": []
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "_comment": "Only fires when you launch `claude` fresh (matcher 'startup'), not on every /clear or /compact. If the optional Agent Console is installed on this project, deterministically ensures its server is running AND correctly scoped to THIS project (killing and replacing a stale/wrong-project server bound to the same port if needed), then opens it in your default browser automatically, before Claude's first reply — no permission asked, nothing to answer. On Windows without bash available, use session-start-reminder.ps1 (already set below); with bash/WSL/Git Bash you can switch to session-start-reminder.sh.",
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/session-start-reminder.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo Reminder: if STATUS.md has not been updated automatically yet, ask planner-docs to update Claude/docs/STATUS.md."
+          },
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-session-stop.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "_comment": "Feeds the optional real-time Agent Console (Claude/hooks/agent-console.html) — logs the moment a subagent starts. Matched on the internal tool Claude Code uses to invoke any subagent (coder, qa-regression, and so on) — observed as either 'Task' or 'Agent' depending on the Claude Code build/version, so the matcher (regex) and agent-console-log.ps1/.sh both accept either name. Safe to remove this block entirely if you don't use the console; agent-console-log.ps1 silently does nothing without it either way.",
+        "matcher": "Task|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-log.ps1\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "_comment": "Feeds the optional real-time Agent Console's 'MCP Server' node — logs the moment a call to the UEFN MCP server starts, and who made it (a bot's agent_type, or the main/chief-of-staff session). Same matcher as the PostToolUse after-playtest.ps1 block below, but a separate independent hook — MCP calls are synchronous, so PreToolUse/PostToolUse (not SubagentStop) is the right pair here. Safe to remove if you don't use the console.",
+        "matcher": "mcp__unreal-mcp__call_tool",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-mcp.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "_comment": "Feeds the optional real-time Agent Console — logs the moment a subagent ACTUALLY finishes. Deliberately not a PostToolUse hook on the dispatch tool: for a subagent dispatched to run in the background, PostToolUse fires the instant the dispatch returns, not when the work is actually done (confirmed via a real test where the console showed 'finished' seconds after 'started' while the agent was still working) — SubagentStop is the hook Claude Code fires on real completion either way. Safe to remove if you don't use the console.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-stop.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "_comment": "The 'unreal-mcp' server exposes a single generic dispatcher tool (mcp__unreal-mcp__call_tool) for ALL of its toolset actions: the tool name alone can't distinguish 'stop the play-session' from any other call (start, query, etc). So the matcher fires on EVERY call_tool call, and the real filter (only session/game stop actions) lives inside the hook script, which reads the hook's JSON payload from stdin. On Windows without bash available, use after-playtest.ps1 (PowerShell, already set below); if you have bash/WSL/Git Bash you can use after-playtest.sh instead, updating 'command' below.",
+        "matcher": "mcp__unreal-mcp__call_tool",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/after-playtest.ps1\"",
+            "timeout": 300,
+            "statusMessage": "Running automatic bug/regression check after the playtest..."
+          },
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-mcp.ps1\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "_comment": "Feeds the optional real-time Agent Console's 'Tokens this session' stat (experimental/best-effort — see agent-console-tokens.ps1's own header for details and caveats). Deliberately has NO matcher, so it fires after every tool call, not just subagent ones — token usage happens on every turn. Reads incrementally so this stays cheap even in a long session. Safe to remove if you don't use the console.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-tokens.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

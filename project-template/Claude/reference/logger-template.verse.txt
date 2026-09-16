@@ -1,0 +1,17 @@
+# Centralized logger template — see ~/.claude/CLAUDE.md, rule 2.
+#
+# Extension .verse.txt (not .verse) ON PURPOSE: this file is not a valid standalone Verse
+# module (no `using`, it's meant to be copied/adapted into a real file), and UEFN compiles
+# EVERY .verse file under Content/. With a .verse extension it broke the build of the entire
+# project ("Unknown identifier `editable`" for the @editable without `using { /Verse.org/Simulation }`).
+# Don't rename it to .verse without adding the necessary `using` statements and verifying it
+# compiles on its own.
+#
+# Every Verse file in the project should have/use something like this, instead of calling
+# Print() directly. Adapt the placement (dedicated class/module vs. included in every file)
+# to this specific project's Verse structure.
+
+@editable DebugLoggingEnabled : logic = true
+Log(LogMessage : string):void=
+    if (DebugLoggingEnabled?):
+        Print(LogMessage)
