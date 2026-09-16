@@ -9,8 +9,13 @@ fifty.
 
 ## Screenshots
 
-**The Agent Console** — a local real-time dashboard showing which agent is working, a live
-"miniflow" rail for the review-gate sequence, MCP server activity, and token usage:
+**The Agent Console header** — session stats, token usage, and the "miniflow" rail tracking a
+task live through its five gated stages (intent-gate → coder → intent-reviewer →
+compliance-reviewer → planner-docs):
+
+![Agent Console header with the miniflow rail](docs/images/miniflow-rail.png)
+
+**The full Agent Console** — the header above, plus every agent's live status at a glance:
 
 ![Agent Console](docs/images/agent-console.png)
 
