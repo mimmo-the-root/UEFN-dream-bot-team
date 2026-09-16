@@ -1,4 +1,4 @@
-# Dream Bot Team
+# UEFN Dream Bot Team
 
 A Claude Code multi-agent starter kit for building UEFN (Unreal Editor for Fortnite) experiences —
 twelve specialized subagents, each with one narrow job, instead of one general-purpose assistant
