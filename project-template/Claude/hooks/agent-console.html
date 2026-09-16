@@ -1,0 +1,1598 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DREAM BOT TEAM AGENT CONSOLE FOR UEFN_</title>
+<style>
+  :root{
+    --bg:#060810; --panel:#0d121c; --panel2:#0a0e17; --line:#1c2740; --line-soft:#223050;
+    --text:#c9d6f0; --dim:#5a7088; --blue:#4b8bff; --blue-glow:rgba(75,139,255,.45);
+    --amber:#ffb454; --green:#39ff88; --cyan:#4bd8ff; --magenta:#ff5cd1; --purple:#b98bff;
+    --red:#ff4d5e; --red-glow:rgba(255,77,94,.55); --orange:#ff7a4a; --teal:#2dd4bf;
+    --yellow:#ffbd2e; --yellow-glow:rgba(255,189,46,.6); --grey:#4a5568;
+    --indigo:#7c8aff; --lime:#a6ff4b;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);
+    font-family:'Consolas','Courier New',monospace;overflow-x:hidden;}
+  body{
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(75,139,255,0.14), transparent 60%),
+      radial-gradient(ellipse at 50% 60%, rgba(185,139,255,0.06), transparent 55%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
+
+  /* Header row: title on the left, tagline + connection status stacked on the right — merged
+     onto one row (was three stacked rows) to reclaim vertical space for the console itself. The
+     old macOS-style red/yellow/green window-chrome dots are gone too; those exact colors now
+     live on in the status legend (see .stat.legend below) instead of being purely decorative. */
+  .termlines{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;
+    gap:4px 24px;padding:14px 4px 12px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .termlines .line{font-size:12px;line-height:1.5;white-space:pre-wrap;}
+  .termlines .prompt{color:var(--blue);font-weight:bold;letter-spacing:.5px;}
+  .termlines .prompt .title-text{font-size:17px;letter-spacing:1px;}
+  .termlines .prompt .blink{animation:blink 1.1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  /* Version tag next to the title — exists so "is this browser tab actually running the file I
+     just replaced" is a glance, not a guess. This is a single-page app: swapping the HTML file on
+     disk does nothing to a tab that's already open until it's reloaded, and that confusion has
+     caused real troubleshooting dead-ends (a fixed threshold looking "still broken" because the
+     old JS was still running in memory). KIT_VERSION below is the one place this is set — bump it
+     on every release, see the comment there. */
+  .kit-version{font-size:10px;font-weight:normal;letter-spacing:.5px;color:var(--dim);
+    margin-left:8px;vertical-align:middle;}
+  .termlines-side{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+  .termlines .comment{color:var(--dim);}
+  .termlines .status{color:var(--dim);}
+  .termlines .status .ok{color:var(--green);}
+  .termlines .status .bad{color:#ff5c5c;}
+
+  .stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .stat{flex:1;min-width:150px;background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:8px;padding:10px 14px;}
+  .stat .label{font-size:10px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
+  .stat .value{font-size:18px;margin-top:4px;font-variant-numeric:tabular-nums;color:var(--blue);
+    text-shadow:0 0 6px var(--blue-glow);}
+  .stat.session .value{color:var(--green);text-shadow:0 0 6px rgba(57,255,136,0.35);}
+  .stat .sub{font-size:10px;color:var(--dim);margin-top:2px;}
+
+  /* Tokens box narrowed — it's a single number, it doesn't need as much room as the others. */
+  .stat.compact{flex:0.65;min-width:130px;}
+
+  /* New legend box, replacing the old decorative termbar dots: total agent count plus a live
+     idle/working/broken/waiting breakdown, updated by updateLegendCounts() alongside the node
+     LEDs themselves so the two never disagree. */
+  .stat.legend{flex:1.5;min-width:230px;}
+  .stat.legend .label b{color:var(--text);font-weight:600;}
+  .legend-project{font-size:10px;letter-spacing:.3px;color:var(--cyan);text-transform:uppercase;
+    margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    text-shadow:0 0 6px rgba(75,216,255,.35);}
+  .legend-project span{text-transform:none;font-weight:600;}
+  .legend-rows{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:7px;}
+  .legend-item{font-size:10.5px;color:var(--dim);display:inline-flex;align-items:center;gap:5px;
+    white-space:nowrap;}
+  .legend-item b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;}
+  .legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none;}
+  .legend-dot.grey{background:var(--grey);}
+  .legend-dot.green{background:var(--green);box-shadow:0 0 5px rgba(57,255,136,.7);}
+  .legend-dot.red{background:var(--red);box-shadow:0 0 5px var(--red-glow);}
+  .legend-dot.yellow{background:var(--yellow);box-shadow:0 0 5px var(--yellow-glow);}
+
+  .stat.alert{display:none;border-color:var(--red);box-shadow:0 0 16px var(--red-glow);}
+  .stat.alert.show{display:block;animation:alertPulse 1.1s ease-in-out infinite;}
+  .stat.alert .label{color:var(--red);}
+  .stat.alert .value{color:var(--red);text-shadow:0 0 8px var(--red-glow);font-size:14px;}
+  @keyframes alertPulse{0%,100%{box-shadow:0 0 10px var(--red-glow);}50%{box-shadow:0 0 26px var(--red-glow);}}
+
+  /* Miniflow rail — see the HTML comment above the #miniflow element for the design rationale
+     (V1 of three mockups presented to the owner: everything lives on the node itself — ring,
+     timer, reject badge — no separate metadata strip). Colors reuse the exact LED semantics
+     already established elsewhere (green=done, amber=active, red=regression), so this never
+     introduces a new color code to learn. */
+  .miniflow{border:1px solid var(--line);border-radius:8px;padding:12px 16px 10px;margin-bottom:16px;
+    background:radial-gradient(ellipse at 50% -40%, rgba(75,139,255,0.10), transparent 65%);}
+  .miniflow-tag{font-size:10.5px;letter-spacing:1.5px;color:var(--dim);margin-bottom:8px;}
+  .miniflow-task{color:var(--text);margin-left:8px;letter-spacing:0;}
+  .miniflow-rail{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:2px;}
+  .mf-node{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:96px;flex:none;position:relative;}
+  .mf-ring-wrap{position:relative;width:40px;height:40px;}
+  .mf-ring-wrap svg{width:40px;height:40px;transform:rotate(-90deg);}
+  .mf-ring-track{fill:none;stroke:var(--line-soft);stroke-width:3.5;}
+  .mf-ring-fill{fill:none;stroke-width:3.5;stroke-linecap:round;transition:stroke-dashoffset .3s ease;}
+  .mf-ring-fill.mf-done{stroke:var(--green);}
+  .mf-ring-fill.mf-active{stroke:var(--amber);animation:mfPulse 1.8s ease-in-out infinite;}
+  @keyframes mfPulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+  .mf-ring-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .mf-ring-center.mf-done{color:var(--green);}
+  .mf-ring-center.mf-active{color:var(--amber);}
+  .mf-ring-center.mf-pending{color:var(--dim);}
+  .mf-label{font-size:9.5px;color:var(--dim);text-align:center;line-height:1.25;white-space:nowrap;}
+  .mf-label.mf-active{color:var(--amber);font-weight:bold;}
+  .mf-label.mf-done{color:var(--text);}
+  .mf-timer{font-size:9px;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .mf-conn{height:2px;background:var(--line-soft);flex:1 1 14px;min-width:14px;margin-top:19px;}
+  .mf-conn.mf-done{background:var(--green);}
+  .mf-reject-badge{position:absolute;top:-4px;right:6px;background:var(--red);color:#1a0507;
+    font-size:8px;font-weight:700;border-radius:7px;padding:0 4px;line-height:1.4;
+    box-shadow:0 0 6px var(--red-glow);}
+
+  /* Main layout: orbit stage left, terminal log right */
+  .main-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:stretch;}
+  @media (max-width:960px){.main-grid{grid-template-columns:1fr;}}
+
+  /* Orbit stage — align-items:stretch on .main-grid now makes this match the activity log
+     panel's height; center the ring vertically in whatever extra room that leaves. */
+  .orbit-wrap{background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:12px;padding:14px;
+    display:flex;flex-direction:column;justify-content:center;}
+  .orbit-stage{position:relative;width:100%;aspect-ratio:1/1;max-width:640px;margin:0 auto;}
+  .orbit-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:visible;}
+  .orbit-svg .spoke{stroke:rgba(75,139,255,0.22);stroke-width:1.4;stroke-dasharray:3 6;}
+  .orbit-svg .spoke.hot{stroke-dasharray:none;stroke-width:1.8;}
+  .orbit-svg .pulse-dot{filter:drop-shadow(0 0 5px currentColor);}
+  .ring-guide{stroke:rgba(90,112,136,0.28);stroke-width:1;stroke-dasharray:2 8;}
+
+  .hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;
+    display:flex;align-items:center;justify-content:center;width:132px;height:132px;}
+  .hub-ripple{position:absolute;inset:0;border-radius:50%;border:1.5px solid #ff7a4a;
+    opacity:0;animation:ripple 3.2s ease-out infinite;}
+  .hub-ripple:nth-child(2){animation-delay:1.05s;border-color:#ffb454;}
+  .hub-ripple:nth-child(3){animation-delay:2.1s;border-color:#ff5cd1;}
+  @keyframes ripple{0%{transform:scale(.85);opacity:.65;}100%{transform:scale(2.1);opacity:0;}}
+  .hub-core{position:relative;width:112px;height:112px;border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.14), transparent 60%),
+      linear-gradient(160deg,#121a2c,#080c14);
+    border:2.5px solid #ff7a4a;
+    box-shadow:0 0 44px rgba(255,122,74,.45), inset 0 0 26px rgba(255,122,74,.18);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .hub-core .glyph{line-height:1;font-size:44px;filter:drop-shadow(0 0 12px rgba(255,122,74,.65));
+    animation:breathe 2.6s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+  .hub-core .label{font-size:8.5px;letter-spacing:1.4px;color:var(--dim);margin-top:4px;
+    text-transform:uppercase;text-align:center;}
+  .hub-core.alert{border-color:var(--red);box-shadow:0 0 40px var(--red-glow), inset 0 0 26px rgba(255,77,94,.2);}
+  .hub-core.alert .glyph{filter:drop-shadow(0 0 10px var(--red-glow));}
+
+  /* Orbit nodes (agents + special nodes) */
+  .node{position:absolute;left:0;top:0;z-index:2;display:flex;flex-direction:column;
+    align-items:center;width:96px;margin-left:-48px;margin-top:-48px;text-align:center;}
+  /* Orbits at a radius clearly OUTSIDE the node-blob's own edge (blob radius 32px) so the comet
+     reads as something circling the bot, not a smudge riding along its border glow. */
+  .node-orbit-comet{position:absolute;top:-14px;left:50%;width:92px;height:92px;margin-left:-46px;
+    pointer-events:none;opacity:0;transition:opacity .25s;}
+  .node.active .node-orbit-comet{opacity:1;animation:spinComet 2.2s linear infinite;}
+  @keyframes spinComet{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  /* Fading arc trailing the head dot — a real tail (conic-gradient ring segment, masked down to
+     a thin band at the comet's own orbit radius) instead of a single dot with a soft glow. */
+  .comet-tail{position:absolute;inset:0;border-radius:50%;color:inherit;
+    background:conic-gradient(from 300deg, transparent 0deg, transparent 2deg, currentColor 56deg, transparent 60deg);
+    -webkit-mask:radial-gradient(closest-side, transparent calc(50% - 4px), #000 calc(50% - 2.5px), #000 calc(50% + 2.5px), transparent calc(50% + 4px));
+            mask:radial-gradient(closest-side, transparent calc(50% - 4px), #000 calc(50% - 2.5px), #000 calc(50% + 2.5px), transparent calc(50% + 4px));
+    opacity:.85;filter:drop-shadow(0 0 4px currentColor);}
+  .comet-dot{position:absolute;top:-3px;left:50%;width:9px;height:9px;margin-left:-4.5px;
+    border-radius:50% 50% 50% 0;background:currentColor;filter:drop-shadow(0 0 7px currentColor);}
+
+  /* Small "rays" burst around a bot's own blob while it's active — same idea as the hub's own
+     ripple rings, scaled way down and colored per-agent, so a working bot visibly radiates too,
+     just far less dramatically than the Chief of Staff itself. */
+  .node-ray-wrap{position:absolute;top:0;left:50%;width:64px;height:64px;margin-left:-32px;
+    pointer-events:none;}
+  .node-ray{position:absolute;inset:0;border-radius:50%;border:1.5px solid currentColor;opacity:0;}
+  .node.active .node-ray{animation:nodeRay 1.8s ease-out infinite;}
+  .node-ray.r2{animation-delay:.9s;}
+  @keyframes nodeRay{0%{transform:scale(.92);opacity:.55;}100%{transform:scale(1.65);opacity:0;}}
+
+  /* "Thinking" indicator, currently only used by the Obsidian Vault while syncing */
+  .node-thinking{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+    margin-bottom:6px;font-size:9.5px;letter-spacing:.3px;color:var(--purple);
+    background:rgba(6,8,16,.88);border:1px solid var(--purple);border-radius:6px;padding:3px 7px;
+    white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;
+    text-shadow:0 0 6px var(--purple);}
+  .node.active .node-thinking{opacity:1;}
+  .thinking-dots::after{content:"";animation:thinkingDots 1.2s steps(4) infinite;}
+  @keyframes thinkingDots{0%{content:"";}25%{content:".";}50%{content:"..";}75%{content:"...";}100%{content:"";}}
+
+  /* Obsidian Vault: pulses while either "brain" (librarian/trainer) is active, and gets a
+     stronger oscillating tug — as if pulled from two directions at once — when BOTH are active
+     simultaneously (.contested, toggled in refreshWatchers()). Scoped to the vault's own id so
+     it never affects any other purple-colored node. */
+  #node-__obsidian_vault__.active .node-blob{animation:vaultPulse 1.1s ease-in-out infinite;}
+  @keyframes vaultPulse{0%,100%{transform:scale(1.08);}50%{transform:scale(1.22);}}
+  #node-__obsidian_vault__.contested .node-blob{animation:vaultContested .7s ease-in-out infinite;}
+  @keyframes vaultContested{
+    0%{transform:translateX(0) scale(1.1);}
+    20%{transform:translateX(-7px) scale(1.16);}
+    50%{transform:translateX(0) scale(1.22);}
+    80%{transform:translateX(7px) scale(1.16);}
+    100%{transform:translateX(0) scale(1.1);}
+  }
+
+  /* Fountain particles (Obsidian Vault: diamonds, planner-docs: sheets of paper) — plain
+     absolutely-positioned spans over the orbit stage, animated purely via JS-set transform/
+     opacity (see spawnFountainParticle()) so they can follow an arc without a fixed CSS path. */
+  .fountain-particle{position:absolute;font-size:13px;pointer-events:none;z-index:6;
+    transform:translate(-50%,-50%);will-change:transform,opacity;}
+
+  .node-blob{position:relative;width:64px;height:64px;display:flex;align-items:center;
+    justify-content:center;font-size:26px;color:#fff;
+    background:radial-gradient(circle at 34% 30%, rgba(255,255,255,.10), #05070d 68%);
+    border:3px solid var(--line-soft);border-radius:50%;
+    box-shadow:0 4px 18px rgba(0,0,0,.5);
+    transition:box-shadow .25s, border-color .25s, transform .25s;}
+  .node.active .node-blob{transform:scale(1.1);}
+  /* Status LED — grey when idle, green while actively working, yellow when blocked waiting on a
+     delegated child to finish, red when a single invocation has been running suspiciously long
+     (likely stuck/erroring) — see refreshLeds() in the script: last-in-the-active-stack =
+     actively working, everything below it = waiting on that child, same heuristic pulseLink()
+     already uses elsewhere; "overdue" promotes the top-of-stack entry from active to broken. */
+  .node-led{position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-radius:50%;
+    border:2px solid #05070d;transition:background .2s, box-shadow .2s;
+    background:var(--grey);box-shadow:none;}
+  .node-led.led-active{background:var(--green);box-shadow:0 0 7px rgba(57,255,136,.85);
+    animation:ledPulse 1.4s ease-in-out infinite;}
+  .node-led.led-waiting{background:var(--yellow);box-shadow:0 0 8px var(--yellow-glow);
+    animation:ledPulse 1.4s ease-in-out infinite;}
+  .node-led.led-broken{background:var(--red);box-shadow:0 0 8px var(--red-glow);
+    animation:ledBlink 1s steps(1) infinite;}
+  @keyframes ledPulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+  @keyframes ledBlink{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+  .hub-led{position:absolute;top:-2px;right:-2px;width:13px;height:13px;border-radius:50%;
+    border:2px solid #080c14;z-index:4;background:#4a5568;transition:background .2s, box-shadow .2s;}
+  .hub-led.led-active{background:var(--green);box-shadow:0 0 8px rgba(57,255,136,.85);
+    animation:ledPulse 1.4s ease-in-out infinite;}
+  .node-label{margin-top:6px;}
+  .node-name{font-size:11px;font-weight:bold;white-space:nowrap;letter-spacing:.4px;
+    overflow:hidden;text-overflow:ellipsis;max-width:100px;text-shadow:0 0 8px currentColor;}
+  .node-name .node-count{font-size:8.5px;color:var(--dim);font-weight:normal;margin-left:3px;
+    text-shadow:none;}
+  .node-pill{margin-top:2px;font-size:8px;letter-spacing:1px;color:var(--dim);}
+  /* Shown only when 2+ concurrent calls to the same named agent share this one card (Claude Code
+     gives no per-call id, so they can't get separate nodes) — a visible "×N" instead of one of
+     them silently going unrepresented. See getConcurrency()/refreshLeds(). */
+  .node-concurrency{margin-top:1px;font-size:8.5px;font-weight:bold;letter-spacing:.5px;
+    color:var(--amber);text-shadow:0 0 6px rgba(255,180,84,.5);}
+  .node-concurrency[hidden]{display:none;}
+  .node-task{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;
+    width:150px;font-size:9.5px;line-height:1.3;color:var(--dim);background:rgba(6,8,16,.9);
+    border:1px solid var(--line);border-radius:6px;padding:5px 7px;display:none;z-index:5;
+    pointer-events:none;}
+  .node.active .node-task{display:block;}
+
+  .node[data-color="cyan"] .node-blob{border-color:var(--cyan);box-shadow:0 0 16px rgba(75,216,255,.5);}
+  .node[data-color="cyan"].active .node-blob{box-shadow:0 0 30px rgba(75,216,255,.85);}
+  .node[data-color="cyan"] .node-name{color:var(--cyan);}
+  .node[data-color="cyan"] .node-pill.on{color:var(--cyan);}
+  .node[data-color="green"] .node-blob{border-color:var(--green);box-shadow:0 0 16px rgba(57,255,136,.5);}
+  .node[data-color="green"].active .node-blob{box-shadow:0 0 30px rgba(57,255,136,.85);}
+  .node[data-color="green"] .node-name{color:var(--green);}
+  .node[data-color="green"] .node-pill.on{color:var(--green);}
+  .node[data-color="amber"] .node-blob{border-color:var(--amber);box-shadow:0 0 16px rgba(255,180,84,.5);}
+  .node[data-color="amber"].active .node-blob{box-shadow:0 0 30px rgba(255,180,84,.85);}
+  .node[data-color="amber"] .node-name{color:var(--amber);}
+  .node[data-color="amber"] .node-pill.on{color:var(--amber);}
+  .node[data-color="blue"] .node-blob{border-color:var(--blue);box-shadow:0 0 16px rgba(75,139,255,.5);}
+  .node[data-color="blue"].active .node-blob{box-shadow:0 0 30px rgba(75,139,255,.85);}
+  .node[data-color="blue"] .node-name{color:var(--blue);}
+  .node[data-color="blue"] .node-pill.on{color:var(--blue);}
+  .node[data-color="magenta"] .node-blob{border-color:var(--magenta);box-shadow:0 0 16px rgba(255,92,209,.5);}
+  .node[data-color="magenta"].active .node-blob{box-shadow:0 0 30px rgba(255,92,209,.85);}
+  .node[data-color="magenta"] .node-name{color:var(--magenta);}
+  .node[data-color="magenta"] .node-pill.on{color:var(--magenta);}
+  .node[data-color="purple"] .node-blob{border-color:var(--purple);box-shadow:0 0 16px rgba(185,139,255,.5);}
+  .node[data-color="purple"].active .node-blob{box-shadow:0 0 30px rgba(185,139,255,.85);}
+  .node[data-color="purple"] .node-name{color:var(--purple);}
+  .node[data-color="purple"] .node-pill.on{color:var(--purple);}
+  .node[data-color="orange"] .node-blob{border-color:var(--orange);box-shadow:0 0 16px rgba(255,122,74,.5);}
+  .node[data-color="orange"].active .node-blob{box-shadow:0 0 30px rgba(255,122,74,.85);}
+  .node[data-color="orange"] .node-name{color:var(--orange);}
+  .node[data-color="orange"] .node-pill.on{color:var(--orange);}
+  .node[data-color="teal"] .node-blob{border-color:var(--teal);box-shadow:0 0 16px rgba(45,212,191,.5);}
+  .node[data-color="teal"].active .node-blob{box-shadow:0 0 30px rgba(45,212,191,.85);}
+  .node[data-color="teal"] .node-name{color:var(--teal);}
+  .node[data-color="teal"] .node-pill.on{color:var(--teal);}
+  .node[data-color="yellow"] .node-blob{border-color:var(--yellow);box-shadow:0 0 16px rgba(255,189,46,.5);}
+  .node[data-color="yellow"].active .node-blob{box-shadow:0 0 30px rgba(255,189,46,.85);}
+  .node[data-color="yellow"] .node-name{color:var(--yellow);}
+  .node[data-color="yellow"] .node-pill.on{color:var(--yellow);}
+  .node[data-color="red"] .node-blob{border-color:var(--red);box-shadow:0 0 16px rgba(255,77,94,.5);}
+  .node[data-color="red"].active .node-blob{box-shadow:0 0 30px rgba(255,77,94,.85);}
+  .node[data-color="red"] .node-name{color:var(--red);}
+  .node[data-color="red"] .node-pill.on{color:var(--red);}
+  .node[data-color="indigo"] .node-blob{border-color:var(--indigo);box-shadow:0 0 16px rgba(124,138,255,.5);}
+  .node[data-color="indigo"].active .node-blob{box-shadow:0 0 30px rgba(124,138,255,.85);}
+  .node[data-color="indigo"] .node-name{color:var(--indigo);}
+  .node[data-color="indigo"] .node-pill.on{color:var(--indigo);}
+  .node[data-color="lime"] .node-blob{border-color:var(--lime);box-shadow:0 0 16px rgba(166,255,75,.5);}
+  .node[data-color="lime"].active .node-blob{box-shadow:0 0 30px rgba(166,255,75,.85);}
+  .node[data-color="lime"] .node-name{color:var(--lime);}
+  .node[data-color="lime"] .node-pill.on{color:var(--lime);}
+
+  .node.special .node-blob{background:radial-gradient(circle at 34% 30%, rgba(255,255,255,.10), #05070d 68%);}
+  .node.special[data-color="purple"] .node-blob{border-color:var(--purple);box-shadow:0 0 16px rgba(185,139,255,.5);}
+  .node.special[data-color="purple"].active .node-blob{box-shadow:0 0 30px rgba(185,139,255,.9);}
+  .node.special[data-color="purple"] .node-name{color:var(--purple);}
+  .node.special[data-color="red"] .node-blob{border-color:var(--red);box-shadow:0 0 16px rgba(255,77,94,.5);}
+  .node.special[data-color="red"].active .node-blob{box-shadow:0 0 32px var(--red-glow);
+    animation:alertBlob 1s ease-in-out infinite;}
+  @keyframes alertBlob{0%,100%{transform:scale(1.1);}50%{transform:scale(1.22);}}
+  .node.special[data-color="red"] .node-name{color:var(--red);}
+  .node.special .node-pill.on{color:var(--red);}
+
+  /* Chief-of-staff style asterisk mark, reused at small scale for the Obsidian gem substitute
+     icon-free fallback if emoji rendering is unavailable — see .hub-mark below for the main one. */
+  .hub-mark{width:46px;height:46px;}
+
+  /* Terminal / activity log (right column) */
+  .terminal-panel{background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;
+    flex-direction:column;min-height:420px;}
+  .terminal-panel .panel-title{font-size:10px;letter-spacing:1.5px;color:var(--dim);
+    text-transform:uppercase;padding:2px 4px 8px;border-bottom:1px solid var(--line);
+    margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .panel-project{font-size:10px;letter-spacing:.3px;color:var(--cyan);text-transform:none;
+    text-shadow:0 0 6px rgba(75,216,255,.4);overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;max-width:60%;}
+  .terminal{background:#03060c;border:1px solid var(--line);border-radius:8px;
+    flex:1;min-height:340px;max-height:640px;overflow-y:auto;padding:12px 14px;
+    font-size:12px;line-height:1.7;}
+  .terminal .row{white-space:pre-wrap;word-break:break-word;}
+  .terminal .ts{color:var(--dim);}
+  .terminal .start{color:var(--green);}
+  .terminal .stop{color:var(--dim);}
+  .terminal .empty{color:var(--dim);font-style:italic;}
+
+  .footerline{font-size:13px;color:var(--dim);padding:14px 4px 4px;}
+  .footerline .prompt{color:var(--blue);}
+  .footerline .n{color:var(--text);}
+  .footerline .approval{color:var(--amber);}
+
+  footer{margin-top:14px;font-size:11px;color:var(--dim);line-height:1.6;padding:0 4px;}
+  footer code{color:var(--cyan);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="termlines">
+    <div class="line prompt">&gt; <span class="title-text">DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="blink">_</span></span><span class="kit-version" id="kitVersion" title="This is the version baked into the HTML file this tab loaded. If you just replaced the file and this still shows the old number, hard-refresh this tab (Ctrl/Cmd+Shift+R) — a running tab doesn't notice a file changing on disk on its own."></span></div>
+    <div class="termlines-side">
+      <div class="line comment"># twelve agents. one chief of staff. every change still waits on you.</div>
+      <div class="line status" id="statusLine">… connecting to local server</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat session">
+      <div class="label">Session running for</div>
+      <div class="value" id="sessionTimer">—</div>
+      <div class="sub" id="sessionSince">not started yet</div>
+    </div>
+    <div class="stat compact">
+      <div class="label">Tokens this session (approx.)</div>
+      <div class="value" id="tokensTotal">—</div>
+      <div class="sub" id="tokensBreakdown">no data yet</div>
+    </div>
+    <div class="stat legend">
+      <div class="legend-project" id="legendProject">PROJECT: <span id="legendProjectName">—</span></div>
+      <div class="label">Agents — <b id="legendTotal">0</b> total</div>
+      <div class="legend-rows">
+        <span class="legend-item"><i class="legend-dot grey"></i>idle <b id="legendIdle">0</b></span>
+        <span class="legend-item"><i class="legend-dot green"></i>working <b id="legendWorking">0</b></span>
+        <span class="legend-item"><i class="legend-dot red"></i>broken <b id="legendBroken">0</b></span>
+        <span class="legend-item"><i class="legend-dot yellow"></i>waiting <b id="legendWaiting">0</b></span>
+      </div>
+    </div>
+    <div class="stat alert" id="approvalAlert">
+      <div class="label">⚠ approval required</div>
+      <div class="value" id="approvalWho">release-gate is waiting on you</div>
+    </div>
+  </div>
+
+  <!-- Miniflow: a compact horizontal rail showing where the CURRENT task sits in the plan-first
+       pipeline (intent-gate -> coder -> intent-reviewer -> compliance-reviewer -> planner-docs),
+       derived purely from the same /log event stream already driving the orbit (no new server
+       plumbing beyond /active-task, which is optional — the rail still works without it, just
+       without a task-ID label). Each stage is a ring: empty/grey = pending, animated amber arc +
+       live mm:ss timer = active, full green = done. A stage that goes active again after a LATER
+       stage was already reached counts as a regression ("this task got sent backward") and shows
+       a small red badge on the stage it regressed FROM — see updateMiniflow() below for exactly
+       how that's detected. Hidden entirely until the first relevant event arrives, so an idle
+       console doesn't show a half-lit rail with nothing behind it. -->
+  <div class="miniflow" id="miniflow" hidden>
+    <div class="miniflow-tag">MINIFLOW<span class="miniflow-task" id="miniflowTask"></span></div>
+    <div class="miniflow-rail" id="miniflowRail"></div>
+  </div>
+
+  <div class="main-grid">
+    <div class="orbit-wrap">
+      <div class="orbit-stage" id="orbitStage">
+        <svg class="orbit-svg" id="orbitSvg"></svg>
+        <div class="hub">
+          <div class="hub-ripple"></div>
+          <div class="hub-ripple"></div>
+          <div class="hub-ripple"></div>
+          <div class="hub-core" id="hubCore">
+            <div class="glyph">🤖</div>
+            <div class="label">chief of&nbsp;staff</div>
+            <div class="hub-led led-idle" id="hubLed" title="grey = idle, green = working — either supervising an active subagent or working directly"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal-panel">
+      <div class="panel-title">activity log<span class="panel-project" id="panelProject" title="current project"></span></div>
+      <div class="terminal" id="terminal">
+        <div class="row empty">Waiting for agent activity — start a task in Claude Code (coder, project-bootstrap, and so on) and it'll show up here.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footerline" id="footerLine">&gt; <span class="n">6</span> agents idle, every real change still goes through <span class="approval">you</span>.</div>
+
+  <footer>
+    Polling <code>/log</code>, <code>/tokens</code>, <code>/mcp</code> and <code>/session</code>
+    every second. If the status stays 🔴,
+    start the local server first:
+    <code>powershell -ExecutionPolicy Bypass -File Claude\hooks\agent-console-server.ps1</code>
+    (or <code>python3 Claude/hooks/agent-console-server.py</code>), then reload this page —
+    make sure you opened it as <code>http://127.0.0.1:8765/</code>, not as a local file.
+    Nothing shows up until a subagent actually runs; existing history in
+    <code>Claude/logs/agent-console.jsonl</code> is replayed on load. The token count is a
+    best-effort approximation summed from the session transcript (not adjusted for prompt
+    caching discounts) and only refreshes when a tool is actually used. <strong>Obsidian
+    Vault</strong>, <strong>YOU</strong> and <strong>MCP Server</strong> orbit on the same ring
+    as the twelve bots, alongside them rather than on a separate one. The Vault's
+    two lines connect it to both "brains" — <code>second-brain-librarian</code> (purple) and
+    <code>second-brain-trainer</code> (teal) — it pulses and shows a 💭 Thinking indicator while
+    either is active, with a stronger oscillating tug (as if pulled from two sides at once) when
+    both are active simultaneously; a small 💎 fountain runs the same time. The <strong>YOU</strong>
+    node's red alert is a proxy that fires while <code>release-gate</code> is active, since that's
+    the closest thing this kit has today to "a real decision is waiting on a human" — there's no
+    dedicated approval-request hook yet, so treat it as a heuristic, not a guarantee. YOU's small
+    status LED is a separate signal: green while the main Claude Code session is actively working,
+    grey once it has yielded back and is waiting on your next message (polled from
+    <code>/session</code>, see agent-console-tokens.ps1/agent-console-session-stop.ps1). The
+    <strong>MCP Server</strong> node lights up whenever the UEFN MCP server
+    (<code>mcp__unreal-mcp__call_tool</code>) is called, and a pulse animates from whichever bot
+    made the call (or stays a plain connection to the hub if it was the main session calling it
+    directly) — polled from <code>/mcp</code>, see agent-console-mcp.ps1. Every working bot on the
+    inner ring gets a small colored ray burst around its own icon while active (a scaled-down
+    echo of the hub's own ripple); <code>planner-docs</code> also gets a small 📄 fountain while
+    it writes. When a <code>qa-regression</code> stop event's own description mentions
+    "regression" (optionally with a count, e.g. "3 regressions"), small 🚀 missiles fly from it to
+    <code>coder</code> with a mini explosion on arrival — purely decorative text-matching on the
+    description, not a guarantee every regression triggers one. If you just updated these files
+    while the server was already running, restart it — it doesn't notice file changes on its own.
+  </footer>
+</div>
+
+<script>
+// Bump this on EVERY release that touches this file, matching CHANGELOG.md's top "## vX.Y"
+// heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
+// its whole point is letting a glance at the page settle "is this tab actually running the file
+// I just replaced," so it's only useful if it's never allowed to fall out of sync.
+const KIT_VERSION = "v1.70.4";
+{
+  const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
+  if (el) el.textContent = KIT_VERSION;
+}
+
+const AGENTS = [
+  {id:"project-bootstrap",     name:"project-bootstrap",      icon:"🏗️", color:"cyan",    blurb:"maps a new or existing project"},
+  {id:"intent-gate",           name:"intent-gate",            icon:"🧭", color:"indigo",  blurb:"checks task ambiguity before coder starts"},
+  {id:"coder",                 name:"coder",                  icon:"👨‍💻", color:"green",   blurb:"implements features and fixes"},
+  {id:"intent-reviewer",       name:"intent-reviewer",        icon:"🎯", color:"yellow",  blurb:"verifies output matches the spec — no invention"},
+  {id:"compliance-reviewer",   name:"compliance-reviewer",    icon:"🛡️", color:"lime",    blurb:"mechanical rule gate, after intent-reviewer PASSes"},
+  {id:"qa-regression",         name:"qa-regression",          icon:"🔍", color:"amber",   blurb:"finds bugs and regressions"},
+  {id:"planner-docs",          name:"planner-docs",           icon:"📋", color:"blue",    blurb:"keeps STATUS/ROADMAP/BUGS current"},
+  {id:"release-gate",          name:"release-gate",           icon:"🚦", color:"magenta", blurb:"go/no-go before a release"},
+  {id:"second-brain-librarian",name:"second-brain-librarian", icon:"🧠", color:"purple",  blurb:"owns the cross-project wiki"},
+  {id:"second-brain-trainer",  name:"second-brain-trainer",   icon:"🐝", color:"teal",    blurb:"parallel training sweep into the vault"},
+  {id:"growth-manager",        name:"growth-manager",         icon:"📈", color:"orange",  blurb:"marketing/growth: analytics, launch, thumbnails, copy"},
+  {id:"codebase-auditor",      name:"codebase-auditor",       icon:"🕵️", color:"red",     blurb:"independent whole-codebase quality audit"},
+];
+
+// Two special, non-subagent nodes requested alongside the real agents — they don't get
+// start/stop events of their own, they just reflect activity on a real agent (see footer note).
+const SPECIAL_NODES = [
+  {id:"__obsidian_vault__", name:"Obsidian Vault", icon:"💎", color:"purple", blurb:"shared memory", special:true, pillOn:"SYNCING", pillOff:"idle", watches:["second-brain-librarian","second-brain-trainer"], thinkingEffect:true},
+  {id:"__you__",            name:"YOU",             icon:"🧑", color:"red",    blurb:"approvals only", special:true, pillOn:"NEEDS YOU", pillOff:"watching", watches:"release-gate"},
+];
+
+// The UEFN MCP server — not a bot, doesn't count toward the "N agents idle" footer stat, but
+// unlike the two SPECIAL_NODES above it has its own REAL start/stop stream (polled separately
+// from /mcp, see processMcpEntries) rather than being a derived reflection of another agent's
+// state. `special:true` only to reuse the classList-driven LED path in refreshLeds() — it is
+// NOT in SPECIAL_NODES, so refreshWatchers() never touches it.
+const MCP_NODE = {id:"__mcp_server__", name:"MCP Server", icon:"🛰️", color:"orange",
+  blurb:"UEFN editor bridge (mcp__unreal-mcp)", special:true, showCount:true};
+
+const stage = document.getElementById("orbitStage");
+const svg = document.getElementById("orbitSvg");
+const hubCore = document.getElementById("hubCore");
+const terminalEl = document.getElementById("terminal");
+const statusLine = document.getElementById("statusLine");
+const footerLine = document.getElementById("footerLine");
+const approvalAlert = document.getElementById("approvalAlert");
+
+const nodeEls = {};   // agentId -> node div
+const spokeEls = {};  // agentId -> svg line
+const counts = {};
+const ALL_NODES = AGENTS.concat(SPECIAL_NODES).concat([MCP_NODE]);
+const ROTATE_DEG_PER_SEC = 0.9; // slow drift — one full lap roughly every 6.5 minutes
+
+// The fixed roster, captured before any runtime fallback node (ensureNode) can grow ALL_NODES —
+// used to tell "one of the seven bots / Vault / YOU / MCP" apart from a generic ad-hoc dispatch
+// (Claude Code reports these with agent_type "fork" for an unnamed parallel Task clone, e.g. one
+// coder spawns itself outside the named coder-prep path). Those are transient by nature, so they
+// get a friendlier "<parent> clone" label instead of the raw literal id, and are removed from the
+// console entirely once they go idle instead of lingering forever as a dead ring slot.
+const KNOWN_IDS = new Set(ALL_NODES.map(a => a.id));
+const ephemeralIds = new Set();
+
+function buildNode(a, index){
+  counts[a.id] = 0;
+  const node = document.createElement("div");
+  node.className = "node" + (a.special ? " special" : "");
+  node.dataset.color = a.color;
+  node.dataset.angle = (index / ALL_NODES.length) * 360;
+  node.id = "node-" + a.id;
+  node.innerHTML =
+    '<div class="node-orbit-comet" style="color:var(--' + a.color + ',#4b8bff)">' +
+      '<span class="comet-tail"></span><span class="comet-dot"></span>' +
+    '</div>' +
+    (a.special ? "" :
+    '<div class="node-ray-wrap" style="color:var(--' + a.color + ',#4b8bff)">' +
+      '<span class="node-ray r1"></span><span class="node-ray r2"></span>' +
+    '</div>') +
+    (a.thinkingEffect ? '<div class="node-thinking">💭 <span class="thinking-dots">Thinking</span></div>' : "") +
+    '<div class="node-blob" title="' + a.blurb.replace(/"/g,"&quot;") + '">' +
+      '<span class="node-icon">' + a.icon + '</span>' +
+      '<span class="node-led led-idle" title="grey = idle, green = working, yellow = waiting on a delegated child, red = broken (running unusually long)"></span>' +
+    '</div>' +
+    '<div class="node-label">' +
+      '<div class="node-name">' + a.name + ((!a.special || a.showCount) ? '<span class="node-count">·0</span>' : "") + '</div>' +
+      '<div class="node-pill">' + (a.special ? (a.pillOff || "idle") : "idle") + '</div>' +
+      (a.special ? "" : '<div class="node-concurrency" hidden></div>') +
+    '</div>' +
+    '<div class="node-task">' + a.blurb + '</div>';
+  stage.appendChild(node);
+  nodeEls[a.id] = node;
+
+  const ns = "http://www.w3.org/2000/svg";
+  const spoke = document.createElementNS(ns, "line");
+  spoke.setAttribute("class", "spoke");
+  svg.appendChild(spoke);
+  spokeEls[a.id] = spoke;
+
+  return node;
+}
+ALL_NODES.forEach(buildNode);
+
+// Second spoke for the Obsidian Vault, dedicated: the vault is "connected to both brains" now
+// (second-brain-librarian AND second-brain-trainer), so it gets two lines instead of the usual
+// one — the generic per-node spoke (spokeEls["__obsidian_vault__"]) still targets the librarian
+// (via SPOKE_TARGET_OVERRIDE below), this second one targets the trainer, updated alongside the
+// rest in layoutOrbit().
+const vaultTrainerSpoke = document.createElementNS("http://www.w3.org/2000/svg", "line");
+vaultTrainerSpoke.setAttribute("class", "spoke");
+svg.appendChild(vaultTrainerSpoke);
+
+// Faint dashed guide circle marking the single shared ring — purely a visual affordance so the
+// orbit reads intentionally instead of looking like nodes drifted off-course.
+const ringGuide = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+ringGuide.setAttribute("class", "ring-guide");
+ringGuide.setAttribute("fill", "none");
+svg.insertBefore(ringGuide, svg.firstChild); // behind the spokes/nodes
+
+// Fallback node for a subagent_type not in the known list — a generic/ad-hoc dispatch (e.g.
+// Claude Code's own "fork" label for an unnamed parallel Task clone). `parentId`, when known (the
+// agent that was on top of the active stack when this one started), gives it a friendlier label
+// than the raw id, and marks it ephemeral so setIdle() removes it once its work is done — see
+// KNOWN_IDS/ephemeralIds above.
+function ensureNode(agentId, parentId){
+  if (nodeEls[agentId]) return nodeEls[agentId];
+  const isEphemeral = !KNOWN_IDS.has(agentId);
+  const parentNode = parentId ? nodeEls[parentId] : null;
+  const parentName = parentNode ? parentNode.querySelector(".node-name").firstChild.textContent.trim() : null;
+  const palette = ["cyan","green","amber","blue","magenta","purple"];
+  const color = (parentNode && parentNode.dataset.color) || palette[Object.keys(nodeEls).length % palette.length];
+  const displayName = isEphemeral ? (parentName ? (parentName + " clone") : (agentId + " clone")) : agentId;
+  const blurb = isEphemeral
+    ? "a parallel clone dispatched by " + (parentName || "the main session") + " — closes once it's done"
+    : "";
+  const a = {id:agentId, name:displayName, icon:"🧬", color:color, blurb:blurb};
+  BLURBS[a.id] = a.blurb;
+  if (isEphemeral){
+    ephemeralIds.add(agentId);
+    // Point its spoke at the parent that actually spawned it, not at the hub — reinforces "this
+    // is coder's own clone" instead of looking like a tenth independent bot the Chief of Staff
+    // talks to directly. SPOKE_TARGET_OVERRIDE is declared later in the file but already exists
+    // by the time any node actually starts (runtime, not module-eval order).
+    if (parentId) SPOKE_TARGET_OVERRIDE[agentId] = parentId;
+  }
+  ALL_NODES.push(a);
+  const node = buildNode(a, ALL_NODES.length - 1);
+  recomputeAngles();
+  return node;
+}
+
+// Removes an ephemeral (generic/ad-hoc "fork"-style) node entirely once it's gone idle — DOM,
+// spoke line, and every tracking structure it was registered in — then re-spaces the ring so its
+// slot doesn't linger as a gap. Never called for a KNOWN_IDS node; see setIdle().
+function removeEphemeralNode(agentId){
+  const node = nodeEls[agentId];
+  if (node) node.remove();
+  const spoke = spokeEls[agentId];
+  if (spoke) spoke.remove();
+  delete nodeEls[agentId];
+  delete spokeEls[agentId];
+  delete counts[agentId];
+  delete BLURBS[agentId];
+  delete SPOKE_TARGET_OVERRIDE[agentId];
+  ephemeralIds.delete(agentId);
+  const idx = ALL_NODES.findIndex(a => a.id === agentId);
+  if (idx !== -1) ALL_NODES.splice(idx, 1);
+  recomputeAngles();
+}
+
+// Keeps every node's ring position evenly spaced. Needed because new nodes can appear at
+// runtime (see ensureNode) after the initial layout already assigned fixed angles based on the
+// node count at the time — without this, a late-arriving node (e.g. an "unknown" fallback) ends
+// up crowding/overlapping an existing one instead of the ring re-spacing itself.
+function recomputeAngles(){
+  // Everyone shares one ring now (Obsidian Vault, YOU and MCP Server included — they used to sit
+  // on a separate further-out ring, but that visual split wasn't wanted). Obsidian Vault is still
+  // special-cased: it's visually tethered to the two second-brain agents (see the two colored
+  // spokes drawn in layoutOrbit), so instead of taking whatever slot plain even-spacing would
+  // give it, it's placed at the angular midpoint BETWEEN second-brain-librarian and
+  // second-brain-trainer. Every other node is spaced evenly around the rest of the circle in
+  // ALL_NODES order (with the Vault's own slot skipped), so it simply slots into the gap between
+  // those two without disturbing anyone else's position.
+  const others = ALL_NODES.filter(a => a.id !== "__obsidian_vault__");
+  const otherAngle = {};
+  others.forEach((a, i) => {
+    const node = nodeEls[a.id];
+    const angle = (i / others.length) * 360;
+    otherAngle[a.id] = angle;
+    if (node) node.dataset.angle = angle;
+  });
+
+  const vaultNode = nodeEls["__obsidian_vault__"];
+  if (vaultNode){
+    let vaultAngle = 0;
+    const libAngle = otherAngle["second-brain-librarian"];
+    const trainAngle = otherAngle["second-brain-trainer"];
+    if (libAngle !== undefined && trainAngle !== undefined){
+      const diff = ((trainAngle - libAngle + 540) % 360) - 180; // shortest signed arc, [-180,180)
+      vaultAngle = (libAngle + diff / 2 + 360) % 360;
+    }
+    vaultNode.dataset.angle = vaultAngle;
+  }
+}
+recomputeAngles(); // set correct initial angles for both rings (buildNode's own guess assumed one ring)
+
+function fmtDuration(ms){
+  if (!isFinite(ms) || ms < 0) ms = 0;
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const pad = n => String(n).padStart(2, "0");
+  return h > 0 ? (h + ":" + pad(m) + ":" + pad(s)) : (m + ":" + pad(s));
+}
+function fmtNumber(n){
+  if (!isFinite(n)) return "—";
+  if (n >= 1000000) return (n/1000000).toFixed(2) + "M";
+  if (n >= 1000) return (n/1000).toFixed(1) + "k";
+  return String(n);
+}
+
+const BLURBS = {};
+ALL_NODES.forEach(a => BLURBS[a.id] = a.blurb);
+const PILLS = {};
+ALL_NODES.forEach(a => { if (a.special) PILLS[a.id] = a; });
+
+// Little particle-fountain effect for specific nodes while they're active — diamonds arcing up
+// out of the Obsidian Vault while it's syncing, sheets of paper out of planner-docs while it
+// writes. Purely decorative, keyed by node id so start/stop is idempotent (calling start twice
+// in a row doesn't double the spawn rate).
+const FOUNTAIN_MAP = { "__obsidian_vault__": "💎", "planner-docs": "📄" };
+const fountainTimers = {};
+function spawnFountainParticle(id, emoji){
+  const node = nodeEls[id];
+  if (!node) return;
+  const stageRect = stage.getBoundingClientRect();
+  const r = node.getBoundingClientRect();
+  const x = r.left + r.width/2 - stageRect.left;
+  const y = r.top + r.height/2 - stageRect.top;
+  const el = document.createElement("span");
+  el.className = "fountain-particle";
+  el.textContent = emoji;
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  stage.appendChild(el);
+  const dx = (Math.random() - 0.5) * 50;
+  const dur = 850 + Math.random() * 300;
+  const start = performance.now();
+  function step(t){
+    const p = Math.min(1, (t - start) / dur);
+    const arcY = -54 * Math.sin(p * Math.PI * 0.9) - 8;
+    el.style.transform = "translate(calc(-50% + " + (dx * p) + "px), calc(-50% + " + arcY + "px)) rotate(" + (p * 200) + "deg)";
+    el.style.opacity = p < 0.7 ? 1 : String(1 - (p - 0.7) / 0.3);
+    if (p < 1) requestAnimationFrame(step);
+    else el.remove();
+  }
+  requestAnimationFrame(step);
+}
+function startFountain(id){
+  const emoji = FOUNTAIN_MAP[id];
+  if (!emoji || fountainTimers[id]) return;
+  spawnFountainParticle(id, emoji);
+  fountainTimers[id] = setInterval(() => spawnFountainParticle(id, emoji), 420);
+}
+function stopFountain(id){
+  if (!fountainTimers[id]) return;
+  clearInterval(fountainTimers[id]);
+  delete fountainTimers[id];
+}
+
+function setSpecialState(id, on){
+  const node = nodeEls[id];
+  if (!node) return;
+  const spec = PILLS[id];
+  node.classList.toggle("active", on);
+  const pill = node.querySelector(".node-pill");
+  pill.textContent = on ? spec.pillOn : spec.pillOff;
+  pill.classList.toggle("on", on);
+  if (FOUNTAIN_MAP[id]) { on ? startFountain(id) : stopFountain(id); }
+  if (id === "__you__"){
+    hubCore.classList.toggle("alert", on);
+    approvalAlert.classList.toggle("show", on);
+    if (on) document.getElementById("approvalWho").textContent = "release-gate is waiting on you";
+  }
+}
+
+function refreshWatchers(){
+  SPECIAL_NODES.forEach(s => {
+    const watchList = Array.isArray(s.watches) ? s.watches : [s.watches];
+    const watchedActive = active.some(a => watchList.includes(a.agent));
+    setSpecialState(s.id, watchedActive);
+    // Obsidian Vault specifically: when BOTH watched agents (the two "brains") are active at
+    // once, it's genuinely being pulled from two directions — a stronger, oscillating tug
+    // instead of the normal single pulse (see the .contested CSS rules).
+    if (watchList.length > 1){
+      const node = nodeEls[s.id];
+      if (node){
+        const bothActive = watchList.every(w => active.some(a => a.agent === w));
+        node.classList.toggle("contested", bothActive);
+      }
+    }
+  });
+}
+
+// A single invocation running this long with no stop yet is unusually long — flip its LED to red
+// ("broken") rather than leaving it green forever, as an early warning. Raised from an original
+// 6 minutes (v1.54 and earlier) to 15: a real report showed genuinely normal `coder` background
+// work — heavy memory-file reads, a deliberate parallel sweep — regularly running 10-25+ minutes
+// even when nothing was actually wrong, which made "broken" fire on completely healthy work far
+// too eagerly. Still well under the hard auto-clear below, so this stays an early warning, not a
+// duplicate of that safety net.
+const LED_SOFT_WARN_MS = 15 * 60 * 1000;
+
+// Recomputes every node's status LED from the current `active` stack. Model (same heuristic
+// pulseLink() already uses: last-pushed = the one actually doing something right now, everything
+// still active below it in the stack delegated to it and is blocked waiting):
+//   grey   = idle, not in `active` at all
+//   green  = active AND it's the top of the stack (or the only one running) AND not overdue
+//   yellow = active but NOT the top of the stack — blocked, waiting on a delegated child
+//   red    = the top of the stack but running far longer than any normal task — likely
+//            stuck/erroring ("broken")
+// Best-effort like the rest of this console — two genuinely independent parallel top-level
+// dispatches get the same "one green, one yellow" treatment as a real parent/child delegation,
+// since nothing in the event stream distinguishes the two cases.
+//
+// One card per NAMED agent id, always — if `coder` (or any named agent) is dispatched more than
+// once concurrently (two real parallel `coder` calls, not `coder-prep`, which each get their own
+// id), every instance shares this one card, same limitation as generic "fork" clones sharing one
+// node (see SETUP-GUIDE.md). What used to be a real bug on top of that limitation: `.find()`
+// returns the FIRST matching entry, i.e. the OLDEST concurrent instance — so the card's own
+// overdue/broken check was silently keyed off however long ago the oldest of several concurrent
+// same-id calls started, even while a much fresher instance of the same agent was genuinely the
+// active one. Now uses the MOST RECENT matching entry instead — the freshest instance is the one
+// actually driving what the card shows. `getConcurrency()` below surfaces the rest (a "×N" badge)
+// instead of just silently hiding them.
+function getConcurrency(agentId){
+  return active.reduce((n, x) => x.agent === agentId ? n + 1 : n, 0);
+}
+function latestEntryFor(agentId){
+  for (let i = active.length - 1; i >= 0; i--){
+    if (active[i].agent === agentId) return active[i];
+  }
+  return null;
+}
+
+function refreshLeds(){
+  const now = Date.now();
+  const topAgent = active.length ? active[active.length - 1].agent : null;
+
+  ALL_NODES.forEach(a => {
+    if (a.id === "__you__") return; // driven independently by pollSession(), not this stack
+    const node = nodeEls[a.id];
+    if (!node) return;
+    const led = node.querySelector(".node-led");
+    if (!led) return;
+    let status = "idle";
+    if (a.special){
+      status = node.classList.contains("active") ? "active" : "idle";
+    } else {
+      const entry = latestEntryFor(a.id);
+      if (entry){
+        const isTop = a.id === topAgent;
+        const overdue = (now - entry.startTs) > LED_SOFT_WARN_MS;
+        status = isTop ? (overdue ? "broken" : "active") : "waiting";
+      }
+      const badge = node.querySelector(".node-concurrency");
+      if (badge){
+        const n = getConcurrency(a.id);
+        if (n > 1){ badge.textContent = "×" + n; badge.title = n + " concurrent " + a.id + " calls share this card"; badge.hidden = false; }
+        else { badge.hidden = true; }
+      }
+    }
+    led.classList.remove("led-idle", "led-active", "led-waiting", "led-broken");
+    led.classList.add("led-" + status);
+  });
+
+  // Chief of Staff's own LED: green if a subagent is actively delegated-to (the existing
+  // `active` stack) OR the main session itself is doing something directly (editing files,
+  // calling MCP, etc. without delegating) — that second case used to be missed entirely, so the
+  // hub could sit grey/idle while genuinely busy just because the work wasn't a subagent
+  // dispatch. `sessionActive` is kept in sync by pollSession() below.
+  const hubLed = document.getElementById("hubLed");
+  if (hubLed){
+    hubLed.classList.remove("led-idle", "led-active");
+    hubLed.classList.add((active.length > 0 || sessionActive) ? "led-active" : "led-idle");
+  }
+
+  updateLegendCounts(now, topAgent);
+}
+
+// Single source of truth for the four-state idle/working/broken/waiting breakdown across the
+// seven real agents — used by BOTH the "Agents" legend box and the footer line below. These two
+// used to be computed independently (the footer had its own much older, simpler "N active out of
+// 7" count that didn't know about broken/waiting at all), and could visibly disagree — a real
+// report showed the footer saying "1 working" for the exact same agent the legend called "1
+// broken" at the same moment. There is only one correct answer per agent per tick; this is it.
+function computeAgentCounts(now, topAgent){
+  now = now ?? Date.now();
+  topAgent = topAgent ?? (active.length ? active[active.length - 1].agent : null);
+  let idle = 0, working = 0, broken = 0, waiting = 0;
+
+  AGENTS.forEach(a => {
+    const entry = latestEntryFor(a.id); // freshest concurrent instance, see refreshLeds() above
+    if (!entry){ idle++; return; }
+    const isTop = a.id === topAgent;
+    const overdue = (now - entry.startTs) > LED_SOFT_WARN_MS;
+    if (isTop && !overdue) working++;
+    else if (isTop && overdue) broken++;
+    else waiting++;
+  });
+
+  return {idle, working, broken, waiting};
+}
+
+// New "Agents" stat box (replaces the old decorative termbar dots) — total count of the seven
+// real sub-agents plus a live idle/working/broken/waiting breakdown.
+function updateLegendCounts(now, topAgent){
+  const {idle, working, broken, waiting} = computeAgentCounts(now, topAgent);
+  const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setText("legendTotal", AGENTS.length);
+  setText("legendIdle", idle);
+  setText("legendWorking", working);
+  setText("legendBroken", broken);
+  setText("legendWaiting", waiting);
+}
+
+function setActive(agentId, desc, parentId){
+  const node = ensureNode(agentId, parentId);
+  node.classList.add("active");
+  const pill = node.querySelector(".node-pill");
+  if (pill) { pill.textContent = "working"; pill.classList.add("on"); }
+  const task = node.querySelector(".node-task");
+  if (task) task.textContent = desc || BLURBS[agentId] || "";
+  if (FOUNTAIN_MAP[agentId]) startFountain(agentId);
+}
+function setIdle(agentId){
+  // An ephemeral (generic "fork"-style) clone doesn't go idle in place like a real agent — once
+  // its work is done it's gone for good, so the ring only ever shows what's actually running.
+  if (ephemeralIds.has(agentId)){
+    removeEphemeralNode(agentId);
+    return;
+  }
+  const node = ensureNode(agentId);
+  node.classList.remove("active");
+  const pill = node.querySelector(".node-pill");
+  if (pill) { pill.textContent = "idle"; pill.classList.remove("on"); }
+  const task = node.querySelector(".node-task");
+  if (task) task.textContent = BLURBS[agentId] || "";
+  if (FOUNTAIN_MAP[agentId]) stopFountain(agentId);
+}
+function bumpCount(agentId){
+  counts[agentId] = (counts[agentId] || 0) + 1;
+  const node = ensureNode(agentId);
+  const c = node.querySelector(".node-count");
+  if (c) c.textContent = "·" + counts[agentId];
+}
+
+function logRow(evt, cardText){
+  const row = document.createElement("div");
+  row.className = "row";
+  const time = new Date(evt.ts || Date.now()).toLocaleTimeString();
+  const kind = evt.event === "start" ? "start" : "stop";
+  const arrow = evt.event === "start" ? "▶" : "■";
+  const indent = "  ".repeat(Math.max(0, evt._depth || 0));
+  row.innerHTML =
+    '<span class="ts">[' + time + ']</span> ' +
+    indent + '<span class="' + kind + '">' + arrow + ' ' + evt.agent +
+    (evt.event === "start" ? " started" : " finished") + '</span>' +
+    (cardText && typeof cardText === "string" ? ' — "' + cardText.replace(/</g,"&lt;") + '"' : "");
+  terminalEl.appendChild(row);
+  while (terminalEl.children.length > 300) terminalEl.removeChild(terminalEl.firstChild);
+  terminalEl.scrollTop = terminalEl.scrollHeight;
+}
+
+// Continuous "data flowing" pulses along an active agent's spoke — separate from the one-off
+// handoff pulse below. Keyed by agentId so start/stop can turn them on/off cleanly.
+const flowPulses = {};
+function startFlow(agentId){
+  if (flowPulses[agentId]) return;
+  const ns = "http://www.w3.org/2000/svg";
+  const dot = document.createElementNS(ns, "circle");
+  dot.setAttribute("r", "3.5");
+  dot.setAttribute("class", "pulse-dot");
+  const color = (nodeEls[agentId] && nodeEls[agentId].dataset.color) || "blue";
+  const colorVar = {cyan:"var(--cyan)",green:"var(--green)",amber:"var(--amber)",blue:"var(--blue)",
+    magenta:"var(--magenta)",purple:"var(--purple)",red:"var(--red)"}[color] || "var(--blue)";
+  dot.setAttribute("fill", colorVar);
+  dot.style.color = colorVar;
+  svg.appendChild(dot);
+  flowPulses[agentId] = {dot, t0: performance.now()};
+}
+function stopFlow(agentId){
+  const f = flowPulses[agentId];
+  if (!f) return;
+  f.dot.remove();
+  delete flowPulses[agentId];
+}
+
+// Short-lived handoff pulse from a "parent" agent node to a "child" one, used when one agent
+// invokes another while it's still active. Best-effort visualization, not a guaranteed call graph.
+function pulseLink(fromId, toId){
+  const a = nodeEls[fromId], b = nodeEls[toId];
+  if (!a || !b) return;
+  const stageRect = stage.getBoundingClientRect();
+  const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
+  const x1 = ar.left + ar.width/2 - stageRect.left, y1 = ar.top + ar.height/2 - stageRect.top;
+  const x2 = br.left + br.width/2 - stageRect.left, y2 = br.top + br.height/2 - stageRect.top;
+
+  const ns = "http://www.w3.org/2000/svg";
+  const path = document.createElementNS(ns, "path");
+  const midX = (x1+x2)/2, midY = (y1+y2)/2 - 50;
+  const d = `M${x1},${y1} Q${midX},${midY} ${x2},${y2}`;
+  path.setAttribute("d", d);
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", "rgba(75,216,255,0.55)");
+  path.setAttribute("stroke-width", "1.5");
+  svg.appendChild(path);
+
+  const dot = document.createElementNS(ns, "circle");
+  dot.setAttribute("r", "4");
+  dot.setAttribute("fill", "#4bd8ff");
+  dot.style.color = "#4bd8ff";
+  svg.appendChild(dot);
+
+  const dur = 900;
+  const start = performance.now();
+  function step(t){
+    const p = Math.min(1, (t - start) / dur);
+    const pt = path.getPointAtLength(p * path.getTotalLength());
+    dot.setAttribute("cx", pt.x);
+    dot.setAttribute("cy", pt.y);
+    if (p < 1) requestAnimationFrame(step);
+    else { path.remove(); dot.remove(); }
+  }
+  requestAnimationFrame(step);
+}
+
+// A little burst of particles + an expanding ring — used at the end of a regression missile's
+// flight (see launchMissile below). Purely decorative, self-cleans up after ~400ms.
+function spawnExplosion(x, y){
+  const ns = "http://www.w3.org/2000/svg";
+  const colors = ["#ff4d5e", "#ffb454", "#ffffff"];
+  const n = 8;
+  const particles = [];
+  for (let i = 0; i < n; i++){
+    const c = document.createElementNS(ns, "circle");
+    c.setAttribute("r", "2.5");
+    c.setAttribute("fill", colors[i % colors.length]);
+    c.setAttribute("cx", x); c.setAttribute("cy", y);
+    svg.appendChild(c);
+    particles.push({el: c, angle: (i / n) * Math.PI * 2, dist: 16 + Math.random() * 14});
+  }
+  const ring = document.createElementNS(ns, "circle");
+  ring.setAttribute("cx", x); ring.setAttribute("cy", y); ring.setAttribute("r", "4");
+  ring.setAttribute("fill", "none"); ring.setAttribute("stroke", "#ffb454"); ring.setAttribute("stroke-width", "2");
+  svg.appendChild(ring);
+
+  const dur = 420;
+  const start = performance.now();
+  function step(t){
+    const p = Math.min(1, (t - start) / dur);
+    particles.forEach(pt => {
+      const d = pt.dist * p;
+      pt.el.setAttribute("cx", x + Math.cos(pt.angle) * d);
+      pt.el.setAttribute("cy", y + Math.sin(pt.angle) * d);
+      pt.el.setAttribute("opacity", String(1 - p));
+    });
+    ring.setAttribute("r", String(4 + 40 * p));
+    ring.setAttribute("opacity", String(1 - p));
+    if (p < 1) requestAnimationFrame(step);
+    else { particles.forEach(pt => pt.el.remove()); ring.remove(); }
+  }
+  requestAnimationFrame(step);
+}
+
+// qa-regression → coder: a small missile fired for each regression found, arriving with a mini
+// explosion — a literal "incoming bug report" visual. Best-effort like every other pulse in this
+// file: purely a nice-to-have on top of the real start/stop tracking, never load-bearing.
+function launchMissile(fromId, toId){
+  const a = nodeEls[fromId], b = nodeEls[toId];
+  if (!a || !b) return;
+  const stageRect = stage.getBoundingClientRect();
+  const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
+  const x1 = ar.left + ar.width/2 - stageRect.left, y1 = ar.top + ar.height/2 - stageRect.top;
+  const x2 = br.left + br.width/2 - stageRect.left, y2 = br.top + br.height/2 - stageRect.top;
+
+  const ns = "http://www.w3.org/2000/svg";
+  const midX = (x1+x2)/2, midY = (y1+y2)/2 - 60 - Math.random() * 20;
+  const d = `M${x1},${y1} Q${midX},${midY} ${x2},${y2}`;
+  const path = document.createElementNS(ns, "path");
+  path.setAttribute("d", d);
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", "none");
+  svg.appendChild(path);
+
+  const missile = document.createElementNS(ns, "text");
+  missile.textContent = "🚀";
+  missile.setAttribute("font-size", "13");
+  missile.style.filter = "drop-shadow(0 0 4px rgba(255,77,94,.8))";
+  svg.appendChild(missile);
+
+  const totalLen = path.getTotalLength();
+  const dur = 700;
+  const start = performance.now();
+  function step(t){
+    const p = Math.min(1, (t - start) / dur);
+    const pt = path.getPointAtLength(p * totalLen);
+    const pt2 = path.getPointAtLength(Math.min(totalLen, p * totalLen + 2));
+    const angle = Math.atan2(pt2.y - pt.y, pt2.x - pt.x) * 180 / Math.PI + 90;
+    missile.setAttribute("x", pt.x - 6);
+    missile.setAttribute("y", pt.y + 5);
+    missile.setAttribute("transform", "rotate(" + angle + " " + pt.x + " " + pt.y + ")");
+    if (p < 1) requestAnimationFrame(step);
+    else { path.remove(); missile.remove(); spawnExplosion(x2, y2); }
+  }
+  requestAnimationFrame(step);
+}
+function triggerRegressionMissiles(fromId, toId, desc){
+  if (!nodeEls[fromId] || !nodeEls[toId]) return;
+  const match = /(\d+)\s*regression/i.exec(desc || "");
+  const n = match ? Math.min(parseInt(match[1], 10) || 1, 4) : 1;
+  for (let i = 0; i < n; i++){
+    setTimeout(() => launchMissile(fromId, toId), i * 260);
+  }
+}
+
+let active = [];
+let lastCount = 0;
+let sessionStartTs = null;      // fallback: earliest line in the persisted log (see pollWhoami)
+let serverStartedAt = null;     // preferred: this server PROCESS's own real start time
+let sessionActive = false;      // main Claude Code session working right now, per /session —
+                                 // see pollSession() and the hub-LED note in refreshLeds() below
+
+function updateFooterLine(){
+  // Same computeAgentCounts() the legend box uses (see its own comment above) — this line and
+  // the legend can never show two different numbers for the same moment again.
+  const {idle, working, broken, waiting} = computeAgentCounts();
+  const parts = [['working', working]];
+  if (broken > 0) parts.push(['broken', broken]);
+  if (waiting > 0) parts.push(['waiting', waiting]);
+  parts.push(['idle', idle]);
+  footerLine.innerHTML = '&gt; ' + parts.map(([label, n]) => '<span class="n">' + n + '</span> ' + label).join(', ') +
+    ' — every real change still goes through <span class="approval">you</span>.';
+}
+
+function processEntries(entries){
+  const isFirstLoad = lastCount === 0 && entries.length > 0;
+  const replayFrom = isFirstLoad ? Math.max(0, entries.length - 50) : lastCount;
+
+  if (sessionStartTs === null && entries.length > 0){
+    const firstTs = Date.parse(entries[0].ts);
+    if (!isNaN(firstTs)) sessionStartTs = firstTs;
+  }
+
+  for (let i = lastCount; i < entries.length; i++){
+    const evt = entries[i];
+    if (!evt || typeof evt.agent !== "string" || !evt.agent) continue;
+    if (typeof evt.desc !== "string") evt.desc = "";
+    const evtTs = Date.parse(evt.ts) || Date.now();
+
+    if (evt.event === "start"){
+      evt._depth = active.length;
+      const parentId = active.length > 0 ? active[active.length - 1].agent : null;
+      if (parentId && i >= replayFrom) pulseLink(parentId, evt.agent);
+      active.push({agent: evt.agent, desc: evt.desc, startTs: evtTs});
+      setActive(evt.agent, evt.desc, parentId);
+      bumpCount(evt.agent);
+      startFlow(evt.agent);
+    } else if (evt.event === "stop"){
+      const idx = active.findIndex(a => a.agent === evt.agent);
+      if (idx !== -1) active.splice(idx, 1);
+      evt._depth = active.length;
+      if (!active.some(a => a.agent === evt.agent)){
+        setIdle(evt.agent);
+        stopFlow(evt.agent);
+      }
+      if (evt.agent === "qa-regression" && i >= replayFrom && /regression/i.test(evt.desc)){
+        triggerRegressionMissiles("qa-regression", "coder", evt.desc);
+      }
+    }
+
+    if (i >= replayFrom) logRow(evt, evt.desc);
+  }
+  lastCount = entries.length;
+  updateFooterLine();
+  refreshWatchers();
+  refreshLeds();
+  updateMiniflow(Date.now());
+
+  if (isFirstLoad && entries.length > 50){
+    const note = document.createElement("div");
+    note.className = "row";
+    note.innerHTML = '<span class="ts">…</span> <span class="stop">(' + (entries.length - 50) + ' earlier events not shown)</span>';
+    terminalEl.insertBefore(note, terminalEl.firstChild);
+  }
+}
+
+// --- MCP Server node: its own small event stream (start/stop calls to mcp__unreal-mcp__call_tool),
+// polled from /mcp separately from the subagent /log stream — see agent-console-mcp.ps1 for how
+// these get written, one per PreToolUse/PostToolUse pair on that tool.
+let mcpActive = [];
+let mcpLastCount = 0;
+
+function mcpLogRow(evt){
+  const row = document.createElement("div");
+  row.className = "row";
+  const time = new Date(evt.ts || Date.now()).toLocaleTimeString();
+  const kind = evt.event === "start" ? "start" : "stop";
+  const arrow = evt.event === "start" ? "▶" : "■";
+  row.innerHTML =
+    '<span class="ts">[' + time + ']</span> ' +
+    '<span class="' + kind + '">' + arrow + ' mcp ' + (evt.event === "start" ? "called" : "returned") +
+    ' — ' + evt.caller + '</span>' +
+    (evt.label ? ' <span class="ts">(' + String(evt.label).replace(/</g,"&lt;") + ')</span>' : "");
+  terminalEl.appendChild(row);
+  while (terminalEl.children.length > 300) terminalEl.removeChild(terminalEl.firstChild);
+  terminalEl.scrollTop = terminalEl.scrollHeight;
+}
+
+function processMcpEntries(entries){
+  const replayFrom = (mcpLastCount === 0 && entries.length > 0) ? Math.max(0, entries.length - 20) : mcpLastCount;
+  for (let i = mcpLastCount; i < entries.length; i++){
+    const evt = entries[i];
+    if (!evt || typeof evt.caller !== "string" || !evt.caller) continue;
+    const label = typeof evt.label === "string" ? evt.label : "";
+
+    if (evt.event === "start"){
+      mcpActive.push({caller: evt.caller, label: label, startTs: Date.parse(evt.ts) || Date.now()});
+      setActive("__mcp_server__", label || ("called by " + evt.caller));
+      bumpCount("__mcp_server__");
+      if (evt.caller !== "chief-of-staff" && nodeEls[evt.caller] && i >= replayFrom) pulseLink(evt.caller, "__mcp_server__");
+    } else if (evt.event === "stop"){
+      const idx = mcpActive.map(x => x.caller).lastIndexOf(evt.caller);
+      if (idx !== -1) mcpActive.splice(idx, 1); else if (mcpActive.length) mcpActive.pop();
+      if (mcpActive.length === 0) setIdle("__mcp_server__");
+      else setActive("__mcp_server__", mcpActive[mcpActive.length - 1].label || ("called by " + mcpActive[mcpActive.length - 1].caller));
+    }
+
+    if (i >= replayFrom) mcpLogRow(evt);
+  }
+  mcpLastCount = entries.length;
+
+  const led = nodeEls["__mcp_server__"] && nodeEls["__mcp_server__"].querySelector(".node-led");
+  if (led){
+    led.classList.remove("led-idle", "led-active");
+    led.classList.add(mcpActive.length > 0 ? "led-active" : "led-idle");
+  }
+}
+
+async function pollMcp(){
+  try{
+    const res = await fetch("/mcp", {cache:"no-store"});
+    if (!res.ok) return;
+    processMcpEntries(await res.json());
+  } catch(e){ /* best-effort, doesn't affect the main connection indicator */ }
+}
+
+// --- YOU node: LED reflects whether the main Claude Code session is actively working right now
+// (green) or has yielded back to you and is waiting for your next message (grey) — independent
+// of the existing release-gate-driven "NEEDS YOU" alert border/pill, which is a distinct,
+// stronger signal for "a real decision is waiting on you" and is left untouched. Also drives the
+// Chief of Staff hub's own LED (via the shared `sessionActive` flag, see refreshLeds()) so it
+// doesn't stay grey while the main session is working directly instead of through a subagent.
+async function pollSession(){
+  try{
+    const res = await fetch("/session", {cache:"no-store"});
+    if (!res.ok) return;
+    const s = await res.json();
+    sessionActive = !!(s && s.active);
+    const led = document.querySelector('#node-__you__ .node-led');
+    if (led){
+      led.classList.remove("led-idle", "led-active");
+      led.classList.add(sessionActive ? "led-active" : "led-idle");
+    }
+    refreshLeds(); // recompute the hub LED immediately instead of waiting for the next tick
+  } catch(e){ /* best-effort */ }
+}
+
+// Positions every node around the hub (slowly rotating) and redraws the spokes + any active
+// flow-pulse dots so they keep tracking the moving nodes. Runs every animation frame — cheap,
+// there are at most a handful of nodes.
+// Nodes that aren't real agents get their spoke pointed at the agent that actually drives them,
+// instead of at the hub — Obsidian Vault isn't a bot the Chief of Staff talks to directly, it's
+// storage that second-brain-librarian writes into, so its line should visually say that.
+const SPOKE_TARGET_OVERRIDE = { "__obsidian_vault__": "second-brain-librarian" };
+
+function layoutOrbit(ts){
+  const rect = stage.getBoundingClientRect();
+  const cx = rect.width / 2, cy = rect.height / 2;
+  const halfDim = Math.min(rect.width, rect.height) / 2;
+  const radius = halfDim * 0.72;        // single shared ring — all ten nodes
+  const offsetDeg = (ts / 1000) * ROTATE_DEG_PER_SEC;
+  const positions = {};
+
+  ringGuide.setAttribute("cx", cx); ringGuide.setAttribute("cy", cy); ringGuide.setAttribute("r", radius);
+
+  ALL_NODES.forEach(a => {
+    const node = nodeEls[a.id];
+    if (!node) return;
+    const r = radius;
+    const baseAngle = parseFloat(node.dataset.angle) || 0;
+    const angleRad = (baseAngle + offsetDeg - 90) * Math.PI / 180;
+    const x = cx + r * Math.cos(angleRad);
+    const y = cy + r * Math.sin(angleRad);
+    node.style.transform = `translate(${x}px, ${y}px)`;
+    positions[a.id] = {x, y};
+  });
+
+  ALL_NODES.forEach(a => {
+    const node = nodeEls[a.id];
+    if (!node) return;
+    const pos = positions[a.id];
+    const spoke = spokeEls[a.id];
+    if (spoke){
+      const targetId = SPOKE_TARGET_OVERRIDE[a.id];
+      const target = (targetId && positions[targetId]) ? positions[targetId] : {x: cx, y: cy};
+      spoke.setAttribute("x1", pos.x);
+      spoke.setAttribute("y1", pos.y);
+      spoke.setAttribute("x2", target.x);
+      spoke.setAttribute("y2", target.y);
+      const watchList = a.special ? (Array.isArray(a.watches) ? a.watches : [a.watches]) : [];
+      const isActive = active.some(al => al.agent === a.id) ||
+        (a.special && active.some(al => watchList.includes(al.agent)));
+      spoke.classList.toggle("hot", isActive);
+      if (a.id === "__obsidian_vault__"){
+        // Recolored purple to visually match the librarian it points to — the vault's two
+        // spokes are color-coded per "brain" (this one librarian-purple, the trainer one below
+        // teal) so the tug-of-war between them reads as two distinct connections, not one.
+        spoke.setAttribute("stroke", isActive ? "rgba(185,139,255,0.65)" : "rgba(185,139,255,0.22)");
+      } else {
+        spoke.setAttribute("stroke", isActive ? "rgba(75,216,255,0.65)" : "rgba(75,139,255,0.22)");
+      }
+    }
+
+    const flow = flowPulses[a.id];
+    if (flow){
+      const dur = 1400;
+      const p = ((ts - flow.t0) % dur) / dur;
+      const px = pos.x + (cx - pos.x) * p;
+      const py = pos.y + (cy - pos.y) * p;
+      flow.dot.setAttribute("cx", px);
+      flow.dot.setAttribute("cy", py);
+    }
+  });
+
+  if (positions["__obsidian_vault__"] && positions["second-brain-trainer"]){
+    const vp = positions["__obsidian_vault__"], tp = positions["second-brain-trainer"];
+    vaultTrainerSpoke.setAttribute("x1", vp.x); vaultTrainerSpoke.setAttribute("y1", vp.y);
+    vaultTrainerSpoke.setAttribute("x2", tp.x); vaultTrainerSpoke.setAttribute("y2", tp.y);
+    const trainerActive = active.some(al => al.agent === "second-brain-trainer");
+    vaultTrainerSpoke.classList.toggle("hot", trainerActive);
+    vaultTrainerSpoke.setAttribute("stroke", trainerActive ? "rgba(45,212,191,0.65)" : "rgba(45,212,191,0.22)");
+  }
+
+  requestAnimationFrame(layoutOrbit);
+}
+
+// Safety net: if a card's matching "stop" event never arrives (e.g. a misattributed FIFO pop —
+// see the SETUP-GUIDE troubleshooting note on the "unknown" node), its comet/pulse animation
+// would otherwise spin forever even though the real work is long done. After a generous timeout
+// with no stop event, force the card idle so the console self-heals instead of staying stuck.
+// Raised from an original 20 minutes (v1.54 and earlier) to 45: a real report showed this firing
+// on genuinely still-running `coder` background work (confirmed active in Claude Code's own
+// session view at 25+ minutes and counting) — the console went from a misleading "broken" to an
+// even more misleading "everyone idle" while real work was still in progress. 45 minutes is still
+// a real safety net for a truly orphaned entry, just far less likely to fire on legitimate,
+// increasingly common long parallel background work.
+const STALE_ACTIVE_MS = 45 * 60 * 1000;
+
+// --- Miniflow rail: where the current task sits in the plan-first pipeline -----------------
+// Pure client-side derivation from the same `active` stack processEntries() already maintains —
+// no new server endpoint required for the rail itself (only the optional task-ID label uses one,
+// /active-task, polled separately below). "Current stage" = whichever pipeline agent is topmost
+// in `active` (i.e. the one refreshLeds() would call "working"). A regression — the rail reaching
+// stage N, then later seeing an EARLIER stage go active again — means the work was sent backward
+// (e.g. compliance-reviewer REJECTED and coder is active again): tracked as a reject against the
+// stage index it regressed FROM, shown as a small badge on that stage.
+const MINIFLOW_PIPELINE = [
+  {id:"intent-gate",         label:"intent-gate"},
+  {id:"coder",                label:"coder"},
+  {id:"intent-reviewer",      label:"intent-reviewer"},
+  {id:"compliance-reviewer",  label:"compliance-reviewer"},
+  {id:"planner-docs",         label:"planner-docs"},
+];
+let mfMaxIndex = -1;          // highest pipeline index reached so far this task cycle
+let mfCurrentIndex = -1;      // pipeline index currently active (topmost in `active`), or -1
+let mfStageStart = {};        // index -> startTs of the active() entry that put it there
+let mfRejects = {};           // index -> count of times work was sent back FROM this stage
+let mfTaskId = "";            // best-effort label from /active-task, empty if unavailable
+let mfEverShown = false;      // once true, the rail stays visible even between tasks
+
+function buildMiniflowRail(){
+  const rail = document.getElementById("miniflowRail");
+  if (!rail) return;
+  rail.innerHTML = "";
+  MINIFLOW_PIPELINE.forEach((stage, i) => {
+    if (i > 0){
+      const conn = document.createElement("div");
+      conn.className = "mf-conn";
+      conn.id = "mfConn" + i;
+      rail.appendChild(conn);
+    }
+    const node = document.createElement("div");
+    node.className = "mf-node";
+    node.id = "mfNode" + i;
+    node.innerHTML =
+      '<span class="mf-reject-badge" id="mfBadge' + i + '" hidden></span>' +
+      '<div class="mf-ring-wrap"><svg viewBox="0 0 40 40">' +
+        '<circle class="mf-ring-track" cx="20" cy="20" r="16.5"/>' +
+        '<circle class="mf-ring-fill" id="mfRing' + i + '" cx="20" cy="20" r="16.5" ' +
+          'stroke-dasharray="103.7 103.7" stroke-dashoffset="103.7"/>' +
+      '</svg><div class="mf-ring-center mf-pending" id="mfCenter' + i + '">○</div></div>' +
+      '<div class="mf-label" id="mfLabel' + i + '">' + stage.label + '</div>' +
+      '<div class="mf-timer" id="mfTimer' + i + '"></div>';
+    rail.appendChild(node);
+  });
+}
+
+function resetMiniflowCycle(){
+  mfMaxIndex = -1;
+  mfCurrentIndex = -1;
+  mfStageStart = {};
+  mfRejects = {};
+}
+
+// Called from processEntries() right after `active` is updated for a new event, and from
+// tickTimers() every second purely to refresh the live mm:ss labels — cheap either way, this
+// never touches the network.
+function updateMiniflow(now){
+  const rail = document.getElementById("miniflow");
+  const topAgent = active.length ? active[active.length - 1].agent : null;
+  const idx = topAgent !== null ? MINIFLOW_PIPELINE.findIndex(s => s.id === topAgent) : -1;
+
+  if (idx !== -1){
+    if (!mfEverShown){ mfEverShown = true; if (rail) rail.hidden = false; }
+    // A new cycle starts when a task reaches planner-docs (cycle complete) and intent-gate goes
+    // active again afterward — otherwise idx<mfMaxIndex mid-cycle is treated as a regression.
+    if (mfMaxIndex === MINIFLOW_PIPELINE.length - 1 && idx === 0){
+      resetMiniflowCycle();
+    }
+    if (mfMaxIndex !== -1 && idx < mfMaxIndex){
+      mfRejects[mfMaxIndex] = (mfRejects[mfMaxIndex] || 0) + 1;
+    }
+    mfCurrentIndex = idx;
+    mfMaxIndex = Math.max(mfMaxIndex, idx);
+    if (mfStageStart[idx] == null) mfStageStart[idx] = active[active.length - 1].startTs;
+  } else {
+    mfCurrentIndex = -1;
+  }
+
+  if (!mfEverShown) return; // nothing relevant has ever run — keep the rail hidden
+
+  const RING_CIRC = 103.7;
+  MINIFLOW_PIPELINE.forEach((stage, i) => {
+    const ring = document.getElementById("mfRing" + i);
+    const center = document.getElementById("mfCenter" + i);
+    const label = document.getElementById("mfLabel" + i);
+    const timer = document.getElementById("mfTimer" + i);
+    const badge = document.getElementById("mfBadge" + i);
+    if (!ring) return;
+
+    const done = i <= mfMaxIndex && i !== mfCurrentIndex;
+    const active_ = i === mfCurrentIndex;
+
+    ring.classList.remove("mf-done", "mf-active");
+    center.classList.remove("mf-done", "mf-active", "mf-pending");
+    label.classList.remove("mf-done", "mf-active");
+
+    if (active_){
+      ring.classList.add("mf-active");
+      ring.setAttribute("stroke-dashoffset", String(RING_CIRC * 0.28));
+      center.textContent = "◐"; center.classList.add("mf-active");
+      label.classList.add("mf-active");
+      const startedAt = mfStageStart[i];
+      timer.textContent = startedAt ? fmtDuration(now - startedAt) : "";
+    } else if (done){
+      ring.classList.add("mf-done");
+      ring.setAttribute("stroke-dashoffset", "0");
+      center.textContent = "✓"; center.classList.add("mf-done");
+      label.classList.add("mf-done");
+      timer.textContent = "";
+    } else {
+      ring.setAttribute("stroke-dashoffset", String(RING_CIRC));
+      center.textContent = "○"; center.classList.add("mf-pending");
+      timer.textContent = "";
+    }
+
+    if (badge){
+      const n = mfRejects[i] || 0;
+      if (n > 0){ badge.hidden = false; badge.textContent = "×" + n; }
+      else { badge.hidden = true; }
+    }
+
+    const conn = document.getElementById("mfConn" + i);
+    if (conn) conn.classList.toggle("mf-done", i <= mfMaxIndex && i !== mfCurrentIndex || i < mfCurrentIndex);
+  });
+
+  const taskEl = document.getElementById("miniflowTask");
+  if (taskEl) taskEl.textContent = mfTaskId ? ("— " + mfTaskId) : "";
+}
+
+// Best-effort: /active-task is a one-line text file (Claude/docs/.active-task) coder writes when
+// it flips a task to In corso, per rule 13a in ~/.claude/CLAUDE.md. Older server builds (before
+// this endpoint existed) 404 here — that's fine, the rail works fully without a task-ID label.
+async function pollActiveTask(){
+  try{
+    const res = await fetch("/active-task", {cache:"no-store"});
+    if (!res.ok) { mfTaskId = ""; return; }
+    const text = (await res.text() || "").trim();
+    mfTaskId = text;
+  } catch(e){ mfTaskId = ""; }
+}
+
+function tickTimers(){
+  const now = Date.now();
+  const sessionTimerEl = document.getElementById("sessionTimer");
+  const sessionSinceEl = document.getElementById("sessionSince");
+  // Prefer the server's own real process-start time (resets on every restart) over the oldest
+  // line in the persisted log (agent-console.jsonl deliberately survives restarts, so using it
+  // here made this stat show hours/days-old elapsed time right after a genuine fresh restart —
+  // see agent-console-server.ps1/.py's /whoami header comment). Falls back to the log-based value
+  // only against an older server build that doesn't serve "started_at" yet.
+  const effectiveStart = serverStartedAt !== null ? serverStartedAt : sessionStartTs;
+  if (effectiveStart !== null){
+    sessionTimerEl.textContent = fmtDuration(now - effectiveStart);
+    sessionSinceEl.textContent = "since " + new Date(effectiveStart).toLocaleTimeString();
+  }
+
+  for (let i = active.length - 1; i >= 0; i--){
+    const a = active[i];
+    if (now - a.startTs > STALE_ACTIVE_MS){
+      active.splice(i, 1);
+      // Only actually mark the card idle if no OTHER concurrent call to the same agent id is
+      // still within the safety-net window — otherwise a fresher, genuinely still-running sibling
+      // (see the "×N" concurrency badge, v1.54) would get wrongly flipped to idle just because an
+      // unrelated stale entry sharing its card finally timed out. Same guard the normal stop-event
+      // path already uses in processEntries().
+      if (!active.some(x => x.agent === a.agent)){
+        setIdle(a.agent);
+        stopFlow(a.agent);
+      }
+      const note = document.createElement("div");
+      note.className = "row";
+      note.innerHTML = '<span class="ts">[' + new Date(now).toLocaleTimeString() + ']</span> ' +
+        '<span class="stop">⚠ auto-cleared "' + a.agent + '" — no stop event arrived after 45 min ' +
+        '(likely a missing/misattributed SubagentStop; see SETUP-GUIDE troubleshooting — this does ' +
+        'NOT necessarily mean anything was broken)</span>';
+      terminalEl.appendChild(note);
+      terminalEl.scrollTop = terminalEl.scrollHeight;
+    }
+  }
+  updateMiniflow(now);
+  refreshLeds();
+}
+
+async function pollTokens(){
+  try{
+    const res = await fetch("/tokens", {cache:"no-store"});
+    if (!res.ok) throw new Error("bad status");
+    const t = await res.json();
+    if (!t || typeof t.total !== "number"){
+      document.getElementById("tokensTotal").textContent = "—";
+      document.getElementById("tokensBreakdown").textContent = "no data yet";
+      return;
+    }
+    document.getElementById("tokensTotal").textContent = fmtNumber(t.total);
+    document.getElementById("tokensBreakdown").textContent =
+      "in " + fmtNumber(t.input||0) + " · out " + fmtNumber(t.output||0) +
+      " · cache read " + fmtNumber(t.cache_read||0) + " · cache write " + fmtNumber(t.cache_creation||0);
+  } catch(e){
+    // Token tracking is a separate, optional endpoint — a failure here shouldn't flip the main
+    // connection indicator, which reflects /log only.
+  }
+}
+
+// Cheap, polled on its own slower cadence (the server's start time doesn't change until it's
+// actually restarted, no need to check every second like /log) — also doubles as the way this
+// page notices a mid-session restart (project switch, kit file update) and snaps "Session running
+// for" back to zero instead of silently keeping the old value forever.
+async function pollWhoami(){
+  try{
+    const res = await fetch("/whoami", {cache:"no-store"});
+    if (!res.ok) return;
+    const w = await res.json();
+    if (w && w.started_at){
+      const ts = Date.parse(w.started_at);
+      if (!isNaN(ts)) serverStartedAt = ts;
+    }
+    if (w && typeof w.project === "string" && w.project){
+      // Basename only (last path segment, either slash style) — the full path is more than
+      // this small label needs and would just get truncated anyway; the point is "so you can
+      // tell at a glance which project this console is reading," not a full path readout.
+      const name = w.project.replace(/[\\/]+$/, "").split(/[\\/]/).pop();
+      const el = document.getElementById("panelProject");
+      if (el && name) el.textContent = "📁 " + name;
+      const legendNameEl = document.getElementById("legendProjectName");
+      if (legendNameEl && name) legendNameEl.textContent = name;
+    }
+  } catch(e){ /* best-effort; falls back to the log-based sessionStartTs above */ }
+}
+
+async function poll(){
+  try{
+    const res = await fetch("/log", {cache:"no-store"});
+    if (!res.ok) throw new Error("bad status");
+    const entries = await res.json();
+    statusLine.innerHTML = '<span class="ok">✓</span> live feed connected — polling every second';
+    processEntries(entries);
+  } catch(e){
+    statusLine.innerHTML = '<span class="bad">✗</span> disconnected — is agent-console-server running?';
+  }
+  pollTokens();
+  pollMcp();
+  pollSession();
+  pollActiveTask();
+}
+
+buildMiniflowRail();
+requestAnimationFrame(layoutOrbit);
+poll();
+pollWhoami();
+setInterval(poll, 1000);
+setInterval(pollWhoami, 5000);
+setInterval(tickTimers, 1000);
+</script>
+</body>
+</html>

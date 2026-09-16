@@ -1,0 +1,14 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Byte-compiled / cache
+__pycache__/
+*.pyc
+
+# Zip packages built from this source — not checked in, built on demand
+*.zip
