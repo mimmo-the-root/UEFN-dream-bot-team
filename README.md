@@ -40,6 +40,16 @@ compliance-reviewer → planner-docs):
 - New shared skills: `game-ui-designer`, `genre` (roguelike/survival pattern evidence), and
   `fortnite-growth-lessons`.
 
+**Docs & Status** — roadmap progress ring, open-bug count, a "Recent roadmap tasks" list and a
+"Recent bug backlog" list, both sorted so what's still open surfaces first:
+
+![Docs & Status console](docs/images/agent-console-docs-status.png)
+
+**Flow of Flows** — the same real agent activity as an assembly-line pipeline, with a Control
+Tower token gauge and a live decision log:
+
+![Flow of Flows console](docs/images/agent-console-flow-of-flows.png)
+
 Full details for every version in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## What's in the box
