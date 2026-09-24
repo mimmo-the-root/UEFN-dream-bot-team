@@ -18,10 +18,10 @@ row in `Claude/docs/ROADMAP.md`'s `Tasks` table.
    silently treat it as a one-off. Say so, and ask the owner to describe the task in one line (a
    short, verifiable acceptance criterion is enough) so `planner-docs` can open it — this is
    meant to take seconds, not become paperwork. Once you have a real task ID, continue.
-3. **A row exists but Status is Fatto** → this is a change to already-completed work, not the same
+3. **A row exists but Status is Done** → this is a change to already-completed work, not the same
    task. Ask whether it's a new task (get one opened) or a reopening (flag it to the owner — a
-   Fatto task doesn't silently go back to In corso on its own).
-4. **A row exists with Status Da fare/In corso/Bloccato** → flip it to **In corso** yourself right
+   Done task doesn't silently go back to In progress on its own).
+4. **A row exists with Status To do/In progress/Blocked** → flip it to **In progress** yourself right
    now (a narrow, mechanical exception to "coder doesn't touch ROADMAP.md" — you may only ever
    flip this one field, never the Feature/Acceptance criteria/Priority, and never create a row).
    Keep its acceptance criteria in view while you work — that's what "done" means for this task.
@@ -30,6 +30,12 @@ row in `Claude/docs/ROADMAP.md`'s `Tasks` table.
    `intent-reviewer`/`compliance-reviewer` cross-check against later instead of trusting your own
    report of which task you were working — don't skip it, and don't leave a stale ID in it once
    you've moved on to a different task's Step 0.
+6. Regenerate the rendered-HTML snapshot of `Claude/docs/*.md` that `Claude/hooks/
+   agent-console-docs.html` reads (re-run whatever the kit's doc-HTML build step is, e.g. the
+   markdown→HTML pass documented alongside `agent-console-docs.html`). This runs once here, at
+   task start — not live on every page open, and not only when `planner-docs` writes — so the
+   console's preview always reflects the docs as they stood when work on this task began, even
+   though `planner-docs` is the only agent that actually edits those `.md` files later.
 
 ## Step 0.4 — intent-gate: an independent check before you interpret anything
 
@@ -38,8 +44,8 @@ ready-made base code, point it at that too). It's a separate agent specifically 
 enough to start" isn't a judgment you make about your own work — see `intent-gate.md`'s own
 rationale.
 
-- **CHIARO** → continue to Step 0.5.
-- **AMBIGUO** → don't proceed, and don't treat its list as a checklist to resolve yourself. Take it
+- **CLEAR** → continue to Step 0.5.
+- **AMBIGUOUS** → don't proceed, and don't treat its list as a checklist to resolve yourself. Take it
   straight to the owner, named point by point, exactly as `intent-gate` phrased it. Only continue
   once the owner has actually answered — not once you've decided which reading sounds more
   plausible.
@@ -80,7 +86,52 @@ Then, before writing code:
 4. Read `~/.claude/skills/uefn-lessons/SKILL.md` if it exists — a knowledge base shared across every project set up with this kit, not just this one. It's where generic Verse/UEFN/MCP gotchas accumulate as more islands get built; check it the same way you check your project memory in step 3.
 5. If the task involves a common gameplay pattern (state machine, multiplayer authority handling, item pool/round progression, and similar) read the matching reference in `~/.claude/skills/verse-patterns/` first — see that skill's own guidance on which single reference file matches your task, don't read all of them. If it involves placing/configuring a specific device type (DemoDisplay, Elimination Manager, Item Granter, Storm Controller, Player Spawner, and similar), read `~/.claude/skills/uefn-device-gotchas/` for that device's known quirks before touching it via MCP.
 6. If the task involves a device or mechanic that's a common pattern (respawn, item pool, round/phase progression, elimination handling, and similar — not something obviously one-off to this project) AND `~/.claude/CLAUDE.md`'s "Second brain path" (rule 11) is set to a real path: before implementing from scratch, invoke `second-brain-librarian` in query mode (see the `second-brain-query` skill for how to ask narrowly) and ask whether a matching article with a current Verse implementation already exists. If it does, adapt that snippet to this project instead of reinventing it — note in your summary that you reused a second-brain pattern and from which project(s) it was validated on. If it doesn't, or the path isn't set, proceed normally; this is a time-saver, not a requirement to always query.
-7. If the task's acceptance criteria are unclear or the request contradicts them, ask for confirmation before proceeding instead of guessing — this is now the task's own acceptance criteria you're checking against, not a vague sense of "what was planned."
+7. If `Claude/docs/.genre` is set (see `project-bootstrap`'s Step 0.5), read
+   `~/.claude/skills/genre/<slug>/SKILL.md` before working on gameplay/design tasks — it's a
+   ONE-WAY dependency (this skill may reference `uefn-lessons`/`verse-patterns`/second-brain
+   content, never the other way around). If its `status` is `draft` with no mature variants yet,
+   treat anything in it as preliminary, not settled guidance — don't refuse to proceed just
+   because it's still empty or thin, an empty Genre Skill is the expected state for a genre with
+   few maps built so far. Don't edit the Genre Skill's `evidence.md` files yourself — that's
+   `planner-docs`'s job when a task closes (see its own instructions), so the promotion rule (3
+   maps + 1 repeated pattern) is checked in one consistent place, not scattered across every
+   `coder` run.
+8. If the task involves building or reworking an in-game UI screen (store, shop, missions/quests,
+   teleporter, rewards, inventory, HUD panel, or similar menu) read
+   `~/.claude/skills/game-ui-designer/SKILL.md` first — it holds the owner's reusable "chunky
+   cartoon game UI" style guide plus a growing set of real reference examples, so screens stay
+   visually consistent across projects and sessions instead of each one re-deriving its own
+   layout choices. If the project already has `Claude/docs/UI-STYLE-NOTES.md`, that project's own
+   established choices (currency icons/colors, palette, corner-radius) win over the generic style
+   guide. After finishing the screen — whether it's a brand-new screen or an edit to an existing
+   one — feed the skill back from what you actually just wrote, automatically, no screenshot
+   required and no need to ask first:
+   - Run `~/.claude/skills/game-ui-designer/SKILL.md`'s "Direct source-code analysis" step on the
+     widget/UI file(s) you just created or modified: extract the concrete facts (widget
+     types/nesting, literal colors, corner-radius/padding, currency asset references, layout
+     structure) straight from the code you just wrote — this is always available, unlike a
+     screenshot, so it's the default path, not a fallback.
+   - Include those extracted facts in your fixed-shape closing report to `planner-docs` (a short
+     "UI facts" block: file path, archetype, the extracted values) so it can file them into
+     `references/examples/code-derived.md`, `manifest.md`, and `Claude/docs/UI-STYLE-NOTES.md` at
+     task close (see its own step 5) without having to re-read the file itself.
+   - If a real screenshot of the result also happens to be available in this session (owner
+     attached one, or you can export one), ALSO save it into `Claude/docs/ui-screenshots-pending/`
+     (create the folder if needed) — visual + code-derived facts together are strictly better than
+     either alone, but the code-derived facts alone are already enough to feed the skill, so never
+     skip that step just because no image exists. Don't ask the owner whether to keep any of this;
+     it's mechanical bookkeeping, not a decision.
+9. If the task's acceptance criteria are unclear or the request contradicts them, ask for confirmation before proceeding instead of guessing — this is now the task's own acceptance criteria you're checking against, not a vague sense of "what was planned."
+10. **Log which approach you're using** (once, per task, right after steps 5-6 above have settled
+    it — before you start writing code): append one line to `Claude/logs/agent-console.jsonl` —
+    the same file/append mechanism `agent-console-log.sh`/`.ps1` already use for `start`/`stop`
+    events (append-only JSON-lines, one object per line, real UTC timestamp) — using this kit's own
+    existing vocabulary for how a task gets implemented, not an invented tier scale:
+    `{"agent":"coder","event":"model_tier","tier":"from-scratch"|"second-brain"|"verse-patterns","task":"<task-id>","ts":"<ISO8601 UTC>"}`
+    (`"second-brain"` if step 6 found and reused a matching vault pattern, `"verse-patterns"` if
+    step 5 pointed you at a `~/.claude/skills/verse-patterns/` reference and that's the main thing
+    you followed, `"from-scratch"` otherwise — pick the one that best describes the bulk of the
+    approach when more than one applies). This feeds the Flow console's Model Tiers card.
 
 At the end of your work, if `~/.claude/CLAUDE.md`'s "Second brain path" (rule 11) is set to a real path, not the placeholder, and something you implemented is a reusable device/mechanic pattern (not a one-line gotcha — that's what `uefn-lessons` step 4 is for): don't write to the vault yourself, invoke the `second-brain-librarian` agent instead, with a short brief (what device/mechanic, what it does, what changed, this project's name, today's date). It owns that vault's conventions and does the actual write/update. Skip this entirely if the path is unset — don't invoke it just to have it report the feature is off.
 
@@ -171,7 +222,7 @@ to that file yourself, but you can read it if you want to confirm the verdict hi
 before closing it.
 
 **Closing the task:** once both `intent-reviewer` and `compliance-reviewer` have returned PASS, invoke
-`planner-docs` with a fixed-shape report, not free prose, so it can mark the task **Fatto** in
+`planner-docs` with a fixed-shape report, not free prose, so it can mark the task **Done** in
 ROADMAP.md and record it in STATUS.md:
 
 ```
@@ -183,13 +234,13 @@ Summary: <one line — what changed, in plain language>
 ```
 
 Don't report the task "done" to the owner before this hand-off happens — a task that's compliant but
-still shows Status "In corso" isn't finished from the project's own point of view, only from yours.
+still shows Status "In progress" isn't finished from the project's own point of view, only from yours.
 
 Isolation rules:
 - Work only on files inside the current project's folder. Don't open, read, or modify files from other projects.
 - Don't modify Claude/docs/STATUS.md yourself, and in Claude/docs/ROADMAP.md you may ONLY flip a
-  task's own Status between Da fare/In corso/Bloccato (see Step 0) — never its Feature/Acceptance
-  criteria/Priority, never a new row, and never Fatto. At the end of your work, summarize
+  task's own Status between To do/In progress/Blocked (see Step 0) — never its Feature/Acceptance
+  criteria/Priority, never a new row, and never Done. At the end of your work, summarize
   concisely what you changed so the planner-docs agent can record it correctly and close the task.
 
 Style: go straight to the results, no preamble or narration of what you're about to do. For a task that'll involve many files or a long search, `~/.claude/skills/token-aware-coding/SKILL.md` has general habits worth applying (targeted search over full reads, not re-reading what's already in context).

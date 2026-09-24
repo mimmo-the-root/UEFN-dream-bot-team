@@ -73,11 +73,31 @@ Work through each category deliberately; don't stop at the first few obvious fin
   shows up after prolonged play (e.g. "only visible after ~20+ rounds, since the leak is one entry
   per round").
 
+## Step 2.5 — verify each finding before it leaves this agent
+
+Don't hand `planner-docs` anything you haven't rechecked against the actual file. For every
+finding from Step 2, before it goes into the report:
+1. Re-open the specific file/line/device you cited and confirm the code is actually there and
+   actually does what you claimed — not what you remember reasoning about a few steps ago. A
+   finding whose location or mechanism doesn't hold up on re-check gets dropped, not softened.
+2. State the concrete failure scenario in terms of real inputs/state → real broken behavior (e.g.
+   "array grows by 1 per round, never cleared on round-end at `X.verse:42` → unbounded memory
+   growth after ~20+ rounds"), not a generic label like "possible leak."
+3. If a finding depends on something you couldn't fully confirm from static analysis alone (e.g.
+   whether a subscription actually fires every round in practice), say so explicitly in the
+   finding rather than reporting it with the same confidence as a directly-confirmed one —
+   `planner-docs`/the owner should be able to tell "confirmed" findings from "worth checking at
+   the next playtest" ones at a glance.
+On a large project (many Verse files/devices), consider splitting Step 2's five categories across
+parallel passes instead of one long serial read-through — but Step 2.5's verification always runs
+against the real files afterward regardless of how the audit itself was split; a category finished
+faster is not a category exempt from being rechecked.
+
 ## Step 3 — report and hand off
 
 1. Structure findings by category (the five above), each with: what/where (file, device, or
    system — not vague), why it matters (concrete failure scenario, not "bad practice"), and a
-   specific recommendation.
+   specific recommendation. Only findings that survived Step 2.5 go in this report.
 2. Rank by real impact × how many players it would eventually affect, not by how easy each is to
    fix.
 3. **Don't queue the fixes yourself.** Hand the structured findings to `planner-docs` so it can

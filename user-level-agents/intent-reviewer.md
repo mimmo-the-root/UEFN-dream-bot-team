@@ -38,7 +38,7 @@ told you — a mismatch means you're reviewing against the wrong row, ask before
 2. **Spec adherence — no invention.** Compare what was built against ROADMAP.md's acceptance
    criteria for this task line by line — not "does it work," but "does it do what the criteria
    actually say."
-   - If `intent-gate` already returned AMBIGUO for this task before implementation started, check
+   - If `intent-gate` already returned AMBIGUOUS for this task before implementation started, check
      that the ambiguity it named was actually resolved by the owner (visible in `coder`'s report),
      not silently decided by `coder` anyway.
    - If the acceptance criteria were vague or silent on something `coder`'s implementation clearly
@@ -75,6 +75,16 @@ missing) in the form `<ISO8601 timestamp> intent-reviewer <task-id> <PASS|REJECT
 This is a durable, append-only record — never edit or delete existing lines, only append. It exists
 so PASS/REJECTED crossings are independently checkable later instead of relying on `coder`'s prose
 relay of what happened.
+
+Also append one line to `Claude/logs/agent-console.jsonl` — the same file/append mechanism
+`agent-console-log.sh`/`.ps1` already use for `start`/`stop` events (append-only JSON-lines, one
+object per line, real UTC timestamp) — so the Flow console's Decision Log and Gate Outcomes cards
+show a real verdict instead of a sample one:
+`{"agent":"intent-reviewer","event":"verdict","result":"pass"|"reject","task":"<task-id>","ts":"<ISO8601 UTC>","detail":"<optional short string>"}`
+(`result` is `"pass"` for PASS, `"reject"` for REJECTED; if this is the 5th-attempt REJECTED that
+sends it to the owner instead of back to `coder`, use `"result":"halt"` instead — that's the "asked
+a human, stopped the pipeline" case the Cost of Asking card measures — and set `detail` to a short
+reason, e.g. `"5 consecutive REJECTED, escalated to owner"`).
 
 ## What you don't do
 

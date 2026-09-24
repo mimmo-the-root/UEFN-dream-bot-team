@@ -15,8 +15,8 @@ you browse yourself in Obsidian, and that the kit's agents read and write to whe
 1. Create (or reuse) an Obsidian vault folder anywhere on your machine — it does NOT need to be
    inside any UEFN project.
 2. Inside it, create exactly these three folders and nothing else yet: `raw/`, `wiki/`,
-   `output/`. Create `wiki/indice.md` too, titled "Indice delle wiki" with a one-line note:
-   "Elenco delle wiki nell'ordine in cui sono state create."
+   `output/`. Create `wiki/index.md` too, titled "Wiki index" with a one-line note:
+   "List of wikis in the order they were created."
 3. Copy `CLAUDE.md` from this folder into the vault's root.
    - **Windows gotcha, verified on a real setup**: if File Explorer has file extensions hidden
      (the default), renaming or saving this file through Explorer can silently produce
@@ -63,16 +63,16 @@ with the `compile` command, and it'll process `raw/` per this file's own workflo
 agent also answers queries against the KB and runs `audit`/`lint` when asked.
 
 It also actively looks for connections between articles you didn't ask it to find — during
-`compile`, a query, or `audit` — and keeps a running `wiki/meta/frontiere-conoscenza.md` of open
+`compile`, a query, or `audit` — and keeps a running `wiki/meta/knowledge-frontiers.md` of open
 questions and promising-but-unformalized patterns. For a deliberate, whole-KB synthesis pass
-(new higher-order articles combining existing ones), ask it to `evolve` or `sintetizza [topic]`
+(new higher-order articles combining existing ones), ask it to `evolve` or `synthesize [topic]`
 — it drafts proposals for your review rather than applying anything on its own. See the vault's
 own `CLAUDE.md`, "Emergent synthesis and evolution," for the full mechanics.
 
 ## Automate the weekly UEFN release-notes sync (optional)
 
 `second-brain-librarian` can also keep a running record of official UEFN release notes in
-`wiki/note-di-rilascio-uefn/` — one article per release, backfilling everything the first time
+`wiki/uefn-release-notes/` — one article per release, backfilling everything the first time
 it runs, then adding only newly published entries on every later run (it diffs against what's
 already indexed, never re-creates or duplicates an entry). See its "UEFN release-notes sync"
 workflow (mode 3) in `second-brain-librarian.md` for exactly how.

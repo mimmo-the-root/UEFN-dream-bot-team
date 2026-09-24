@@ -1,0 +1,22 @@
+{
+  "_source_api": "GET https://api.fortnite.com/ecosystem/v1/genres (real call, verified 2026-09-18)",
+  "_source_docs": "https://dev.epicgames.com/documentation/fortnite/how-discover-works-in-fortnite (fetched 2026-09-22) — confirms 13 total genre/play-style rows and their display names",
+  "_last_verified": "2026-09-22",
+  "_maintenance": "Not re-checked every session. Re-check only if a creator reports a missing genre, or periodically (every few weeks).",
+  "genres": [
+    { "slug": "survival",            "displayName": "Survival",              "slugSource": "api" },
+    { "slug": "strategy",            "displayName": "Strategy",              "slugSource": "api" },
+    { "slug": "sports-racing",       "displayName": "Sports & Racing",       "slugSource": "api" },
+    { "slug": "simulation-tycoon",   "displayName": "Simulation & Tycoon",   "slugSource": "api" },
+    { "slug": "shooter",             "displayName": "Shooter",               "slugSource": "api" },
+    { "slug": "roleplaying-social",  "displayName": "Roleplaying & Social",  "slugSource": "api" },
+    { "slug": "roguelike",           "displayName": "Roguelike",             "slugSource": "api" },
+    { "slug": "party-mini-games",    "displayName": "Party & Mini Games",    "slugSource": "api" },
+    { "slug": "music-rhythm",        "displayName": "Music & Rhythm",        "slugSource": "api" },
+    { "slug": "horror",              "displayName": "Horror",                "slugSource": "api" },
+    { "slug": "adventure-rpg",       "displayName": "Adventure & RPG",       "slugSource": "docs-inferred" },
+    { "slug": "battle-royale",       "displayName": "Battle Royale",         "slugSource": "docs-inferred" },
+    { "slug": "deathrun-platformer", "displayName": "Deathrun & Platformer", "slugSource": "docs-inferred" }
+  ],
+  "_slug_source_note": "10 entries have `slugSource: \"api\"` — the exact slug string was confirmed by a real GET /genres response. The 3 marked `slugSource: \"docs-inferred\"` complete the list from Epic's own documentation (display name confirmed there), but their `slug` value was inferred by following the same pattern as the 10 confirmed ones (lowercase, '&' removed, spaces to hyphens) — NOT itself confirmed via a real API response. Before relying on exact string matching against `genreSlug`/`genre` fields returned by the API (e.g. in /islands/{code}/rankings) for these 3, verify with a real capture rather than trusting the inferred slug blindly."
+}

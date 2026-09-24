@@ -43,35 +43,35 @@ The KB is organized into three top-level folders with clean, non-overlapping res
 
 ## `wiki/` folder structure
 
-### Main file: `wiki/indice.md`
+### Main file: `wiki/index.md`
 The knowledge base's main entry point. Must contain:
 1. A list of every thematic wiki (subfolder of `wiki/`).
 2. A one-line description of each wiki.
-3. A link to each thematic index, e.g. `[[meccaniche/indice_wiki|Mechanics]]`.
+3. A link to each thematic index, e.g. `[[mechanics/wiki-index|Mechanics]]`.
 Update it every time you create a new thematic wiki or substantially change one's scope.
 
 ### Thematic wikis: `wiki/[wiki-name]/`
 - Each subfolder of `wiki/` is a self-contained thematic wiki on one subject (e.g.
-  `wiki/meccaniche/`, `wiki/device/`, `wiki/pattern-verse/`, `wiki/retention/`).
-- Folder naming: lowercase, kebab-case, in Italian (matching the user's existing folders), no
-  spaces (e.g. `wiki/meccaniche-gioco/`, not `wiki/Meccaniche Gioco/`).
+  `wiki/mechanics/`, `wiki/device/`, `wiki/verse-patterns/`, `wiki/retention/`).
+- Folder naming: lowercase, kebab-case, in English, no
+  spaces (e.g. `wiki/game-mechanics/`, not `wiki/Game Mechanics/`).
 - A thematic wiki needs enough material to justify its own folder. When in doubt, use an
   existing wiki instead of creating a new one.
 - Optionally, a wiki with enough articles can also keep a `moc-[wiki-name].md` ("Map of
-  Content") alongside its `indice_wiki.md` — a more curated, narrative view organizing articles
+  Content") alongside its `wiki-index.md` — a more curated, narrative view organizing articles
   by relationship/theme rather than the index's flat alphabetical-ish list. This is a nice-to-
   have for a wiki that's grown large and tangled, not a requirement for every wiki from day one.
 
 Suggested starting wikis for this KB (create on demand, as material actually arrives — don't
-pre-create empty ones): `meccaniche/` (gameplay mechanics/systems, e.g. "storm progression,"
+pre-create empty ones): `mechanics/` (gameplay mechanics/systems, e.g. "storm progression,"
 "item pool rotation"), `device/` (per-device-type patterns and gotchas, e.g. "Elimination
-Manager," "Item Granter"), `pattern-verse/` (reusable Verse code patterns not tied to one
+Manager," "Item Granter"), `verse-patterns/` (reusable Verse code patterns not tied to one
 device), `retention/` (what actually moved playtime/Discover signals across projects, feeding
-`project-bootstrap`'s A4 proposals with real outcomes instead of guesses), `note-di-rilascio-uefn/`
+`project-bootstrap`'s A4 proposals with real outcomes instead of guesses), `uefn-release-notes/`
 (one article per official UEFN release, kept current by `second-brain-librarian`'s weekly
 release-notes sync — see `second-brain-template/README.md` — rather than compiled from `raw/`).
 
-### File `wiki/[wiki-name]/indice_wiki.md`
+### File `wiki/[wiki-name]/wiki-index.md`
 The thematic wiki's index. Must contain:
 1. A 2-3 line description of the wiki.
 2. A list of every article with title and one-line description.
@@ -85,7 +85,7 @@ Update it every time you create, substantially modify, or rename an article in t
   several concepts get their own dedicated `type: synthesis` article instead (see below) rather
   than being folded into one of the concepts they combine.
 - Article naming: lowercase, kebab-case, descriptive, and ideally readable as a graph node on
-  its own (e.g. `elimination-manager.md`, `progressione-storm.md`, not a full sentence).
+  its own (e.g. `elimination-manager.md`, `storm-progression.md`, not a full sentence).
 
 ## Editorial conventions for articles
 
@@ -94,35 +94,35 @@ Every article must contain, in this order:
 1. YAML frontmatter (see below).
 2. An H1 title with the concept's name.
 3. A 2-4 line introduction.
-4. A `## Punti chiave` section with 3-7 high-density bullet points.
+4. A `## Key points` section with 3-7 high-density bullet points.
 5. A body organized into `##` sections.
-6. A `## Connessioni e potenziali` section (see "Emergent synthesis and evolution" below) —
+6. A `## Connections and potential` section (see "Emergent synthesis and evolution" below) —
    skip this one only for a short stub article that doesn't have enough content yet to relate to
    anything.
-7. A closing `## Articoli correlati` section with `[[wiki links]]`.
-8. A closing `## Fonti` section with traceable references to files in `raw/` (or "conversazione,
+7. A closing `## Related articles` section with `[[wiki links]]`.
+8. A closing `## Sources` section with traceable references to files in `raw/` (or "conversation,
    [date]" when ingested directly from chat rather than a file).
 
 **Device/mechanic articles get one more mandatory section** (see "Tracking the latest device/
-mechanic version" below): `## Implementazione Verse (ultima versione)`.
+mechanic version" below): `## Verse implementation (latest version)`.
 
 **`type: synthesis` articles** (see "Emergent synthesis and evolution" below) replace the plain
-body-sections structure with four specific sections instead: `## Idea centrale (una frase)`,
-`## Componenti combinati`, `## Perché è più potente della somma delle parti`,
-`## Implicazioni pratiche per le prossime isole` — still followed by "Connessioni e potenziali,"
-"Articoli correlati," and "Fonti" as usual. Under `## Componenti combinati`, also list the
-component concepts as a short inline list (e.g. `componenti: [[elimination-manager]],
-[[progressione-storm]], [[retention-signal-x]]`) so the combination is scannable/greppable at a
+body-sections structure with four specific sections instead: `## Core idea (one sentence)`,
+`## Combined components`, `## Why it's more powerful than the sum of its parts`,
+`## Practical implications for upcoming islands` — still followed by "Connections and potential,"
+"Related articles," and "Sources" as usual. Under `## Combined components`, also list the
+component concepts as a short inline list (e.g. `components: [[elimination-manager]],
+[[storm-progression]], [[retention-signal-x]]`) so the combination is scannable/greppable at a
 glance, not just described in prose.
 
-### The `## Connessioni e potenziali` section
+### The `## Connections and potential` section
 Use this four-line template (omit a line if it's genuinely empty, don't pad it):
 ```markdown
-## Connessioni e potenziali
-- Collegamenti forti già formalizzati: [[...]]
-- Collegamenti latenti / da esplorare: ...
-- Combinazioni promettenti (candidate a `type: synthesis`): ...
-- Domande aperte generate da questo articolo: ...
+## Connections and potential
+- Strong connections already formalized: [[...]]
+- Latent connections / to explore: ...
+- Promising combinations (candidates for `type: synthesis`): ...
+- Open questions raised by this article: ...
 ```
 This is what turns "notice a connection" from a vague instruction into something you actually do
 consistently — it's also what makes `audit`'s "weak connections" and "under-synthesized
@@ -132,24 +132,24 @@ candidate clusters.
 ### Frontmatter
 ```yaml
 ---
-tags: [device, elimination-manager, meccaniche-round]
+tags: [device, elimination-manager, round-mechanics]
 aliases: [Elimination Manager, EliminationMgr]
 status: evergreen  # evergreen | growing | stub | synthesis
 type: device        # device | mechanic | pattern | synthesis | meta
-data_creazione: 2026-04-29
-data_aggiornamento: 2026-04-29
-fonti:
-  - raw/analisi-progetto-isola7_COMPILED.md
-  - conversazione: 2026-04-29
-visto_su: [isola-7, isola-12]
-versione_implementazione: 3
+date_created: 2026-04-29
+date_updated: 2026-04-29
+sources:
+  - raw/island7-project-analysis_COMPILED.md
+  - conversation: 2026-04-29
+seen_on: [island-7, island-12]
+implementation_version: 3
 ---
 ```
-- `aliases`, `status`, `type`, `visto_su`, `versione_implementazione` are optional fields, add
+- `aliases`, `status`, `type`, `seen_on`, `implementation_version` are optional fields, add
   them when they're genuinely useful for a given article — don't force every field onto a stub
-  or a `meta` article where it doesn't apply (e.g. `visto_su`/`versione_implementazione` only
-  make sense on a device/mechanic article that has an "Implementazione Verse" section; keep
-  `versione_implementazione` in sync with that section's own "Versione" field, they describe the
+  or a `meta` article where it doesn't apply (e.g. `seen_on`/`implementation_version` only
+  make sense on a device/mechanic article that has a "Verse implementation" section; keep
+  `implementation_version` in sync with that section's own "Version" field, they describe the
   same number from two places — frontmatter for quick filtering/queries, the body section for
   the actual detail).
 - `status` is a rough maturity signal for the owner scanning the vault, not a strict workflow
@@ -185,15 +185,15 @@ reused by copying the article's current snippet and adjusting it — instead of 
 scratch on every new island.**
 
 For any article about a specific device (e.g. `elimination-manager.md`) or a reusable Verse
-pattern/mechanic (e.g. `progressione-storm.md`), maintain a dedicated section:
+pattern/mechanic (e.g. `storm-progression.md`), maintain a dedicated section:
 
 ```markdown
-## Implementazione Verse (ultima versione)
-- **Versione**: v3 (incrementa a ogni modifica sostanziale — tieni allineato il campo
-  `versione_implementazione` nel frontmatter)
-- **Ultimo aggiornamento**: 2026-04-29
-- **Visto/testato su**: [[isola-progetti/isola-7]], [[isola-progetti/isola-12]]
-- **Note di migrazione dalla versione precedente**: (cosa è cambiato e perché, se rilevante)
+## Verse implementation (latest version)
+- **Version**: v3 (increment on every substantial change — keep the
+  `implementation_version` field in the frontmatter aligned)
+- **Last updated**: 2026-04-29
+- **Seen/tested on**: [[island-projects/island-7]], [[island-projects/island-12]]
+- **Migration notes from the previous version**: (what changed and why, if relevant)
 
 ​```verse
 // the actual, current, working snippet — update this block in place
@@ -205,12 +205,12 @@ Rules for this section:
 - **Update in place, never duplicate.** When a new project surfaces an improved or corrected
   version of a device/mechanic, overwrite the code block and bump the version/date — don't leave
   the old snippet in the article "for reference." If the change is worth explaining, add one line
-  to "Note di migrazione," not a second code block. History lives in the user's own project
+  to "Migration notes," not a second code block. History lives in the user's own project
   files (each project's `Claude/docs/`, per the UEFN kit's own header-documentation convention),
   not duplicated here.
 - **One article per device/mechanic, not per project.** If the same `Item Granter` pattern shows
   up on three islands with minor variations, that's one article (`item-granter.md`) whose
-  snippet reflects the best/latest version, with "Visto/testato su" listing every project it
+  snippet reflects the best/latest version, with "Seen/tested on" listing every project it
   came from or was validated on — not three separate articles.
 - **When asked to "update my devices," this is the operation**: find the matching article (or
   create it if genuinely new), replace the Verse snippet with the version just learned, bump the
@@ -236,10 +236,10 @@ notes the owner may have missed, don't wait to be asked.
   the immediate task.
 - If you find a genuinely strong combination (e.g. "Elimination Manager + storm progression +
   a specific retention signal" turning out to reinforce each other), either propose a new
-  `type: synthesis` article or add/update a `## Sintesi emergente` note inside an existing
+  `type: synthesis` article or add/update an `## Emergent synthesis` note inside an existing
   article — don't let a real insight evaporate at the end of a session just because it wasn't
   the thing you were asked to do.
-- Keep a living file, `wiki/meta/frontiere-conoscenza.md` ("knowledge frontiers"), created the
+- Keep a living file, `wiki/meta/knowledge-frontiers.md` ("knowledge frontiers"), created the
   first time you have something to put in it (don't pre-create it empty): open questions,
   untested hypotheses, patterns that show up in 2+ projects but don't have their own article
   yet, and promising combinations you've noticed but haven't formalized into a synthesis
@@ -255,7 +255,7 @@ Not everything you notice should be acted on the same way:
   articles, a new thematic wiki, a reorganization. Same rule as everywhere else in this KB — say
   what you'd do and why, then wait.
 - **Level 3 (only on explicit command)**: a full emergent-synthesis pass across the whole KB —
-  triggered only by the `evolve`/`sintetizza` command below, never as a side effect of a
+  triggered only by the `evolve`/`synthesize` command below, never as a side effect of a
   `compile` or a query, since it can be a large piece of work.
 
 ### Reasoning style for finding connections
@@ -274,21 +274,21 @@ Document the *why* of the connection in 1-2 dense sentences — not a full essay
 the connection is legible without re-deriving it.
 
 ### `wiki/meta/` — the KB reflecting on itself
-Beyond `frontiere-conoscenza.md` (above), created on demand:
-- `wiki/meta/evoluzione-kb.md` — a dated log of the KB's significant syntheses and structural
+Beyond `knowledge-frontiers.md` (above), created on demand:
+- `wiki/meta/kb-evolution.md` — a dated log of the KB's significant syntheses and structural
   changes over time (new synthesis articles created, merges done, wikis reorganized) — a
   narrative history, not a duplicate of what's already in each article's own frontmatter dates.
-- `wiki/meta/principi-design-second-brain.md` — a wiki ARTICLE (read by the owner, not a
+- `wiki/meta/second-brain-design-principles.md` — a wiki ARTICLE (read by the owner, not a
   replacement for this `CLAUDE.md`) recording observations about how this specific KB has
   actually grown and what's worked or not — e.g. "the `device/` wiki works better split by
   system than by device type." This is where you note things worth the owner's attention for
   eventually updating this `CLAUDE.md` itself; you don't rewrite your own instructions
   autonomously — structural/convention changes to this file are the owner's call, proposed here
   and applied by them (or by asking to update the kit), same as every other Level 2 action.
-- `wiki/meta/log-sessioni-sintesi.md` — optional, lightweight: one line per `evolve` run (date,
+- `wiki/meta/synthesis-session-log.md` — optional, lightweight: one line per `evolve` run (date,
   scope/topic if any, how many ideas generated, how many were promoted to real articles). Only
   worth keeping once `evolve` has actually been run a few times; don't create it pre-emptively,
-  and don't let it become a second place to duplicate what's already in `evoluzione-kb.md` — this
+  and don't let it become a second place to duplicate what's already in `kb-evolution.md` — this
   one is just a running tally, that one is the narrative log.
 All three are created the first time there's something real to put in them, not pre-created
 empty.
@@ -304,23 +304,23 @@ Processes every file in `raw/` that does NOT contain `_COMPILED` in its name. Fo
 4. **Write**:
    - Create new articles for concepts, devices, mechanics, or events not yet covered.
    - Update existing articles by folding in the new information — for a device/mechanic article
-     already tracking a Verse implementation, this means updating the "Implementazione Verse"
+     already tracking a Verse implementation, this means updating the "Verse implementation"
      section per the rules above, not just the prose.
-   - Always cite the source file in the `## Fonti` section.
+   - Always cite the source file in the `## Sources` section.
 5. **Link** new content with `[[wiki links]]` to related concepts.
 6. **Update the indexes**:
-   - The `indice_wiki.md` of every thematic wiki touched.
-   - `wiki/indice.md`, if you created a new wiki or substantially changed one's scope.
+   - The `wiki-index.md` of every thematic wiki touched.
+   - `wiki/index.md`, if you created a new wiki or substantially changed one's scope.
    - Any `moc-*.md` that indexes a wiki you touched, if that wiki has one — a MOC going stale
-     while `indice_wiki.md` stays current is the same kind of drift as a misaligned index, don't
+     while `wiki-index.md` stays current is the same kind of drift as a misaligned index, don't
      let it happen just because a MOC is optional.
 7. **Rename the file** in `raw/`, appending `_COMPILED` before the extension (e.g.
-   `analisi-progetto.md` becomes `analisi-progetto_COMPILED.md`).
+   `project-analysis.md` becomes `project-analysis_COMPILED.md`).
 8. **Skip** any file whose name already contains `_COMPILED`.
 9. **Synthesis side effect**: if the new material creates or reinforces a connection that isn't
    explicit yet (see "Emergent synthesis and evolution" above), update or create the relevant
-   `## Connessioni e potenziali` section and, if it's substantial enough to matter beyond this
-   one compile, add a short entry to `wiki/meta/frontiere-conoscenza.md`. This is a Level 1/2
+   `## Connections and potential` section and, if it's substantial enough to matter beyond this
+   one compile, add a short entry to `wiki/meta/knowledge-frontiers.md`. This is a Level 1/2
    action depending on size — a wikilink addition, do it; a new synthesis article, propose it.
 At the end, give a structured summary: files processed, wikis created, articles created, articles
 updated (and which ones had their Verse implementation version bumped), any connections
@@ -328,8 +328,8 @@ noticed/frontier entries added, any ambiguities to clarify with the user.
 
 ## Workflow: Query
 To answer a question from the user:
-1. Read `wiki/indice.md` to identify the relevant wikis.
-2. Read the `indice_wiki.md` of the relevant wikis to find the relevant articles.
+1. Read `wiki/index.md` to identify the relevant wikis.
+2. Read the `wiki-index.md` of the relevant wikis to find the relevant articles.
 3. Read only the articles you need, not the whole wiki.
 4. Build the answer by synthesizing what you gathered.
 5. Cite the articles used in `[[wiki link]]` format. If a relevant `type: synthesis` article
@@ -358,19 +358,19 @@ Runs a full health check on the knowledge base. Look for:
 - **Orphan articles**: pages with no incoming or outgoing links.
 - **Under-linked wikis**: thematic wikis isolated from the rest of the KB.
 - **Information gaps**: concepts referenced frequently but without their own article.
-- **Stale device/mechanic articles**: a device article whose "Implementazione Verse" section
+- **Stale device/mechanic articles**: a device article whose "Verse implementation" section
   hasn't been touched in a long time relative to how often that device type shows up in newly
   compiled material — a signal the tracked version may be behind what's actually being used now.
 - **Under-synthesized clusters**: 3+ articles that are strongly related to each other but have
   no higher-order `type: synthesis` article tying them together yet.
 - **Weak connections**: articles that clearly should reference each other (same wiki, similar
-  tags, overlapping "Connessioni e potenziali" mentions) but don't actually link yet.
+  tags, overlapping "Connections and potential" mentions) but don't actually link yet.
 - **Dormant ideas**: a pattern mentioned inside one or more sources/articles but never given its
   own formal article.
 - **Stagnant evolution**: a device/mechanic that shows up often in new material but whose
   article hasn't been updated in a long time (a specific case of "stale" above, called out
   because it directly affects reuse value, not just tidiness).
-- **Misaligned indexes**: entries in `indice_wiki.md` or `wiki/indice.md` that don't match the
+- **Misaligned indexes**: entries in `wiki-index.md` or `wiki/index.md` that don't match the
   actual files (and vice versa).
 Audit output:
 1. A list of issues found, grouped by category.
@@ -379,11 +379,11 @@ Audit output:
 **Important**: always wait for the user's explicit confirmation before applying changes. Don't
 proceed autonomously with merges, deletions, or reorganizations.
 
-## Workflow: Evolve / Sintetizza
-Command: `evolve` or `sintetizza [optional topic]`
+## Workflow: Evolve / Synthesize
+Command: `evolve` or `synthesize [optional topic]`
 The Level 3 pass from "Emergent synthesis and evolution" above — a deliberate, whole-KB (or
 whole-topic, if scoped) synthesis session, run only when asked, since it's real work:
-1. Read `wiki/indice.md` and every relevant `indice_wiki.md`.
+1. Read `wiki/index.md` and every relevant `wiki-index.md`.
 2. Identify clusters of articles that are strongly connected (or that should be but currently
    aren't — see the audit categories above).
 3. Generate 3-7 **emergent ideas**: combinations, generalizations, or higher-order patterns
@@ -391,10 +391,10 @@ whole-topic, if scoped) synthesis session, run only when asked, since it's real 
    to each idea.
 4. For each idea:
    - Judge whether it earns a new `type: synthesis` article or an update to an existing one.
-   - Write a draft in `output/sintesi-YYYY-MM-DD.md` for the owner to review, unless it's
+   - Write a draft in `output/synthesis-YYYY-MM-DD.md` for the owner to review, unless it's
      refining a synthesis article the owner already approved in a previous `evolve` run — in
      that case update the article directly.
-5. Update `wiki/meta/frontiere-conoscenza.md`: remove entries this run resolved, add new ones it
+5. Update `wiki/meta/knowledge-frontiers.md`: remove entries this run resolved, add new ones it
    surfaced.
 6. Present the Level 2/3 actions to the owner as a prioritized list — don't apply any of them
    without confirmation.

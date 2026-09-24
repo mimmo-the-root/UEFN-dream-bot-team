@@ -81,8 +81,21 @@ try {
                 elseif ($parsed -is [array]) { $queue = $parsed }
                 else { $queue = @($parsed) }
             } catch { $queue = @() }
-            # Find the oldest queued entry for THIS agent type (not just index 0) — correct
-            # even when a different agent type is also active/queued at the same time.
+            # BUG FIX (2026-09-17, real report): drop orphaned entries (a `start` whose real
+            # `stop` never arrived — crashed session, lost/misattributed SubagentStop) before
+            # matching. A real log capture showed a 7-day-old orphaned `qa-regression` entry get
+            # "resumed" by the next real stop of that type, stamping a week-old description on the
+            # just-finished task and shifting the desync onward. Same 45-min cutoff as the
+            # client-side STALE_ACTIVE_MS safety net, applied here on the disk-side queue too.
+            $maxAgeMin = 45
+            $cutoff = (Get-Date).ToUniversalTime().AddMinutes(-$maxAgeMin)
+            $queue = @($queue | Where-Object {
+                $ts = $_.ts
+                if (-not $ts) { return $true }  # older entries without a ts: keep, can't judge age
+                try { ([datetime]$ts) -ge $cutoff } catch { $true }
+            })
+            # Find the oldest (non-expired) queued entry for THIS agent type (not just index 0) —
+            # correct even when a different agent type is also active/queued at the same time.
             $matchIdx = -1
             for ($i = 0; $i -lt $queue.Count; $i++) {
                 if ($queue[$i].agent -is [string] -and $queue[$i].agent -eq $agent) { $matchIdx = $i; break }

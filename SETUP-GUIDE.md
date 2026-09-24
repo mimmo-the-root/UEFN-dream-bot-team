@@ -378,11 +378,11 @@ Separating "who writes," "who verifies," and "who documents" is the recommended 
   - **New/empty project** → doesn't invent anything: it stops and asks targeted questions (goal, audience, main mechanics, references, constraints, what's needed for a first playable MVP), then populates `Claude/docs/ROADMAP.md` and `Claude/docs/STATUS.md` with the answers.
 - **intent-gate** — runs BEFORE `coder` writes a single line: an independent check (not `coder`
   judging its own readiness) on whether the task's acceptance criteria, and any owner-supplied
-  base code, are concrete enough to implement without guessing. AMBIGUO goes straight to you, not
+  base code, are concrete enough to implement without guessing. AMBIGUOUS goes straight to you, not
   through `coder`'s own best guess at which reading is more plausible.
 - **coder** — writes and modifies code/Verse, implements features, refactors. Refuses to start
   without a matching task ID already open in `Claude/docs/ROADMAP.md`'s `Tasks` table (see section
-  2b below) — it flips that task's own Status to In corso itself, but never opens one. Always
+  2b below) — it flips that task's own Status to In progress itself, but never opens one. Always
   reads `CLAUDE.md` and `Claude/docs/STATUS.md` before starting, so it picks up where things were
   left off instead of reinventing context. For a task that splits into genuinely independent
   devices/areas, it can dispatch `coder-prep` (a cheaper-context internal helper, not a full agent
@@ -390,7 +390,7 @@ Separating "who writes," "who verifies," and "who documents" is the recommended 
   stay coder's own job afterward, one area at a time, since UEFN only exposes one editor instance
   to write against. Before it reports any task complete, it must get a PASS from **intent-reviewer**
   and then a PASS from **compliance-reviewer** below (in that order), then hand off to
-  **planner-docs** to actually mark the task Fatto — it stays the sole owner of implementation and
+  **planner-docs** to actually mark the task Done — it stays the sole owner of implementation and
   of deciding when a task is finished, it just no longer grades its own compliance, on either axis,
   or closes the task on its own say-so.
 - **intent-reviewer** — the first of two review gates, checking ONLY whether `coder`'s output
@@ -409,12 +409,12 @@ Separating "who writes," "who verifies," and "who documents" is the recommended 
   after it's written.
 - **qa-regression** — doesn't write features: analyzes build/runtime logs, looks for regressions against what's already marked "done," and also flags bugs nobody explicitly asked about ("unseen" bugs), adding them to `Claude/docs/BUGS.md`. If the project is connected to UEFN via MCP, it can run a verification play-session — and it's also invoked automatically after every playtest (see section 5).
 - **planner-docs** — the gatekeeper of the plan-first workflow (section 2b): the only one who
-  opens a new ROADMAP.md task row, edits its content, or marks it **Fatto** — always after
+  opens a new ROADMAP.md task row, edits its content, or marks it **Done** — always after
   `coder` reports PASS verdicts from BOTH `intent-reviewer` and `compliance-reviewer` for it, never
   on unverified say-so. Also keeps STATUS.md's "Current state" summary honest and triages
   `BUGS.md`'s "Newly reported" section. Invoke it both to open a task before `coder` starts and, as
   before, at the end of a session.
-- **release-gate** — use it before a release/showcase, not in day-to-day work. Doesn't find new bugs and doesn't write code: it reads the already-existing `BUGS.md`, `STATUS.md`, `ROADMAP.md`, and `SPEC.md`, cross-checks every task at the current release's Priority against ROADMAP's Fatto status, and gives a verdict (ready / ready with reservations / not ready) in `Claude/docs/RELEASE-READINESS.md`, with dated entries that don't overwrite history.
+- **release-gate** — use it before a release/showcase, not in day-to-day work. Doesn't find new bugs and doesn't write code: it reads the already-existing `BUGS.md`, `STATUS.md`, `ROADMAP.md`, and `SPEC.md`, cross-checks every task at the current release's Priority against ROADMAP's Done status, and gives a verdict (ready / ready with reservations / not ready) in `Claude/docs/RELEASE-READINESS.md`, with dated entries that don't overwrite history.
 - **codebase-auditor** — an independent, whole-codebase quality audit, run on demand at any project stage rather than tied to a single task: a senior developer seeing the codebase for the first time, understanding the architecture/data flow before judging anything, then checking structural problems, duplicated code, performance bottlenecks, maintainability risk, and — specifically — issues that only surface after a long, uninterrupted play session (a growing collection never cleared, event bindings that stack up round after round, per-player state never cleaned up on leave) rather than what a short playtest would catch. Never writes code or touches devices; hands its structured findings to `planner-docs`, which opens a ROADMAP task per finding worth tracking (or routes a small one into BUGS.md instead). Distinct from `intent-reviewer`/`compliance-reviewer` (one task's compliance, right after `coder` finishes) and `qa-regression` (runtime regressions from an actual play-session).
 - **second-brain-librarian** — optional (see section 3c), the only agent whose work happens OUTSIDE the current project: it owns the Obsidian second-brain vault. `coder` and `project-bootstrap` hand off to it (a short brief) instead of writing to the vault themselves; it can also be invoked directly to run that vault's own `compile`/query/`audit` workflows.
 - **second-brain-trainer** — optional (see section 3c), only useful if `second-brain-librarian` is configured. Use it for a deliberate, larger sweep of the current project — not routine syncing of the one thing you just built. It splits the project into areas, dispatches a `second-brain-scout` (a cheaper-model internal helper, not a full agent of its own) for each area in parallel, then hands the combined findings to `second-brain-librarian` in a single call, so the fan-out speeds up analysis — cheaply — without ever letting more than one writer touch the vault at once.
@@ -432,12 +432,12 @@ task closed.** No agent skips a step or writes code before there's a tracked tas
 
 | ID | Feature | Status | Acceptance criteria | Priority |
 |---|---|---|---|---|
-| T-014 | Double-jump | Fatto | Player can jump a second time mid-air exactly once per fall | MVP |
-| T-015 | Storm shrink phase 2 | In corso | Storm radius shrinks to 50% at the 3-minute mark | MVP |
-| T-016 | Leaderboard UI | Da fare | Top 5 players by score shown at round end | Later |
+| T-014 | Double-jump | Done | Player can jump a second time mid-air exactly once per fall | MVP |
+| T-015 | Storm shrink phase 2 | In progress | Storm radius shrinks to 50% at the 3-minute mark | MVP |
+| T-016 | Leaderboard UI | To do | Top 5 players by score shown at round end | Later |
 
 Only **planner-docs** creates a row or edits Feature/Acceptance criteria/Priority, and only it
-ever sets **Fatto**. **coder** may flip Status between Da fare/In corso/Bloccato on a row it's
+ever sets **Done**. **coder** may flip Status between To do/In progress/Blocked on a row it's
 actively working — nothing else in that file.
 
 **`STATUS.md`'s "Current state" block** (replaced on every update, sits above the append-only
@@ -457,17 +457,17 @@ _(updated: 2026-09-07)_
 1. Owner: "add a double-jump." No `T-xxx` row matches yet.
 2. `coder` checks ROADMAP.md, finds nothing, stops and asks for one line of acceptance criteria
    instead of guessing.
-3. `planner-docs` opens `T-014 | Double-jump | Da fare | Player can jump a second time mid-air
+3. `planner-docs` opens `T-014 | Double-jump | To do | Player can jump a second time mid-air
    exactly once per fall | MVP`.
-4. `coder` flips `T-014` to **In corso**, writes the ID to `Claude/docs/.active-task`, invokes
-   `intent-gate` (CHIARO — the acceptance criteria are concrete), implements it, runs the
+4. `coder` flips `T-014` to **In progress**, writes the ID to `Claude/docs/.active-task`, invokes
+   `intent-gate` (CLEAR — the acceptance criteria are concrete), implements it, runs the
    compile-fix loop.
 5. `coder` invokes `intent-reviewer` with `T-014` and the touched files → PASS, then
    `compliance-reviewer` the same way → PASS (or fixes and resubmits to whichever one flagged
    something, until both are clean).
-6. `coder` hands off to `planner-docs`, which sets `T-014` to **Fatto**, updates STATUS.md's
+6. `coder` hands off to `planner-docs`, which sets `T-014` to **Done**, updates STATUS.md's
    Current state block and appends a dated log entry.
-7. At release time, `release-gate` cross-checks every MVP-priority task is Fatto before giving a
+7. At release time, `release-gate` cross-checks every MVP-priority task is Done before giving a
    verdict.
 
 **Where this doesn't apply**: `growth-manager`'s marketing/growth work, `second-brain-librarian`'s

@@ -50,21 +50,21 @@ does, what changed, which project it came from, and today's date. When invoked t
    project you just synced from to its "Visto/testato su" list if it's an existing article.
 4. Cite the source as `conversazione: <today's date>, progetto <project name>` (this is code
    coming from a live session, not a `raw/` file).
-5. Link the article from related ones (`[[wiki links]]`), update that wiki's `indice_wiki.md`
-   (and any `moc-*.md` that indexes this article's wiki, if one exists), and `wiki/indice.md`
+5. Link the article from related ones (`[[wiki links]]`), update that wiki's `wiki-index.md`
+   (and any `moc-*.md` that indexes this article's wiki, if one exists), and `wiki/index.md`
    too if you created a new thematic wiki.
 6. **Check for lateral synthesis, don't stop at the one article you just touched**: look at
    articles related to the one you just created/updated (same device/mechanic family, shared
-   tags) and update their `## Connessioni e potenziali` section too if this sync surfaces a
+   tags) and update their `## Connections and potential` section too if this sync surfaces a
    connection they didn't have yet — that's a Level 1 action, do it directly. If the sync
    reinforces or creates a combination that looks genuinely interesting (not just "these are
-   both devices"), add a short dated entry to `wiki/meta/frontiere-conoscenza.md` — a one-line
+   both devices"), add a short dated entry to `wiki/meta/knowledge-frontiers.md` — a one-line
    note is Level 1, a proposal for a new `type: synthesis` article is Level 2 (propose it in
    your report, don't create it unasked). This is what makes every `coder`/`project-bootstrap`
    handoff feed the KB's evolution continuously, instead of that only happening when the owner
    runs `evolve` by hand.
 7. Report back concisely what you wrote or updated — including, explicitly, whether you touched
-   any other article's "Connessioni e potenziali" or added a frontier entry, not just the
+   any other article's "Connections and potential" or added a frontier entry, not just the
    primary article (or that you skipped step 6 and why, e.g. nothing relevant found).
 
 ### 2. Direct vault commands (query mode included)
@@ -90,7 +90,7 @@ The same "answer a question of the KB" workflow is also how `coder` and `project
 consult you before doing their own work — `coder` asking whether a reusable device/mechanic
 implementation already exists before building one from scratch, `project-bootstrap` asking
 whether a retention/Discover-signal proposal has a track record on other projects. Treat those
-exactly like a query from the owner: read `wiki/indice.md` down to the relevant articles, answer
+exactly like a query from the owner: read `wiki/index.md` down to the relevant articles, answer
 concisely with what you found (including the current Verse snippet or the noted outcome, and
 which project(s) it's validated on), and say plainly if nothing relevant exists — don't invent a
 match to seem useful.
@@ -105,14 +105,14 @@ page from scratch every time.
 2. Fetch [Epic's "What's new in UEFN" page](https://dev.epicgames.com/documentation/fortnite/whats-new-in-unreal-editor-for-fortnite)
    with `WebFetch`, asking for the full list of release/version entries with their dates and
    change summaries.
-3. Find or create `wiki/note-di-rilascio-uefn/` and its `indice_wiki.md`. That index is your
+3. Find or create `wiki/uefn-release-notes/` and its `wiki-index.md`. That index is your
    source of truth for what's already captured — read it (and skim the existing article
    filenames) BEFORE fetching, so you know what you're diffing against.
 4. **First run ever** (the wiki subfolder doesn't exist yet, or its index is empty): create one
    article per release/version found on the page — this is a deliberate backfill, capture
    everything, not just the newest entry. Article naming: the release/version identifier in
    kebab-case (e.g. `2026.3.md` or `release-33-20.md`, matching however Epic labels it).
-5. **Every later run**: fetch the page again, compare what it lists against `indice_wiki.md`,
+5. **Every later run**: fetch the page again, compare what it lists against `wiki-index.md`,
    and create an article ONLY for entries not already present — never re-create or duplicate one
    that's already there. If an existing entry's content actually changed (Epic sometimes edits a
    published note), update that article in place and note the correction, don't leave both
@@ -127,12 +127,12 @@ page from scratch every time.
    `BUGS.md` already flagged, or contradicts an existing device/mechanic article's current
    snippet, link it (`[[wiki link]]`) and note the conflict — don't silently leave the
    contradiction for someone else to notice later. If the change affects a tracked
-   device/mechanic article specifically, also update that article's `## Connessioni e
-   potenziali` section (or add a `wiki/meta/frontiere-conoscenza.md` entry if it's not urgent
+   device/mechanic article specifically, also update that article's `## Connections and
+   potential` section (or add a `wiki/meta/knowledge-frontiers.md` entry if it's not urgent
    enough to act on immediately) so it surfaces the next time someone queries that article or
    runs `evolve` — don't let it sit only inside the release-notes article where nobody querying
    the device article would ever see it.
-8. Update `wiki/note-di-rilascio-uefn/indice_wiki.md` and `wiki/indice.md` (if this was the
+8. Update `wiki/uefn-release-notes/wiki-index.md` and `wiki/index.md` (if this was the
    first run, since it's a new thematic wiki).
 9. Report concisely: how many entries were already present, how many new ones you added (or that
    it's the full backfill on a first run), and anything flagged in step 7.

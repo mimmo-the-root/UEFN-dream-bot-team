@@ -57,12 +57,12 @@ with the real assets and project:
   first. This is the plan → code → review → close order the whole team follows; see rule 13 for
   the full mechanics (who owns which field, the narrow Status-flip exception `coder` has).
 - The very first time on this project (Claude/docs/SPEC.md still empty), use **project-bootstrap**: if code already exists, it analyzes structure/specs/bugs/retention; if the project is new, it gathers requirements from the owner and opens the first ROADMAP tasks instead of inventing them.
-- The **intent-gate** agent runs BEFORE coder writes anything: an independent check (not coder's own self-check) on whether the task's acceptance criteria, and any owner-supplied base code, are concrete enough to implement without guessing. An AMBIGUO verdict goes straight to the owner — coder doesn't try to resolve it on its own.
-- The **coder** agent writes/modifies code but doesn't update documentation, beyond flipping its own task's Status (Da fare/In corso/Bloccato — never Fatto, never the row's content). Before reporting any task done, it must get a PASS from **intent-reviewer**, then a PASS from **compliance-reviewer** (in that order — the second doesn't run until the first has PASSed), then hand off to **planner-docs** to actually close it — a task that hasn't passed both gates and been marked Fatto isn't finished yet, regardless of what coder itself thinks of its own work.
+- The **intent-gate** agent runs BEFORE coder writes anything: an independent check (not coder's own self-check) on whether the task's acceptance criteria, and any owner-supplied base code, are concrete enough to implement without guessing. An AMBIGUOUS verdict goes straight to the owner — coder doesn't try to resolve it on its own.
+- The **coder** agent writes/modifies code but doesn't update documentation, beyond flipping its own task's Status (To do/In progress/Blocked — never Done, never the row's content). Before reporting any task done, it must get a PASS from **intent-reviewer**, then a PASS from **compliance-reviewer** (in that order — the second doesn't run until the first has PASSed), then hand off to **planner-docs** to actually close it — a task that hasn't passed both gates and been marked Done isn't finished yet, regardless of what coder itself thinks of its own work.
 - The **intent-reviewer** agent checks ONLY whether coder's output actually matches the task's acceptance criteria — line by line against what was asked, no invention, no silently-resolved ambiguity. It never writes code or touches devices, and it runs before any mechanical check.
 - The **compliance-reviewer** agent checks coder's output against this kit's mechanical rules (logger, naming, DemoDisplay, deprecated APIs, multiplayer authority, state machine, second-brain consultation) — but only after `intent-reviewer` has already returned PASS on the same task; it doesn't run otherwise. It never writes code or touches devices either — both reviewers only review and send non-compliant work back to coder with specifics.
 - The **qa-regression** agent checks for regressions and logs but doesn't modify code; after every play-session (including automatically via the hook) it reports new problems in Claude/docs/BUGS.md.
-- The **planner-docs** agent is the gatekeeper of ROADMAP.md/STATUS.md: it's the only one who opens a new task row, edits its content, or marks it Fatto (always after reported PASS verdicts from BOTH intent-reviewer and compliance-reviewer), and it keeps STATUS.md's "Current state" block honest — typically invoked before coder starts a new task, at the end of a session, or after an automatic post-playtest check.
+- The **planner-docs** agent is the gatekeeper of ROADMAP.md/STATUS.md: it's the only one who opens a new task row, edits its content, or marks it Done (always after reported PASS verdicts from BOTH intent-reviewer and compliance-reviewer), and it keeps STATUS.md's "Current state" block honest — typically invoked before coder starts a new task, at the end of a session, or after an automatic post-playtest check.
 - The **release-gate** agent evaluates whether the project is ready for release, based on open bugs, task completeness against ROADMAP.md, and already-documented progress status. Use it before a release/showcase, not during day-to-day development — it doesn't find new bugs and doesn't write code.
 - The **codebase-auditor** agent is an independent, whole-codebase quality audit — architecture, duplication, performance, maintainability, and issues that only surface after a long play session — run on demand, not tied to any single task. It never writes code; it hands findings to **planner-docs**, which opens a ROADMAP task per finding worth tracking (or files it in BUGS.md if it's too small to be its own task).
 - No agent should read or modify files outside this project's folder (`Content/`), with one
@@ -70,6 +70,47 @@ with the real assets and project:
   `Resources/` at the project root (the folder containing `Content/`) and update the `"keyArt"`
   key in `<ProjectName>.uefnproject` (also at the project root) to point at it — nothing else at
   that level.
+- **Genre check (automatic, every session, independent of `project-bootstrap`)**: as your very
+  first action in ANY session on this project — before the Agent Console check below, before
+  reading STATUS.md, regardless of whether `project-bootstrap` has ever run here — check whether
+  `Claude/docs/.genre` exists and has a non-empty value. This is a one-line file-existence check,
+  cheap enough to do every session; don't skip it just because the project already has a lot of
+  history. If it already has a value, do nothing further and don't mention it. If it's missing OR
+  empty, immediately follow `~/.claude/agents/project-bootstrap.md`'s "Step 0.5 — Genre selection
+  & Genre Skill bootstrap" procedure right now, in this same session, even if you're not running a
+  full bootstrap — that step is self-contained and was written to be triggerable on its own. Don't
+  ask permission to check or to run the step itself; DO stop and ask the owner which genre to pick
+  (that one decision is genuinely theirs, never guess it) before writing `.genre`. This exists
+  specifically so a batch of already-analyzed/pre-existing projects gets the genre set the first
+  time each is opened after this rule was added, without the owner having to invoke anything by
+  name project by project.
+- **UI reference harvest (automatic, every session, independent of any single task or of
+  `coder` having touched anything)**: if `~/.claude/skills/game-ui-designer/` exists, this has two
+  parts — do BOTH every session, not just when a task happens to close:
+  1. *Pending screenshots*: check `Claude/docs/ui-screenshots-pending/` for any image files — file
+     each one into `~/.claude/skills/game-ui-designer/references/examples/<archetype>/`, append a
+     row to `manifest.md` (source: this project's real work), then delete it from the pending
+     folder so it isn't re-ingested next session.
+  2. *UI code drift check (the important one for hand-authored UI)*: the owner may design/edit UI
+     screens directly (by hand, outside any tracked `coder` task), so this can't depend on a task
+     ever closing. Find this project's real UI/widget implementation files (`.verse` files
+     constructing `canvas_panel`/`stack_box`/`button`/`text_block`/`image` and similar for a
+     store/shop/mission/reward/inventory/HUD screen — same discovery heuristic as
+     `game-ui-designer`'s "Direct source-code analysis" step). Compare each one's current content
+     hash against `Claude/docs/.ui-code-ingested.json` (create it, empty `{}`, if missing — maps
+     file path to last-ingested hash). For any file that's new or whose hash changed since last
+     time: run the source-code analysis on it now, write/update its entry in
+     `~/.claude/skills/game-ui-designer/references/examples/code-derived.md` and a `manifest.md`
+     row (source: this project's name + the file path — note explicitly if this looks hand-authored
+     rather than `coder`-written, e.g. no matching recent ROADMAP task), update
+     `Claude/docs/UI-STYLE-NOTES.md` with any concrete style facts found, then record the new hash
+     in `.ui-code-ingested.json`.
+  This is a cheap check (file listing + hashing, only re-analyzes what actually changed), safe to
+  do every session; don't ask permission, just do it and note in this session's summary how many
+  screens were freshly ingested. This is what actually breaks the chicken-and-egg problem: the
+  owner can keep hand-drawing UI screens entirely outside the task workflow, and the skill still
+  learns from every one of them the next time this project is opened — no task, no screenshot, no
+  explicit "analyze this" request required.
 - **Agent Console (if `Claude/hooks/agent-console.html` exists in this project)**: this normally
   starts itself automatically via the `SessionStart` hook (`session-start-reminder.ps1`/`.sh`,
   see `SETUP-GUIDE.md` section 5b) before your first reply — don't ask permission, it's already

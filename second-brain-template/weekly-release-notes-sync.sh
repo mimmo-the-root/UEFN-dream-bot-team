@@ -24,7 +24,7 @@ VAULT_PATH="$(dirname "$(readlink -f "$0")")"
 
 PROMPT='Use the second-brain-librarian agent'"'"'s UEFN release-notes sync workflow: fetch
 https://dev.epicgames.com/documentation/fortnite/whats-new-in-unreal-editor-for-fortnite,
-compare against wiki/note-di-rilascio-uefn/indice_wiki.md in the configured second brain vault,
+compare against wiki/uefn-release-notes/wiki-index.md in the configured second brain vault,
 and add articles only for entries not already captured, or do the full backfill if this is the
 first run ever. Report what you added.'
 

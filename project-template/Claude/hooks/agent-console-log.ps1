@@ -97,7 +97,24 @@ try {
                 else { $queue = @($parsed) }
             } catch { $queue = @() }
         }
-        $queue += [ordered]@{ agent = $agent; desc = $desc }
+        # BUG FIX (2026-09-17, real report): an orphaned queue entry — a `start` whose matching
+        # `stop` never arrived (session crash/restart, or a lost/misattributed SubagentStop) —
+        # used to sit forever with no expiry. A real log capture showed exactly this: a
+        # qa-regression `start` from 7 days earlier was still in the queue and got "resumed" by
+        # the NEXT real qa-regression `stop`, stamping the wrong (week-old) description on it and
+        # leaving the actually-just-finished entry orphaned in turn — which is also how two
+        # unrelated agents can show the same auto-clear timestamp: both are stale entries replayed
+        # from the persisted log at once, not two real 45-minute timeouts landing together by
+        # coincidence. Prune anything older than this before adding the new entry, matching the
+        # 45-min STALE_ACTIVE_MS safety net already used client-side in agent-console.html.
+        $maxAgeMin = 45
+        $cutoff = (Get-Date).ToUniversalTime().AddMinutes(-$maxAgeMin)
+        $queue = @($queue | Where-Object {
+            $ts = $_.ts
+            if (-not $ts) { return $true }  # older entries without a ts: keep, can't judge age
+            try { ([datetime]$ts) -ge $cutoff } catch { $true }
+        })
+        $queue += [ordered]@{ agent = $agent; desc = $desc; ts = (Get-Date).ToUniversalTime().ToString("o") }
         ConvertTo-Json -InputObject $queue -Compress | Set-Content -Path $queueFile -Encoding utf8
     } finally {
         if ($acquired) { $mutex.ReleaseMutex() }

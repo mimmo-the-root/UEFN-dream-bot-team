@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Docs &amp; Status Console</title>
+<style>
+:root{
+  --bg:#060810; --panel:#0d121c; --panel2:#0a0e17; --line:#1c2740; --line-soft:#223050;
+  --text:#c9d6f0; --dim:#5a7088; --blue:#4b8bff; --blue-glow:rgba(75,139,255,.45);
+  --amber:#ffb454; --green:#39ff88; --cyan:#4bd8ff; --magenta:#ff5cd1; --purple:#b98bff;
+  --red:#ff4d5e; --red-glow:rgba(255,77,94,.55); --orange:#ff7a4a; --teal:#2dd4bf;
+  --yellow:#ffbd2e; --yellow-glow:rgba(255,189,46,.6); --grey:#4a5568;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;}
+a{color:inherit;text-decoration:none;}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700;}
+.pill.green{background:rgba(57,255,136,.12);color:var(--green);}
+.pill.amber{background:rgba(255,180,84,.12);color:var(--amber);}
+.pill.red{background:rgba(255,77,94,.12);color:var(--red);}
+.pill.grey{background:rgba(90,112,136,.15);color:var(--dim);}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:4px;font-size:9.5px;font-weight:600;letter-spacing:.2px;}
+.badge .dot{width:6px;height:6px;border-radius:50%;flex:none;}
+.badge.green{background:rgba(57,255,136,.08);color:var(--green);}
+.badge.green .dot{background:var(--green);}
+.badge.amber{background:rgba(255,180,84,.08);color:var(--amber);}
+.badge.amber .dot{background:var(--amber);}
+.badge.red{background:rgba(255,77,94,.08);color:var(--red);}
+.badge.red .dot{background:var(--red);}
+.badge.grey{background:rgba(90,112,136,.10);color:var(--dim);}
+.badge.grey .dot{background:var(--dim);}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;}
+.label{font-size:11px;color:var(--dim);letter-spacing:1.3px;text-transform:uppercase;}
+
+/* v1.78.0: the left icon-rail was dead weight — every icon but "Status" was a non-functional
+   dead button (no click handler, no view it switched to), which is exactly the "toglilo" (remove
+   it) complaint. Removed entirely; #layout is no longer a sidebar+content grid, just a centered
+   single column so the freed-up width doesn't leave the table stranded on the left. */
+main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
+
+.topnav{display:flex;gap:10px;align-items:center;margin-bottom:6px;}
+.topnav a.navlink{font-size:10.5px;color:var(--dim);border:1px solid var(--line);border-radius:7px;
+  padding:4px 9px;}
+.topnav a.navlink:hover{color:var(--text);border-color:var(--blue);}
+
+/* hero row */
+.hero{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:16px;margin-bottom:20px;}
+.ring{display:flex;align-items:center;gap:18px;}
+
+/* timeline roadmap */
+.timeline-wrap{overflow-x:auto;padding:18px 4px 6px;}
+.timeline{display:flex;align-items:center;min-width:780px;position:relative;padding:16px 0;}
+.timeline .track{position:absolute;left:0;right:0;top:50%;height:2px;background:var(--line);}
+.tnode{flex:1;position:relative;text-align:center;cursor:pointer;}
+.tnode .dot{width:16px;height:16px;border-radius:50%;margin:0 auto;position:relative;z-index:2;}
+.tnode .dot.done{background:var(--green);}
+.tnode .dot.active{width:18px;height:18px;background:var(--amber);box-shadow:0 0 10px var(--yellow-glow);animation:pulse 1.8s infinite;}
+.tnode .dot.todo{background:var(--line);border:2px solid var(--dim);}
+.tnode .lbl{font-size:10px;color:var(--dim);margin-top:8px;}
+.tnode .lbl.active{color:var(--amber);font-weight:700;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+.tnode:hover .tip{display:block;}
+.tip{display:none;position:absolute;bottom:36px;left:50%;transform:translateX(-50%);background:#111a2c;
+  border:1px solid var(--line-soft);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--text);
+  white-space:nowrap;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.5);}
+
+/* bug backlog */
+.bugrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;}
+.bugrow:last-child{border-bottom:none;}
+
+/* docs grid */
+.docs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px;}
+.doc-card{cursor:pointer;transition:border-color .15s;}
+.doc-card:hover{border-color:var(--blue);}
+.doc-card .t{font-size:18px;}
+.doc-card .n{font-weight:700;margin:6px 0 2px;font-size:13px;}
+.doc-card .d{font-size:11.5px;color:var(--dim);}
+
+/* preview modal: raw markdown vs. rendered HTML */
+#previewOverlay{display:none;position:fixed;inset:0;background:rgba(2,4,10,.75);z-index:100;
+  align-items:center;justify-content:center;padding:30px;}
+#previewOverlay.open{display:flex;}
+#previewBox{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;
+  width:min(980px,100%);max-height:88vh;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);}
+#previewHead{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);}
+#previewHead .title{font-weight:700;font-size:14px;flex:1;}
+.toggle{display:flex;background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+.toggle button{background:none;border:none;color:var(--dim);font-size:11.5px;padding:7px 14px;cursor:pointer;}
+.toggle button.active{background:rgba(75,139,255,.15);color:var(--text);}
+#previewClose{background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;}
+#previewBody{padding:20px 24px;overflow-y:auto;}
+#rawView{font-family:'Consolas','SF Mono',monospace;font-size:12px;color:var(--dim);white-space:pre-wrap;
+  line-height:1.65;background:var(--panel2);border-radius:8px;padding:16px;}
+#htmlView h3{font-size:11px;color:var(--dim);letter-spacing:1.3px;text-transform:uppercase;
+  margin:20px 0 8px;border-bottom:1px solid var(--line);padding-bottom:6px;}
+#htmlView h3:first-child{margin-top:0;}
+#htmlView p{font-size:13px;line-height:1.7;color:var(--text);margin:6px 0;}
+#htmlView table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0 4px;}
+#htmlView th{text-align:left;color:var(--dim);font-weight:600;font-size:10.5px;letter-spacing:.5px;
+  text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--line-soft);}
+#htmlView td{padding:7px 8px;border-bottom:1px solid var(--line);}
+#htmlView tr:last-child td{border-bottom:none;}
+#staleNote{font-size:10.5px;color:var(--dim);margin-top:10px;}
+.doc-card.missing{opacity:.6;}
+.doc-card.missing .d{color:var(--dim);font-style:italic;}
+#connStatus{font-size:10.5px;color:var(--dim);margin-bottom:10px;}
+#connStatus .ok{color:var(--green);}
+#connStatus .bad{color:#ff5c5c;}
+</style>
+</head>
+<body>
+
+<div id="layout">
+  <main>
+    <!-- Plain relative <a href> to sibling files, same as agent-console.html's own comment
+         explains for its view-switch: works standalone (file://) and, since these filenames
+         don't collide with agent-console-server.py's /stats /docs /flow routes, works unchanged
+         when served too. -->
+    <div class="topnav">
+      <a class="navlink" href="agent-console.html">← Main console</a>
+      <a class="navlink" href="agent-console-stats.html">Stats</a>
+      <a class="navlink" href="agent-console-flow.html">Flow of flows</a>
+    </div>
+    <div class="label" style="margin-bottom:4px;">UEFN CLAUDE TEAM STARTER KIT</div>
+    <h1 style="font-size:19px;margin:0 0 20px;">Docs &amp; Status Console</h1>
+    <div id="connStatus">… reading Claude/docs/ from the local server</div>
+
+    <!-- HERO: roadmap progress ring + open bugs + last update — all three are populated at
+         runtime from real Claude/docs/ROADMAP.md, BUGS.md and STATUS.md via /doc?name=; see
+         renderHero()/renderTimeline()/renderBugBacklog() below. Markup here is just the shell +
+         honest loading placeholders, never sample numbers. -->
+    <div class="hero">
+      <div class="card ring">
+        <svg width="86" height="86" viewBox="0 0 86 86">
+          <circle cx="43" cy="43" r="36" fill="none" stroke="var(--line)" stroke-width="8"/>
+          <circle id="progressRing" cx="43" cy="43" r="36" fill="none" stroke="var(--green)" stroke-width="8"
+            stroke-dasharray="226" stroke-dashoffset="226" stroke-linecap="round" transform="rotate(-90 43 43)"/>
+          <text id="progressPct" x="43" y="49" text-anchor="middle" font-size="18" fill="var(--text)" font-weight="700">–</text>
+        </svg>
+        <div>
+          <div class="label">Roadmap progress</div>
+          <div style="font-size:13px;margin-top:4px;" id="progressTasks">loading…</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:2px;" id="progressRemaining"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label">Open bugs</div>
+        <div style="font-size:30px;font-weight:700;color:var(--red);" id="openBugsCount">–</div>
+        <div style="font-size:11px;color:var(--dim);" id="openBugsBreakdown">loading…</div>
+      </div>
+      <div class="card">
+        <div class="label">Last update</div>
+        <div style="font-size:14px;margin-top:6px;" id="lastUpdateWhen">loading…</div>
+        <div style="font-size:11px;color:var(--dim);" id="lastUpdateWhat"></div>
+      </div>
+    </div>
+
+    <!-- TIMELINE ROADMAP (from Claude/docs/ROADMAP.md's Tasks table) -->
+    <div class="label" style="margin-bottom:8px;">Roadmap — task timeline
+      <span id="timelineNote" style="font-weight:400;color:var(--dim);font-size:11px;margin-left:6px;"></span>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="timeline-wrap">
+        <div class="timeline" id="timeline">
+          <div class="track"></div>
+          <div style="padding:10px 4px;color:var(--dim);font-size:12px;" id="timelinePlaceholder">loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROADMAP TASK LIST (same "readable list" treatment as the bug backlog below: code,
+         status, priority, description — v1.79.11, requested after the bug-backlog formatting
+         pass: the roadmap card above only ever showed a progress ring + counts, never the
+         individual still-open tasks in a scannable list) -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="label" style="margin-bottom:8px;">Recent roadmap tasks</div>
+      <div id="roadmapTaskList" style="font-size:12.5px;color:var(--dim);">loading…</div>
+      <a href="#" onclick="openPreview('roadmap');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full ROADMAP.md →</a>
+    </div>
+
+    <!-- BUG BACKLOG + CURRENT STATE -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px;">
+      <div class="card">
+        <div class="label" style="margin-bottom:8px;">Recent bug backlog</div>
+        <div id="bugBacklogList" style="font-size:12.5px;color:var(--dim);">loading…</div>
+        <a href="#" onclick="openPreview('bugs');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full BUGS.md →</a>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:8px;">Recent status (STATUS.md)</div>
+        <div style="font-size:12.5px;color:var(--dim);line-height:1.8;" id="recentStatus">loading…</div>
+        <a href="#" onclick="openPreview('status');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full STATUS.md →</a>
+      </div>
+    </div>
+
+    <!-- DOCS GRID — matches Claude/docs/*.md written/read by planner-docs (see
+         Claude/docs-template/ for the blank versions of these files, and
+         user-level-agents/planner-docs.md for who owns which one). -->
+    <div class="label" style="margin-bottom:8px;">Documentation — click to open in readable form</div>
+    <div class="docs-grid" id="docsGrid">
+      <div class="card doc-card" data-key="status" onclick="openPreview('status')"><div class="t">📋</div><div class="n">STATUS.md</div><div class="d">Current state + session log</div></div>
+      <div class="card doc-card" data-key="roadmap" onclick="openPreview('roadmap')"><div class="t">🗺️</div><div class="n">ROADMAP.md</div><div class="d">Task table</div></div>
+      <div class="card doc-card" data-key="spec" onclick="openPreview('spec')"><div class="t">📐</div><div class="n">SPEC.md</div><div class="d">Structure and deduced specs</div></div>
+      <div class="card doc-card" data-key="bugs" onclick="openPreview('bugs')"><div class="t">🐞</div><div class="n">BUGS.md</div><div class="d">Backlog + fix roadmap</div></div>
+      <div class="card doc-card" data-key="retention" onclick="openPreview('retention')"><div class="t">📈</div><div class="n">RETENTION-NOTES.md</div><div class="d">Retention proposals</div></div>
+      <div class="card doc-card" data-key="release" onclick="openPreview('release')"><div class="t">🚦</div><div class="n">RELEASE-READINESS.md</div><div class="d">Release-readiness history</div></div>
+    </div>
+    <div id="staleNote">
+      Each card reads the real file straight from <code>Claude/docs/</code> via the local
+      server's <code>/doc?name=</code> endpoint (see agent-console-server.py/.ps1) — no cached or
+      pre-generated snapshot. A doc that doesn't exist yet in this project (a fresh project has no
+      SPEC.md, RETENTION-NOTES.md or RELEASE-READINESS.md until the relevant agent writes one)
+      shows "not created yet" instead of failing to open.
+    </div>
+  </main>
+</div>
+
+<!-- PREVIEW OVERLAY: demonstrates the .md → readable-HTML transformation -->
+<div id="previewOverlay">
+  <div id="previewBox">
+    <div id="previewHead">
+      <div class="title" id="previewTitle">STATUS.md</div>
+      <div class="toggle">
+        <button id="btnHtml" class="active" onclick="showView('html')">Rendered HTML</button>
+        <button id="btnRaw" onclick="showView('raw')">Raw markdown</button>
+      </div>
+      <button id="previewClose" onclick="closePreview()">✕</button>
+    </div>
+    <div id="previewBody">
+      <div id="htmlView"></div>
+      <div id="rawView" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// v1.78.0: this page used to hold a hardcoded DOCS object of sample markdown for every doc,
+// completely disconnected from the real project — that's the root cause of all three "Docs &
+// Status" complaints (empty "recent status", SPEC/RETENTION/RELEASE not opening, dead side rail).
+// It now fetches the real file content from the local server's /doc?name=<key> endpoint (same
+// server, same polling convention agent-console.html already uses for /log, /tokens etc. — see
+// agent-console-server.py/.ps1), with an in-memory cache per doc key so re-opening the same doc
+// in one page session doesn't re-fetch it.
+const DOC_TITLES = {
+  status: "STATUS.md", roadmap: "ROADMAP.md", bugs: "BUGS.md",
+  spec: "SPEC.md", retention: "RETENTION-NOTES.md", release: "RELEASE-READINESS.md",
+};
+const docCache = {}; // key -> {exists, content} once fetched
+const DOC_FETCH_TIMEOUT_MS = 6000; // bounded timeout — no fetch here is ever allowed to hang a
+  // card on "loading…" forever, whether the server is unreachable, mid-restart, or just slow.
+
+async function fetchDoc(key){
+  if (docCache[key]) return docCache[key];
+  const controller = (typeof AbortController !== "undefined") ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), DOC_FETCH_TIMEOUT_MS) : null;
+  try{
+    const res = await fetch("/doc?name=" + encodeURIComponent(key),
+      {cache:"no-store", signal: controller ? controller.signal : undefined});
+    if (!res.ok) return {exists:false, content:"", error:true};
+    const d = await res.json();
+    if (d.error) return {exists:false, content:"", error:true};
+    // v1.79.4 fix: defensively normalize whatever the server sent for "content" to a real
+    // string no matter what -- a non-string here (e.g. an array, from a server-side JSON
+    // serialization quirk) used to reach mdToHtml()/parseTableAfterHeading() and crash with
+    // "X.replace is not a function" / "X.trim is not a function", leaving that card's or
+    // modal's placeholder text stuck forever even though the fetch itself had succeeded.
+    let __content = d.content;
+    if (typeof __content !== "string") {
+      __content = Array.isArray(__content) ? __content.join("\n") : (__content == null ? "" : String(__content));
+    }
+    docCache[key] = {exists: !!d.exists, content: __content};
+    return docCache[key];
+  } catch(e){
+    // Covers: no server listening (file:// or server not started), network error, or the
+    // AbortController firing after DOC_FETCH_TIMEOUT_MS — all three land here as the same
+    // honest "error" state rather than leaving the caller's UI on "loading…" indefinitely.
+    return {exists:false, content:"", error:true};
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+// Tiny, deliberately-minimal markdown -> HTML transform — just enough for these six docs' own
+// shape (headings, bold, simple pipe tables, bullet lists), not a general-purpose renderer.
+function mdToHtml(raw){
+  const lines = raw.replace(/\r\n/g, "\n").split("\n");
+  let html = "", i = 0;
+  const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  while (i < lines.length){
+    const line = lines[i];
+    if (/^#{1,6}\s+/.test(line)){
+      html += "<h3>" + inline(line.replace(/^#{1,6}\s+/, "")) + "</h3>\n";
+      i++;
+    } else if (/^\|.*\|\s*$/.test(line) && lines[i+1] && /^\|[\s:|-]+\|\s*$/.test(lines[i+1])){
+      const header = line.split("|").slice(1,-1).map(c => c.trim());
+      html += "<table><tr>" + header.map(h => "<th>"+inline(h)+"</th>").join("") + "</tr>";
+      i += 2;
+      while (i < lines.length && /^\|.*\|\s*$/.test(lines[i])){
+        const cells = lines[i].split("|").slice(1,-1).map(c => c.trim());
+        html += "<tr>" + cells.map(c => "<td>"+inline(c)+"</td>").join("") + "</tr>";
+        i++;
+      }
+      html += "</table>\n";
+    } else if (/^[-*]\s+/.test(line)){
+      html += "<ul>";
+      while (i < lines.length && /^[-*]\s+/.test(lines[i])){
+        html += "<li>" + inline(lines[i].replace(/^[-*]\s+/, "")) + "</li>";
+        i++;
+      }
+      html += "</ul>\n";
+    } else if (line.trim() === ""){
+      i++;
+    } else {
+      html += "<p>" + inline(line) + "</p>\n";
+      i++;
+    }
+  }
+  return html;
+}
+
+async function openPreview(key){
+  const title = DOC_TITLES[key] || key;
+  document.getElementById('previewTitle').textContent = title;
+  document.getElementById('htmlView').innerHTML = '<p style="color:var(--dim);">loading…</p>';
+  document.getElementById('rawView').textContent = "";
+  showView('html');
+  document.getElementById('previewOverlay').classList.add('open');
+
+  const d = await fetchDoc(key);
+  if (d.error){
+    document.getElementById('htmlView').innerHTML =
+      '<p style="color:var(--red);">Could not reach the local server for this doc. Make sure ' +
+      '<code>agent-console-server.py</code>/<code>.ps1</code> is running and this page was opened ' +
+      'as <code>http://127.0.0.1:8765/docs</code>, not as a local file.</p>';
+    document.getElementById('rawView').textContent = "";
+    return;
+  }
+  if (!d.exists){
+    document.getElementById('htmlView').innerHTML =
+      '<p style="color:var(--dim);font-style:italic;">' + title + ' has not been created yet in ' +
+      'this project — it lives at <code>Claude/docs/' + title + '</code> once the owning agent ' +
+      'writes it.</p>';
+    document.getElementById('rawView').textContent = "(not created yet)";
+    return;
+  }
+  // v1.79.3 fix: this is the modal's "stuck on loading…" path — fetchDoc() already resolved
+  // successfully by this point (we're past the d.error/!d.exists checks above), so a hang here
+  // used to mean mdToHtml() threw synchronously on this doc's real content and the modal was
+  // left showing its initial "loading…" placeholder forever with no way to tell why.
+  try{
+    document.getElementById('htmlView').innerHTML = mdToHtml(d.content);
+  } catch(e){
+    document.getElementById('htmlView').innerHTML =
+      '<p style="color:var(--red);">Could not render this doc as HTML (' + inlineEsc(String(e && e.message || e)) +
+      '). Showing raw text instead.</p>';
+    showView('raw');
+  }
+  document.getElementById('rawView').textContent = d.content;
+}
+function closePreview(){ document.getElementById('previewOverlay').classList.remove('open'); }
+function showView(v){
+  document.getElementById('htmlView').style.display = v==='html' ? 'block':'none';
+  document.getElementById('rawView').style.display = v==='raw' ? 'block':'none';
+  document.getElementById('btnHtml').classList.toggle('active', v==='html');
+  document.getElementById('btnRaw').classList.toggle('active', v==='raw');
+}
+
+// "Recent status" card + doc-grid "not created yet" dimming, both driven by the same real /doc
+// fetches, on load.
+async function loadRecentStatus(){
+  const el = document.getElementById('recentStatus');
+  const d = await fetchDoc('status');
+  if (d.error){
+    el.textContent = "Could not reach the local server.";
+    document.getElementById('connStatus').innerHTML = '<span class="bad">✗</span> disconnected — is agent-console-server running?';
+    return;
+  }
+  document.getElementById('connStatus').innerHTML = '<span class="ok">✓</span> reading Claude/docs/ from the local server';
+  if (!d.exists){
+    el.textContent = "STATUS.md has not been created yet in this project.";
+    return;
+  }
+  // v1.79.3 fix: the fetch succeeding (connStatus already flips to "✓" above) does NOT guarantee
+  // the synchronous parsing below succeeds on a real, large, hand-edited STATUS.md — wrap it so a
+  // parsing exception shows an honest error on THIS card instead of leaving it on "loading…"
+  // forever while the header already claims a successful connection.
+  try{
+    const m = /##\s*Current state\s*([\s\S]*?)(\n##|\n---|$)/i.exec(d.content);
+    const section = (m ? m[1] : d.content).trim();
+    el.innerHTML = section
+      ? section.split("\n").filter(l => l.trim()).slice(0, 6).map(l => inlineEsc(l)).join("<br>")
+      : "<i>STATUS.md exists but has no \"Current state\" section yet.</i>";
+  } catch(e){
+    el.innerHTML = '<span style="color:var(--red);">Could not parse STATUS.md (' + inlineEsc(String(e && e.message || e)) + ').</span>';
+  }
+}
+function inlineEsc(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+}
+
+// ---- Real-data parsing for the hero cards + timeline + bug backlog (v1.79.2) --------------
+// All three used to be hardcoded sample content left over from mockup rounds (68%, "17 of 25
+// tasks Done", a T-013..T-020 timeline, "Today, 14:20 · planner-docs · T-017 marked Done", and a
+// fake bug list including "Storm collider not deactivating at round end", "Respawn point
+// duplicated in Zone 2", "Missing logger in 3 custom files", "DemoDisplay stand misaligned").
+// None of it was ever connected to Claude/docs/*.md. Fixed by parsing the real markdown tables
+// documented in Claude/docs-template/ROADMAP.md and BUGS.md.
+
+// Parses a GitHub-style pipe table right after a heading line matching headingRe, returning an
+// array of row-objects keyed by lowercased header text.
+function parseTableAfterHeading(raw, headingRe){
+  const lines = raw.replace(/\r\n/g, "\n").split("\n");
+  let i = lines.findIndex(l => headingRe.test(l));
+  if (i === -1) return [];
+  // find the first table header line after the heading
+  while (i < lines.length && !(/^\|.*\|\s*$/.test(lines[i]) && lines[i+1] && /^\|[\s:|-]+\|\s*$/.test(lines[i+1]))) i++;
+  if (i >= lines.length) return [];
+  const header = lines[i].split("|").slice(1,-1).map(c => c.trim().toLowerCase());
+  i += 2;
+  const rows = [];
+  // A real row's first cell is a short id like "T-053" or "B-001: some title" — used below to
+  // tell a genuine new row apart from stray pipe-looking continuation text.
+  // v1.79.6 fix: this used to ALSO require the line to end with "|" (/^\|.*\|\s*$/), on the
+  // assumption a row always fits on one physical line. A real row whose LAST cell is itself long
+  // enough to contain real newlines (acceptance-criteria prose that runs on for multiple lines,
+  // same shape as the continuation case this function already handles) starts with "| T-053 | ..."
+  // but that first physical line does NOT end with "|" — the closing "|" only shows up several
+  // lines later, after the embedded line breaks. That made the row's own opening line fail this
+  // check and fall through to the "continuation of the previous row" branch instead, silently
+  // merging the entire row (id, title, everything) into the PREVIOUS row's last cell and dropping
+  // it from the table outright (confirmed: T-053 in a real ROADMAP.md vanished this way, while
+  // T-005-shaped "row just doesn't exist" was never actually the cause). Now a row start is
+  // recognized purely from its opening "| <ID>" shape, regardless of whether that same line also
+  // happens to close with "|".
+  const looksLikeRowStart = line => /^\|\s*[A-Za-z]{1,4}-\d+\b/.test(line);
+  // v1.79.4 fix, two real-world shapes seen in a large, long-running project's ROADMAP.md/
+  // BUGS.md that both used to silently truncate the table early:
+  // (1) blank lines between rows — the owner uses them to visually group rows (MVP / Nice-to-
+  //     have / etc.); the table is still ONE continuous table in markdown terms, so a blank
+  //     line must be skipped, not treated as the end of the table (this alone used to stop
+  //     parsing after T-025 while real work continued to T-065+);
+  // (2) a row whose last cell(s) run past a single physical line (very long acceptance-
+  //     criteria text that ended up with real newlines in it instead of staying one markdown
+  //     line) — the continuation lines don't start a new "| id |..." row, so they're appended
+  //     to the previous row's last cell instead of ending the table. The table only truly ends
+  //     at the next real row, or a genuinely non-table, non-blank, non-continuation line (the
+  //     next heading, trailing prose, EOF).
+  while (i < lines.length){
+    if (lines[i].trim() === ""){ i++; continue; }
+    if (looksLikeRowStart(lines[i])){
+      const cells = lines[i].split("|").slice(1,-1).map(c => c.trim());
+      const row = {};
+      header.forEach((h, idx) => row[h] = cells[idx] || "");
+      // skip an all-blank example row (docs-template ships one so the table renders)
+      if (Object.values(row).some(v => v)) rows.push(row);
+      i++;
+    } else if (rows.length && /^#{1,6}\s/.test(lines[i]) === false && !headingRe.test(lines[i])){
+      // continuation of the previous row's last cell
+      const last = rows[rows.length - 1];
+      const lastKey = header[header.length - 1];
+      last[lastKey] = (last[lastKey] ? last[lastKey] + " " : "") + lines[i].trim();
+      i++;
+    } else {
+      break;
+    }
+  }
+  return rows;
+}
+
+function parseRoadmapTasks(raw){
+  return parseTableAfterHeading(raw, /^##\s*Tasks/i);
+}
+function parseBugsBacklog(raw){
+  return parseTableAfterHeading(raw, /^##\s*Backlog/i);
+}
+
+// v1.79.4 fix: real per-project docs are the PROJECT OWNER's own data and may write task/bug
+// Status values in whatever language the row was authored in (this kit's docs-template default
+// is English, but a project owner's real ROADMAP.md/STATUS.md rows are free text they control —
+// don't force-translate their file content, just match flexibly). Bucket a raw Status cell into
+// one of "done" / "active" (in progress) / "blocked" / "todo", case-insensitively, recognizing
+// English and Italian variants at minimum.
+// Buckets a real free-text BUGS.md Status cell (e.g. "Closed \u2014 RISOLTO 2026-09-17,
+// re-verified not re-fixed", "Open \u2014 coder adds on next touch of this file", "Was blocking
+// (sole remaining open item on T-028 ...)") into a small display badge for the bug backlog card,
+// separate from statusBucket() above (which buckets ROADMAP.md task Status into done/active/
+// blocked/todo for the timeline). Not a fixed enum in the real file, so this matches patterns,
+// case-insensitively, checked in this order:
+//  1. starts with "Closed" (English) or contains "Risolto"/"Resolved" (Italian/English past-tense
+//     resolution language the owner actually uses) -> green "Resolved" -- checked FIRST so a row
+//     like "Closed \u2014 ... ; T-028 has no other OPEN item" isn't misread as still-open just
+//     because the word "open" appears later in the free text.
+//  2. starts with "Open" -> amber "Open".
+//  3. contains "blocking" but not "non-blocking", and didn't match 1/2 above (e.g. "Was blocking
+//     (sole remaining open item on T-028 ...)" with no leading Closed/Open marker of its own) ->
+//     red "Blocked" -- a reasonable read of this real but ambiguous old-data shape.
+//  4. anything else (including empty) -> grey, showing the first few words of the raw cell
+//     instead of hiding it silently.
+function bugStatusBadge(raw){
+  const s = (raw || "").trim();
+  const low = s.toLowerCase();
+  if (/^closed/.test(low) || /\brisolto\b/.test(low) || /\bresolved\b/.test(low)) return {cls:"green", label:"Resolved"};
+  if (/^open\b/.test(low)) return {cls:"amber", label:"Open"};
+  if (/\bblocking\b/.test(low) && !/\bnon-blocking\b/.test(low)) return {cls:"red", label:"Blocked"};
+  if (!s) return {cls:"grey", label:"No status"};
+  const words = s.split(/\s+/).slice(0, 3).join(" ");
+  return {cls:"grey", label: words || "In progress"};
+}
+function statusBucket(raw){
+  const s = (raw || "").trim().toLowerCase();
+  if (s === "done" || s === "fatto") return "done";
+  if (s === "in progress" || s === "in corso") return "active";
+  if (s === "blocked" || s === "bloccato") return "blocked";
+  // v1.79.6 fix: "Out of scope" rows (a real, deliberate status a project owner uses for tasks
+  // explicitly decided against, distinct from "not started yet") used to fall into the default
+  // "todo" bucket below, getting counted as still-remaining/open work alongside genuine "Da
+  // fare"/"To do" rows. It's its own bucket now so progress math (and anything else reading
+  // statusBucket) can treat it as neither done nor outstanding.
+  if (s === "out of scope" || s === "fuori scope" || s.indexOf("out of scope") !== -1) return "outOfScope";
+  return "todo";
+}
+
+async function renderHero(){
+  const [roadmap, bugs, status] = await Promise.all([fetchDoc('roadmap'), fetchDoc('bugs'), fetchDoc('status')]);
+  try{
+  renderHeroInner(roadmap, bugs, status);
+  } catch(e){
+    // v1.79.3 fix: same "fetch succeeded, synchronous parse threw" gap as loadRecentStatus — a
+    // real 150KB+ ROADMAP.md/BUGS.md is not guaranteed to match the parser's assumed table shape,
+    // and an uncaught exception here used to leave ALL THREE hero cards frozen on "loading…"
+    // forever since renderHero() never reached the code that fills any of them.
+    ['progressTasks','openBugsBreakdown','lastUpdateWhen'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = "Could not parse this doc (" + (e && e.message || e) + ").";
+    });
+  }
+}
+function renderHeroInner(roadmap, bugs, status){
+  // --- Roadmap progress ring ---
+  if (roadmap.error){
+    document.getElementById('progressTasks').textContent = "Could not reach the local server.";
+    document.getElementById('progressRemaining').textContent = "";
+  } else if (!roadmap.exists){
+    document.getElementById('progressTasks').textContent = "ROADMAP.md has not been created yet.";
+    document.getElementById('progressPct').textContent = "–";
+  } else {
+    const tasks = parseRoadmapTasks(roadmap.content);
+    const total = tasks.length;
+    const done = tasks.filter(t => statusBucket(t.status) === "done").length;
+    // v1.79.6 fix: "remaining" used to be (total - done), which silently folded "Out of scope"
+    // rows in with genuine todo/active/blocked ones (an "Out of scope" row is neither Done nor
+    // outstanding work — the owner decided against it). Count only the buckets that actually mean
+    // "still to do" so a project with several Out-of-scope rows doesn't get told they're all
+    // remaining work.
+    const remaining = tasks.filter(t => {
+      const b = statusBucket(t.status);
+      return b === "todo" || b === "active" || b === "blocked";
+    }).length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progressPct').textContent = total ? (pct + "%") : "–";
+    const circumference = 226;
+    document.getElementById('progressRing').setAttribute('stroke-dashoffset',
+      String(circumference - (circumference * pct / 100)));
+    document.getElementById('progressTasks').textContent = total
+      ? (done + " of " + total + " tasks Done")
+      : "ROADMAP.md has no Tasks rows yet.";
+    document.getElementById('progressRemaining').textContent = total
+      ? (remaining + " task" + (remaining === 1 ? "" : "s") + " remaining")
+      : "";
+  }
+
+  // --- Open bugs ---
+  if (bugs.error){
+    document.getElementById('openBugsCount').textContent = "–";
+    document.getElementById('openBugsBreakdown').textContent = "Could not reach the local server.";
+  } else if (!bugs.exists){
+    document.getElementById('openBugsCount').textContent = "0";
+    document.getElementById('openBugsBreakdown').textContent = "BUGS.md has not been created yet.";
+  } else {
+    const rows = parseBugsBacklog(bugs.content).filter(r => (r.status || "").toLowerCase() !== "closed"
+      && (r.status || "").toLowerCase() !== "fixed" && (r.status || "").toLowerCase() !== "done");
+    const sev = { blocking: 0, major: 0, minor: 0 };
+    rows.forEach(r => {
+      const s = (r.severity || "").toLowerCase();
+      if (sev[s] !== undefined) sev[s]++;
+    });
+    document.getElementById('openBugsCount').textContent = String(rows.length);
+    // v1.79.6 fix: "No bugs logged yet." used to show whenever the OPEN-filtered list was empty,
+    // even when BUGS.md has a full backlog and every single one of them is resolved/closed — that
+    // reads as "you haven't logged any bugs" when the truth is closer to "good news, none open
+    // right now". Distinguish the genuinely-empty file (no Backlog rows at all) from the
+    // has-bugs-but-none-open case.
+    const allBugRows = parseBugsBacklog(bugs.content);
+    document.getElementById('openBugsBreakdown').textContent = rows.length
+      ? ("🔴" + sev.blocking + " blocking · 🟠" + sev.major + " major · 🟡" + sev.minor + " minor")
+      : (allBugRows.length
+          ? "No open bugs right now — all logged bugs are currently resolved."
+          : "No bugs logged yet.");
+  }
+
+  // --- Last update (STATUS.md's own documented convention: "New entry AT THE TOP on every
+  // update. Don't delete history." under "## Log" — so the correct entry is the FIRST
+  // "### YYYY-MM-DD ..." heading found INSIDE the Log section, never the "Current state" block
+  // above it (that block is a present-tense snapshot, replaced in place, not dated log history)
+  // and never any other "###" occurrence anywhere else in the file. v1.79.4 fix: the previous
+  // "_(updated: ...)_ " regex required an exact ")_" right after the date to close the markdown
+  // italics, which real "Current state" prose (long paragraphs with their own parentheses) does
+  // not reliably produce — it silently failed and fell back to a *file-wide*, non-anchored
+  // "###" search that could match a stray "###" above the Log section. Now we explicitly find
+  // the "## Log" heading first and take the first dated entry after it. ---
+  if (status.error){
+    document.getElementById('lastUpdateWhen').textContent = "Could not reach the local server.";
+  } else if (!status.exists){
+    document.getElementById('lastUpdateWhen').textContent = "STATUS.md has not been created yet.";
+  } else {
+    const logSectionMatch = /^##\s*Log\s*$/im.exec(status.content);
+    const logSection = logSectionMatch
+      ? status.content.slice(logSectionMatch.index + logSectionMatch[0].length)
+      : status.content;
+    const logHeading = /^###\s*([^\n]+)/m.exec(logSection);
+    document.getElementById('lastUpdateWhen').textContent = logHeading ? logHeading[1].trim() : "See STATUS.md";
+    // v1.79.6 fix: this used to run /\*\*In progress:\*\*\s*([^\n]+)/ against the WHOLE file
+    // (status.content), looking for a BOLD "**In progress:**" label. The "## Current state"
+    // section at the top of a real STATUS.md — the section the file's own header comment
+    // documents as "REPLACED on every update", i.e. the only authoritative one — writes this as
+    // a plain, unbolded "In progress: ..." line. Because the regex required the bold markers, it
+    // never matched there and instead matched the FIRST bold "**In progress:**" occurrence
+    // anywhere later in the file, which is typically a stale dated Log entry near the bottom
+    // (confirmed: a real file's Log had one reading "**In progress:** none — T-011 closed Fatto
+    // ... No task currently \"In corso.\")_" that this used to surface as if it were current).
+    // Now we scope the search to the "## Current state" section itself (bounded by the next "##"
+    // heading, i.e. "## Log") and match "In progress:" with or without bold markers.
+    const currentStateMatch = /^##\s*Current state\s*$/im.exec(status.content);
+    let currentStateSection = "";
+    if (currentStateMatch){
+      const afterHeading = status.content.slice(currentStateMatch.index + currentStateMatch[0].length);
+      const nextHeadingMatch = /^##\s/m.exec(afterHeading);
+      currentStateSection = nextHeadingMatch ? afterHeading.slice(0, nextHeadingMatch.index) : afterHeading;
+    }
+    const inProgress = /(?:\*\*)?In progress:(?:\*\*)?\s*([^\n]+)/i.exec(currentStateSection);
+    document.getElementById('lastUpdateWhat').textContent = (inProgress && !/^\(empty/i.test(inProgress[1].trim()))
+      ? inProgress[1].trim() : "";
+  }
+}
+
+async function renderTimeline(){
+  const el = document.getElementById('timeline');
+  const placeholder = document.getElementById('timelinePlaceholder');
+  const roadmap = await fetchDoc('roadmap');
+  if (roadmap.error){
+    placeholder.textContent = "Could not reach the local server.";
+    return;
+  }
+  if (!roadmap.exists){
+    placeholder.textContent = "ROADMAP.md has not been created yet.";
+    return;
+  }
+  let tasks;
+  try{
+    tasks = parseRoadmapTasks(roadmap.content);
+  } catch(e){
+    placeholder.textContent = "Could not parse ROADMAP.md (" + (e && e.message || e) + ").";
+    return;
+  }
+  if (!tasks.length){
+    placeholder.textContent = "ROADMAP.md has no Tasks rows yet.";
+    return;
+  }
+  placeholder.remove();
+  const escHtml = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+  // v1.79.4 fix: this used to render every parsed task with no window at all. On a small demo
+  // ROADMAP.md that's harmless, but on a real, long-running project (dozens/hundreds of tasks)
+  // the useful view is "recent context around the current task" — a handful of completed tasks
+  // leading up to whichever one is In corso/In progress, that task itself, and a few upcoming
+  // ones — not the raw first N (or all) rows in file order. TASKS_BEFORE/TASKS_AFTER below pick
+  // that window; the strip itself still scrolls horizontally (.timeline-wrap{overflow-x:auto})
+  // so this is about relevance, not just fitting the width.
+  const TASKS_BEFORE = 6, TASKS_AFTER = 5; // ~12 nodes total when a current task is found
+  // A real, long-running roadmap can have more than one row still marked In corso/In progress
+  // (an older task whose Status cell was never flipped, alongside the one actively being worked
+  // now). Rows are roughly chronological in file order, so the LAST such row is the best guess
+  // at "the current task" — not the first one encountered.
+  let currentIdx = -1;
+  tasks.forEach((t, idx) => { if (statusBucket(t.status) === 'active') currentIdx = idx; });
+  let windowed, windowNote;
+  if (currentIdx === -1){
+    // No task is In corso/In progress right now — fall back to the most recent tail of the
+    // list (file order tracks task-open order), which is the closest available "recent context".
+    const count = Math.min(tasks.length, TASKS_BEFORE + TASKS_AFTER + 1);
+    windowed = tasks.slice(tasks.length - count);
+    windowNote = tasks.length > windowed.length
+      ? ("showing last " + windowed.length + " of " + tasks.length + " tasks — none currently In corso/In progress")
+      : "";
+  } else {
+    const start = Math.max(0, currentIdx - TASKS_BEFORE);
+    const end = Math.min(tasks.length, currentIdx + TASKS_AFTER + 1);
+    windowed = tasks.slice(start, end);
+    windowNote = tasks.length > windowed.length
+      ? ("showing " + windowed.length + " of " + tasks.length + " tasks, centered on the current task")
+      : "";
+  }
+  const noteEl = document.getElementById('timelineNote');
+  if (noteEl) noteEl.textContent = windowNote;
+
+  const frag = document.createDocumentFragment();
+  windowed.forEach(t => {
+    const id = t.id || "?";
+    const statusRaw = (t.status || "To do").trim();
+    const bucket = statusBucket(statusRaw);
+    const dotClass = bucket === "active" ? "active" : (bucket === "done" ? "done" : "todo");
+    const node = document.createElement('div');
+    node.className = 'tnode';
+    node.innerHTML =
+      '<div class="dot ' + dotClass + '"></div>' +
+      '<div class="lbl' + (dotClass==='active' ? ' active' : '') + '">' + escHtml(id) + '<br>' + escHtml(statusRaw) + '</div>' +
+      '<div class="tip">' + escHtml(t.feature || "") + '</div>';
+    frag.appendChild(node);
+  });
+  el.appendChild(frag);
+}
+
+// v1.79.11: same "readable list" treatment as the bug backlog card, for ROADMAP.md's Tasks
+// table. Status badge reuses statusBucket() (already used for the progress ring/timeline, so the
+// bucketing stays consistent across the whole page); priority gets its own short-label normalizer
+// since, like BUGS.md's Severity column, a real Priority cell is often free text with a
+// parenthetical rationale appended rather than a clean one-word enum.
+function priorityPill(raw){
+  const s = (raw || "").trim();
+  const low = s.toLowerCase();
+  if (/out of scope/.test(low)) return {cls:"grey", label:"out of scope"};
+  if (/\bmvp\b/.test(low)) return {cls:"red", label:"MVP"};
+  if (/nice-to-have/.test(low) || /nice to have/.test(low)) return {cls:"amber", label:"nice-to-have"};
+  if (/backlog/.test(low)) return {cls:"grey", label:"backlog"};
+  if (!s || s === "—" || s === "-") return {cls:"grey", label:"unspecified"};
+  const word = (s.split(/\s+/)[0] || "").toLowerCase().replace(/[^a-z0-9-]/g, "");
+  return {cls:"grey", label: word || "other"};
+}
+function statusBadgeForTask(raw){
+  const bucket = statusBucket(raw);
+  if (bucket === "done") return {cls:"green", label:"Done"};
+  if (bucket === "active") return {cls:"amber", label:"In progress"};
+  if (bucket === "blocked") return {cls:"red", label:"Blocked"};
+  if (bucket === "outOfScope") return {cls:"grey", label:"Out of scope"};
+  return {cls:"grey", label:"To do"};
+}
+async function renderRoadmapTaskList(){
+  const el = document.getElementById('roadmapTaskList');
+  const roadmap = await fetchDoc('roadmap');
+  if (roadmap.error){
+    el.innerHTML = '<span style="color:var(--red);">Could not reach the local server.</span>';
+    return;
+  }
+  if (!roadmap.exists){
+    el.innerHTML = '<span style="font-style:italic;">No tasks yet — ROADMAP.md has not been created yet.</span>';
+    return;
+  }
+  let rows;
+  try{
+    rows = parseRoadmapTasks(roadmap.content);
+  } catch(e){
+    el.innerHTML = '<span style="color:var(--red);">Could not parse ROADMAP.md (' + (e && e.message || e) + ').</span>';
+    return;
+  }
+  if (!rows.length){
+    el.innerHTML = '<span style="font-style:italic;">ROADMAP.md has no Tasks rows yet.</span>';
+    return;
+  }
+  const escHtml = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  // Same surfacing rule as the bug backlog: still-outstanding work first (in progress/blocked,
+  // then to-do), done and out-of-scope pushed to the bottom — this is a "what's left" list, not a
+  // full audit trail (that's what "Open full ROADMAP.md" is for).
+  const taskRank = r => {
+    const b = statusBucket(r.status);
+    if (b === "active" || b === "blocked") return 0;
+    if (b === "todo") return 1;
+    if (b === "done") return 2;
+    return 3; // outOfScope
+  };
+  const taskIdNum = r => {
+    const m = /^[A-Za-z]{1,4}-(\d+)/.exec((r.id || "").trim());
+    return m ? parseInt(m[1], 10) : -1;
+  };
+  const sortedRows = rows.slice().sort((a, b) => {
+    const ra = taskRank(a), rb = taskRank(b);
+    if (ra !== rb) return ra - rb;
+    return taskIdNum(a) - taskIdNum(b);
+  });
+  el.innerHTML = sortedRows.slice(0, 10).map(r => {
+    const badge = statusBadgeForTask(r.status);
+    const pri = priorityPill(r.priority);
+    const feature = (r.feature || "(untitled)").replace(/~~/g, "");
+    return '<div class="bugrow"><span class="pill ' + pri.cls + '" title="' + escHtml(r.priority || "") + '">' +
+      escHtml(pri.label) + '</span>' +
+      '<span class="badge ' + badge.cls + '" title="' + escHtml(r.status || "") + '">' +
+      '<span class="dot"></span>' + escHtml(badge.label) + '</span> ' +
+      '<b>' + escHtml(r.id || "?") + '</b> — ' + escHtml(feature) + '</div>';
+  }).join("");
+}
+async function renderBugBacklog(){
+  const el = document.getElementById('bugBacklogList');
+  const bugs = await fetchDoc('bugs');
+  if (bugs.error){
+    el.innerHTML = '<span style="color:var(--red);">Could not reach the local server.</span>';
+    return;
+  }
+  if (!bugs.exists){
+    el.innerHTML = '<span style="font-style:italic;">No bugs logged yet — BUGS.md has not been created yet.</span>';
+    return;
+  }
+  let rows;
+  try{
+    rows = parseBugsBacklog(bugs.content);
+  } catch(e){
+    el.innerHTML = '<span style="color:var(--red);">Could not parse BUGS.md (' + (e && e.message || e) + ').</span>';
+    return;
+  }
+  if (!rows.length){
+    el.innerHTML = '<span style="font-style:italic;">No bugs logged yet.</span>';
+    return;
+  }
+  const escHtml = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  // v1.79.7 fix: Severity is real free text on some rows (e.g. "Major (was reopened 2026-09-09;
+  // RESOLVED 2026-09-10)" or "Was blocking (sole remaining open item on T-028 -- part (b) PASSed
+  // 2026-09-08)") rather than a clean one-word enum -- dumping the raw cell straight into the pill
+  // (as before) produced an overlong pill that wrapped the row onto two lines, inconsistent with
+  // every row whose Severity cell happens to already be short. Bucket it down to one of the known
+  // short severity labels first, same keyword-match approach as bugStatusBadge() above, and always
+  // drop the extra parenthetical context -- it isn't needed in the pill, the fuller detail already
+  // lives in "Probable cause"/the full BUGS.md.
+  const bugSeverityPill = raw => {
+    const s = (raw || "").trim();
+    const low = s.toLowerCase();
+    if (/\bnon-blocking\b/.test(low)) return {cls:"grey", label:"non-blocking"};
+    if (/\bblock/.test(low)) return {cls:"red", label:"blocking"};
+    if (/\bmajor\b/.test(low)) return {cls:"amber", label:"major"};
+    if (/\bminor\b/.test(low)) return {cls:"grey", label:"minor"};
+    if (!s) return {cls:"grey", label:"unspecified"};
+    const word = (s.split(/\s+/)[0] || "").toLowerCase().replace(/[^a-z0-9-]/g, "");
+    return {cls:"grey", label: word || "other"};
+  };
+  // v1.79.6 fix: this used to be rows.slice(0, 6) — just the first 6 rows in file order, i.e. the
+  // OLDEST bugs by id (B-001, B-002, ...) on any real, long-running BUGS.md, no matter how many
+  // newer/still-open bugs exist further down. Sort so still-open/blocked bugs surface first
+  // (reusing the same open/blocked/resolved bucketing bugStatusBadge() already does for the
+  // badge), and within the same bucket prefer the higher bug number as a safe structural proxy
+  // for "more recent" (ids are assigned sequentially) rather than parsing dates out of free-text
+  // Status/Probable cause prose.
+  const bugRank = r => {
+    const label = bugStatusBadge(r.status).label;
+    if (label === "Open" || label === "Blocked") return 0;
+    if (label === "No status" || label === "In progress") return 1;
+    return 2; // Resolved
+  };
+  const bugIdNum = r => {
+    const m = /^[A-Za-z]{1,4}-(\d+)/.exec((r.title || r.id || "").trim());
+    return m ? parseInt(m[1], 10) : -1;
+  };
+  const sortedRows = rows.slice().sort((a, b) => {
+    const ra = bugRank(a), rb = bugRank(b);
+    if (ra !== rb) return ra - rb;
+    return bugIdNum(b) - bugIdNum(a);
+  });
+  el.innerHTML = sortedRows.slice(0, 6).map(r => {
+    const badge = bugStatusBadge(r.status);
+    const sev = bugSeverityPill(r.severity);
+    return '<div class="bugrow"><span class="pill ' + sev.cls + '" title="' + escHtml(r.severity || "") + '">' +
+      escHtml(sev.label) + '</span>' +
+      '<span class="badge ' + badge.cls + '" title="' + escHtml(r.status || "") + '">' +
+      '<span class="dot"></span>' + escHtml(badge.label) + '</span> ' +
+      escHtml(r.title || "(untitled)") + '</div>';
+  }).join("");
+}
+
+async function markMissingDocs(){
+  const keys = ["status","roadmap","bugs","spec","retention","release"];
+  for (const key of keys){
+    const d = await fetchDoc(key);
+    const card = document.querySelector('.doc-card[data-key="' + key + '"]');
+    if (!card) continue;
+    if (d.error) continue;
+    card.classList.toggle('missing', !d.exists);
+    const desc = card.querySelector('.d');
+    if (!d.exists && desc) desc.textContent = "not created yet";
+  }
+}
+
+loadRecentStatus();
+markMissingDocs();
+renderHero();
+renderTimeline();
+renderRoadmapTaskList();
+renderBugBacklog();
+</script>
+</body>
+</html>

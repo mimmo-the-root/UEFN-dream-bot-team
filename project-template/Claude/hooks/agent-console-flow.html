@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flow of Flows Console</title>
+<style>
+:root{
+  --bg:#060810; --panel:#0d121c; --panel2:#0a0e17; --line:#1c2740; --line-soft:#223050;
+  --text:#c9d6f0; --dim:#5a7088; --blue:#4b8bff; --blue-glow:rgba(75,139,255,.45);
+  --amber:#ffb454; --green:#39ff88; --cyan:#4bd8ff; --magenta:#ff5cd1; --purple:#b98bff;
+  --red:#ff4d5e; --red-glow:rgba(255,77,94,.55); --orange:#ff7a4a; --teal:#2dd4bf;
+  --yellow:#ffbd2e; --yellow-glow:rgba(255,189,46,.6); --grey:#4a5568; --indigo:#6c7bff; --lime:#a6e22e;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;height:100%;}
+body{background-image:
+  radial-gradient(ellipse 1000px 500px at 50% -8%, rgba(255,77,94,.06), transparent 60%),
+  radial-gradient(ellipse 700px 400px at 90% 90%, rgba(75,139,255,.05), transparent 60%);}
+.mono{font-family:'Consolas','SF Mono',monospace;}
+a{color:inherit;}
+
+.wrap{max-width:1360px;margin:0 auto;padding:12px 18px 16px;}
+
+.topnav{display:flex;gap:10px;align-items:center;margin-bottom:8px;}
+.topnav a.navlink{font-size:10.5px;color:var(--dim);border:1px solid var(--line);border-radius:7px;
+  padding:4px 9px;text-decoration:none;}
+.topnav a.navlink:hover{color:var(--text);border-color:var(--blue);}
+
+header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:8px;
+  border-bottom:1px solid var(--line);margin-bottom:10px;flex-wrap:wrap;gap:10px;}
+.title{font-size:19px;font-weight:800;letter-spacing:.4px;}
+.title .dream{color:var(--red);}
+.title .loop{color:#fff;}
+.subtitle{font-size:9.5px;letter-spacing:1.2px;color:var(--dim);text-transform:uppercase;margin-top:2px;}
+.statrow{display:flex;gap:20px;}
+.stat{text-align:right;}
+.stat .l{font-size:8.5px;letter-spacing:1.2px;color:var(--dim);text-transform:uppercase;}
+.stat .n{font-size:16px;font-weight:800;margin-top:1px;}
+.stat.you .n{color:var(--magenta);}
+
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px 12px;}
+.card .h{font-size:9px;letter-spacing:1.2px;color:var(--dim);text-transform:uppercase;margin-bottom:6px;}
+.logline{font-size:10px;line-height:1.75;}
+.logline b{font-weight:700;}
+.logline .k-pass{color:var(--green);}
+.logline .k-reject{color:var(--red);}
+.logline .k-halt{color:var(--magenta);}
+.logline .k-choice{color:var(--cyan);}
+.bar-row{display:flex;align-items:center;gap:6px;font-size:10px;margin:6px 0;}
+.bar-row .l{width:80px;flex:none;color:var(--dim);}
+.bar-track{flex:1;height:6px;background:var(--line);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--cyan);}
+.bar-row .pct{width:30px;text-align:right;font-size:9.5px;color:var(--dim);}
+.cost-row{display:flex;justify-content:space-between;font-size:10.5px;margin:5px 0;}
+.cost-row b{font-weight:700;}
+.big-cost{font-size:19px;font-weight:800;color:var(--red);margin-top:3px;}
+.gate-row{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;margin:5px 0;}
+.gate-row .dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;}
+.gate-row b{float:right;font-size:12px;}
+
+.tower{display:grid;grid-template-columns:280px 1fr 300px;gap:10px;}
+.tower-title{font-size:9px;letter-spacing:1.2px;color:var(--dim);text-transform:uppercase;margin-bottom:6px;}
+.tower-head{display:flex;gap:10px;align-items:center;}
+.hub-mini{position:relative;width:46px;height:46px;flex:none;}
+.hub-mini .hr{position:absolute;inset:0;border-radius:50%;border:1px solid var(--red);animation:ripple 3.15s ease-out infinite;}
+.hub-mini .hr:nth-child(2){animation-delay:1.05s;border-color:var(--orange);}
+.hub-mini .hr:nth-child(3){animation-delay:2.1s;border-color:var(--magenta);}
+.hub-mini .hc{position:absolute;inset:6px;border-radius:10px;background:radial-gradient(circle at 35% 25%,#1a0810,#0a0e17 70%);
+  border:2px solid var(--red);box-shadow:0 0 14px var(--red-glow);display:flex;align-items:center;justify-content:center;font-size:15px;}
+.hub-mini .hl{position:absolute;top:2px;right:2px;width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 6px rgba(57,255,136,.85);animation:softPulse 1.6s ease-in-out infinite;}
+@keyframes softPulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+@keyframes ripple{0%{transform:scale(.8);opacity:.65;}100%{transform:scale(2.05);opacity:0;}}
+.tower-rows{padding:0;max-height:108px;overflow:hidden;}
+.station-row{display:grid;grid-template-columns:104px 1fr 52px;padding:5px 10px;border-bottom:1px solid var(--line);align-items:center;font-size:10px;}
+.station-row:last-child{border-bottom:none;}
+.station-row.on{background:rgba(57,255,136,.05);}
+.station-row .name{display:flex;gap:5px;align-items:center;}
+.station-row .name b{font-size:10.5px;}
+.station-row .desc{font-size:9.5px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.station-row .live-led{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:softPulse 1.4s infinite;}
+.pill{display:inline-block;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:700;justify-self:end;}
+.pill.grey{background:rgba(90,112,136,.15);color:var(--dim);}
+.pill.amber{background:rgba(255,180,84,.12);color:var(--amber);}
+.decision-row{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--line);font-size:10px;}
+.decision-row:last-child{border-bottom:none;}
+.decision-row .t{color:var(--dim);font-size:9px;width:40px;flex:none;}
+.decision-row .dt{width:6px;height:6px;border-radius:50%;flex:none;}
+
+.flowband{position:relative;margin-bottom:12px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.chip{background:var(--panel);border:1px solid var(--line-soft);border-radius:8px;padding:5px 9px;font-size:9.5px;
+  text-align:center;white-space:nowrap;transition:border-color .2s,transform .15s;position:relative;}
+.chip:hover{transform:translateY(-2px);border-color:var(--blue);}
+.chip .ic{font-size:14px;display:block;line-height:1;margin-bottom:2px;}
+.chip .sub{font-size:7.5px;color:var(--dim);}
+.gatechip{width:36px;height:36px;border:2px solid var(--magenta);border-radius:9px;transform:rotate(45deg);
+  background:rgba(255,92,209,.08);display:flex;align-items:center;justify-content:center;flex:none;}
+.gatechip .in{transform:rotate(-45deg);font-size:6.5px;font-weight:700;color:var(--magenta);text-align:center;line-height:1.1;}
+.hubchip{position:relative;width:44px;height:44px;flex:none;}
+.hubchip .hr{position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--red);animation:ripple 3.15s ease-out infinite;}
+.hubchip .hr:nth-child(2){animation-delay:1.05s;border-color:var(--orange);}
+.hubchip .hr:nth-child(3){animation-delay:2.1s;border-color:var(--magenta);}
+.hubchip .hc{position:absolute;inset:6px;border-radius:12px;background:radial-gradient(circle at 35% 25%,#1a0810,#0a0e17 70%);
+  border:2px solid var(--red);box-shadow:0 0 18px var(--red-glow);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.hubchip .hl{position:absolute;top:2px;right:2px;width:6px;height:6px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 6px rgba(57,255,136,.85);animation:softPulse 1.6s ease-in-out infinite;}
+.band-label{position:absolute;top:6px;left:12px;font-size:8.5px;letter-spacing:1.2px;color:var(--dim);text-transform:uppercase;z-index:3;}
+
+/* machine fx toolkit (build-zone factory sparks, gate-zone barrier/hammer) */
+.machine{position:absolute;text-align:center;}
+.machine .body{font-size:20px;line-height:1;}
+.machine .tag{font-size:7px;color:var(--dim);letter-spacing:.6px;margin-top:1px;text-transform:uppercase;}
+.spark{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--yellow);
+  box-shadow:0 0 6px var(--yellow-glow);opacity:0;}
+.working .spark{animation:sparkfly 1.1s ease-out infinite;}
+.spark:nth-child(1){left:0;top:0;animation-delay:0s;}
+.spark:nth-child(2){left:6px;top:-2px;animation-delay:.2s;}
+.spark:nth-child(3){left:-6px;top:2px;animation-delay:.4s;}
+.spark:nth-child(4){left:3px;top:4px;animation-delay:.6s;}
+@keyframes sparkfly{0%{opacity:1;transform:translate(0,0) scale(1);}100%{opacity:0;transform:translate(var(--dx,8px),var(--dy,-14px)) scale(.3);}}
+.hammer{position:absolute;top:-10px;left:50%;width:3px;height:14px;background:var(--grey);transform-origin:top center;transform:translateX(-50%) rotate(0deg);}
+.working .hammer{animation:hammerswing 1s ease-in-out infinite;}
+@keyframes hammerswing{0%,100%{transform:translateX(-50%) rotate(-38deg);}50%{transform:translateX(-50%) rotate(4deg);}}
+.barrier{position:absolute;top:-2px;left:50%;width:26px;height:3px;background:var(--red);transform-origin:left center;
+  transform:translateX(-2px) rotate(-70deg);border-radius:2px;transition:transform .4s;}
+.working .barrier{animation:barrierlift 2.2s ease-in-out infinite;}
+@keyframes barrierlift{0%,15%{transform:translateX(-2px) rotate(-70deg);}40%,75%{transform:translateX(-2px) rotate(0deg);}90%,100%{transform:translateX(-2px) rotate(-70deg);}}
+.idle{opacity:.55;filter:saturate(.5);}
+
+/* token-usage gauge (docked in the Control Tower hub box) */
+.tg-mini{display:flex;align-items:center;gap:8px;padding:2px 2px 8px;border-bottom:1px solid var(--line);margin-bottom:4px;}
+.tg-mini svg{width:58px;height:33px;overflow:visible;display:block;flex:none;}
+.tg-mini .tg-track{fill:none;stroke:rgba(255,255,255,.06);stroke-width:6;stroke-linecap:round;}
+.tg-mini .tg-arc{fill:none;stroke-width:6;stroke-linecap:round;opacity:.85;}
+.tg-mini .tg-arc.tg-green{stroke:var(--green);}
+.tg-mini .tg-arc.tg-yellow{stroke:var(--yellow);}
+.tg-mini .tg-arc.tg-red{stroke:var(--red);}
+.tg-mini .tg-needle{stroke:#fff;stroke-width:2.4;stroke-linecap:round;transform-box:fill-box;transform-origin:50% 100%;
+  transform:rotate(var(--tg-ang,-76deg));transition:transform .55s cubic-bezier(.34,1.55,.5,1);}
+.tg-mini.pulse .tg-needle{stroke:var(--amber);filter:drop-shadow(0 0 3px var(--yellow-glow));}
+.tg-mini .tg-hub{fill:#0d121c;stroke:#fff;stroke-width:1.4;}
+.tg-mini.pulse .tg-arc{filter:drop-shadow(0 0 3px currentColor);}
+.tg-mini .tg-info{display:flex;flex-direction:column;gap:0;min-width:0;}
+.tg-mini .tg-readout{font-size:11px;font-weight:800;font-family:'Consolas','SF Mono',monospace;color:var(--dim);transition:color .3s;line-height:1.25;}
+.tg-mini.pulse .tg-readout{color:var(--amber);}
+.tg-mini .tg-station{font-size:8px;letter-spacing:.4px;color:var(--dim);text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;}
+.tg-mini .tg-max{font-size:8px;color:var(--dim);font-family:'Consolas','SF Mono',monospace;margin-top:1px;}
+.tg-mini .tg-max b{color:var(--cyan);font-weight:700;}
+
+/* Control Tower: 3 separate boxes (hub w/ gauge · station rows · decision history) */
+.hub-card{flex-direction:column;align-items:stretch;gap:6px;}
+.hub-top{display:flex;align-items:center;gap:10px;}
+.tg-mini.compact{border:none;padding:6px 0 0;margin:0;gap:8px;flex:none;border-top:1px solid var(--line);}
+.tg-mini.compact svg{width:46px;height:26px;}
+.tg-mini.compact .tg-readout{font-size:10px;}
+.tg-mini.compact .tg-station{font-size:7.5px;max-width:110px;}
+.tg-mini.compact .tg-max{font-size:7.5px;}
+.rows-card.rows-scroll{max-height:170px;overflow-y:auto;padding:0;}
+.rows-scroll .station-row{padding:3px 8px;font-size:9.5px;grid-template-columns:104px 1fr 48px;}
+.rows-scroll .station-row .name b{font-size:10px;}
+.rows-scroll .station-row .desc{font-size:9px;}
+.rows-scroll::-webkit-scrollbar{width:5px;}
+.rows-scroll::-webkit-scrollbar-thumb{background:var(--line-soft);border-radius:3px;}
+
+/* truck (inline svg, nose-forward, drawn above station icons) */
+.truck{transition:transform .85s cubic-bezier(.4,0,.2,1);}
+.truck rect,.truck circle,.truck path{filter:drop-shadow(0 0 4px rgba(0,0,0,.5));}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topnav">
+    <a class="navlink" href="agent-console.html">← Main console</a>
+    <a class="navlink" href="agent-console-docs.html">Docs &amp; Status</a>
+    <a class="navlink" href="agent-console-stats.html">Stats</a>
+  </div>
+
+  <header>
+    <div><div class="title"><span class="dream">DREAM</span> <span class="loop">team coding loop</span><span id="flowKitVersion" style="font-size:10px;font-weight:normal;letter-spacing:.5px;color:var(--dim);margin-left:8px;vertical-align:middle;"></span></div>
+    <div class="subtitle">Flow of flows · assembly-line pipeline, hazard-stripe belt, real agent registry</div></div>
+    <div class="statrow" title="Sample layout — this kit doesn't currently log per-decision audit counts, see the note below the pipeline band">
+      <div class="stat"><div class="l">shipped</div><div class="n">17</div></div>
+      <div class="stat"><div class="l">steps</div><div class="n">63</div></div>
+      <div class="stat"><div class="l">decisions</div><div class="n">211</div></div>
+      <div class="stat you"><div class="l">sent to you</div><div class="n">3</div></div>
+    </div>
+  </header>
+
+  <div class="flowband" style="height:196px;">
+    <div style="position:absolute;inset:0;display:flex;">
+      <div style="flex:1.8;background:linear-gradient(180deg,rgba(108,123,255,.16),rgba(108,123,255,.03));border-right:2px solid var(--line);"></div>
+      <div style="flex:0.9;background:linear-gradient(180deg,rgba(57,255,136,.16),rgba(57,255,136,.03));border-right:2px solid var(--line);"></div>
+      <div style="flex:2.2;background:linear-gradient(180deg,rgba(255,92,209,.14),rgba(255,92,209,.03));border-right:2px solid var(--line);"></div>
+      <div style="flex:0.9;background:linear-gradient(180deg,rgba(75,216,255,.14),rgba(75,216,255,.03));"></div>
+    </div>
+    <div style="position:absolute;left:1.5%;top:6px;font-size:8px;letter-spacing:1px;color:var(--indigo);text-transform:uppercase;">intake</div>
+    <div style="position:absolute;left:32.5%;top:6px;font-size:8px;letter-spacing:1px;color:var(--green);text-transform:uppercase;">build</div>
+    <div style="position:absolute;left:48%;top:6px;font-size:8px;letter-spacing:1px;color:var(--magenta);text-transform:uppercase;">gate</div>
+    <div style="position:absolute;right:1.5%;top:6px;font-size:8px;letter-spacing:1px;color:var(--cyan);text-transform:uppercase;">ship</div>
+
+    <!-- hazard-stripe belt -->
+    <div style="position:absolute;left:20px;right:20px;top:140px;height:14px;border-radius:4px;
+      background:repeating-linear-gradient(45deg,#2a2410 0 10px,#171708 10px 20px);
+      background-size:28px 28px;animation:stripemove 1.1s linear infinite;box-shadow:0 0 0 1px var(--line);"></div>
+    <style>@keyframes stripemove{from{background-position:0 0;}to{background-position:28px 0;}}</style>
+
+    <svg viewBox="0 0 1320 196" style="position:absolute;inset:0;width:100%;height:100%;z-index:30;" preserveAspectRatio="none">
+      <defs><filter id="gA" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <g id="flow-truck" class="truck" transform="translate(20,132)" filter="url(#gA)">
+        <!-- nose-forward truck, cab leads on the right (direction of travel) -->
+        <rect x="0" y="6" width="20" height="12" rx="1.5" fill="#c9d6f0"/>
+        <rect x="20" y="0" width="12" height="18" rx="2" fill="var(--red)"/>
+        <rect x="27" y="3" width="6" height="6" rx="1" fill="#bfe8ff"/>
+        <circle cx="7" cy="19" r="3.2" fill="#0a0e17" stroke="#556" stroke-width="1"/>
+        <circle cx="25" cy="19" r="3.2" fill="#0a0e17" stroke="#556" stroke-width="1"/>
+      </g>
+    </svg>
+
+    <div style="position:absolute;left:10px;top:158px;">
+      <div class="hubchip" style="width:36px;height:36px;"><div class="hr"></div><div class="hr"></div><div class="hr"></div><div class="hc" style="font-size:13px;">🤖</div><div class="hl"></div></div>
+    </div>
+
+    <!-- ZONE INTAKE -->
+    <div style="position:absolute;left:60px;top:96px;display:flex;gap:7px;align-items:center;">
+      <div class="chip"><span class="ic">📥</span>task intake</div>
+      <div class="gatechip" style="border-color:var(--indigo);background:rgba(108,123,255,.12);"><div class="in" style="color:var(--indigo);">int.gate</div></div>
+      <div class="chip"><span class="ic">🧠</span>read context</div>
+      <div class="chip" style="font-size:8.5px;">skill<br>match</div>
+    </div>
+    <!-- ZONE BUILD: coder alone, factory icon + welding sparks -->
+    <div style="position:absolute;left:462px;top:70px;">
+      <div id="flow-build-machine" class="machine" style="left:0;top:0;">
+        <span class="spark" style="--dx:10px;--dy:-16px;"></span><span class="spark" style="--dx:-8px;--dy:-14px;"></span>
+        <span class="spark" style="--dx:6px;--dy:-18px;"></span><span class="spark" style="--dx:-4px;--dy:-20px;"></span>
+        <div class="body">🏭</div><div class="tag">factory</div>
+      </div>
+    </div>
+    <div style="position:absolute;left:454px;top:118px;">
+      <div class="chip" style="border-color:var(--green);box-shadow:0 0 10px rgba(57,255,136,.3);"><span class="ic">👨‍💻</span>coder</div>
+    </div>
+    <!-- ZONE GATE: compliance pre-check, MCP place gate, qa-regression, intent-reviewer, compliance-reviewer -->
+    <div style="position:absolute;left:636px;top:96px;display:flex;gap:7px;align-items:center;">
+      <div class="chip"><span class="ic">🛡️</span>pre-check</div>
+      <div style="position:relative;">
+        <div class="gatechip"><div class="in">MCP<br>place</div></div>
+        <div class="machine flow-gate-machine" style="left:8px;top:-16px;"><div class="barrier"></div></div>
+      </div>
+      <div style="position:relative;">
+        <div class="chip"><span class="ic">🔍</span>qa-reg</div>
+        <div class="machine flow-gate-machine" style="left:14px;top:-10px;"><div class="hammer"></div></div>
+      </div>
+      <div class="gatechip" style="border-color:var(--yellow);background:rgba(255,189,46,.12);"><div class="in" style="color:var(--yellow);">int.rev</div></div>
+      <div class="gatechip" style="border-color:var(--lime);background:rgba(166,226,46,.12);"><div class="in" style="color:var(--lime);">compl.<br>rev</div></div>
+    </div>
+    <!-- ZONE SHIP: planner-docs, sealed-crate icon -->
+    <div style="position:absolute;right:16px;top:78px;display:flex;gap:8px;align-items:flex-end;">
+      <div id="flow-ship-machine" class="machine" style="position:relative;">
+        <span class="spark" style="--dx:8px;--dy:-14px;background:var(--green);box-shadow:0 0 6px rgba(57,255,136,.8);"></span>
+        <span class="spark" style="--dx:-7px;--dy:-12px;background:var(--green);box-shadow:0 0 6px rgba(57,255,136,.8);"></span>
+        <div class="body" style="font-size:20px;">📦<span style="font-size:13px;vertical-align:-2px;">✅</span></div>
+        <div class="tag">sealed &amp; shipped</div>
+      </div>
+      <div class="chip"><span class="ic">🗂️</span>planner-docs</div>
+    </div>
+    <div style="position:absolute;left:48%;bottom:6px;font-size:8px;color:var(--magenta);">🧑 halt → ask you</div>
+  </div>
+
+  <div style="font-size:10px;color:var(--dim);margin:2px 0 12px;">
+    The pipeline band, truck, gauge and Control Tower below are wired to real agent state (polled
+    from <code>/log</code>, <code>/tokens</code> and <code>/active-task</code>, same as the main
+    console). The four cards below them (Decision log, Model tiers, Cost of asking, Gate outcomes)
+    are now ALSO wired to real data — <code>verdict</code> and <code>model_tier</code> events that
+    `intent-gate`/`intent-reviewer`/`compliance-reviewer`/`qa-regression`/`release-gate` and
+    `coder` append to the same <code>agent-console.jsonl</code> the pipeline reads (see
+    CHANGELOG.md v1.79.0). On a fresh project with no such events logged yet, each card shows an
+    honest empty state instead of a number — never a fabricated one.
+  </div>
+  <div class="grid4">
+    <div class="card"><div class="h">Decision log</div><div class="logline mono" id="decisionLogCard">
+      <div style="color:var(--dim);">No decisions logged yet</div>
+    </div></div>
+    <div class="card"><div class="h">Model tiers</div><div id="modelTiersCard">
+      <div style="font-size:10px;color:var(--dim);">No model-tier data yet</div>
+    </div></div>
+    <div class="card"><div class="h">Cost of asking</div><div id="costOfAskingCard">
+      <div style="font-size:10px;color:var(--dim);">No halts recorded yet — nothing has required your input</div>
+    </div></div>
+    <div class="card"><div class="h">Gate outcomes</div><div id="gateOutcomesCard">
+      <div style="font-size:10px;color:var(--dim);">No gate verdicts logged yet</div>
+    </div></div>
+  </div>
+
+  <div class="tower-title">Control Tower <span id="towerStatus" style="font-size:9px;letter-spacing:0;text-transform:none;color:var(--dim);"></span></div>
+  <div class="tower">
+    <div class="card tower-head hub-card">
+      <div class="hub-top">
+        <div class="hub-mini"><div class="hr"></div><div class="hr"></div><div class="hr"></div><div class="hc">🤖</div><div class="hl"></div></div>
+        <div><div style="font-weight:800;font-size:12px;">chief-of-staff</div><div style="font-size:9.5px;color:var(--dim);" id="towerSub">supervising the real pipeline · no active task</div></div>
+      </div>
+      <!-- Token-usage gauge: v1.78.0 — this used to sweep on a canned timer with random numbers
+           that had no relationship to anything real, while visually claiming to show live usage.
+           It now reads the SAME /tokens endpoint the main console's "Tokens this session" stat
+           uses (session-cumulative, not per-agent — see the CHANGELOG note on why there's no
+           per-agent token log in this kit yet) and only animates when a real agent is actually
+           active, scaled against the highest real total seen so far this page load. At true idle
+           (no active task) it sits flat at zero with no sweep at all — see refreshGauge() below. -->
+      <div class="tg-mini compact" data-gauge id="tokenGauge">
+        <svg viewBox="0 0 96 54"><g>
+          <path class="tg-track" d="M8,52 A40,40 0 0 1 88,52"/>
+          <path class="tg-arc tg-green" d="M8,52 A40,40 0 0 1 55.9,13.1"/>
+          <path class="tg-arc tg-yellow" d="M55.9,13.1 A40,40 0 0 1 82.9,30.6"/>
+          <path class="tg-arc tg-red" d="M82.9,30.6 A40,40 0 0 1 88,52"/>
+          <line class="tg-needle" x1="48" y1="52" x2="48" y2="16"/>
+          <circle class="tg-hub" cx="48" cy="52" r="3.4"/>
+        </g></svg>
+        <div class="tg-info">
+          <div class="tg-readout" id="tgReadout">— tok</div>
+          <div class="tg-station" id="tgStation">no usage data yet</div>
+          <div class="tg-max">session total: <b id="tgMax">0K</b></div>
+        </div>
+      </div>
+    </div>
+    <!-- Real 5-stage pipeline (v1.78.0) — same stages/order as agent-console.html's own
+         MINIFLOW_PIPELINE, the one place in this kit that already tracks "what's really running"
+         from the /log event stream. The old 9-row list included stations ("read-context",
+         "compliance pre-check", "MCP place") that don't correspond to any real agent or event in
+         this kit — they've been dropped rather than faked. -->
+    <div class="card tower-rows rows-card rows-scroll" id="flow-station-rows">
+      <div class="station-row" data-agent="intent-gate"><div class="name"><span>🧭</span><b>intent-gate</b></div><div class="desc">checks task ambiguity</div><div class="pill grey">idle</div></div>
+      <div class="station-row" data-agent="coder"><div class="name"><span>👨‍💻</span><b>coder</b></div><div class="desc">implements features and fixes</div><div class="pill grey">idle</div></div>
+      <div class="station-row" data-agent="intent-reviewer"><div class="name"><span>🎯</span><b>intent-reviewer</b></div><div class="desc">verifies output matches spec</div><div class="pill grey">idle</div></div>
+      <div class="station-row" data-agent="compliance-reviewer"><div class="name"><span>🛡️</span><b>compliance-reviewer</b></div><div class="desc">mechanical rule gate</div><div class="pill grey">idle</div></div>
+      <div class="station-row" data-agent="planner-docs"><div class="name"><span>📋</span><b>planner-docs</b></div><div class="desc">keeps STATUS/ROADMAP/BUGS current</div><div class="pill grey">idle</div></div>
+    </div>
+    <div class="card" style="padding:8px 10px;">
+      <div class="h">Recent activity (from <code>/log</code>)</div>
+      <div id="decisionHistory"><div class="decision-row"><div class="t"></div><div class="dt" style="background:var(--dim);"></div>waiting for agent activity…</div></div>
+    </div>
+  </div>
+</div>
+
+<script>document.getElementById('flowKitVersion').textContent = 'v1.79.11';</script>
+<script>
+// v1.78.0 — REAL state, replacing the old always-on decorative loop. Same source of truth the
+// main console (agent-console.html) uses: poll /log every second, replay start/stop events into
+// an `active` stack, and derive every visual (truck position, station highlighting, gauge) from
+// that — plus /tokens for the session token total and /active-task for the task-id label. No
+// setInterval-driven animation loop runs independently of real data any more; every visual change
+// here is a direct reaction to a poll result. See CHANGELOG.md v1.78.0 for the full before/after.
+
+const truck = document.getElementById('flow-truck');
+const rowEls = Array.from(document.querySelectorAll('#flow-station-rows .station-row'));
+const decisionHistoryEl = document.getElementById('decisionHistory');
+const towerSub = document.getElementById('towerSub');
+const towerStatus = document.getElementById('towerStatus');
+const TRUCK_Y = 132;
+const TRUCK_IDLE_X = 20; // parked at the very start of the belt — see "idle" case below
+
+// Same 5-stage real pipeline as agent-console.html's MINIFLOW_PIPELINE, mapped to this page's
+// intake/build/gate/ship zones (zone x-coordinates match the band drawn above).
+const ZONES = {
+  "intent-gate":          {x:110,  machines:[]},
+  "coder":                {x:462,  machines:["#flow-build-machine"]},
+  "intent-reviewer":      {x:730,  machines:[".flow-gate-machine"]},
+  "compliance-reviewer":  {x:730,  machines:[".flow-gate-machine"]},
+  "planner-docs":         {x:1272, machines:["#flow-ship-machine"]},
+};
+const PIPELINE_IDS = Object.keys(ZONES);
+
+let active = [];       // mirrors agent-console.html's own `active` stack (agent id + startTs)
+// Root cause found 2026-09-24: agent-console.html prunes entries stuck in `active` past this
+// ceiling (a start event whose matching stop never arrived, e.g. the owning session crashed or
+// was killed before its SubagentStop hook fired) — this page never had that pruning, so a single
+// orphaned "start" from days ago could pin the Control Tower gauge to that agent forever even
+// while the header's own /active-task-derived idle state was correct. Same 45min ceiling as the
+// main console, see pruneStaleActive() below and agent-console.html's STALE_ACTIVE_MS.
+const STALE_ACTIVE_MS = 45 * 60 * 1000;
+let lastCount = 0;
+let recentEvents = []; // last few log rows, newest first, for the "Recent activity" card
+let sessionMaxTokens = 0; // highest /tokens total seen this page load — the gauge's own scale
+
+// v1.79.0 — the 4 bottom cards, now driven entirely by real `verdict`/`model_tier` events that
+// intent-gate/intent-reviewer/compliance-reviewer/qa-regression/release-gate/coder append to
+// agent-console.jsonl (see each agent's own .md for the exact logging step). No sample data, no
+// fabricated numbers: an empty log means an honest empty state below, nothing else.
+const decisionLogCard = document.getElementById('decisionLogCard');
+const modelTiersCard = document.getElementById('modelTiersCard');
+const costOfAskingCard = document.getElementById('costOfAskingCard');
+const gateOutcomesCard = document.getElementById('gateOutcomesCard');
+const KEYWORD_CLASS = {pass:'k-pass', reject:'k-reject', halt:'k-halt'};
+
+function esc(s){ return String(s == null ? '' : s).replace(/</g,'&lt;'); }
+
+function renderBottomCards(entries){
+  const verdicts = entries.filter(e => e && e.event === 'verdict' && e.result);
+  const tiers = entries.filter(e => e && e.event === 'model_tier' && e.tier);
+
+  // --- Decision log: most recent 6 real verdicts, newest first ---
+  if (!verdicts.length){
+    decisionLogCard.innerHTML = '<div style="color:var(--dim);">No decisions logged yet</div>';
+  } else {
+    const recent = verdicts.slice(-6).reverse();
+    decisionLogCard.innerHTML = recent.map(v => {
+      const cls = KEYWORD_CLASS[v.result] || 'k-choice';
+      const label = v.task ? (esc(v.agent) + ' · ' + esc(v.task)) : esc(v.agent);
+      const detail = v.detail ? (' — ' + esc(v.detail)) : '';
+      return '<div><span class="' + cls + '">' + esc(v.result) + '</span> ' + label + detail + '</div>';
+    }).join('');
+  }
+
+  // --- Model tiers: real distribution of coder's logged tiers ---
+  if (!tiers.length){
+    modelTiersCard.innerHTML = '<div style="font-size:10px;color:var(--dim);">No model-tier data yet</div>';
+  } else {
+    const counts = {};
+    tiers.forEach(t => { counts[t.tier] = (counts[t.tier] || 0) + 1; });
+    const total = tiers.length;
+    const colors = {'from-scratch':'var(--grey)', 'second-brain':'var(--cyan)', 'verse-patterns':'var(--purple)'};
+    modelTiersCard.innerHTML = Object.keys(counts).sort().map(tier => {
+      const pct = Math.round((counts[tier] / total) * 100);
+      const color = colors[tier] || 'var(--cyan)';
+      return '<div class="bar-row"><div class="l">' + esc(tier) + '</div><div class="bar-track">' +
+        '<div class="bar-fill" style="width:' + pct + '%;background:' + color + ';"></div></div>' +
+        '<div class="pct">' + pct + '%</div></div>';
+    }).join('');
+  }
+
+  // --- Cost of asking: real halt count + real halt→resume wait time ---
+  const halts = verdicts.filter(v => v.result === 'halt');
+  if (!halts.length){
+    costOfAskingCard.innerHTML = '<div style="font-size:10px;color:var(--dim);">No halts recorded yet — nothing has required your input</div>';
+  } else {
+    // Resume signal: the kit has no dedicated "resume" event. The next log entry of ANY kind is
+    // NOT a safe signal — the halting agent's own SubagentStop hook fires its "stop" line a
+    // moment later as it exits, which is not the owner responding, just that invocation wrapping
+    // up. The real resume is the next genuine new invocation beginning — i.e. the next "start"
+    // event (any agent) after the halt — since a new invocation can only begin once the owner (or
+    // a scheduled resume) has actually acted. Fall back to the next entry only if no later start
+    // exists at all (e.g. the log ends right after the halt).
+    const waits = [];
+    halts.forEach(h => {
+      const hIdx = entries.indexOf(h);
+      const haltTs = Date.parse(h.ts);
+      if (!haltTs) return;
+      let resumeTs = null;
+      for (let j = hIdx + 1; j < entries.length; j++){
+        const e = entries[j];
+        if (e && e.event === 'start'){
+          const t = Date.parse(e.ts);
+          if (t){ resumeTs = t; break; }
+        }
+      }
+      if (resumeTs == null){
+        for (let j = hIdx + 1; j < entries.length; j++){
+          const t = Date.parse(entries[j] && entries[j].ts);
+          if (t){ resumeTs = t; break; }
+        }
+      }
+      if (resumeTs != null) waits.push((resumeTs - haltTs) / 60000);
+    });
+    const avgMin = waits.length ? (waits.reduce((a,b) => a+b, 0) / waits.length) : null;
+    const totalDecisions = entries.filter(e => e && (e.event === 'verdict')).length || halts.length;
+    const autonomyPct = totalDecisions ? (100 * (1 - halts.length / totalDecisions)).toFixed(1) : '—';
+    costOfAskingCard.innerHTML =
+      '<div class="cost-row"><span>asking you</span><b>' +
+        (avgMin != null ? ('~' + avgMin.toFixed(1) + ' min/time') : 'waiting on a resume') + '</b></div>' +
+      '<div class="cost-row"><span>deciding alone</span><b style="color:var(--green);">0 min</b></div>' +
+      '<div class="big-cost">' + halts.length + ' time' + (halts.length === 1 ? '' : 's') + '</div>' +
+      '<div style="font-size:9.5px;color:var(--dim);">of ' + totalDecisions + ' decisions · ' + autonomyPct + '% autonomous</div>';
+  }
+
+  // --- Gate outcomes: real verdict counts by result across all gate agents ---
+  if (!verdicts.length){
+    gateOutcomesCard.innerHTML = '<div style="font-size:10px;color:var(--dim);">No gate verdicts logged yet</div>';
+  } else {
+    const pass = verdicts.filter(v => v.result === 'pass').length;
+    const reject = verdicts.filter(v => v.result === 'reject').length;
+    const halt = verdicts.filter(v => v.result === 'halt').length;
+    gateOutcomesCard.innerHTML =
+      '<div class="gate-row"><span><span class="dot" style="background:var(--green);"></span>pass</span><b>' + pass + '</b></div>' +
+      '<div class="gate-row"><span><span class="dot" style="background:var(--red);"></span>reject</span><b>' + reject + '</b></div>' +
+      '<div class="gate-row"><span><span class="dot" style="background:var(--magenta);"></span>halted, asked</span><b>' + halt + '</b></div>';
+  }
+}
+
+function setAllMachines(on){
+  document.querySelectorAll('.machine').forEach(m => m.classList.toggle('working', on));
+}
+
+function refreshStations(){
+  const topAgent = active.length ? active[active.length - 1].agent : null;
+  let anyOn = false;
+  rowEls.forEach(row => {
+    const id = row.dataset.agent;
+    const isOn = id === topAgent;
+    if (isOn) anyOn = true;
+    row.classList.toggle('on', isOn);
+    const pill = row.querySelector('.pill');
+    if (pill){
+      pill.textContent = isOn ? 'active' : 'idle';
+      pill.className = 'pill ' + (isOn ? 'amber' : 'grey');
+    }
+    let led = row.querySelector('.live-led');
+    if (led) led.remove();
+    if (isOn){
+      const nameEl = row.querySelector('.name');
+      const l = document.createElement('span'); l.className = 'live-led';
+      nameEl.appendChild(l);
+    }
+  });
+
+  // Truck + build/gate/ship machine sparks: real position, real on/off — parked at the start of
+  // the belt with every machine dark when nothing in the real pipeline is active (the "camioncino
+  // continua a muoversi in assenza di attività reali" complaint).
+  setAllMachines(false);
+  if (topAgent && ZONES[topAgent]){
+    truck.setAttribute('transform', 'translate(' + ZONES[topAgent].x + ',' + TRUCK_Y + ')');
+    ZONES[topAgent].machines.forEach(sel => document.querySelectorAll(sel).forEach(m => m.classList.add('working')));
+    towerSub.textContent = "supervising the real pipeline · " + topAgent + " active" + (mfTaskId ? (" · " + mfTaskId) : "");
+    towerStatus.textContent = "";
+  } else {
+    truck.setAttribute('transform', 'translate(' + TRUCK_IDLE_X + ',' + TRUCK_Y + ')');
+    towerSub.textContent = "supervising the real pipeline · no active task";
+    towerStatus.textContent = "— idle";
+  }
+}
+
+// Token-usage gauge: real session total from /tokens, scaled against the highest total seen so
+// far this page load. At idle (no real agent active in the 5-stage pipeline) it sits flat with no
+// sweep and no pulse glow — it does not fake activity that isn't happening.
+const IDLE_ANG = -76, MAX_ANG = 80;
+let mfTaskId = "";
+async function pollTokensGauge(){
+  const g = document.getElementById('tokenGauge');
+  const needle = g.querySelector('.tg-needle');
+  const readout = document.getElementById('tgReadout');
+  const stationEl = document.getElementById('tgStation');
+  const maxEl = document.getElementById('tgMax');
+  try{
+    const res = await fetch('/tokens', {cache:'no-store'});
+    if (!res.ok) throw new Error('bad status');
+    const t = await res.json();
+    if (!t || typeof t.total !== 'number'){
+      readout.textContent = '— tok';
+      stationEl.textContent = 'no usage data yet';
+      needle.style.setProperty('--tg-ang', IDLE_ANG + 'deg');
+      g.classList.remove('pulse');
+      return;
+    }
+    if (t.total > sessionMaxTokens) sessionMaxTokens = t.total;
+    // Same "is anything active right now" signal the header (towerSub/towerStatus, in
+    // refreshStations()) already uses — never a separate/independent idle check.
+    const topAgent = active.length ? active[active.length - 1].agent : null;
+    maxEl.textContent = (sessionMaxTokens/1000).toFixed(1) + 'K'; // persists across idle — see below
+    if (topAgent){
+      const ratio = sessionMaxTokens > 0 ? Math.min(1, t.total / sessionMaxTokens) : 0;
+      readout.textContent = (t.total/1000).toFixed(1) + 'K tok';
+      needle.style.setProperty('--tg-ang', (IDLE_ANG + ratio*(MAX_ANG-IDLE_ANG)).toFixed(1) + 'deg');
+      stationEl.textContent = topAgent;
+      g.classList.add('pulse');
+    } else {
+      // True idle (matches the header directly above, which is already correct): the needle parks
+      // at rest and the readout stops claiming a live "current" value. sessionMaxTokens is NOT
+      // reset here — it's the persistent scaling reference (see "tg-max" label), not a live
+      // reading, so it keeps whatever the highest real total seen this page load was.
+      readout.textContent = '0 tok';
+      needle.style.setProperty('--tg-ang', IDLE_ANG + 'deg');
+      stationEl.textContent = 'idle';
+      g.classList.remove('pulse');
+    }
+  } catch(e){
+    readout.textContent = '— tok';
+    stationEl.textContent = 'server unreachable';
+    needle.style.setProperty('--tg-ang', IDLE_ANG + 'deg');
+    g.classList.remove('pulse');
+  }
+}
+
+function pushDecisionRow(evt){
+  recentEvents.unshift(evt);
+  recentEvents = recentEvents.slice(0, 8);
+  decisionHistoryEl.innerHTML = recentEvents.map(e => {
+    const time = new Date(e.ts || Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const color = e.event === 'start' ? 'var(--amber)' : 'var(--green)';
+    const verb = e.event === 'start' ? 'started' : 'finished';
+    const desc = (e.desc || '').replace(/</g,'&lt;');
+    return '<div class="decision-row"><div class="t">' + time + '</div>' +
+      '<div class="dt" style="background:' + color + ';"></div>' + e.agent + ' ' + verb +
+      (desc ? (' — ' + desc) : '') + '</div>';
+  }).join('') || '<div class="decision-row"><div class="t"></div><div class="dt" style="background:var(--dim);"></div>waiting for agent activity…</div>';
+}
+
+function processEntries(entries){
+  for (let i = lastCount; i < entries.length; i++){
+    const evt = entries[i];
+    if (!evt || typeof evt.agent !== 'string' || !evt.agent) continue;
+    if (evt.event === 'start'){
+      active.push({agent: evt.agent, startTs: Date.parse(evt.ts) || Date.now()});
+    } else if (evt.event === 'stop'){
+      // Match the MOST RECENT unmatched start for this agent (LIFO), not the oldest: with
+      // repeated/nested calls to the same agent id, a stop should close the call that's actually
+      // ending, not whichever call happened to start first. findLastIndex also means a stray old
+      // orphaned start (see pruneStaleActive()) doesn't "steal" a stop meant for a fresh call.
+      let idx = -1;
+      for (let j = active.length - 1; j >= 0; j--){ if (active[j].agent === evt.agent){ idx = j; break; } }
+      if (idx !== -1) active.splice(idx, 1);
+    }
+    if (i >= entries.length - 8) pushDecisionRow(evt);
+  }
+  lastCount = entries.length;
+  pruneStaleActive();
+  refreshStations();
+  renderBottomCards(entries);
+}
+
+// See the STALE_ACTIVE_MS comment above: a "start" whose owning session crashed/was killed
+// before its matching "stop" hook fired would otherwise sit in `active` forever, pinning the
+// truck/gauge/station rows to that agent indefinitely even though nothing is really running.
+// Found 2026-09-24 against the real project log: agent-console.html already had this exact
+// pruning in its tickTimers(); this page never did, which is why the Control Tower gauge could
+// show e.g. "qa-regression" as the active station while the /active-task-derived header text
+// correctly said idle — same underlying `active` array, but only one of the two consumers here
+// had ever had its stale entries cleaned out.
+function pruneStaleActive(){
+  const now = Date.now();
+  for (let i = active.length - 1; i >= 0; i--){
+    if (now - active[i].startTs > STALE_ACTIVE_MS) active.splice(i, 1);
+  }
+}
+
+async function pollActiveTask(){
+  try{
+    const res = await fetch('/active-task', {cache:'no-store'});
+    mfTaskId = res.ok ? (await res.text() || '').trim() : '';
+  } catch(e){ mfTaskId = ''; }
+}
+
+async function pollLog(){
+  try{
+    const res = await fetch('/log', {cache:'no-store'});
+    if (!res.ok) throw new Error('bad status');
+    processEntries(await res.json());
+  } catch(e){
+    towerSub.textContent = 'disconnected — is agent-console-server running?';
+  }
+}
+
+async function tick(){
+  await pollActiveTask();
+  await pollLog();
+  pruneStaleActive();   // also catch staleness on ticks where /log returned no new rows
+  refreshStations();
+  await pollTokensGauge();
+}
+
+// Start parked/idle (no fake initial sweep), then poll every second — same cadence as the main
+// console's own /log polling.
+refreshStations();
+tick();
+setInterval(tick, 1000);
+</script>
+</body>
+</html>
