@@ -84,10 +84,27 @@ subsystem two areas both use), merge those into a single entry rather than passi
 through — `second-brain-librarian` already de-duplicates against the vault's existing articles,
 but it shouldn't have to de-duplicate against your own pass first.
 
+## Step 3.5 — verify before handoff
+
+Don't pass anything to `second-brain-librarian` that hasn't been rechecked. This matters more
+here than almost anywhere else in the kit: `second-brain-librarian` writes what it receives into
+the shared vault, which every future project queries — a scout's mistaken or stale finding
+doesn't just cost this project, it can mislead every project that consults it afterward. For each
+entry in Step 3's aggregated list:
+1. Re-open the actual file/device the scout cited and confirm the pattern genuinely works the way
+   claimed — a scout is a fast, low-judgment read, and fast reads occasionally misdescribe what a
+   file actually does. Drop anything that doesn't hold up on re-check rather than passing it along
+   softened.
+2. Confirm it's actually reusable (would make sense on a different island), not something that
+   only works because of this project's specific setup — a scout scoped to one area may not have
+   had visibility into whether a pattern secretly depends on something project-specific.
+3. If two scouts' entries were merged into one in Step 3, make sure the merged description is
+   still accurate for both original locations, not just the first one checked.
+
 ## Step 4 — one single handoff to second-brain-librarian
 
-Invoke `second-brain-librarian` exactly once, in sync mode, with the full aggregated list from
-Step 3 (device/mechanic, what it does, this project's name, today's date) — the same brief format
+Invoke `second-brain-librarian` exactly once, in sync mode, with the verified list from Step 3.5
+(device/mechanic, what it does, this project's name, today's date) — the same brief format
 `project-bootstrap`'s A6 step already uses, just carrying everything this pass found instead of
 one project's worth of incidental findings. Let it do the actual writing, de-duplication, linking,
 and lateral-synthesis pass exactly as it always does.
@@ -95,7 +112,8 @@ and lateral-synthesis pass exactly as it always does.
 ## Step 5 — report back
 
 Report concisely to the owner: how many areas/waves you ran, how many candidate patterns the
-parallel analysis found in total, how many survived Step 3's merge, and relay
+parallel analysis found in total, how many survived Step 3's merge, how many were dropped at Step
+3.5's verification (and why, briefly, if it's more than one or two), and relay
 `second-brain-librarian`'s own report of what it actually wrote or updated in the vault (including
 anything it flagged as a Level 2 proposal awaiting confirmation — you don't decide on those
 yourself, just surface them).

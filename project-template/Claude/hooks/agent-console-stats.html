@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DREAM BOT TEAM AGENT CONSOLE FOR UEFN — Island Stats</title>
+<style>
+  /* Same design tokens as agent-console.html, kept in sync deliberately — this page is the
+     "Stats" tab of the same console, not a separate product. If you retheme one, retheme both. */
+  :root{
+    --bg:#060810; --panel:#0d121c; --panel2:#0a0e17; --line:#1c2740; --line-soft:#223050;
+    --text:#c9d6f0; --dim:#5a7088; --blue:#4b8bff; --blue-glow:rgba(75,139,255,.45);
+    --amber:#ffb454; --green:#39ff88; --cyan:#4bd8ff; --magenta:#ff5cd1; --purple:#b98bff;
+    --red:#ff4d5e; --red-glow:rgba(255,77,94,.55); --orange:#ff7a4a; --teal:#2dd4bf;
+    --yellow:#ffbd2e; --yellow-glow:rgba(255,189,46,.6); --grey:#4a5568;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);
+    font-family:'Consolas','Courier New',monospace;overflow-x:hidden;}
+  body{
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(75,139,255,0.14), transparent 60%),
+      radial-gradient(ellipse at 50% 60%, rgba(185,139,255,0.06), transparent 55%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
+
+  .termlines{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;
+    gap:4px 24px;padding:14px 4px 12px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .termlines .line{font-size:12px;line-height:1.5;white-space:pre-wrap;}
+  .termlines .prompt{color:var(--blue);font-weight:bold;letter-spacing:.5px;}
+  .termlines .prompt .title-text{font-size:17px;letter-spacing:1px;}
+  .termlines-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+  .termlines .comment{color:var(--dim);}
+  .termlines .status{color:var(--dim);}
+  .termlines .status .ok{color:var(--green);}
+  .termlines .status .bad{color:#ff5c5c;}
+  .view-switch{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  .view-switch a{font-size:10px;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;
+    padding:3px 10px;color:var(--dim);background:var(--panel2);}
+  .view-switch a.on{color:var(--text);background:var(--panel);border-left:2px solid var(--blue);
+    padding-left:8px;}
+  .view-switch a:not(.on):hover{color:var(--text);}
+
+  .island-title{font-size:11px;color:var(--dim);margin:-4px 4px 18px;}
+  .island-title b{color:var(--text);font-weight:normal;}
+  .tag-list{display:inline-flex;gap:5px;margin-left:10px;flex-wrap:wrap;vertical-align:middle;}
+  .tag-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;
+    color:var(--dim);border:1px solid var(--line);border-radius:10px;padding:2px 8px;background:var(--panel);}
+  .genre-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;
+    color:var(--bg);border:1px solid var(--green);border-radius:10px;padding:2px 8px;
+    background:var(--green);font-weight:bold;margin-right:6px;}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px;}
+  .tile{border:1px solid var(--line);border-radius:8px;background:linear-gradient(180deg,var(--panel),var(--panel2));
+    padding:11px 13px;cursor:pointer;transition:border-color .15s;}
+  .tile:hover{border-color:var(--line-soft);}
+  .tile.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset;}
+  .tile .lbl{font-size:9.5px;letter-spacing:.06em;color:var(--dim);text-transform:uppercase;margin-bottom:6px;}
+  .tile .val{font-size:19px;color:var(--text);font-variant-numeric:tabular-nums;}
+  .tile .delta{font-size:10.5px;margin-top:4px;font-variant-numeric:tabular-nums;}
+  .tile .delta.up{color:var(--green);} .tile .delta.down{color:var(--red);} .tile .delta.flat{color:var(--dim);}
+  .tile .max{font-size:9.5px;color:var(--dim);margin-top:5px;}
+  .tile .max b{color:var(--yellow);font-weight:normal;}
+  .tile .novalue{font-size:13px;color:var(--dim);}
+
+  .chart-panel{border:1px solid var(--line);border-radius:9px;background:var(--panel2);padding:16px;}
+  .chart-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;gap:12px;flex-wrap:wrap;}
+  .chart-head .t{font-size:12px;color:var(--text);}
+  .chart-head .m{font-size:10px;color:var(--dim);white-space:nowrap;}
+  .chart-wrap{position:relative;}
+  svg .grid{stroke:var(--line);stroke-width:1;}
+  svg .axis-label{font-size:9.5px;fill:var(--dim);}
+  .crosshair{position:absolute;top:0;bottom:22px;width:1px;background:var(--line-soft);pointer-events:none;display:none;}
+  .hover-tip{position:absolute;background:var(--panel);border:1px solid var(--line-soft);border-radius:6px;
+    padding:6px 9px;font-size:10.5px;color:var(--text);pointer-events:none;display:none;white-space:nowrap;
+    box-shadow:0 4px 14px rgba(0,0,0,.5);}
+  .hover-tip .d{color:var(--dim);font-size:9.5px;}
+  .hover-tip .v{color:var(--blue);font-variant-numeric:tabular-nums;}
+
+  .empty-state{border:1px solid var(--line);border-radius:9px;background:var(--panel2);padding:40px 24px;
+    text-align:center;color:var(--dim);font-size:12px;line-height:1.8;}
+  .empty-state code{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:2px 6px;
+    color:var(--amber);}
+  .rate-limit-note{font-size:10px;color:var(--yellow);margin-top:10px;display:none;}
+
+  .rank-card{border:1px solid var(--line);border-radius:9px;background:var(--panel2);padding:14px 16px;margin-bottom:14px;}
+  .rank-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;}
+  .rank-head .t{font-size:12px;color:var(--text);}
+  .rank-badge{font-size:15px;color:var(--yellow);font-variant-numeric:tabular-nums;}
+  .rank-badge .genre{font-size:10px;color:var(--dim);margin-left:6px;}
+  .rank-stats{display:flex;gap:18px;font-size:10.5px;color:var(--dim);margin-bottom:10px;flex-wrap:wrap;}
+  .rank-stats b{color:var(--text);font-weight:normal;font-variant-numeric:tabular-nums;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="termlines">
+    <div class="line prompt">&gt; <span class="title-text">DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="blink">_</span></span></div>
+    <div class="termlines-side">
+      <div class="view-switch"><a href="agent-console.html">Console</a><a href="agent-console-stats.html" class="on">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a></div>
+      <div class="line comment"># Fortnite Ecosystem API — real data, last 7 days</div>
+      <div class="line status" id="statusLine">… loading</div>
+    </div>
+  </div>
+
+  <div class="island-title" id="islandTitle"></div>
+
+  <div id="mainContent">
+    <div class="rank-card" id="rankCard" style="display:none;">
+      <div class="rank-head">
+        <span class="t">Genre Rank</span>
+        <span class="rank-badge" id="rankBadge">#<span id="rankCurrent">—</span><span class="genre" id="rankGenre"></span></span>
+      </div>
+      <div class="rank-stats">
+        <span>Best: <b id="rankBest">—</b></span>
+        <span>Worst: <b id="rankWorst">—</b></span>
+        <span>Average: <b id="rankAverage">—</b></span>
+      </div>
+      <div class="chart-wrap" id="rankChartWrap">
+        <svg id="rankChartSvg" viewBox="0 0 900 160" width="100%" height="160" preserveAspectRatio="none"></svg>
+        <div class="crosshair" id="rankCrosshair"></div>
+        <div class="hover-tip" id="rankHoverTip"></div>
+      </div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="chart-panel">
+      <div class="chart-head">
+        <span class="t" id="chartTitle">—</span>
+        <span class="m" id="chartMeta"></span>
+      </div>
+      <div class="chart-wrap" id="chartWrap">
+        <svg id="chartSvg" viewBox="0 0 900 220" width="100%" height="220" preserveAspectRatio="none"></svg>
+        <div class="crosshair" id="crosshair"></div>
+        <div class="hover-tip" id="hoverTip"></div>
+      </div>
+      <div class="rate-limit-note" id="rateLimitNote">⚠ Fortnite API rate limit reached — showing the last successfully cached data.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// --- Metric definitions -----------------------------------------------------------------
+// Field names as returned by GET /islands/{code}/metrics/day (verified with a real payload
+// capture, 2026-09-18 — see Claude/logs/fortnite-api-sample-response.json). `retention` is a
+// separate array shaped {d1,d7,timestamp} instead of {value,timestamp} like every other metric,
+// so it's split into two virtual series (retentionD1/retentionD7) client-side.
+const METRICS = [
+  {id:"plays",                   label:"Plays",             fmt:"int"},
+  {id:"uniquePlayers",           label:"Unique Players",    fmt:"int"},
+  {id:"minutesPlayed",           label:"Minutes Played",    fmt:"int"},
+  {id:"averageMinutesPerPlayer", label:"Min / Player",      fmt:"dec"},
+  {id:"favorites",               label:"Favorites",         fmt:"int"},
+  {id:"recommendations",         label:"Recommends",        fmt:"int"},
+  {id:"peakCCU",                 label:"Peak CCU",          fmt:"int"},
+  {id:"retentionD1",             label:"Retention D1",      fmt:"pct"},
+  {id:"retentionD7",             label:"Retention D7",      fmt:"pct"},
+];
+
+let selectedMetric = "plays";
+let normalized = {};  // id -> [{t: Date, v: number|null}]
+let islandTitle = "";
+
+function fmtValue(v, fmt){
+  if (v === null || v === undefined) return "—";
+  if (fmt === "pct") return (v * (v <= 1 ? 100 : 1)).toFixed(0) + "%";
+  if (fmt === "dec") return v.toFixed(1);
+  if (v >= 1e6) return (v/1e6).toFixed(1) + "M";
+  if (v >= 1e3) return (v/1e3).toFixed(1) + "K";
+  return String(Math.round(v));
+}
+
+// Normalizes the raw API payload into { metricId: [{t,v}] } regardless of small envelope
+// variations — defensive because the exact root shape (bare object vs a wrapper key) wasn't
+// 100% nailed down by the real-payload capture, only the per-metric array shape was.
+function normalize(raw){
+  const root = raw && raw.metrics ? raw.metrics : (raw || {});
+  const out = {};
+  METRICS.forEach(m => { if (m.id !== "retentionD1" && m.id !== "retentionD7") out[m.id] = []; });
+  out.retentionD1 = []; out.retentionD7 = [];
+
+  ["plays","uniquePlayers","minutesPlayed","averageMinutesPerPlayer","favorites","recommendations","peakCCU"]
+    .forEach(key => {
+      const arr = Array.isArray(root[key]) ? root[key] : [];
+      out[key] = arr.map(p => ({ t: new Date(p.timestamp), v: (p.value === null || p.value === undefined) ? null : Number(p.value) }));
+    });
+
+  const ret = Array.isArray(root.retention) ? root.retention : [];
+  out.retentionD1 = ret.map(p => ({ t: new Date(p.timestamp), v: (p.d1 === null || p.d1 === undefined) ? null : Number(p.d1) }));
+  out.retentionD7 = ret.map(p => ({ t: new Date(p.timestamp), v: (p.d7 === null || p.d7 === undefined) ? null : Number(p.d7) }));
+  return out;
+}
+
+// Builds a true calendar-day grid of `days` entries ending "today" (the browser's own clock,
+// matched by UTC date string), mapping real points onto it by date and leaving an explicit
+// `null` for any day the API genuinely has no entry for. This exists because of two real bugs
+// found in production (v1.71.1): (1) the API OMITS days with insufficient traffic from the
+// array instead of padding them with null, so using the raw array length as "the window" showed
+// wrong/stale dates; (2) filtering nulls out before computing chart layout silently compressed
+// a sparse 7-day window down to however many real points existed. This function is now the
+// single source of truth for "the window" for both the KPI tiles and the chart.
+function padToSevenDayGrid(points, days){
+  days = days || 7;
+  const map = {};
+  (points || []).forEach(p => { map[p.t.toISOString().slice(0,10)] = p.v; });
+  const today = new Date();
+  const grid = [];
+  for (let i = days - 1; i >= 0; i--){
+    const d = new Date(today);
+    d.setUTCDate(d.getUTCDate() - i);
+    const key = d.toISOString().slice(0,10);
+    grid.push({ t: d, v: map.hasOwnProperty(key) ? map[key] : null });
+  }
+  return grid;
+}
+
+function lastNonNull(series){
+  for (let i = series.length - 1; i >= 0; i--) if (series[i].v !== null) return {i, p: series[i]};
+  return null;
+}
+function prevNonNull(series, beforeIdx){
+  for (let i = beforeIdx - 1; i >= 0; i--) if (series[i].v !== null) return series[i];
+  return null;
+}
+function maxOf(series){
+  let m = null;
+  series.forEach(p => { if (p.v !== null && (m === null || p.v > m)) m = p.v; });
+  return m;
+}
+
+function renderKpis(){
+  const el = document.getElementById("kpis");
+  el.innerHTML = "";
+  METRICS.forEach(m => {
+    const series = padToSevenDayGrid(normalized[m.id] || []);
+    const last = lastNonNull(series);
+    const tile = document.createElement("div");
+    tile.className = "tile" + (m.id === selectedMetric ? " on" : "");
+    tile.dataset.metric = m.id;
+
+    if (!last){
+      tile.innerHTML = `<div class="lbl">${m.label}</div><div class="novalue">not enough data</div>`;
+    } else {
+      const prev = prevNonNull(series, last.i);
+      let deltaHtml = "";
+      if (prev !== null && prev.v !== 0){
+        const pct = ((last.p.v - prev.v) / Math.abs(prev.v)) * 100;
+        const cls = pct > 0.5 ? "up" : (pct < -0.5 ? "down" : "flat");
+        const arrow = pct > 0.5 ? "▲" : (pct < -0.5 ? "▼" : "•");
+        deltaHtml = `<div class="delta ${cls}">${arrow} ${Math.abs(pct).toFixed(1)}%</div>`;
+      }
+      const mx = maxOf(series);
+      tile.innerHTML =
+        `<div class="lbl">${m.label}</div>` +
+        `<div class="val">${fmtValue(last.p.v, m.fmt)}</div>` +
+        deltaHtml +
+        (mx !== null ? `<div class="max">max 7d: <b>${fmtValue(mx, m.fmt)}</b></div>` : "");
+    }
+    tile.addEventListener("click", () => { selectedMetric = m.id; renderKpis(); renderChart(); });
+    el.appendChild(tile);
+  });
+}
+
+function renderChart(){
+  const def = METRICS.find(m => m.id === selectedMetric);
+  const raw = padToSevenDayGrid(normalized[selectedMetric] || []);
+  const series = raw.filter(p => p.v !== null); // only for peak/meta computation, layout uses raw
+  document.getElementById("chartTitle").textContent = def.label + " — last 7 days";
+  const svg = document.getElementById("chartSvg");
+  svg.innerHTML = "";
+
+  if (series.length === 0){
+    document.getElementById("chartMeta").textContent = "";
+    const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t.setAttribute("x","450"); t.setAttribute("y","110"); t.setAttribute("text-anchor","middle");
+    t.setAttribute("fill","var(--dim)"); t.setAttribute("font-size","11");
+    t.textContent = "Not enough data for this chart (needs at least a few days with traffic).";
+    svg.appendChild(t);
+    return;
+  }
+
+  const mx = maxOf(raw) || 1;
+  const mn = 0; // metrics here are all non-negative counts/percentages
+  const W = 900, H = 220, padL = 6, padR = 6, padT = 14, padB = 26;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const x = i => padL + (i / (raw.length - 1)) * innerW;
+  const y = v => padT + innerH - ((v - mn) / (mx - mn || 1)) * innerH;
+
+  const peakIdx = raw.reduce((best, p, i) => (p.v !== null && (best === -1 || p.v > raw[best].v)) ? i : best, -1);
+  let metaText = peakIdx >= 0
+    ? "picco: " + fmtValue(raw[peakIdx].v, def.fmt) + " (" + raw[peakIdx].t.toLocaleDateString(undefined,{weekday:"short",day:"numeric"}) + ")"
+    : "";
+  if (series.length < raw.length){
+    metaText += (metaText ? " — " : "") + (raw.length - series.length) + "/" + raw.length + " giorni senza dati sufficienti";
+  }
+  document.getElementById("chartMeta").textContent = metaText;
+
+  const ns = "http://www.w3.org/2000/svg";
+  [0.25,0.5,0.75].forEach(f => {
+    const line = document.createElementNS(ns,"line");
+    line.setAttribute("x1",padL); line.setAttribute("x2",W-padR);
+    line.setAttribute("y1", padT + innerH*f); line.setAttribute("y2", padT + innerH*f);
+    line.setAttribute("class","grid");
+    svg.appendChild(line);
+  });
+
+  // Group raw indices into runs of contiguous non-null points, so a real gap in the API's
+  // response shows as a visible break in the line (or a lone dot for a single-day run) instead
+  // of a fake line bridging across missing data (the v1.71.0 -> v1.71.1 bug).
+  const runs = [];
+  let cur = [];
+  raw.forEach((p, i) => {
+    if (p.v !== null){ cur.push(i); }
+    else { if (cur.length) runs.push(cur); cur = []; }
+  });
+  if (cur.length) runs.push(cur);
+
+  runs.forEach(run => {
+    if (run.length >= 2){
+      const pts = run.map(i => `${x(i)},${y(raw[i].v)}`).join(" ");
+      const area = document.createElementNS(ns,"polygon");
+      area.setAttribute("points", `${x(run[0])},${padT+innerH} ${pts} ${x(run[run.length-1])},${padT+innerH}`);
+      area.setAttribute("fill","var(--blue)"); area.setAttribute("opacity","0.12");
+      svg.appendChild(area);
+
+      const line = document.createElementNS(ns,"polyline");
+      line.setAttribute("points", pts);
+      line.setAttribute("fill","none"); line.setAttribute("stroke","var(--blue)");
+      line.setAttribute("stroke-width","2.5"); line.setAttribute("stroke-linecap","round");
+      line.setAttribute("stroke-linejoin","round");
+      svg.appendChild(line);
+    } else {
+      const i = run[0];
+      const c = document.createElementNS(ns,"circle");
+      c.setAttribute("cx", x(i)); c.setAttribute("cy", y(raw[i].v)); c.setAttribute("r", "3.5");
+      c.setAttribute("fill", "var(--blue)");
+      svg.appendChild(c);
+    }
+  });
+
+  raw.forEach((p,i) => {
+    if (i % Math.ceil(raw.length/7) !== 0 && i !== raw.length-1) return;
+    const t = document.createElementNS(ns,"text");
+    t.setAttribute("x", x(i)); t.setAttribute("y", H-6);
+    t.setAttribute("text-anchor", i===0?"start":(i===raw.length-1?"end":"middle"));
+    t.setAttribute("class","axis-label");
+    t.textContent = p.t.toLocaleDateString(undefined,{weekday:"short"});
+    svg.appendChild(t);
+  });
+
+  // Hover layer: snaps to the nearest NON-NULL point only (so hovering a gap still shows the
+  // closest real day, mapping back to its raw index for correct x-position).
+  const wrap = document.getElementById("chartWrap");
+  const crosshair = document.getElementById("crosshair");
+  const tip = document.getElementById("hoverTip");
+  svg.onmousemove = (e) => {
+    const rect = svg.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width * W;
+    let nearest = null, bestDist = Infinity;
+    series.forEach((p) => { const i = raw.indexOf(p); const d = Math.abs(x(i)-relX); if (d < bestDist){ bestDist = d; nearest = p; } });
+    if (!nearest) return;
+    const i = raw.indexOf(nearest);
+    const px = x(i) / W * rect.width;
+    crosshair.style.display = "block";
+    crosshair.style.left = px + "px";
+    tip.style.display = "block";
+    tip.style.left = Math.min(px + 10, rect.width - 130) + "px";
+    tip.style.top = "8px";
+    tip.innerHTML = `<div class="d">${nearest.t.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"})}</div><div class="v">${fmtValue(nearest.v, def.fmt)}</div>`;
+  };
+  svg.onmouseleave = () => { crosshair.style.display = "none"; tip.style.display = "none"; };
+}
+
+// Genre Rank card (v1.72.0). Source: GET /islands/{code}/rankings — confirmed via real capture
+// (2026-09-19) to return, with from/to set to a 7-day window, an HOURLY-granularity series
+// shaped [{timestamp, genres:[{genreSlug, genre, rank}]}]. `genres` had exactly 1 element in
+// every real record captured (single-genre island) — defensively still takes genres[0]. Lower
+// rank number = better position. Best-effort: any error hides the card instead of blocking the
+// rest of the page, since this is supplementary to the core metrics.
+async function loadGenreRank(){
+  const card = document.getElementById("rankCard");
+  try{
+    const res = await fetch("/island-rankings", {cache:"no-store"});
+    const data = await res.json();
+    if (!data || data.error || !data.payload || !Array.isArray(data.payload.data) || data.payload.data.length === 0){
+      card.style.display = "none";
+      return;
+    }
+    const points = data.payload.data
+      .filter(row => Array.isArray(row.genres) && row.genres.length > 0)
+      .map(row => ({ t: new Date(row.timestamp), rank: Number(row.genres[0].rank), genre: row.genres[0].genre }));
+    if (points.length === 0){ card.style.display = "none"; return; }
+
+    const current = points[points.length - 1];
+    const best = points.reduce((b, p) => p.rank < b.rank ? p : b, points[0]);
+    const worst = points.reduce((w, p) => p.rank > w.rank ? p : w, points[0]);
+    const avg = points.reduce((s, p) => s + p.rank, 0) / points.length;
+
+    document.getElementById("rankCurrent").textContent = String(current.rank);
+    document.getElementById("rankGenre").textContent = "in " + current.genre;
+    document.getElementById("rankBest").textContent = "#" + best.rank;
+    document.getElementById("rankWorst").textContent = "#" + worst.rank;
+    document.getElementById("rankAverage").textContent = "#" + avg.toFixed(1);
+    card.style.display = "block";
+
+    renderRankChart(points, best.rank, worst.rank);
+  } catch(e){
+    card.style.display = "none";
+  }
+}
+
+function renderRankChart(points, bestRank, worstRank){
+  const svg = document.getElementById("rankChartSvg");
+  svg.innerHTML = "";
+  const W = 900, H = 160, padL = 6, padR = 40, padT = 12, padB = 22;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const span = (worstRank - bestRank) || 1;
+  // Inverted axis: lower rank number (better) maps to the SMALLER y (near the top) — opposite
+  // convention from every other metric on this page, deliberate because "up" should read as
+  // "improving" for a rank too.
+  const x = i => padL + (i / (points.length - 1 || 1)) * innerW;
+  const y = rank => padT + ((rank - bestRank) / span) * innerH;
+
+  const ns = "http://www.w3.org/2000/svg";
+  [ {r: bestRank, lbl: "#"+bestRank}, {r: (bestRank+worstRank)/2, lbl: "#"+Math.round((bestRank+worstRank)/2)}, {r: worstRank, lbl: "#"+worstRank} ]
+    .forEach(mark => {
+      const line = document.createElementNS(ns,"line");
+      line.setAttribute("x1",padL); line.setAttribute("x2",W-padR);
+      line.setAttribute("y1", y(mark.r)); line.setAttribute("y2", y(mark.r));
+      line.setAttribute("class","grid");
+      svg.appendChild(line);
+      const t = document.createElementNS(ns,"text");
+      t.setAttribute("x", W-padR+6); t.setAttribute("y", y(mark.r)+3);
+      t.setAttribute("class","axis-label");
+      t.textContent = mark.lbl;
+      svg.appendChild(t);
+    });
+
+  const pts = points.map((p,i) => `${x(i)},${y(p.rank)}`).join(" ");
+  const area = document.createElementNS(ns,"polygon");
+  area.setAttribute("points", `${x(0)},${padT+innerH} ${pts} ${x(points.length-1)},${padT+innerH}`);
+  area.setAttribute("fill","var(--yellow)"); area.setAttribute("opacity","0.10");
+  svg.appendChild(area);
+
+  const line = document.createElementNS(ns,"polyline");
+  line.setAttribute("points", pts);
+  line.setAttribute("fill","none"); line.setAttribute("stroke","var(--yellow)");
+  line.setAttribute("stroke-width","2"); line.setAttribute("stroke-linecap","round");
+  line.setAttribute("stroke-linejoin","round");
+  svg.appendChild(line);
+
+  const crosshair = document.getElementById("rankCrosshair");
+  const tip = document.getElementById("rankHoverTip");
+  svg.onmousemove = (e) => {
+    const rect = svg.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width * W;
+    let nearest = 0, bestDist = Infinity;
+    points.forEach((p,i) => { const d = Math.abs(x(i)-relX); if (d < bestDist){ bestDist = d; nearest = i; } });
+    const px = x(nearest) / W * rect.width;
+    crosshair.style.display = "block";
+    crosshair.style.left = px + "px";
+    tip.style.display = "block";
+    tip.style.left = Math.min(px + 10, rect.width - 130) + "px";
+    tip.style.top = "8px";
+    tip.innerHTML = `<div class="d">${points[nearest].t.toLocaleString(undefined,{weekday:"short",day:"numeric",month:"short",hour:"2-digit"})}</div><div class="v">#${points[nearest].rank}</div>`;
+  };
+  svg.onmouseleave = () => { crosshair.style.display = "none"; tip.style.display = "none"; };
+}
+
+async function loadData(){
+  const statusEl = document.getElementById("statusLine");
+  try{
+    const infoRes = await fetch("/island-info", {cache:"no-store"});
+    if (infoRes.ok){
+      const info = await infoRes.json();
+      if (info && info.title){
+        islandTitle = info.title;
+        let html = "Isola: <b>" + info.title + "</b>" + (info.code ? " (" + info.code + ")" : "");
+        if (Array.isArray(info.tags) && info.tags.length > 0){
+          html += '<span class="tag-list">' + info.tags.map(t => '<span class="tag-badge">' + t + '</span>').join("") + '</span>';
+        }
+        document.getElementById("islandTitle").innerHTML = html;
+      }
+    }
+  } catch(e){ /* metadata is best-effort, never block the metrics view on it */ }
+
+  // Genre assigned to the project (Claude/docs/.genre) — a DIFFERENT source from the genre the
+  // Epic API reports inside /island-rankings (Genre Rank card): that one is what Epic observes
+  // on the published island, this one is what the creator chose/confirmed for the project.
+  // Show both, labeled distinctly, instead of assuming they match.
+  try{
+    const genreRes = await fetch("/project-genre", {cache:"no-store"});
+    if (genreRes.ok){
+      const slug = (await genreRes.text()).trim();
+      if (slug){
+        const el = document.getElementById("islandTitle");
+        el.innerHTML += '<span class="genre-badge" title="Genre assigned to the project (Claude/docs/.genre)">' + slug + '</span>';
+      }
+    }
+  } catch(e){ /* metadata is best-effort, never block the metrics view on it */ }
+
+  try{
+    const res = await fetch("/island-metrics", {cache:"no-store"});
+    if (res.status === 404){
+      showSetupNeeded();
+      return;
+    }
+    const data = await res.json();
+    if (data.error === "no-island-code"){
+      showSetupNeeded();
+      return;
+    }
+    if (data.error){
+      statusEl.innerHTML = '<span class="bad">✕ ' + data.error + '</span>';
+      return;
+    }
+    document.getElementById("rateLimitNote").style.display = data.rateLimited ? "block" : "none";
+    normalized = normalize(data.payload || data);
+    renderKpis();
+    renderChart();
+    statusEl.innerHTML = '<span class="ok">● connected</span>' + (data.cachedAt ? " — updated " + new Date(data.cachedAt).toLocaleTimeString() : "");
+  } catch(e){
+    statusEl.innerHTML = '<span class="bad">✕ could not reach the local server</span>';
+  }
+
+  loadGenreRank();
+}
+
+function showSetupNeeded(){
+  document.getElementById("statusLine").innerHTML = '<span class="bad">✕ no island code configured</span>';
+  document.getElementById("mainContent").innerHTML =
+    '<div class="empty-state">No island code found.<br><br>' +
+    'Save your island code (e.g. <code>1234-5678-9012</code>) in<br>' +
+    '<code>Claude/docs/.island-code</code> — a plain text file with only that value — then reload this page.</div>';
+}
+
+loadData();
+setInterval(loadData, 5 * 60 * 1000); // API data is daily-granularity; a 5-min poll just picks up cache refreshes
+</script>
+</body>
+</html>

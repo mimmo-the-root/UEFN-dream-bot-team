@@ -8,7 +8,7 @@
 ## Current state
 _(updated: YYYY-MM-DD)_
 
-**In progress:** (empty — no task currently "In corso" in ROADMAP.md)
+**In progress:** (empty — no task currently "In progress" in ROADMAP.md)
 
 **Planned next (this release):** (empty — see ROADMAP.md's Tasks table, Priority = current MVP/release target)
 

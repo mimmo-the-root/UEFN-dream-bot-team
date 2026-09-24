@@ -42,7 +42,17 @@
      on every release, see the comment there. */
   .kit-version{font-size:10px;font-weight:normal;letter-spacing:.5px;color:var(--dim);
     margin-left:8px;vertical-align:middle;}
-  .termlines-side{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+  .termlines-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+  /* View switcher (Console <-> Stats) — two plain links styled as a pill toggle, top-right of the
+     header. Deliberately a real <a href> (not JS routing): each view is its own static HTML file
+     served by the same local server, so a hard link keeps "open in new tab" / bookmarking working
+     and needs no client-side router. */
+  .view-switch{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  .view-switch a{font-size:10px;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;
+    padding:3px 10px;color:var(--dim);background:var(--panel2);}
+  .view-switch a.on{color:var(--text);background:var(--panel);border-left:2px solid var(--blue);
+    padding-left:8px;}
+  .view-switch a:not(.on):hover{color:var(--text);}
   .termlines .comment{color:var(--dim);}
   .termlines .status{color:var(--dim);}
   .termlines .status .ok{color:var(--green);}
@@ -94,7 +104,7 @@
     background:radial-gradient(ellipse at 50% -40%, rgba(75,139,255,0.10), transparent 65%);}
   .miniflow-tag{font-size:10.5px;letter-spacing:1.5px;color:var(--dim);margin-bottom:8px;}
   .miniflow-task{color:var(--text);margin-left:8px;letter-spacing:0;}
-  .miniflow-rail{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:2px;}
+  .miniflow-rail{display:flex;align-items:flex-start;overflow-x:auto;overflow-y:visible;padding:6px 14px 2px 0;}
   .mf-node{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:96px;flex:none;position:relative;}
   .mf-ring-wrap{position:relative;width:40px;height:40px;}
   .mf-ring-wrap svg{width:40px;height:40px;transform:rotate(-90deg);}
@@ -113,9 +123,9 @@
   .mf-timer{font-size:9px;color:var(--amber);font-variant-numeric:tabular-nums;}
   .mf-conn{height:2px;background:var(--line-soft);flex:1 1 14px;min-width:14px;margin-top:19px;}
   .mf-conn.mf-done{background:var(--green);}
-  .mf-reject-badge{position:absolute;top:-4px;right:6px;background:var(--red);color:#1a0507;
+  .mf-reject-badge{position:absolute;top:-4px;right:-2px;background:var(--red);color:#1a0507;
     font-size:8px;font-weight:700;border-radius:7px;padding:0 4px;line-height:1.4;
-    box-shadow:0 0 6px var(--red-glow);}
+    white-space:nowrap;z-index:2;box-shadow:0 0 6px var(--red-glow);}
 
   /* Main layout: orbit stage left, terminal log right */
   .main-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:stretch;}
@@ -357,6 +367,7 @@
   <div class="termlines">
     <div class="line prompt">&gt; <span class="title-text">DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="blink">_</span></span><span class="kit-version" id="kitVersion" title="This is the version baked into the HTML file this tab loaded. If you just replaced the file and this still shows the old number, hard-refresh this tab (Ctrl/Cmd+Shift+R) — a running tab doesn't notice a file changing on disk on its own."></span></div>
     <div class="termlines-side">
+      <div class="view-switch"><a href="agent-console.html" class="on">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a></div>
       <div class="line comment"># twelve agents. one chief of staff. every change still waits on you.</div>
       <div class="line status" id="statusLine">… connecting to local server</div>
     </div>
@@ -473,7 +484,7 @@
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.70.4";
+const KIT_VERSION = "v1.79.11";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -1392,6 +1403,14 @@ function resetMiniflowCycle(){
   mfCurrentIndex = -1;
   mfStageStart = {};
   mfRejects = {};
+  // BUG FIX (2026-09-17, real report): /active-task is written only by `coder`, so it lags a
+  // full task-boundary behind the rail whenever a new task enters a pre-coder stage
+  // (intent-gate, or a repeat of it) — a real report showed "MINIFLOW — T-050" displayed with
+  // "intent-gate" active while the actual work was already on T-051, because the file on disk
+  // still held the previous task's id. Clear the label the instant a new cycle starts instead of
+  // leaving the stale id up until coder eventually overwrites the file — better a blank label for
+  // a few seconds than a confidently wrong one.
+  mfTaskId = "";
 }
 
 // Called from processEntries() right after `active` is updated for a new event, and from
@@ -1471,7 +1490,7 @@ function updateMiniflow(now){
 }
 
 // Best-effort: /active-task is a one-line text file (Claude/docs/.active-task) coder writes when
-// it flips a task to In corso, per rule 13a in ~/.claude/CLAUDE.md. Older server builds (before
+// it flips a task to In progress, per rule 13a in ~/.claude/CLAUDE.md. Older server builds (before
 // this endpoint existed) 404 here — that's fine, the rail works fully without a task-ID label.
 async function pollActiveTask(){
   try{

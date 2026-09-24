@@ -13,6 +13,38 @@ You are the project's bootstrap (startup) agent. You're invoked ONCE ONLY, the f
    - If **code/assets already exist** → follow Branch A.
    - If **the project is empty/new** → follow Branch B.
 
+## Step 0.5 — Genre selection & Genre Skill bootstrap (runs in BOTH branches, right after Step 0)
+
+Genre Skills live at the USER level (`~/.claude/skills/genre/<slug>/`), shared across every
+project — same convention as every other skill in this kit (`fortnite-analytics-coach`,
+`uefn-lessons`, etc.). A project only records WHICH genre it belongs to; it never gets its own
+private copy of the genre's accumulated knowledge.
+
+1. If `Claude/docs/.genre` already exists with a non-empty value, skip this whole step —
+   the project already has its genre set.
+2. Otherwise, read `~/.claude/skills/genre/fortnite-genres-official.json` (the closed list of
+   genres confirmed via a real call to `GET /islands/{code}/genres` — don't invent genres not in
+   that file). If that file doesn't exist yet, tell the owner it's missing and skip this step
+   rather than guessing a list.
+3. Present the genre list to the owner (short numbered list, `slug` + `displayName`) and ask
+   them to pick exactly ONE — this kit tracks a single genre per project, not multiple. Don't
+   proceed past this step without an explicit answer; this is exactly the kind of ambiguous,
+   owner-only decision rule 13's plan-first gate exists for.
+4. Write the chosen slug (just the slug, one line, no other text) to `Claude/docs/.genre` —
+   same pattern as `.island-code` and `.active-task`.
+5. Check whether `~/.claude/skills/genre/<slug>/` already exists.
+   - If it exists: nothing else to do, `coder` will consult it normally going forward.
+   - If it does NOT exist: bootstrap it now, empty — create `~/.claude/skills/genre/<slug>/SKILL.md`
+     with YAML frontmatter `genre_slug`, `status: draft`, `maturity: partial`,
+     `variants_mature: []`, `variants_draft: []`, and a short body stating this is a fresh genre
+     with no design patterns yet — content will come ONLY from analyzing this genre's real maps
+     as they're built, never pre-written from general knowledge. Do NOT invent variants or
+     patterns at this step, even plausible-sounding ones — an empty, honest skill is the correct
+     starting state (see `~/.claude/skills/genre/survival/SKILL.md` in this kit for the format to
+     follow, once at least one genre skill exists as a worked example).
+6. Report to the owner, in one line, which genre was set and whether a new Genre Skill was just
+   bootstrapped or an existing one was found.
+
 ---
 
 ## Branch A — existing project (analysis from code)
@@ -27,6 +59,30 @@ Explore the project folder and produce, in `Claude/docs/SPEC.md` under "Project 
 Also note whether the project already follows the naming/organization convention described in ~/.claude/CLAUDE.md (`custom_*` folders, PascalCase) or uses a different one — in that case write in SPEC.md which convention is actually in use, so coder respects it instead of introducing inconsistency.
 
 **Brand collection check.** If any Content Browser folder, placed device, or the project's own template name looks like it references a real-world brand/franchise (not generic Fortnite/UEFN terminology), read `~/.claude/skills/brand-collections-uefn/SKILL.md` and check its marker table before guessing. A strong match goes in SPEC.md as a plain statement of which Game Collection this project is built on; a weak (name-only) match goes in as something to confirm with the owner, not a fact; something that looks brand-themed but matches nothing in the table is a gap worth capturing for real — see that skill's own capture procedure — not something to invent markers for from memory. Skip this entirely if nothing about the project looks brand-themed.
+
+**Existing UI backfill (one-time, only if `~/.claude/skills/game-ui-designer/` exists).** Two
+sources, use whichever actually exists in this project — most existing UEFN projects will only
+have the second one, since UI here means real UMG/Verse widget code, not exported images:
+1. *Images*, if any: look for image files that are plausibly screenshots of this project's own
+   in-game UI screens (store, shop, missions/quests, teleporter, rewards, inventory, HUD) —
+   common locations are `Claude/docs/**`, a `Screenshots/`/`UI/` folder at the project root, or
+   images already referenced from STATUS.md/BUGS.md/RETENTION-NOTES.md.
+2. *Real UI code* (the usual case): find the project's actual widget/UI implementation files
+   (`.verse` files constructing `canvas_panel`/`stack_box`/`button`/`text_block`/`image` and
+   similar for a store/shop/mission/reward/inventory/HUD screen) and analyze them directly per
+   `~/.claude/skills/game-ui-designer/SKILL.md`'s "Direct source-code analysis" step — extract
+   concrete widget structure, colors, corner-radius, currency assets, don't invent values not
+   actually present in the code.
+For each screen found via either source, file it into
+`~/.claude/skills/game-ui-designer/references/examples/<archetype>/` (images) or
+`references/examples/code-derived.md` (code), and append a row to
+`references/examples/manifest.md` (source: this project's name + "real UEFN screenshot" or
+"source code, `<file path>`", backfilled at bootstrap) — the same mechanical filing `planner-docs`
+does at task close. No need to ask the owner before doing this filing itself; only mention in
+STATUS.md's first log entry how many screens were found and backfilled, and from which source. If
+nothing plausible is found, skip silently; don't invent examples — the every-session harvest rule
+in `CLAUDE.md` (images) or an on-demand request from the owner (code) will pick up anything added
+or noticed later.
 
 ### A2. Functional specs deduced from the code
 Analyze the existing code/devices and write, in `Claude/docs/SPEC.md` under "Functional specs (deduced from code)": what the experience does in its current state, which mechanics are implemented, what appears to be the main gameplay loop. Be explicit that these are specs DEDUCED from the code, not necessarily the original intended design — flag, in a "To confirm with the owner" subsection, every ambiguous point or behavior that could be a bug rather than a design choice.
@@ -68,7 +124,7 @@ Populate `Claude/docs/ROADMAP.md`'s `Tasks` table with the first concrete, ID'd 
 highest-priority item from BUGS.md's bug-fixing roadmap worth tracking as its own release item
 (not every minor bug — those stay in BUGS.md's own queue), and one task per confirmed retention
 proposal the owner wants to act on. Each gets a real `T-<3 digits>` ID, a short verifiable
-acceptance criterion, Status **Da fare**, and a Priority. Don't invent acceptance criteria you
+acceptance criterion, Status **To do**, and a Priority. Don't invent acceptance criteria you
 can't actually verify later — if a proposal is too vague to write one for yet, say so instead of
 filling the cell with something hollow.
 
@@ -103,7 +159,7 @@ If the owner answers in the same conversation, use the answers to populate:
 - `Claude/docs/ROADMAP.md`: project goal, "Current MVP / release target," what's out of scope for
   now, and the `Tasks` table itself — one row per MVP feature the owner described, each with a
   real `T-<3 digits>` ID, a short verifiable acceptance criterion (not a restatement of the
-  feature name), Status **Da fare**, Priority **MVP**. This is what makes `coder`'s plan-first gate
+  feature name), Status **To do**, Priority **MVP**. This is what makes `coder`'s plan-first gate
   (rule 13) satisfiable from the very first session instead of the owner having to open tasks one
   by one afterward.
 - `Claude/docs/STATUS.md`: first log entry with "Initial requirements gathered," and the "Current

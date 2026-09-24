@@ -28,6 +28,15 @@ Rules:
 - Work only on the current project, not on other projects on the same machine.
 - If Claude/docs/BUGS.md exists, add every new problem found there (at the bottom, "Newly reported" section) with: short title, where it is, severity (blocking/major/minor), probable cause, and whether it's a regression or a previously unreported pre-existing bug. Don't delete existing entries or change their status: that's planner-docs' job after confirmation.
 - Always conclude with a "Problems found" section (with severity: blocking / major / minor) ready to be handed to the planner-docs agent.
+- After that "Problems found" section, also append one line to `Claude/logs/agent-console.jsonl` —
+  the same file/append mechanism `agent-console-log.sh`/`.ps1` already use for `start`/`stop`
+  events (append-only JSON-lines, one object per line, real UTC timestamp) — so the Flow console's
+  Decision Log and Gate Outcomes cards show a real verdict instead of a sample one:
+  `{"agent":"qa-regression","event":"verdict","result":"pass"|"reject","task":"<task-id or 'session'>","ts":"<ISO8601 UTC>","detail":"<short summary>"}`
+  (`result` is `"reject"` if you found any blocking or major problem, `"pass"` otherwise; `task` is
+  the ROADMAP task ID this run is checking if you were invoked for one, or the literal string
+  `"session"` for a general post-playtest sweep; `detail` is a short count, e.g.
+  `"1 blocking, 2 minor"`).
 
 When invoked automatically right after a play-session (post-playtest hook), treat it as a targeted regression check: focus on what could have changed since the last session recorded in Claude/docs/STATUS.md, don't repeat a full analysis from scratch every time.
 

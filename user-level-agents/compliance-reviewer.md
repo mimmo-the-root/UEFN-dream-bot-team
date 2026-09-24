@@ -86,6 +86,16 @@ This is a durable, append-only record — never edit or delete existing lines, o
 so PASS/REJECTED crossings are independently checkable later (by `planner-docs`, `release-gate`, or
 the owner) instead of relying on `coder`'s prose relay of what happened.
 
+Also append one line to `Claude/logs/agent-console.jsonl` — the same file/append mechanism
+`agent-console-log.sh`/`.ps1` already use for `start`/`stop` events (append-only JSON-lines, one
+object per line, real UTC timestamp) — so the Flow console's Decision Log and Gate Outcomes cards
+show a real verdict instead of a sample one:
+`{"agent":"compliance-reviewer","event":"verdict","result":"pass"|"reject","task":"<task-id>","ts":"<ISO8601 UTC>","detail":"<optional short string>"}`
+(`result` is `"pass"` for PASS, `"reject"` for REJECTED; if this is the 5th-attempt REJECTED that
+sends it to the owner instead of back to `coder`, use `"result":"halt"` instead — that's the "asked
+a human, stopped the pipeline" case the Cost of Asking card measures — and set `detail` to a short
+reason, e.g. `"5 consecutive REJECTED, escalated to owner"`).
+
 ## What you don't do
 
 - Don't re-check spec adherence / acceptance-criteria matching — that's `intent-reviewer`'s job,

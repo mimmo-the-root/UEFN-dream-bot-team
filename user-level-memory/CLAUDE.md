@@ -301,7 +301,7 @@ own release-tracked feature.
 
 **Who owns what in ROADMAP.md's Tasks table**: `planner-docs` is the only one who creates a task
 row or edits its Feature/Acceptance criteria/Priority, and the only one who ever sets a task to
-**Fatto**. `coder` may flip a task's own Status between **Da fare** / **In corso** / **Bloccato**
+**Done**. `coder` may flip a task's own Status between **To do** / **In progress** / **Blocked**
 directly — a narrow, mechanical exception (same shape as `growth-manager`'s `Resources/`/`keyArt`
 exception elsewhere in this kit): it's allowed to move the workflow marker on a task it's actively
 working, never to touch the row's content or invent a new row.
@@ -311,11 +311,11 @@ exists yet, it stops and says so instead of guessing or improvising a task — t
 usually asking the owner right there in conversation to describe the task so `planner-docs` can
 open it (a quick, one-line acceptance criterion is enough; this is meant to take seconds, not
 become paperwork). Once a task exists, `coder` writes its ID to `Claude/docs/.active-task`, flips
-it to **In corso**, invokes `intent-gate` for an independent ambiguity check before touching
+it to **In progress**, invokes `intent-gate` for an independent ambiguity check before touching
 anything (see rule 13a below), does the work (compile-fix loop, all as already specified in
 `coder.md`), and once `intent-reviewer` and then `compliance-reviewer` both return PASS, hands off
-to `planner-docs` to mark the task **Fatto** and record it in `STATUS.md` — `coder` never sets
-Fatto itself, since that's the point where the work has been independently verified on two
+to `planner-docs` to mark the task **Done** and record it in `STATUS.md` — `coder` never sets
+Done itself, since that's the point where the work has been independently verified on two
 separate axes (intent, then mechanics), not just self-reported done.
 
 ### 13a. Two independent gates, not one combined check
@@ -324,7 +324,7 @@ Verifying a task's output is split across three agents, each with a narrower job
 
 - **`intent-gate`** — runs BEFORE `coder` writes anything. Checks whether the task's acceptance
   criteria (and any owner-supplied base code) are concrete enough to implement without guessing.
-  An AMBIGUO verdict goes to the owner directly, not through `coder`'s own judgment of which
+  An AMBIGUOUS verdict goes to the owner directly, not through `coder`'s own judgment of which
   reading is more plausible.
 - **`intent-reviewer`** — runs after `coder` finishes, before anything else. Checks ONLY whether
   what was built matches the task's acceptance criteria — no mechanical rules yet.
@@ -340,14 +340,14 @@ of a convention inside one agent's checklist: `compliance-reviewer` has nothing 
 shouldn't be invoked, until `intent-reviewer` has already PASSed the same task.
 
 **`Claude/docs/.active-task`**: a one-line file holding the task ID `coder` is currently working,
-written by `coder` when it flips a task to In corso. `intent-reviewer` and `compliance-reviewer`
+written by `coder` when it flips a task to In progress. `intent-reviewer` and `compliance-reviewer`
 cross-check the task ID `coder` reports against this file instead of trusting the report alone —
 closes the small gap between "what coder did" and "what coder says it did."
 
 **`Claude/docs/.task-verdicts`**: an append-only log, one line per verdict, in the form
 `<ISO8601 timestamp> <intent-reviewer|compliance-reviewer> <task-id> <PASS|REJECTED> <attempt-n>`.
 Each reviewer appends its own verdicts here directly — never edited or removed, only appended to.
-`planner-docs` cross-checks this file against `coder`'s closing report before marking a task Fatto,
+`planner-docs` cross-checks this file against `coder`'s closing report before marking a task Done,
 the same way `.active-task` closes the gap on task identity: this closes the equivalent gap on
 verdict history, so "both reviewers PASSed" is independently checkable rather than resting on
 `coder`'s own relay of what each reviewer said.
@@ -366,9 +366,9 @@ closing a session and reopening it later (or on a different machine) immediately
 reading the whole log.
 
 **`release-gate`** checks task completeness explicitly: every task whose Priority matches
-ROADMAP.md's "Current MVP / release target" must be Status **Fatto**, or it's listed as missing
+ROADMAP.md's "Current MVP / release target" must be Status **Done**, or it's listed as missing
 against the plan — this is on top of, not instead of, its existing bug/multiplayer/performance
-criteria. A task marked Fatto without recorded PASS verdicts from both `intent-reviewer` and
+criteria. A task marked Done without recorded PASS verdicts from both `intent-reviewer` and
 `compliance-reviewer` is flagged too, the same way a missing task would be.
 
 This rule exists specifically to cut down on repeated manual hand-offs and rediscovering context

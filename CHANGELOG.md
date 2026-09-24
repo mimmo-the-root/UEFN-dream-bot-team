@@ -1,5 +1,931 @@
 # Changelog
 
+## v1.79.11
+
+- Added a "Recent roadmap tasks" card to the Docs & Status console
+  (`agent-console-docs.html`), same readable-list treatment as the existing "Recent bug backlog"
+  card: code — description, with a status badge (Done/In progress/Blocked/To do/Out of scope,
+  reusing the existing `statusBucket()` bucketing) and a priority pill (MVP/nice-to-have/backlog/
+  out of scope, normalized from ROADMAP.md's free-text Priority column the same way
+  `bugSeverityPill()` already normalizes BUGS.md's Severity column). Still-outstanding tasks
+  (in progress/blocked, then to-do) surface first, done and out-of-scope rows sink to the bottom;
+  shows up to 10 rows with a link to the full ROADMAP.md. Previously the roadmap card only ever
+  showed a progress ring and counts, never the individual tasks themselves.
+
+## v1.79.10
+
+- **Root cause found and fixed** for the Control Tower token gauge showing a stale active
+  agent/station (e.g. "QA-REGRESSION") while the header above it correctly said "idle".
+  `agent-console.html` (main console) has always pruned `active` stack entries whose `start`
+  event never got a matching `stop` within 45 minutes (`STALE_ACTIVE_MS`, in `tickTimers()`) —
+  this handles a session/subagent that crashed or was killed before its `SubagentStop` hook
+  fired, which otherwise leaves a permanent orphaned entry. `agent-console-flow.html` never had
+  this pruning, so a single orphaned start from days earlier could pin its gauge/truck/station
+  rows to that agent indefinitely. Confirmed against the real project's `agent-console.jsonl`:
+  several `start` events (qa-regression, verse-reviewer, intent-reviewer, an "unknown"-agent
+  entry) going back to Sep 5 had no matching `stop` anywhere in the log. Added the same
+  `STALE_ACTIVE_MS` (45 min) pruning to `agent-console-flow.html`, run every tick.
+- Also fixed the stop-event matching in `agent-console-flow.html` to close the *most recent*
+  unmatched start for an agent (LIFO) instead of the oldest (`findIndex` → manual reverse scan) —
+  matters once stale/orphaned entries can coexist with a fresh, genuinely-running call for the
+  same agent id.
+
+## v1.79.9
+
+- Added a visible version tag next to the title on the Flow of Flows console
+  (`agent-console-flow.html`), matching the main console's existing one. The user reported the
+  token gauge still showing a stale reading after 6 hard refreshes even though the v1.79.8 fix
+  was confirmed correct and present on disk — with no version tag on this page, there was no way
+  to tell whether the browser tab was actually loading the fixed file or a stale
+  server/browser-cache copy. This tag makes that a glance, not a guess (see the main console's
+  own header comment on why this exists).
+
+## v1.79.8 — Control Tower gauge stuck showing a stale "current" reading at idle
+
+Found by the owner comparing a live screenshot against `agent-console-flow.html`'s Control Tower
+card: the header correctly read "CONTROL TOWER — idle" / "no active task" (green LED), but the
+token-usage gauge directly below it still showed a non-zero needle, "65122.0K tok" and station
+"QA-REGRESSION" — implying that station was actively burning tokens right now, contradicting the
+header one line above it.
+
+Root cause, in `pollTokensGauge()`: the needle angle, station label, and pulse glow were already
+correctly gated on `topAgent` (the same `active.length ? active[active.length-1].agent : null`
+check `refreshStations()` uses to drive the header), and correctly went to their idle state when
+`topAgent` was falsy. But `readout.textContent = (t.total/1000).toFixed(1) + 'K tok'` ran
+*unconditionally*, before that idle branch — so once any station had run and pushed a real token
+total, the numeric readout kept displaying that last-seen total forever, never resetting, no
+matter how long the system had been idle. It wasn't a stale-cache bug; it simply never had a code
+path that cleared it.
+
+Fix: moved the readout update inside the same `if (topAgent) { … } else { … }` branch already
+driving the needle/station/pulse, using the exact same idle signal the header consumes — no new or
+duplicate "is anything active" check was introduced. When idle, the readout now shows `0 tok` and
+the station shows `idle`, matching the header directly above it. `sessionMaxTokens` (the
+`maxRecorded`-style running max used to scale the needle's swing) is untouched by this fix and is
+never reset on idle — it's explicitly a persistent scaling reference, not a live reading, and the
+`tg-max` "session total" label keeps showing it across idle periods, exactly as intended.
+
+Also bumped `KIT_VERSION` in `agent-console.html` (unrelated file, same kit) to keep the kit-wide
+version number in step with this fix.
+
+## v1.79.7 — Bug backlog card: overlong free-text Severity broke row layout
+
+Found by the owner comparing a live screenshot against `renderBugBacklog()`'s output on the real
+`root_harrow_TWD` `BUGS.md`: the bottom 4 rows (B-007..B-004) rendered a consistent one-line
+`[severity pill] [status badge] [title]` layout, but the top 2 rows (B-009, B-008) showed an
+overlong pill wrapping the title onto its own line below. The row template's HTML is identical and
+unconditional for every row — this was not a structural markup difference, purely content-driven
+wrap: the pill used to dump the raw `Severity` cell straight in (lowercased, otherwise unmodified).
+Most rows have a clean one-word Severity (`Major`, `Minor`, `Non-blocking`), but on a real
+long-running project that column is sometimes free text blurring severity and status together, e.g.
+B-009's real cell is `Major (was reopened 2026-09-09; RESOLVED 2026-09-10)` and B-008's is `Was
+blocking (sole remaining open item on T-028 — part (b) PASSed 2026-09-08)` — both far too long for a
+pill, and B-008's even reads as a status phrase rather than a severity word. **Fix**: added
+`bugSeverityPill()`, a keyword-match bucketer (same approach as the existing `bugStatusBadge()`) that
+maps anything containing "block" (but not "non-block") to `blocking`, "major" to `major`, "minor" to
+`minor`, "non-block" to `non-blocking`, empty to `unspecified`, and anything else to its first word
+as a short fallback — the extra parenthetical context is dropped from the pill (it's redundant with
+"Probable cause"/the full BUGS.md) and kept only in the pill's `title` tooltip. Verified against the
+real B-004..B-009 rows: B-004/B-005/B-006/B-007 = `Non-blocking` → pill "non-blocking" (grey);
+B-008 = `Was blocking (...)` → pill "blocking" (red); B-009 = `Major (...)` → pill "major" (amber).
+All six rows' Status column is `Closed` → green "Resolved" badge in every case, and all six now
+render the identical `pill → badge → title` single-line layout regardless of Severity cell length.
+
+## v1.79.6 — Four real-project parser/UX bugs found by hand-verifying against a live ROADMAP.md/STATUS.md/BUGS.md
+
+All four found by the owner testing `agent-console-docs.html` live against a real, long-running
+project (`root_harrow_TWD`) and hand-counting the ground truth from the real docs.
+
+**1. Task count was off by one, and "remaining" silently included Out-of-scope rows.**
+`parseTableAfterHeading()`'s `looksLikeRowStart()` used to require the row's OWN opening line to
+both start AND end with `|` (`/^\|.*\|\s*$/`), on the assumption a row always fits on one physical
+line. A row whose last cell is itself long enough to contain real line breaks (long acceptance-
+criteria prose, same shape the continuation-line handling already supports) opens with `| T-053 |
+...` but that first physical line does not end with `|` — the closing `|` only appears several
+lines later. That made the row's own first line fail the check and fall into the "continuation of
+the previous row" branch instead, silently merging all of T-053 into T-052's last cell and dropping
+it from the table entirely (confirmed against the real file: 64 real task rows parsed as only 63,
+missing exactly T-053; not a T-005-shaped "the row doesn't exist" situation). **Fix**: row starts
+are now recognized purely from the opening `| <ID>` shape (`/^\|\s*[A-Za-z]{1,4}-\d+\b/`), no
+longer requiring the same physical line to also close with `|`. Separately, `statusBucket()` only
+recognized done/active/blocked and defaulted everything else (including a deliberate "Out of
+scope"/"Fuori scope" status) to "todo", so the hero card's "X remaining" summed Da fare + Out of
+scope into one bucket. `statusBucket()` now returns a dedicated `"outOfScope"` bucket, and the
+"remaining" count in `renderHeroInner()` only sums todo + active + blocked. Verified against the
+real ROADMAP.md: 64 rows total, 53 Fatto, 6 Da fare, 5 Out of scope (53 + 6 + 5 = 64) — the card
+now reads "53 of 64 tasks Done" / "6 tasks remaining" instead of "52 of 63 Done, 11 remaining".
+
+**2. "Last update" showed a stale, months-old "In progress" line instead of the current one.**
+The "In progress:" extraction used to run `/\*\*In progress:\*\*\s*([^\n]+)/i` against the WHOLE
+`status.content`, requiring a BOLD `**In progress:**` label. A real STATUS.md's `## Current state`
+section — documented in the file's own header comment as "REPLACED on every update", i.e. the only
+authoritative snapshot — writes this as a plain, unbolded `In progress: ...` line, so the regex
+never matched there and instead matched the first BOLD `**In progress:**` occurrence anywhere later
+in the file, typically a stale dated Log entry near the bottom (confirmed: a real file's Log
+contained `**In progress:** none — T-011 closed Fatto ... No task currently "In corso.")_`, which
+the console was surfacing as if it were current). **Fix**: the extraction now first locates the
+`## Current state` heading, scopes the search to that section only (bounded by the next `##`
+heading), and matches `In progress:` with or without bold markers.
+
+**3. "0 open bugs" showed "No bugs logged yet." even when bugs exist and are simply all resolved.**
+`renderHeroInner()`'s open-bugs breakdown used the same fallback copy for "BUGS.md has no rows at
+all" and "BUGS.md has rows but none are currently open" — misleading in the (common, healthy) case
+where a project's backlog is fully resolved. **Fix**: the fallback now checks the unfiltered
+backlog row count separately and shows "No open bugs right now — all logged bugs are currently
+resolved." when bugs exist but none are open, reserving "No bugs logged yet." for a genuinely empty
+Backlog table.
+
+**4. Bug backlog card showed the oldest bugs (file order), not the most relevant/recent ones.**
+`renderBugBacklog()` used to be `rows.slice(0, 6)` — literally the first 6 rows in file order,
+i.e. the oldest bugs by id, regardless of how many newer or still-open bugs existed further down a
+real BUGS.md. **Fix**: rows are now sorted before slicing — Open/Blocked bugs first (reusing the
+existing `bugStatusBadge()` bucketing), "No status"/"In progress" next, Resolved last, and within
+the same bucket the higher bug number (a safe structural proxy for "more recent", since ids are
+assigned sequentially) sorts first, rather than parsing dates out of free-text Status/Probable
+cause prose. On the real BUGS.md (10 rows, all Resolved) this changes the displayed set from
+B-001..B-005/B-004b to B-004..B-009 — the six most recently-numbered bugs.
+
+`KIT_VERSION` bumped to `v1.79.6` in both `agent-console.html` copies (`root_harrow_TWD`'s deployed
+copy and the kit template, kept in sync); `agent-console-docs.html` fixes applied identically to
+both copies (verified byte-identical after the change).
+
+## v1.79.5 — Bug backlog: added a status badge alongside the severity pill
+
+The "Recent bug backlog" card (`agent-console-docs.html`) showed only a severity pill (blocking/
+major/minor/non-blocking) per bug — no indication of whether the bug was resolved, still open, or
+in progress, even though the real `## Backlog` table already has a `Status` column and
+`parseTableAfterHeading()` was already capturing it generically into `row.status` (via its
+header-driven `row[header] = cell` parsing) — `renderBugBacklog()` just never displayed it.
+
+Real Status cells are free text the project owner writes, not a fixed enum (mixed English/
+Italian, e.g. "Closed — RISOLTO 2026-09-17, re-verified not re-fixed", "Open — coder adds on next
+touch of this file", "Was blocking (sole remaining open item on T-028 — part (b) PASSed
+2026-09-08)"). **Fix**: new `bugStatusBadge()` buckets a raw Status cell into a small badge,
+checked in this order: (1) starts with "Closed" or contains "Risolto"/"Resolved" → green
+"Resolved" (checked first so "...; T-028 has no other open item" isn't misread as still-open just
+because "open" appears later in the text); (2) starts with "Open" → amber "Open"; (3) contains
+"blocking" but not "non-blocking" (e.g. old "Was blocking (...)" rows with no leading Closed/Open
+marker) → red "Blocked"; (4) anything else (or empty) → grey, showing the first few words of the
+raw cell instead of hiding it. The badge (small dot + label, rounded-rect shape) renders right
+after the existing round severity pill on the same line so the two are never visually confused;
+`.bugrow` gained `flex-wrap:wrap` so long titles don't get cramped. Only `parseBugsBacklog()`'s
+`## Backlog` table rows are affected — the separate "Newly reported (to be triaged)" free-text
+section (not parsed into rows at all) is untouched. `KIT_VERSION` bumped to `v1.79.5`.
+
+## v1.79.4 — Docs & Status console: three real parsing bugs found in live testing against a large real project
+
+Real user bug report from live testing the Docs & Status console (`agent-console-docs.html`)
+against `root_harrow_TWD`'s actual `Claude/docs/ROADMAP.md` (151KB, 63 real task rows) and
+`STATUS.md` (256KB, real log history) — three concrete wrong-numbers/wrong-data issues, page
+still loaded fine, nothing crashed:
+
+**1. "Roadmap progress" showed "0 of 24 tasks Done"** while the timeline below correctly showed
+most tasks as done. Root cause: the done/in-progress/todo counting logic (`t.status.toLowerCase()
+=== "done"`) matched the literal English word only — this real project's rows use the Italian
+status word "Fatto" (also "In corso" / "Da fare" / "Bloccato"), which is the PROJECT OWNER's own
+data, not something we should force-translate. **Fix**: new `statusBucket()` helper buckets a raw
+Status cell into done/active/blocked/todo case-insensitively, recognizing English and Italian
+variants at minimum ("Done"/"Fatto", "In progress"/"In corso", "To do"/"Da fare",
+"Blocked"/"Bloccato"); used everywhere a status was being compared (progress ring/count, timeline
+dot color, current-task detection).
+
+**2. Timeline stopped at T-025** even though real tasks go to T-065+. Root cause, two compounding
+issues in `parseTableAfterHeading()`: (a) it stopped at the first blank line, but this real
+ROADMAP.md has blank lines between rows (the owner groups rows visually by MVP/Nice-to-have/etc.
+— still one continuous markdown table); (b) after fixing (a), a single very-long row (T-053's
+acceptance-criteria cell) turned out to contain real embedded newlines instead of staying on one
+markdown line, which also looked like "end of table" to the old strict per-line row matcher.
+**Fix**: the parser now skips blank lines, recognizes a new row only when a line's first cell
+looks like a real id (`T-053`, `B-001: …`), and treats any other non-heading line as a
+continuation of the previous row's last cell — the table now only ends at a real heading or a
+genuinely blank tail. Verified this reaches all 63 real rows through T-065. On top of that, the
+timeline no longer dumps every parsed task unwindowed: `renderTimeline()` now shows a ~12-task
+window centered on the current (In corso/In progress) task — a handful of done tasks leading up
+to it, the current task, and a few upcoming ones — with a small note when the view is windowed,
+since the strip itself already scrolls horizontally.
+
+**3. "Last update" showed a stale/wrong entry** instead of STATUS.md's real newest log entry.
+Root cause: the `_(updated: ...)_ ` regex required an exact `)_` right after the date to close
+markdown italics, which this real project's long "Current state" prose (its own parentheses
+inside) doesn't reliably produce — it silently returned `null` and fell back to a *file-wide*,
+non-anchored `###` search with no guarantee it was even inside the `## Log` section. Per
+STATUS.md's own documented convention ("New entry AT THE TOP on every update. Don't delete
+history."), the correct source is the **first** `### YYYY-MM-DD` heading inside the `## Log`
+section specifically — not the "Current state" snapshot block above it, and not any other `###`
+occurrence. **Fix**: explicitly locate `## Log` first, then take the first dated heading after it.
+
+All three fixes are in `Claude/hooks/agent-console-docs.html` (kit `project-template/` copy and
+`root_harrow_TWD`'s deployed copy, kept in sync); `KIT_VERSION` bumped to `v1.79.4` in both
+`agent-console.html` copies.
+
+## v1.79.2 — Docs & Status console: fixed the real infinite-loading bug and removed all remaining mockup data
+
+Real user bug report (live testing with screenshots) of the Docs & Status console
+(`agent-console-docs.html`), two issues:
+
+**1. "loading…" that could hang forever.** `fetchDoc()`'s `fetch("/doc?name=...")` had no bounded
+timeout — a `try/catch` covered a thrown/rejected fetch, but nothing covered a request that just
+never resolves (server mid-restart, stalled connection, etc.), which is a real gap even though it
+did not reproduce in either of the two hypotheses named in the report: the server's `/doc` route
+itself was already correct for every key including `spec` (whitelist lookup, always returns `200`
++ JSON, never hangs), and opening the page via `file://` already failed fast with a clear
+"could not reach the local server" message rather than hanging — both verified with Playwright
+before and after this fix. **Root cause actually found**: the markdown-table parser's separator-row
+regex, `/^\|[\s:-]+\|\s*$/`, only matched a single-column separator like `|---|`, not a real
+multi-column one like `|---|---|---|---|---|` (the `|` inside a character class only matched a
+literal pipe once, not "one or more pipe-delimited groups"). Every doc's table (ROADMAP.md's Tasks
+table, BUGS.md's Backlog table) silently failed to render as a table in `mdToHtml`, and once the
+same parser was reused (below) to drive the hero/timeline/bug-backlog cards, those came back
+empty. **Fix**: broadened the regex to `/^\|[\s:|-]+\|\s*$/` (both places it's used), and added a
+6-second `AbortController` timeout to `fetchDoc()` so no fetch anywhere on this page can leave a
+card on "loading…" indefinitely regardless of cause — success, honest-empty ("not created yet"),
+and error ("could not reach the local server") are now the only three end states, all reachable
+within a couple of seconds.
+
+**2. Hardcoded mockup data still displayed as real.** Found and removed every one of these
+leftover sample values, none of which were ever wired to a real file:
+- "Recent bug backlog": `Storm collider not deactivating at round end`, `Respawn point duplicated
+  in Zone 2`, `Missing logger in 3 custom files`, `DemoDisplay stand misaligned`
+- Roadmap progress ring: hardcoded `68%`, `17 of 25 tasks Done`, `MVP release: 3 tasks remaining`
+- Open bugs hero card: hardcoded `4` / `🔴1 blocking · 🟠2 major · 🟡1 minor`
+- Last update hero card: hardcoded `Today, 14:20` / `planner-docs · T-017 marked Done`
+- Roadmap task timeline: hardcoded nodes `T-013`…`T-020` with fake feature names ("Elimination
+  Manager", "Player Spawner", "Item Granter", "Respawn cooldown UI", "Storm Controller",
+  "DemoDisplay")
+
+All five are now driven by real parsing of `Claude/docs/ROADMAP.md`'s Tasks table and
+`Claude/docs/BUGS.md`'s Backlog table via the same `/doc?name=` mechanism the doc-card previews
+already used (`renderHero()`, `renderTimeline()`, `renderBugBacklog()`). Each shows an honest
+empty state ("ROADMAP.md has not been created yet" / "No bugs logged yet") when the file doesn't
+exist or has no rows yet — never sample content.
+
+**Verified with Playwright (chromium)** against the real running `agent-console-server.py`:
+- Fresh project, no `Claude/docs/*.md` at all: every card/section shows its honest empty state
+  within ~2.5s, zero `pageerror`/console errors.
+- Populated project with distinctive test data (`ROADMAP.md` with tasks `T-101`–`T-106`, 3 Done /
+  1 In progress / 2 To do; `BUGS.md` with `TESTBUG-Widget alignment off by 4px` (blocking),
+  `TESTBUG-Save button unresponsive` (major), `TESTBUG-Tooltip wraps oddly` (minor); `STATUS.md`,
+  `SPEC.md`, `RETENTION-NOTES.md`, `RELEASE-READINESS.md` each with a distinctive `TEST*-marker`
+  string): the progress ring showed `50%` / `3 of 6 tasks Done`, open bugs showed `3` /
+  `🔴1 blocking · 🟠1 major · 🟡1 minor`, the timeline rendered all 6 real task IDs with correct
+  Done/In progress/To do dots, the bug backlog listed all 3 real `TESTBUG-` entries with correct
+  severity pills, and all 6 doc-card preview modals (including SPEC.md) opened and rendered the
+  real marker text within ~1.2s — no stuck loading anywhere, matching the test data exactly.
+- `file://` (no server running): every card and the preview modal show
+  "Could not reach the local server" / "disconnected — is agent-console-server running?" within
+  seconds, not indefinite "loading…".
+
+`KIT_VERSION` bumped to v1.79.2.
+
+## v1.79.1 — Fixed Cost of Asking's halt→resume wait time (was measuring the wrong thing)
+
+Independent QA re-verification of v1.79.0 found that the "Cost of Asking" card's average wait
+time was silently wrong. It used "the next log entry of any kind after a halt" as the resume
+signal, but that's not actually a safe signal: every agent's own `SubagentStop` hook logs a
+`stop` line a moment after that agent finishes producing its halt verdict, as it exits — this is
+the halting agent wrapping up its own invocation, not the owner responding. In a full simulated
+run (intent-gate pass → coder → qa-regression reject → coder retry → qa-regression pass →
+compliance-reviewer halt → **47-minute real gap** → coder resumes → compliance-reviewer pass →
+release-gate pass), the card showed "~0.5 min/time" instead of the real ~47 minutes, because it
+was measuring time-to-own-stop-hook, not time-to-owner-response.
+
+**Fix**: the resume signal is now the next genuine `start` event (any agent) after the halt,
+since a new invocation can only begin once the owner (or a scheduled resume) has actually acted —
+falling back to the next entry only if the log ends right after the halt with no later start at
+all. Re-verified against the same simulated run: now correctly shows "~47.0 min/time".
+
+Also independently re-verified against a fresh/empty project (all 4 cards show their honest empty
+states, zero console errors, zero unhandled 404s), against malformed/edge-case log lines (an
+orphaned `verdict` with no matching `start`, an out-of-order-appended event, and a `verdict` with
+an unparseable `ts`) — the UI degrades gracefully in all three cases, no crash, no silent
+miscounting of the well-formed data — and against all 6 updated agent `.md` files, whose logging
+instructions use one consistent event schema each with no duplicate/conflicting logging step.
+
+`KIT_VERSION` bumped to v1.79.1.
+
+## v1.79.0 — Flow console's 4 bottom cards now real, not sample layouts
+
+v1.78.0 wired the Flow console's truck/gauge/Control Tower to real `/log`/`/tokens`/`/active-task`
+data but left the 4 bottom cards (Decision Log, Model Tiers, Cost of Asking, Gate Outcomes) as
+explicitly-labeled "(sample layout)" placeholders, because no agent logged the verdict/model-tier
+data those cards need. This release adds that real data and wires the cards to it.
+
+**New log event types** (appended to `Claude/logs/agent-console.jsonl`, same append-only
+JSON-lines file and mechanism `agent-console-log.sh`/`.ps1` already use for `start`/`stop`):
+- `{"agent":...,"event":"verdict","result":"pass"|"reject"|"halt","task":"<id>","ts":...,"detail":"..."}`
+  — now logged by `intent-gate` (CLEAR→pass, AMBIGUOUS→halt), `intent-reviewer` (PASS→pass,
+  REJECTED→reject, 5th-attempt escalation→halt), `compliance-reviewer` (same pattern as
+  intent-reviewer), `qa-regression` (pass/reject based on whether it found blocking/major
+  problems), and `release-gate` (READY[/WITH RESERVATIONS]→pass, NOT READY→reject). See each
+  agent's own `.md` under `user-level-agents/` for the exact logging step added.
+- `{"agent":"coder","event":"model_tier","tier":"from-scratch"|"second-brain"|"verse-patterns","task":"<id>","ts":...}`
+  — logged once per task by `coder`, right after it settles on an implementation approach in its
+  existing Step 0.5 (reused this kit's own existing vocabulary — second-brain query, verse-patterns
+  reference, or neither — instead of inventing a generic cheap/mid/frontier scale).
+
+**Flow console (`agent-console-flow.html`)** — all 4 cards now read real events from `/log`:
+- **Decision Log**: the most recent real `verdict` events, colored by result (pass=green,
+  reject=red, halt=magenta), same keyword styling as before. Empty state: "No decisions logged
+  yet".
+- **Model Tiers**: real percentage breakdown of `coder`'s logged `model_tier` events. Empty state:
+  "No model-tier data yet".
+- **Cost of Asking**: real halt count from `verdict` events with `result:"halt"`, and a real
+  average wait time computed halt→resume, where "resume" is the kit's natural existing signal (the
+  next log entry of any kind after a halt, since nothing else happens while the pipeline is
+  genuinely waiting on the owner) — no dedicated resume event was added because none was needed.
+  Empty state: "No halts recorded yet — nothing has required your input".
+- **Gate Outcomes**: real pass/reject/halt counts aggregated across all gate/reviewer agents.
+  Empty state: "No gate verdicts logged yet".
+- The "(sample layout)" labels and the disclaimer text saying this data doesn't exist are gone;
+  replaced with a comment describing the real data source for future maintainers.
+
+**Audit of the rest of the console system (agent-console.html, -stats.html, -docs.html,
+-flow.html)** for other fake/decorative elements: found none beyond what's already fixed. The
+remaining `Math.random()` uses (missile-launch particle bursts, explosion-arc curvature) are
+explicitly-documented cosmetic effects triggered only by real start/stop/verdict events, not stand-
+ins for unavailable data, so they were left as-is.
+
+`KIT_VERSION` bumped to v1.79.0.
+
+## v1.78.0 — Docs & Flow consoles wired to real project data (they were mockups)
+
+The two new consoles (`agent-console-docs.html`, `agent-console-flow.html`) looked finished but
+never actually read anything real — every number and animation was hardcoded sample data or a
+timer loop. This release wires both to the exact same real data sources
+`agent-console.html` already uses (`/log`, `/tokens`, `/active-task`, and a new `/doc` endpoint),
+instead of inventing a separate mechanism.
+
+**Docs & Status console:**
+- "Recent status" now shows the real "## Current state" section parsed out of the project's
+  actual `Claude/docs/STATUS.md` (was: three hardcoded lines that never changed).
+- Fixed SPEC.md, RETENTION-NOTES.md and RELEASE-READINESS.md not opening at all — they had no
+  click handler and no data entry in the old hardcoded `DOCS` object, so clicking them did
+  nothing. All six docs now fetch their real content from the new `/doc?name=<key>` server
+  endpoint (added to both `agent-console-server.py` and `.ps1`) and render it (a small built-in
+  markdown→HTML pass, plus the existing raw-markdown tab). A doc that genuinely doesn't exist yet
+  in a fresh project (no SPEC.md until an agent writes one, for example) now shows a clear "not
+  created yet" state instead of silently doing nothing — the doc-grid cards also dim and relabel
+  themselves the same way on load.
+- Removed the left icon-rail: every icon but "Status" was a dead, non-functional button. The main
+  docs table/grid is now centered in the page with the freed-up width instead of sitting
+  left-aligned next to empty space.
+
+**Flow of Flows console:**
+- The truck no longer animates on a fixed timer regardless of real activity. It now polls `/log`
+  every second (same event stream and `active`-stack logic `agent-console.html` uses) and sits
+  parked at the start of the belt, with every build/gate/ship machine effect dark, whenever no
+  real agent in the 5-stage pipeline (`intent-gate → coder → intent-reviewer →
+  compliance-reviewer → planner-docs`, matching the main console's own `MINIFLOW_PIPELINE`) is
+  actually active. It only moves to, and animates, whichever real stage is currently running.
+- The Control Tower's station-row highlighting no longer cycles through stations on a timer. It
+  now reflects whichever real agent is topmost in the live `active` stack — genuine idle (no
+  highlighted station, no cycling) when nothing is running.
+- The token-usage gauge no longer performs a canned sweep with random numbers. It now reads the
+  same `/tokens` session-cumulative total the main console's "Tokens this session" stat uses, and
+  only shows a needle position/pulse while a real agent is active; at idle it sits flat at zero
+  with "no usage data yet" / "idle" rather than implying false activity. **Honest limitation:**
+  this kit does not currently log token usage per-agent or per-task, only a session-wide total —
+  so the gauge shows the real session total scaled against its own session-high, not a genuine
+  per-station breakdown. Real per-agent token metering would need a new logging hook (e.g. tagging
+  `agent-console-tokens.ps1`/`.sh`'s writes with whichever agent is topmost in `/log`'s `active`
+  stack at that moment) — left as documented future work rather than faked here.
+- The four "Decision log / Model tiers / Cost of asking / Gate outcomes" cards and the top
+  shipped/steps/decisions/sent-to-you counters remain illustrative sample layouts, labeled as such
+  in the page: this kit does not yet log a structured per-decision audit trail or model-tier
+  choices anywhere, so there's no real data to wire them to yet.
+
+`KIT_VERSION` bumped to v1.78.0.
+
+## v1.77.2
+
+- Fixed: Docs and Flow console tabs did not open — nav wiring bug. The main console and Stats
+  page nav used server-root-absolute hrefs (`/`, `/stats`, `/docs`, `/flow`), which resolve to a
+  nonexistent local path when `agent-console.html` is opened directly (`file://`) instead of
+  through `agent-console-server.py` — clicking Docs/Flow silently failed with
+  `ERR_FILE_NOT_FOUND`. Also, the reverse links on the new Docs/Flow pages (plain relative
+  filenames like `agent-console-stats.html`) fell through the server's catch-all route and
+  rendered the wrong page when served over `http://`. Both are now unified: every console page's
+  nav uses plain relative filenames, and `agent-console-server.py`'s `do_GET` explicitly maps both
+  the short routes (`/stats`, `/docs`, `/flow`) and the filename routes
+  (`agent-console-stats.html`, `agent-console-docs.html`, `agent-console-flow.html`) to the correct
+  file, so navigation works identically via `file://` and via the local server. Also found and
+  fixed `agent-console-server.ps1` (the Windows/PowerShell server), which never received `/docs`
+  and `/flow` routes when those pages were added — only `/stats` existed there; both routes (and
+  their filename aliases) are now added, matching the Python server. `KIT_VERSION` bumped to
+  v1.77.2.
+
+## v1.77.1 — Full Italian-to-English translation pass
+
+Completed full Italian-to-English translation across the kit, including previously-intentional
+status vocabulary (`Da fare`/`In corso`/`Bloccato`/`Fatto` → `To do`/`In progress`/`Blocked`/`Done`;
+`CHIARO`/`AMBIGUO` → `CLEAR`/`AMBIGUOUS`) per explicit user request ("TRADUCI TUTTO" — translate
+everything, no exceptions). This supersedes the v1.77.0 judgment call to leave that vocabulary
+alone as an "intentional shared convention" — the owner's instruction here is total and overrides
+that reasoning.
+
+- Updated `ROADMAP.md`/`STATUS.md` templates, `CLAUDE.md`, `user-level-memory/CLAUDE.md`, and every
+  agent file (`coder.md`, `intent-gate.md`, `intent-reviewer.md`, `planner-docs.md`,
+  `project-bootstrap.md`, `release-gate.md`) that referenced the old Italian status/verdict labels
+  as literal strings, so the enum values stay consistent everywhere they're written, compared, or
+  displayed.
+- Fully translated several `user-level-skills/*/SKILL.md` files that were still entirely in
+  Italian (`fortnite-marketing-launch`, `fortnite-competitor-analyzer`, `fortnite-retention-
+  gamedesign`, `fortnite-social-trailer`, `fortnite-thumbnail-pro`, `fortnite-title-description`,
+  `fortnite-update-writer`, `fortnite-analytics-coach`), including their `description:` frontmatter
+  and "Parla in italiano" style instructions (now "Speak in English").
+- Translated the `genre/roguelike/` and `genre/survival/` skill trees (`SKILL.md`, `references/
+  variants.md`, `references/evidence-shared.md`, and every `variants/*/evidence.md` file), and
+  `genre/fortnite-tags-known.json`'s Italian internal notes/mechanism fields.
+- Translated `second-brain-template/CLAUDE.md` in full, including its prescribed article section
+  headers (`## Punti chiave` → `## Key points`, `## Connessioni e potenziali` → `## Connections
+  and potential`, `## Fonti` → `## Sources`, etc.), frontmatter field names (`fonti` → `sources`,
+  `visto_su` → `seen_on`, `data_creazione`/`data_aggiornamento` → `date_created`/`date_updated`,
+  `versione_implementazione` → `implementation_version`), file names (`indice.md` → `index.md`,
+  `indice_wiki.md` → `wiki-index.md`, `frontiere-conoscenza.md` → `knowledge-frontiers.md`,
+  `evoluzione-kb.md` → `kb-evolution.md`), and the `sintetizza` command alias (now `synthesize`) —
+  with matching updates in `second-brain-template/README.md`, the release-notes sync scripts, and
+  `second-brain-librarian.md` so every cross-reference stays in sync.
+- Fixed remaining stray Italian strings in `agent-console-stats.html` (chart title/empty-state
+  text) and a couple of quoted owner remarks and file-path examples elsewhere.
+- `KIT_VERSION` bumped to v1.77.1.
+
+## v1.77.0 — Two new Agent Console views: Docs & Status navigator, Flow of Flows pipeline
+
+Two new console pages, approved across many mockup rounds in `/tmp/console-mockups/` and
+`/tmp/flow-jev/conveyor-5.html`, are now real files in `Claude/hooks/`, wired into the same
+`view-switch` nav pattern and `agent-console-server.py` routing as the existing Console/Stats
+pages. Also fixed stray Italian UI text the owner spotted on the Stats page.
+
+**What changed:**
+- New `Claude/hooks/agent-console-docs.html` ("Docs & Status Console"): icon rail, hero cards (SVG
+  roadmap-progress ring, open-bug count, last update), a horizontal timeline of ROADMAP.md tasks
+  with hover tooltips, a bug-backlog card, and a docs grid over `Claude/docs/*.md`
+  (STATUS.md/ROADMAP.md/BUGS.md/SPEC.md/RETENTION-NOTES.md/RELEASE-READINESS.md, matching
+  `planner-docs`'s real file ownership) with a raw-markdown vs. rendered-HTML preview toggle.
+  The rendered-HTML view is a snapshot: it regenerates when a task starts, not live on every page
+  open and not only when `planner-docs` writes — see the new Step 0 item 6 in
+  `user-level-agents/coder.md`, added right after it writes `Claude/docs/.active-task`.
+- New `Claude/hooks/agent-console-flow.html` ("Flow of Flows Console"): the assembly-line conveyor
+  pipeline (only the approved "Assembly line" variant — the mockup file held 5 switchable
+  concepts, only one shipped), 4 color-coded zones (INTAKE/BUILD/GATE/SHIP) with the kit's real
+  per-agent icons/colors (matches the registry in `agent-console.html`: coder alone in BUILD with
+  a 🏭 factory + welding sparks, compliance pre-check/MCP place gate/qa-regression/intent-
+  reviewer/compliance-reviewer clustered in GATE, planner-docs in SHIP with a sealed-crate ✅), a
+  nose-forward truck that travels the belt and pauses at whichever station is active, a Control
+  Tower (chief-of-staff hub + token-usage gauge scaled to the max token value recorded so far per
+  station, a scrollable per-station status list, decision history), and the Decision
+  Log/Model Tiers/Cost of Asking/Gate Outcomes 4-card grid.
+- Both new pages linked from the main console's and Stats page's `view-switch` header nav
+  (`Console · Stats · Docs · Flow`), and `agent-console-server.py` gained matching `/docs` and
+  `/flow` routes alongside the existing `/` and `/stats`.
+- Italian-to-English cleanup: `agent-console-stats.html` had leftover Italian UI copy the owner
+  flagged ("Nessun codice isola trovato...", "Salva il codice della tua isola...", a tooltip
+  reading "Genere assegnato al progetto...", plus the surrounding code comments) — all translated
+  to English. Audited `agent-console.html` and both new console files with the same pass; none of
+  the kit's intentional status vocabulary (`To do`/`In progress`/`Blocked`/`Done`,
+  `CLEAR`/`AMBIGUOUS`) was touched — that's the kit's own tracked convention, not stray text.
+- `KIT_VERSION` bumped to v1.77.0.
+
+## v1.76.1 — `second-brain-trainer` verifies findings before they reach the shared vault
+
+Owner asked for a review against best practices for dynamic multi-agent orchestration (fan-out
+vs. pipeline, adversarial/claim-level verification before a high-stakes write). Checked the kit's
+own parallel-fan-out agent, `second-brain-trainer`, against that: its Step 1-3 fan-out-and-
+synthesize (dispatch `second-brain-scout` clones per area in parallel waves, merge duplicates)
+already matches the pattern well. The gap was verification — merged findings went straight to
+`second-brain-librarian` for writing into the vault with no re-check, and this is a higher-stakes
+write than most in the kit: a mistaken pattern here doesn't just cost the current project, every
+future project that queries the second brain inherits it.
+
+**What changed:**
+- `user-level-agents/second-brain-trainer.md`: new Step 3.5 — every aggregated finding is
+  re-opened against its actual file/device and confirmed to (1) genuinely work as described and
+  (2) actually be reusable across projects, not secretly dependent on this project's own setup,
+  before `second-brain-librarian` ever sees it. Findings that don't hold up are dropped, not
+  softened. Step 5's report now also states how many were dropped at this step.
+- `codebase-auditor` (v1.75.1) and `second-brain-trainer` now share the same verify-before-write
+  discipline — the two places in this kit where an agent's own findings become a permanent
+  artifact someone else acts on without re-reading the source.
+
+## v1.76.0 — Skill-design best-practice pass: sharper trigger phrases + a growth "lessons" KB
+
+Owner asked for a review of the kit's skills against published best practices for writing Claude
+Skills (description field written for model decision-making with concrete trigger phrases;
+gotchas as the highest-value content, continuously updated from real outcomes). Checked every
+skill in the kit against those; the "system" skills (`genre`, `uefn-lessons`, `verse-patterns`,
+`mcp-tool-contracts`, `discover-retention`) already did this well — hooked to a specific agent
+step, already accumulate real lessons. The real gap was the 8 `fortnite-*` growth/marketing
+skills: short, generic, human-summary-style descriptions with no concrete trigger phrases, and no
+equivalent of `uefn-lessons` capturing what actually worked vs. flopped across real projects.
+
+**What changed:**
+- All 8 `fortnite-*` skill descriptions (`analytics-coach`, `competitor-analyzer`,
+  `marketing-launch`, `retention-gamedesign`, `social-trailer`, `thumbnail-pro`,
+  `title-description`, `update-writer`): rewritten to include concrete phrases an owner would
+  actually type ("fammi una copertina," "perché il CTR è basso," "scrivi le patch notes," and
+  similar), written for the model's own routing decision rather than as a human-readable summary.
+- New `user-level-skills/fortnite-growth-lessons/SKILL.md`: cross-project knowledge base for
+  growth/marketing, mirroring `uefn-lessons`'s exact convention but for measured outcomes
+  (thumbnail/title/trailer/launch/patch-note approaches that demonstrably over- or under-performed)
+  instead of code gotchas — explicitly gated on a real signal (a number, a direct reaction), never
+  filed just because an asset was produced.
+- `user-level-agents/growth-manager.md`: reads this new skill before routing to any of the 8, and
+  now has an explicit "feed outcomes back" step — whenever a real result becomes known during a
+  session (owner reports updated metrics, reacts to a launch, comments on a patch note's tone),
+  file it as a lesson without waiting to be asked, the same discipline `coder`/`second-brain-
+  librarian` already apply on the code side.
+
+## v1.75.1 — `codebase-auditor` now verifies its own findings before handing them off
+
+Owner asked for a best-practice pass over the kit. Reviewed against current guidance on
+large/agentic work (delegating audits with evidence verification, in particular) and checked it
+against what's actually in this kit's agent files — most of it was already covered (task lists in
+ROADMAP.md/STATUS.md, pre-human review gates via intent-reviewer/compliance-reviewer, no
+"think step by step"-style redundant prompting anywhere in the kit). One real gap found:
+`codebase-auditor` produced findings and hands them straight to `planner-docs` with no re-check
+against the actual files — a hallucinated or stale finding could turn into a real ROADMAP task.
+
+**What changed:**
+- `user-level-agents/codebase-auditor.md`: new Step 2.5 — every finding gets re-opened against
+  its actual file/line/device and rechecked before it's allowed into the report; findings that
+  don't hold up on re-check are dropped, not softened. Findings that can't be fully confirmed via
+  static analysis alone are now labeled as such (vs. directly-confirmed ones), so `planner-docs`/
+  the owner can tell "confirmed" from "worth checking at the next playtest" at a glance. Also
+  notes that a large project's audit can be split across parallel passes per category, but the
+  verification step always runs against the real files afterward regardless.
+
+## v1.75.0 — Broke the chicken-and-egg loop: UI learning no longer depends on a `coder` task
+
+Owner pointed out the real gap: they design UI screens BY HAND, directly in the project, not via
+`coder` — that's precisely why they wanted this skill (`coder` can't design good screens yet
+without examples). Every feeding mechanism up to v1.74.3 was tied to `coder` finishing a tracked
+task, so hand-authored screens never fed the skill at all — a genuine dead end, since the one
+source of real examples (the owner's own hand-drawn work) had no path in.
+
+**What changed:**
+- `project-template/CLAUDE.md`'s "UI reference harvest" rule now also runs a per-session **UI
+  code drift check**, independent of the task workflow entirely: on every session start, it hashes
+  every real UI/widget file found in the project and compares against
+  `Claude/docs/.ui-code-ingested.json` (new per-project state file, file path → last-ingested
+  hash). Anything new or changed since last time — regardless of who wrote it or whether it was
+  ever a tracked task — gets analyzed via `game-ui-designer`'s source-code analysis and filed into
+  `code-derived.md`/`manifest.md`/`UI-STYLE-NOTES.md` automatically, then its hash is recorded so
+  it isn't re-analyzed until it changes again.
+- `user-level-skills/game-ui-designer/SKILL.md`: documents this as mechanism 5, explicitly framed
+  as the primary feeding path for hand-authored screens — the `coder`-task-close mechanisms (1-3)
+  become the secondary loop once `coder` itself starts generating screens FROM the accumulated
+  style guide, closing the full circle (hand-made screens teach the skill → skill lets `coder`
+  generate consistent new screens → those get fed back too).
+
+Net effect: the owner can keep designing UI entirely by hand, and every screen still gets learned
+automatically the next time the project is opened in Claude Code — no task, no screenshot, no
+explicit request.
+
+## v1.74.3 — `coder` self-feeds `game-ui-designer` from every new/edited screen, no screenshot needed
+
+Owner asked the natural follow-up to v1.74.2: while actively working on a project and building or
+editing a UI screen, what actually happens automatically? Until now the day-to-day feeding path
+(`coder.md` step 8 / `planner-docs.md` step 5) still expected a screenshot as the primary input,
+with code-derived analysis only wired in as the one-time bootstrap backfill and an on-demand ask.
+That meant ordinary day-to-day UI work wasn't feeding the skill at all unless a screenshot showed
+up — inconsistent with the fact that the code itself (the widget file `coder` just wrote) is
+always available and doesn't need the owner to do anything.
+
+**What changed:**
+- `user-level-agents/coder.md` step 8: after finishing ANY UI screen (new or edited), `coder` now
+  runs `game-ui-designer`'s source-code analysis on the file(s) it just wrote as the DEFAULT path
+  — always available, no screenshot dependency — and includes the extracted facts in its
+  fixed-shape closing report. A screenshot, if one also happens to exist, is added on top, never
+  a substitute or a blocker.
+- `user-level-agents/planner-docs.md` step 5: files the code-derived facts from `coder`'s report
+  into `references/examples/code-derived.md` + `manifest.md` at every task close (falls back to
+  extracting them itself if an older-format report didn't include the block). Dropped the
+  "pending screenshot marker" fallback since a code-derived entry now always exists regardless of
+  whether an image does — a screenshot is purely additive from here on, not something to chase.
+
+Net effect: every UI screen built or modified through this kit from now on automatically becomes
+a reference example the moment its task closes — nothing to remember, nothing to attach.
+
+## v1.74.2 — `game-ui-designer` can learn directly from real UI code, not just screenshots
+
+Owner clarified: their existing project has real UMG/Verse widget implementation files for its
+UI screens, not exported screenshots — the screenshot-only pipeline from v1.74.0/v1.74.1 had no
+path for that.
+
+**What changed:**
+- `user-level-skills/game-ui-designer/SKILL.md`: new 4th feeding mechanism, "Direct source-code
+  analysis" — reads real widget/UI Verse files directly, extracts concrete facts only (widget
+  types/nesting, literal colors, corner-radius/padding, currency asset references, layout
+  structure), writes one entry per screen to a new `references/examples/code-derived.md` plus a
+  `manifest.md` row sourced to the real file path, and feeds the same per-project
+  `Claude/docs/UI-STYLE-NOTES.md` the screenshot path already feeds. Explicitly runs on demand
+  when the owner points at real code, not only via the scheduled hooks.
+- `user-level-agents/project-bootstrap.md`: the one-time existing-UI backfill (Branch A) now
+  checks for real UI code files first — this is the common case for an existing UEFN project —
+  falling back to image screenshots only if code isn't found or doesn't apply.
+
+## v1.74.1 — `game-ui-designer` self-feeding made fully automatic (no per-task question)
+
+Owner pushed back on v1.74.0's "ask once whether to save a screenshot" mechanism: same lesson as
+the earlier genre-check gap — a step that only fires when manually invoked, or that requires
+answering a question every single task, doesn't actually self-maintain. Reworked the whole
+feeding pipeline to be automatic in the same three places the rest of this kit already automates
+mechanical bookkeeping (task close, every-session check, one-time project bootstrap):
+
+**What changed:**
+- `user-level-agents/coder.md` step 8: after finishing a UI screen, stages any available
+  screenshot into `Claude/docs/ui-screenshots-pending/` instead of asking whether to keep it —
+  purely mechanical, no owner-facing question.
+- `user-level-agents/planner-docs.md`: new closing step 5 (renumbering old 5-9 → 6-10, and fixing
+  a pre-existing duplicate step-9 numbering along the way) — on closing a UI-related task,
+  automatically files any staged screenshot into `~/.claude/skills/game-ui-designer/references/
+  examples/<archetype>/`, logs it in that skill's `manifest.md`, and records the concrete style
+  choices made into the project's `Claude/docs/UI-STYLE-NOTES.md`; if no screenshot was staged yet,
+  leaves a one-line pending marker instead of asking again next session.
+- `project-template/CLAUDE.md`: new "UI reference harvest" bullet, same automatic-every-session
+  pattern as the genre check — scans `Claude/docs/ui-screenshots-pending/` on every session start
+  and files anything a previous task close didn't have an image for yet.
+- `user-level-agents/project-bootstrap.md` (Branch A, existing-project analysis): new one-time
+  backfill step — scans a pre-existing project for screenshots of UI screens that already exist,
+  so projects analyzed for the first time under this skill aren't stuck empty just because they
+  predate it.
+- `user-level-skills/game-ui-designer/SKILL.md`: self-learning section rewritten to describe the
+  3 automatic feeding paths above plus the two things that stay genuinely manual (adding an
+  external, non-UEFN inspiration image; periodically reviewing whether `style-guide.md` itself
+  needs updating as real examples accumulate).
+
+## v1.74.0 — New skill: `game-ui-designer` (learns the owner's in-game UI style over time)
+
+Owner wanted a way to design new UEFN in-game UI screens (stores, shops, missions/quests,
+teleporter, rewards, inventory) that stay visually consistent with examples they've made by
+hand, and to be able to feed it images to keep improving — an explicitly self-learning skill,
+not a one-shot style dump.
+
+**What was added:**
+- `user-level-skills/game-ui-designer/SKILL.md`: new user-level skill (lives at
+  `~/.claude/skills/game-ui-designer/`, same convention as `genre/`, `uefn-lessons/`, etc.).
+  Covers panel anatomy, item-card recipe, currency display, progress/reward patterns, and what
+  NOT to copy directly from reference art (third-party icons/branding).
+- `references/style-guide.md`: distilled rules extracted from the owner's first 9 reference
+  images (Roblox-sourced, given explicitly as aesthetic reference only, not UEFN screenshots or
+  literal assets to reuse).
+- `references/examples/<archetype>/*.png` + `manifest.md`: the starting example set, organized
+  by UI archetype (store, shop, missions-quests, teleporter, rewards, inventory).
+- **Self-learning loop**: the skill instructs itself to (1) save any new reference image the
+  owner shares into the matching archetype folder and log it in `manifest.md`; (2) after
+  finishing a real screen, ask once whether to save a screenshot of the *finished, owner-approved*
+  result back into the examples — this is what gradually shifts the example set from "generic
+  Roblox inspiration" to "this owner's own established UEFN style"; (3) periodically re-check
+  `style-guide.md` against the accumulated real examples and propose updates if they've drifted.
+  Promotion to `mature` follows the same discipline as Genre Skills: 3+ distinct projects with an
+  owner-approved finished screenshot each, not just a raw example count.
+- `user-level-agents/coder.md`: new step 8 (old step 8→9) — when a task involves building or
+  reworking a UI/menu screen, read this skill first (and the project's own
+  `Claude/docs/UI-STYLE-NOTES.md` if one already exists, which wins over the generic guide), and
+  offer to save a screenshot of the finished result afterward.
+
+## v1.73.3 — Fixed truncated reject-count badge on the last miniflow stage
+
+Owner reported a minor but real display bug in the main Agent Console: the small red "×N" reject
+badge on an agent avatar (spotted on `planner-docs`, the rightmost stage in the miniflow rail) was
+visually cut off horizontally, unreadable.
+
+**Root cause:** `.mf-reject-badge` is `position:absolute; right:6px` relative to its 96px-wide
+`.mf-node`. The rail (`.miniflow-rail`) scrolls horizontally but had no right-side padding, so the
+rightmost node sat flush against the rail's own clipped edge — the badge's rendered box extended
+past that edge and got cut off. Reproduced with a Playwright script forcing the badge visible on
+the last pipeline stage (`planner-docs`) and confirmed visually against the owner's screenshot
+before making any change.
+
+**What changed:**
+- `agent-console.html`: `.miniflow-rail` now has right-side padding (`padding:6px 14px 2px 0`) so
+  the last stage's badge has clearance instead of sitting at the hard scroll edge; `.mf-reject-badge`
+  changed from `right:6px` to `right:-2px` (compensates for the node's own edge) with
+  `white-space:nowrap` and `z-index:2` added so the badge text never wraps/gets clipped regardless
+  of which stage it's on.
+- Verified with a Playwright screenshot forcing `×12` on the `planner-docs` badge: fully readable,
+  no truncation, no console errors (before/after comparison).
+
+## v1.73.2 — Show the project's assigned genre on the Stats tab (owner spotted the gap)
+
+Owner noticed that the Stats page showed tags and a "Genre Rank" card saying "in Survival", but
+never showed the genre actually assigned to the project via `Claude/docs/.genre` — those are two
+different sources (one is what the creator chose/confirmed for the project, the other is what
+Epic's live API reports for the published island) that usually agree but could in principle
+diverge, and the page never surfaced the first one at all.
+
+**What changed:**
+- `agent-console-server.py` / `.ps1`: new `/project-genre` endpoint, serving
+  `Claude/docs/.genre` verbatim (same plain-text pattern as the existing `/active-task`).
+- `agent-console-stats.html`: new green "genre" badge next to the island title, visually distinct
+  from the grey tag badges, with a tooltip explaining it's the project-assigned genre — separate
+  from whatever genre the Genre Rank card's live API data reports.
+- Verified with a mock server returning `survival` from `/project-genre` alongside real tag data:
+  Playwright screenshot confirms the badge renders correctly, zero console errors.
+
+## v1.73.1 — Genre check decoupled from project-bootstrap (runs automatically every session)
+
+Fixed a real usability gap the owner hit immediately: the genre-selection step (v1.73.0's Step
+0.5) only lived inside `project-bootstrap`, which by design runs ONCE EVER and only on projects
+that haven't already been bootstrapped — so it would never fire on any of the owner's existing,
+already-analyzed projects, forcing a manual per-project invocation for every one of them.
+
+Moved the trigger to `CLAUDE.md` (project rules), same automatic-every-session pattern already
+used for the Agent Console check: as the very first action of any session, check whether
+`Claude/docs/.genre` exists — a one-line file check, cheap enough to run every time — and if not,
+follow `project-bootstrap.md`'s Step 0.5 procedure directly (that step was already self-contained,
+just needed a trigger not gated behind "bootstrap never ran here before"). No permission needed to
+run the check itself; the genre choice itself still always stops and asks the owner, same as
+before. This means opening any pre-existing project — even ones analyzed long before this feature
+existed — now sets its genre and bootstraps its Genre Skill automatically, without the owner
+invoking anything by name project by project.
+
+## v1.73.0 — Genre Skills architecture (real code, not just design) + tag badges on Stats
+
+Turns the Genre Skills design discussed with the owner into actual wired-in behavior, plus
+closes the loop on official genre/tag data.
+
+**Genre Skills bootstrap and lifecycle, wired into the real agent workflow:**
+- `project-bootstrap.md` (Step 0.5, new): the first time a project has no `Claude/docs/.genre`,
+  proposes the closed genre list (`~/.claude/skills/genre/fortnite-genres-official.json`), saves
+  the owner's choice, and bootstraps an empty `~/.claude/skills/genre/<slug>/SKILL.md` (status
+  `draft`) if that genre has no skill yet — deliberately empty, no invented patterns.
+- `coder.md` (new step): reads the project's Genre Skill before gameplay/design tasks, one-way
+  dependency only (never edits it).
+- `planner-docs.md` (new step, on task close): appends a dated observation to the matching
+  variant's `evidence.md`, checks the promotion rule (3+ maps with entries and at least one
+  pattern — reproducible in 2+, plausible cause, actionable — repeated across them), flips
+  `draft` → `mature` and updates `SKILL.md` when it's met, and only then checks 2+ mature
+  variants for genuine cross-variant convergence into `references/evidence-shared.md` (staying
+  empty is a legitimate outcome, not a gap to force).
+- Genre Skills moved to the USER level (`~/.claude/skills/genre/`), matching every other skill in
+  this kit (`fortnite-analytics-coach`, `uefn-lessons`, etc.) — shared across every project
+  instead of duplicated per-project. Shipped with two prototype genres (Survival, Roguelike),
+  each with a first set of variants as empty, honest starting points.
+
+**Official genre + tag lists, now complete from real sources.** The genre list
+(`fortnite-genres-official.json`) was previously missing 3 of 13 genres (only 10 were confirmed
+via a real `GET /genres` capture). Fetched Epic's own documentation
+(dev.epicgames.com/documentation/fortnite/how-discover-works-in-fortnite) to fill the gap:
+Adventure & RPG, Battle Royale, Deathrun & Platformer — their display names are doc-confirmed,
+their `slug` values are inferred from the same pattern as the 10 API-confirmed ones and marked
+`slugSource: "docs-inferred"` rather than presented as equally certain. Also fetched Epic's Game
+Tags documentation (dev.epicgames.com/documentation/fortnite/games-and-game-tags-in-fortnite-creative)
+for the full 149-tag official closed list (`fortnite-tags-known.json`) — previously shipped
+empty, waiting to be built up tag-by-tag from real captures; now ships pre-populated with Epic's
+own list, with a separate `observedOnIslands` array for tracking which tags actually show up on
+real islands over time (see below).
+
+**Tag badges on the Stats tab, from real data already being fetched.** `agent-console-server.py`
+/ `.ps1`: every `/island-info` call now also updates `~/.claude/skills/genre/fortnite-tags-known.json`'s
+`observedOnIslands` with the island's real `tags` field (first/last seen, times observed, which
+islands) — best-effort, never breaks the info endpoint on failure. `agent-console-stats.html`:
+renders the island's current tags as small badges next to the title, using data already being
+fetched for the title itself (no new network calls). Verified with a mock `/island-info` response
+carrying 5 tags and a direct call to the tracking function against a real copy of
+`fortnite-tags-known.json` — confirmed same-day re-observation doesn't double-count
+`timesObserved`, and a Playwright screenshot confirmed the badges render with zero console errors.
+
+## v1.72.0 — Genre Rank card on the Stats tab
+
+Added a "Genre Rank" panel to `agent-console-stats.html`, showing where the island currently
+ranks within its genre plus a 7-day rank trend (best/worst/average).
+
+**A winding but honest path to the real endpoint.** The feature was first requested from a
+reference screenshot the owner had; it was initially mis-assumed to come from a third-party site
+(Fortnite.gg), and a capture prompt was drafted around that premise before the owner corrected
+it with a screenshot of the *official* Swagger "Genres" section — missed earlier because that
+Swagger page is JS-rendered and unreadable by automated fetch (same limitation noted in v1.71.0).
+A first real sample from `GET /genres/{slug}/rankings` didn't match the reference screenshot's
+genre or rank range, which turned out to be the wrong endpoint — that one ranks a genre overall,
+not one island. The owner then shared the full Swagger endpoint list, which surfaced the actually
+relevant one: `GET /islands/{code}/rankings`.
+
+**Confirmed via real capture (2026-09-19).** With no `from`/`to`, the endpoint returns only the
+latest single hourly snapshot. With `from`/`to` set to a 7-day window it returns an
+HOURLY-granularity series — 167 points observed for the real island tested — each shaped
+`{timestamp, genres:[{genreSlug, genre, rank}]}`; `genres` had exactly one element in every real
+record (this island carries a single genre tag). Lower rank number = better. A `to` in the future
+produces a real `400 Bad Request`, so — same pattern as the metrics endpoint — `to` is always
+clamped server-side to "now".
+
+**What changed:**
+- `agent-console-server.py` / `.ps1`: new `_get_island_rankings()` / `Get-IslandRankingsJson`,
+  same memory+disk cache pattern (5-min TTL) as the metrics endpoint, served at
+  `GET /island-rankings`.
+- `agent-console-stats.html`: new rank card above the KPI tiles — current rank, best/worst/average
+  over the window, and an inverted-axis line chart (lower rank number maps to the smaller y, near
+  the top, so "up" reads as "improving" — the opposite convention from every other chart on this
+  page, called out explicitly in the code). Best-effort: any error or empty payload just hides the
+  card instead of blocking the rest of the page.
+- Verified against the owner's own real captured sample: the rendered numbers (#378 current,
+  #320 best, #876 worst, #531.5 average) matched the reference screenshot exactly.
+
+## v1.71.1 — Two real chart bugs: silent window compression, wrong date axis
+
+Both found through the owner actually using v1.71.0, not through testing here.
+
+**Bug 1 — a 7-day window rendering as if it were 2 days.** `renderChart()` filtered out `null`
+values (days with insufficient traffic — Epic's own floor is 5+ unique players) *before* laying
+out the x-axis, so when most days in the window had no data, the few real points got stretched to
+fill the whole chart width. Owner report: "in the chart I only see two days even though it says 7,
+is that right?". Fixed by keeping every point for layout purposes and grouping only *contiguous*
+non-null runs for drawing, so a real gap now shows as a visible break in the line (or a lone dot)
+instead of being silently absorbed into the axis.
+
+**Bug 2 (deeper) — the axis itself was wrong.** Even after fixing bug 1, the x-axis still just
+spanned however many entries the API happened to return for the window — and it turns out the API
+*omits* days with insufficient data from the array entirely rather than padding them with `null`.
+A real case (data on only 2 of the last 7 calendar days) rendered those 2 dates as if they were
+"the 7-day window", while the actual current date was days later. Owner report (mid-session):
+"it's giving me 12/09 and 13/9, today is 18/09". Fixed with a new `padToSevenDayGrid()` that builds a true
+7-calendar-day grid ending at the browser's own "today" (UTC-date matched), mapping real points
+onto it and leaving an explicit `null` for any day genuinely absent from the API's response — now
+the single source of truth for "the window" used by both the KPI tiles and the chart. Verified
+against a reproduction of the exact real scenario (data only on 2026-09-12/13, system date
+2026-09-18).
+
+## v1.71.0 — Real island stats: a "Stats" tab on the Agent Console, backed by the Fortnite Ecosystem API
+
+New feature, requested after the two v1.70.5 bug fixes: a second page alongside the console,
+showing the island's real performance data instead of pipeline/agent activity.
+
+**Layout chosen after a 4-mockup review** (KPI row + a big chart with a metric selector — the
+other three explored a small-multiples grid, a sidebar + single chart, and a record-strip +
+normalized comparison chart, kept as reference but not built).
+
+**Real API schema, not guessed.** Before writing any of this, `coder` was sent to make a real
+call against `api.fortnite.com/ecosystem/v1` and capture the actual response — the public Swagger
+page is JS-rendered and unreadable by an automated fetch, so this followed the kit's usual
+real-payload-capture discipline instead of inventing field names. Confirmed: the API needs no API
+key/OAuth despite `securitySchemes` listing one in its OpenAPI doc (unused by any actual
+endpoint); the real path is `GET /islands/{code}/metrics/{interval}` (`day`/`hour`/`minute` as a
+path segment, not a query param) with optional `from`/`to` ISO 8601 query params (7-day lookback
+needs them passed explicitly — the default window is much shorter); field names are camelCase and
+not 1:1 with the human labels (`recommendations`, not `recommends`; `averageMinutesPerPlayer`);
+`retention` is a separate array shaped `{d1, d7, timestamp}`, not folded into the other metrics;
+values can be `null` on a day with too little traffic (Epic's stated floor: 5+ unique players);
+and a documented `429` exists for rate limiting with no published threshold.
+
+**New/changed files:**
+- `agent-console-stats.html` — the new page. Same design tokens as `agent-console.html` (this is
+  a tab of the same console, not a separate product). Nine KPI tiles (the metric definitions
+  above), click a tile to plot it in the chart below, real hover crosshair + tooltip snapping to
+  the nearest day, a 7-day max badge per tile, and a friendly empty state when no island code is
+  configured yet instead of a blank/broken page.
+- `agent-console.html` — added a small Console/Stats view-switch pill in the header (a plain
+  `<a href>`, not client-side routing — each view is its own static file on the same local
+  server).
+- `agent-console-server.py` / `agent-console-server.ps1` — two new endpoints: `/island-metrics`
+  (proxies the 7-day daily-granularity call above) and `/island-info` (island title/tags, for the
+  page header). Both cache server-side — 5 min for metrics, 1 hour for info, memory + a
+  `Claude/logs/fortnite-*-cache.json` fallback file — so a page reload, or a real `429`, still
+  shows the last good data instead of an empty page. `/stats` now serves the new HTML file the
+  same way `/` serves the console.
+- `Claude/docs/.island-code` — new per-project file, same pattern as `.active-task`: a single
+  line with the island code (e.g. `1234-5678-9012`), read by both server scripts. Nothing writes
+  this automatically yet — set it once per project and the Stats tab picks it up.
+
+Verified with a mock local API server standing in for Epic's endpoint (network to the real one
+isn't available from this dev sandbox): metric fetch, the 429-with-stale-cache fallback, and the
+missing-island-code case all confirmed server-side; the actual page verified in a real browser via
+Playwright against that mock server — KPI tiles, chart, hover tooltip, and switching the plotted
+metric by clicking a different tile, zero console/page errors.
+
+## v1.70.5 — Two real Agent Console bugs fixed: stale-entry misattribution, wrong task ID on the miniflow
+
+Both surfaced from real usage after the open-source release, diagnosed locally with the exact log
+evidence before any fix was written.
+
+1. **Orphaned queue entries with no expiry corrupted attribution.** When a real `SubagentStop`
+   event was lost (session crash/restart, or a phantom orchestrator-poll stop consuming it), the
+   matching `start` entry in `agent-console-active.json` sat forever with no expiry. A real log
+   capture showed a 7-day-old orphaned `qa-regression` start get "resumed" by the next real stop of
+   that type, stamping a week-old description on the just-finished task — and when several such
+   stale entries got auto-cleared together on a reload, they all showed the same timestamp, looking
+   like a coincidence but actually just one replay tick. Fixed in both the PowerShell and bash hook
+   pairs (`agent-console-log.ps1`/`.sh`, `agent-console-stop.ps1`/`.sh`): every queue entry now
+   carries its own `ts`, and anything older than 45 minutes (same threshold as the client-side
+   `STALE_ACTIVE_MS`) is pruned before a new entry is pushed or matched.
+
+2. **The miniflow header showed the previous task's ID.** `.active-task` (written only by `coder`)
+   and the miniflow's active stage (derived live from the `active` stack) are two independent
+   sources. A task entering `intent-gate` — which runs before `coder` — advanced the stage
+   immediately while the on-disk task-ID label stayed frozen on the previous task until `coder`
+   eventually overwrote it, so the header could read e.g. "MINIFLOW — T-050" with `intent-gate`
+   active while the real work was already on T-051. Fixed in `agent-console.html`:
+   `resetMiniflowCycle()` now clears the task-ID label the instant a new cycle starts, instead of
+   leaving the stale id visible until the next poll happens to catch up.
+
+3. **macOS/Linux hook pair brought up to parity.** `agent-console-stop.sh` previously never read
+   the `SubagentStop` payload at all — it blindly popped queue index 0, i.e. it still had the
+   attribution bug the PowerShell side had already fixed in v1.69, on top of the orphaned-entry bug
+   above. Rewritten to match the PowerShell logic (skip phantom/empty `agent_type` events, match the
+   oldest queued entry of the same type, prune expired entries, serialize the queue read-modify-write
+   with `flock` the way the PowerShell side uses a named Mutex). Verified with a real sandbox
+   repro — phantom stop ignored, correct desc attributed with two agent types queued at once, and a
+   1-hour-old orphaned entry correctly dropped rather than resumed — before shipping.
+
 ## v1.70.4 — Loud warning when launched from the wrong folder (silent hook failures, root cause of the last incident)
 
 Root cause of the "logs stopped, console stopped animating" incident: the session had been
@@ -66,7 +992,7 @@ Follow-through on a "graph engineering" gap audit the owner asked for after shar
 node/edge contracts, bounded cycles, and model tiering. The audit ran as six parallel evaluation
 passes over the kit against those principles, then one synthesis pass; six things already matched
 the vision (bounded-contract nodes, `.active-task` as a real data-contract edge, structural runtime
-routing via CHIARO/AMBIGUO and PASS/REJECTED, independent verifiers on the review edges, no
+routing via CLEAR/AMBIGUOUS and PASS/REJECTED, independent verifiers on the review edges, no
 unnecessary node isolation, pipeline-first topology). Seven trivial/low-effort gaps closed:
 
 1. **Bounded REJECTED cycles.** The `intent-reviewer`/`compliance-reviewer` fix-and-resubmit loop
@@ -87,7 +1013,7 @@ unnecessary node isolation, pipeline-first topology). Seven trivial/low-effort g
 5. **`.task-verdicts` (new durable log).** Both reviewers now append one line per verdict
    (`timestamp reviewer task-id verdict attempt-n`) to `Claude/docs/.task-verdicts`, append-only,
    same single-writer/independent-reader pattern as `.active-task`. `planner-docs` cross-checks it
-   before marking a task Fatto, so "both reviewers PASSed" is independently checkable instead of
+   before marking a task Done, so "both reviewers PASSed" is independently checkable instead of
    resting on `coder`'s prose relay.
 6. **Model tiering on structural-check agents.** `intent-gate` and `compliance-reviewer` moved from
    `sonnet` to `haiku` — both are bounded, checklist-shaped checks (ambiguity naming, mechanical
@@ -115,7 +1041,7 @@ structural changes, all confirmed by the owner, implemented together:
 
 1. **`intent-gate` (new agent)** — runs BEFORE `coder` writes anything. Independently checks
    whether a task's acceptance criteria (and any owner-supplied base code) are concrete enough to
-   implement without guessing, and returns CHIARO or AMBIGUO. Moves the "is this actually clear"
+   implement without guessing, and returns CLEAR or AMBIGUOUS. Moves the "is this actually clear"
    judgment out of `coder`'s own Step 0.5 self-check and into an agent with no stake in getting to
    start the work.
 2. **`verse-reviewer` split into `intent-reviewer` + `compliance-reviewer`.** `intent-reviewer`
@@ -132,7 +1058,7 @@ structural changes, all confirmed by the owner, implemented together:
    restating the check in its own words — the exact pattern that let the v1.67 incident happen
    (the same generic instruction, worded slightly differently, in three places at once).
 4. **`Claude/docs/.active-task` (new lightweight file)** — `coder` writes the task ID here when it
-   flips a task to In corso; `intent-reviewer`/`compliance-reviewer` cross-check the ID `coder`
+   flips a task to In progress; `intent-reviewer`/`compliance-reviewer` cross-check the ID `coder`
    reports against this file instead of trusting the report alone.
 
 Agents removed: `verse-reviewer.md`. Agents added: `intent-gate.md`, `intent-reviewer.md`,
@@ -265,7 +1191,7 @@ reopening a project after time away didn't make "what's in progress / what's nex
 immediately obvious. This release restructures the documentation flow around one rule
 (`~/.claude/CLAUDE.md`, new **rule 13**): every task is a row in `Claude/docs/ROADMAP.md`'s
 `Tasks` table (ID, Feature, Status, Acceptance criteria, Priority) before any code gets written
-against it, and it's only marked **Fatto** after `verse-reviewer` PASSes it.
+against it, and it's only marked **Done** after `verse-reviewer` PASSes it.
 
 **Orchestrator decision (asked for explicitly, decided against a new agent):** the alternative
 considered was a dedicated `orchestrator` subagent enforcing Request → task → code → review →
@@ -282,13 +1208,13 @@ progress / Planned next / Done so far / Recommended next step) that's replaced o
 sitting above the existing append-only dated log.
 
 **Agents updated**: `coder` gets a mandatory Step 0 plan-first gate (find the task ID or stop and
-ask; flip Status to In corso itself — the one narrow exception to not touching ROADMAP.md — never
-Fatto) and now closes a task by handing off to `planner-docs` after a `verse-reviewer` PASS,
+ask; flip Status to In progress itself — the one narrow exception to not touching ROADMAP.md — never
+Done) and now closes a task by handing off to `planner-docs` after a `verse-reviewer` PASS,
 instead of just reporting done. `coder-prep` explicitly never touches these files at all — the
 gate and the closing hand-off are `coder`'s job once per wave. `planner-docs` is rewritten as the
 two-mode gatekeeper (opening a task / closing one) instead of an end-of-session-only recap agent.
 `verse-reviewer` now expects and reports a task ID for traceability. `release-gate` gets an
-explicit ROADMAP-completeness criterion (every current-release task Fatto, and Fatto tasks
+explicit ROADMAP-completeness criterion (every current-release task Done, and Done tasks
 actually backed by a recorded PASS). `project-bootstrap` (both branches) now seeds real `T-<3
 digits>` tasks with acceptance criteria instead of a prose "planned features" list or a vague
 "next step" line.
@@ -351,7 +1277,7 @@ the new scope.
 
 ## v1.61 — Agent Console updated for growth-manager
 
-Caught by the owner asking directly ("hai aggiornato anche la console?") after v1.59 added the
+Caught by the owner asking directly ("did you update the console too?") after v1.59 added the
 `growth-manager` agent without touching `agent-console.html` — it was still showing the old
 seven-agent roster. Added `growth-manager` to the `AGENTS` array (📈, orange — the one color slot
 already defined in CSS but unused by any agent), bumped `KIT_VERSION` to v1.61, and updated the

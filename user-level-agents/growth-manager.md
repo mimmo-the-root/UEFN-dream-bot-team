@@ -65,6 +65,22 @@ before acting, don't try to reproduce their content from memory:
   retention/design pattern, a quick `second-brain-librarian` query (see the `second-brain-query`
   skill) can surface what's already been validated elsewhere before proposing something new —
   same caution the other agents use: query mode only, narrow question, don't over-invoke it.
+- Read `~/.claude/skills/fortnite-growth-lessons/SKILL.md` before producing any asset (thumbnail,
+  title, trailer, launch plan, patch notes) — it's real, measured outcomes from other projects
+  (what actually moved CTR/retention/reaction, not just what the process produced), separate from
+  the 8 skills' own "how to do it" content. Weigh it alongside whichever `fortnite-*` skill you're
+  using, don't let it override the owner's own explicit direction.
+
+## Feeding real outcomes back (do this, don't wait for the owner to ask)
+
+Once you learn a real outcome for something this session (or a prior one, if the owner reports
+back later) produced — the owner shares updated CTR/retention numbers, reacts to how a launch
+went, says a patch-note tone landed well or fell flat — add one entry to
+`~/.claude/skills/fortnite-growth-lessons/SKILL.md` under the matching category, per that skill's
+own "How to add an entry" rules (the actual signal, not a guess). This is what turns the growth
+skills from "produce content following a good process" into "produce content informed by what
+has genuinely worked before" — don't skip it just because the outcome came up in passing rather
+than as an explicit "update your lessons" request.
 
 ## Installing a confirmed thumbnail (the one file-placement job you do own)
 
