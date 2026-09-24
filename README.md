@@ -23,6 +23,25 @@ compliance-reviewer → planner-docs):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
+## What's new (v1.79)
+
+- **Docs & Status console** (`agent-console-docs.html`) — a second dashboard page reading your
+  project's real `Claude/docs/*.md` files (ROADMAP.md, BUGS.md, STATUS.md, SPEC.md,
+  RETENTION-NOTES.md, RELEASE-READINESS.md) straight off disk, no hardcoded sample data. Shows a
+  roadmap-progress ring, a "Recent roadmap tasks" list (code — description, status, priority) and
+  a "Recent bug backlog" list (severity, status, description) sorted so what's still open surfaces
+  first, plus a click-to-open readable render of every doc.
+- **Flow of Flows console** (`agent-console-flow.html`) — an assembly-line-style pipeline
+  visualization of the same real agent activity (start/stop events, token usage, active task),
+  with a "Control Tower" token gauge that now correctly drops back to idle instead of sticking to
+  a stale agent after a crashed/killed session.
+- **Server concurrency fix** (`agent-console-server.ps1` / `.py`) — the local dashboard server no
+  longer blocks every open tab for up to 10 seconds when a Fortnite API lookup is slow.
+- New shared skills: `game-ui-designer`, `genre` (roguelike/survival pattern evidence), and
+  `fortnite-growth-lessons`.
+
+Full details for every version in [`CHANGELOG.md`](CHANGELOG.md).
+
 ## What's in the box
 
 - **Twelve agents**, each doing one job: project setup, an independent ambiguity check before any
