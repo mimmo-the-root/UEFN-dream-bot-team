@@ -107,6 +107,65 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
 #connStatus{font-size:10.5px;color:var(--dim);margin-bottom:10px;}
 #connStatus .ok{color:var(--green);}
 #connStatus .bad{color:#ff5c5c;}
+
+/* v1.80.0: release-status card, per-release grouped roadmap/bug tables, timeline bug/feature
+   tags + current-task banner, and the live-activity rail — see CHANGELOG for the "Implementa"
+   redesign this belongs to (mockup2.html, user-approved). */
+.relwrap{max-height:96px;overflow-y:auto;margin-top:6px;}
+.relrow{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px;}
+.relrow .name{flex:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.relrow .bar{height:5px;border-radius:3px;background:#182338;overflow:hidden;width:60px;flex:none;}
+.relrow .bar i{display:block;height:100%;background:var(--green);}
+.relrow .pct{color:var(--dim);width:32px;text-align:right;flex:none;}
+
+.tkind{display:inline-block;font-size:9px;padding:0 4px;border-radius:3px;margin-top:3px;}
+.tkind.bug{background:rgba(255,77,94,.12);color:var(--red);}
+.tkind.feature{background:rgba(75,139,255,.12);color:var(--blue);}
+.current-banner{margin-top:10px;padding:8px 10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--text);}
+.current-banner b{color:var(--amber);}
+
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+@media (max-width:900px){.twocol{grid-template-columns:1fr;}}
+.relhead{display:flex;justify-content:space-between;align-items:center;margin:12px 0 4px;font-size:11.5px;}
+.relhead:first-child{margin-top:0;}
+.relhead .name{font-weight:700;color:var(--text);}
+.relhead .pct{color:var(--dim);font-size:10.5px;}
+table.datatable{width:100%;border-collapse:collapse;font-size:11.5px;}
+table.datatable th{text-align:left;font-size:9.5px;color:var(--dim);letter-spacing:.4px;text-transform:uppercase;
+  padding:5px 6px;border-bottom:1px solid var(--line);}
+table.datatable td{padding:6px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+table.datatable tr:last-child td{border-bottom:none;}
+table.datatable .clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+table.datatable tr.live td{background:rgba(255,180,84,.06);}
+
+.livebadge{display:inline-flex;align-items:center;gap:5px;font-size:9px;color:var(--amber);
+  border:1px solid rgba(255,180,84,.35);border-radius:11px;padding:1px 7px 1px 5px;margin-left:6px;white-space:nowrap;}
+.pulse-dot{width:5px;height:5px;border-radius:50%;background:var(--amber);animation:lrpulse 1.3s ease-in-out infinite;flex:none;}
+@keyframes lrpulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.7);}}
+
+.liverail{position:fixed;top:120px;right:18px;width:196px;z-index:20;}
+.liverail .card{padding:10px 12px;}
+.lr-title{font-size:9.5px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.lr-agent{padding:7px 0;border-bottom:1px solid var(--line-soft);}
+.lr-agent:last-child{border-bottom:none;}
+.lr-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;gap:6px;}
+.lr-name{font-size:10.5px;font-weight:700;display:flex;align-items:center;gap:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lr-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 3px rgba(255,180,84,.18);flex:none;}
+.lr-count{font-size:9px;color:var(--dim);flex:none;}
+.spark{display:flex;align-items:flex-end;gap:1.5px;height:20px;}
+.spark i{flex:1;background:var(--red);border-radius:1px 1px 0 0;min-height:2px;}
+.lr-sub{font-size:9px;color:var(--dim);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lr-empty{font-size:10.5px;color:var(--dim);font-style:italic;}
+@media (max-width:1400px){.liverail{display:none;}}
+</style>
+<style>
+/* Unified page chrome — identical to agent-console.html / agent-console-stats.html (font, background, container, header spacing). Keep in sync across all 4 pages. */
+html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'Consolas','Courier New',monospace;overflow-x:hidden;}
+body{background-image:
+  radial-gradient(ellipse at 50% -10%, rgba(75,139,255,0.14), transparent 60%),
+  radial-gradient(ellipse at 50% 60%, rgba(185,139,255,0.06), transparent 55%),
+  repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);}
+main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
 </style>
 </head>
 <body>
@@ -117,14 +176,18 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
          explains for its view-switch: works standalone (file://) and, since these filenames
          don't collide with agent-console-server.py's /stats /docs /flow routes, works unchanged
          when served too. -->
-    <div class="topnav">
-      <a class="navlink" href="agent-console.html">← Main console</a>
-      <a class="navlink" href="agent-console-stats.html">Stats</a>
-      <a class="navlink" href="agent-console-flow.html">Flow of flows</a>
+    <style>
+.termlines-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.view-switch{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.view-switch a{font-size:10px;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;padding:3px 10px;color:var(--dim);background:var(--panel2,#0a0e17);}
+.view-switch a.on{color:var(--text);background:var(--panel);border-left:2px solid var(--blue,#4b8bff);padding-left:8px;}
+.view-switch a:not(.on):hover{color:var(--text);}
+.termlines-side .comment{font-size:12px;color:var(--dim);}
+</style>
+<style>.hdr-blink{animation:hdrblink 1.1s steps(1) infinite;}@keyframes hdrblink{50%{opacity:0;}}</style><div class="hdrbar" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 24px;padding:14px 4px 12px;border-bottom:1px solid var(--line);margin-bottom:16px;">
+      <div style="font-size:12px;line-height:1.5;font-weight:bold;letter-spacing:.5px;color:var(--blue,#4b8bff);">&gt; <span style="font-size:17px;letter-spacing:1px;">DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="hdr-blink">_</span></span><span id="kitVersion" style="font-size:10px;font-weight:normal;letter-spacing:.5px;color:var(--dim);margin-left:8px;vertical-align:middle;"></span></div>
+      <div class="termlines-side"><div class="view-switch"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html" class="on">Docs</a><a href="agent-console-flow.html">Flow</a></div><div class="comment"># docs &amp; status console</div><div id="connStatus" style="margin:0;">… reading Claude/docs/ from the local server</div></div>
     </div>
-    <div class="label" style="margin-bottom:4px;">UEFN CLAUDE TEAM STARTER KIT</div>
-    <h1 style="font-size:19px;margin:0 0 20px;">Docs &amp; Status Console</h1>
-    <div id="connStatus">… reading Claude/docs/ from the local server</div>
 
     <!-- HERO: roadmap progress ring + open bugs + last update — all three are populated at
          runtime from real Claude/docs/ROADMAP.md, BUGS.md and STATUS.md via /doc?name=; see
@@ -150,9 +213,9 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
         <div style="font-size:11px;color:var(--dim);" id="openBugsBreakdown">loading…</div>
       </div>
       <div class="card">
-        <div class="label">Last update</div>
-        <div style="font-size:14px;margin-top:6px;" id="lastUpdateWhen">loading…</div>
-        <div style="font-size:11px;color:var(--dim);" id="lastUpdateWhat"></div>
+        <div class="label">Release status</div>
+        <div style="font-size:13px;margin-top:4px;" id="releaseStatusOverall">loading…</div>
+        <div class="relwrap" id="releaseStatusList"></div>
       </div>
     </div>
 
@@ -167,30 +230,31 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
           <div style="padding:10px 4px;color:var(--dim);font-size:12px;" id="timelinePlaceholder">loading…</div>
         </div>
       </div>
+      <div id="currentBanner"></div>
     </div>
 
-    <!-- ROADMAP TASK LIST (same "readable list" treatment as the bug backlog below: code,
-         status, priority, description — v1.79.11, requested after the bug-backlog formatting
-         pass: the roadmap card above only ever showed a progress ring + counts, never the
-         individual still-open tasks in a scannable list) -->
-    <div class="card" style="margin-bottom:16px;">
-      <div class="label" style="margin-bottom:8px;">Recent roadmap tasks</div>
-      <div id="roadmapTaskList" style="font-size:12.5px;color:var(--dim);">loading…</div>
-      <a href="#" onclick="openPreview('roadmap');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full ROADMAP.md →</a>
-    </div>
-
-    <!-- BUG BACKLOG + CURRENT STATE -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px;">
+    <!-- ROADMAP (open tasks, grouped by Release) + BUG BACKLOG (open, by severity) — two-column
+         layout, v1.80.0. Replaces the old single-column "recent N items" lists: this is a "what's
+         still open / pending" view, not a full audit trail (that's what "Open full …" is for). -->
+    <div class="twocol">
       <div class="card">
-        <div class="label" style="margin-bottom:8px;">Recent bug backlog</div>
-        <div id="bugBacklogList" style="font-size:12.5px;color:var(--dim);">loading…</div>
+        <div class="label" style="margin-bottom:4px;">Roadmap — open tasks by release</div>
+        <div id="roadmapTaskList" style="font-size:11.5px;color:var(--dim);">loading…</div>
+        <a href="#" onclick="openPreview('roadmap');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full ROADMAP.md →</a>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:4px;">Open bugs — sorted by severity</div>
+        <div id="bugBacklogList" style="font-size:11.5px;color:var(--dim);">loading…</div>
         <a href="#" onclick="openPreview('bugs');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full BUGS.md →</a>
       </div>
-      <div class="card">
-        <div class="label" style="margin-bottom:8px;">Recent status (STATUS.md)</div>
-        <div style="font-size:12.5px;color:var(--dim);line-height:1.8;" id="recentStatus">loading…</div>
-        <a href="#" onclick="openPreview('status');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full STATUS.md →</a>
-      </div>
+    </div>
+
+    <!-- RECENT STATUS: task/bug priorities + owner-action items, not raw STATUS.md lines
+         (v1.80.0 — was a plain STATUS.md "Current state" excerpt) -->
+    <div class="card" style="margin-bottom:22px;">
+      <div class="label" style="margin-bottom:8px;">Recent status — priorities and owner actions</div>
+      <div style="font-size:12.5px;color:var(--dim);line-height:1.8;" id="recentStatus">loading…</div>
+      <a href="#" onclick="openPreview('status');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full STATUS.md →</a>
     </div>
 
     <!-- DOCS GRID — matches Claude/docs/*.md written/read by planner-docs (see
@@ -230,6 +294,17 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
       <div id="htmlView"></div>
       <div id="rawView" style="display:none;"></div>
     </div>
+  </div>
+</div>
+
+<!-- LIVE RAIL: real per-agent activity — one block per currently-active agent (same `active`
+     stack pattern as agent-console-flow.html), a real call-count sparkline (5s buckets of /log
+     start+stop events since page load) and the task/bug id from that agent's latest log line.
+     Hidden entirely when no agent is active or on narrow viewports. v1.80.0. -->
+<div class="liverail" id="liverail" style="display:none;">
+  <div class="card">
+    <div class="lr-title">Live — who is working now</div>
+    <div id="liverailBody"><div class="lr-empty">No active agents.</div></div>
   </div>
 </div>
 
@@ -420,6 +495,7 @@ function parseTableAfterHeading(raw, headingRe){
   const header = lines[i].split("|").slice(1,-1).map(c => c.trim().toLowerCase());
   i += 2;
   const rows = [];
+  let rowClosed = false;
   // A real row's first cell is a short id like "T-053" or "B-001: some title" — used below to
   // tell a genuine new row apart from stray pipe-looking continuation text.
   // v1.79.6 fix: this used to ALSO require the line to end with "|" (/^\|.*\|\s*$/), on the
@@ -455,12 +531,18 @@ function parseTableAfterHeading(raw, headingRe){
       header.forEach((h, idx) => row[h] = cells[idx] || "");
       // skip an all-blank example row (docs-template ships one so the table renders)
       if (Object.values(row).some(v => v)) rows.push(row);
+      rowClosed = /\|\s*$/.test(lines[i]);
       i++;
-    } else if (rows.length && /^#{1,6}\s/.test(lines[i]) === false && !headingRe.test(lines[i])){
-      // continuation of the previous row's last cell
+    } else if (rows.length && !rowClosed && /^#{1,6}\s/.test(lines[i]) === false && !headingRe.test(lines[i])){
+      // continuation of the previous row's last cell — ONLY while that row's own physical line(s)
+      // haven't yet closed with a trailing "|". v1.80.0 fix: this used to absorb ANY following
+      // non-blank, non-heading line, so a standalone paragraph after the last row (e.g. the "Status
+      // values: ... ID format: ..." legend under a real ROADMAP.md's Tasks table) was silently
+      // merged into the last task's last cell (and shown as a bogus extra "release").
       const last = rows[rows.length - 1];
       const lastKey = header[header.length - 1];
       last[lastKey] = (last[lastKey] ? last[lastKey] + " " : "") + lines[i].trim();
+      if (/\|\s*$/.test(lines[i])){ last[lastKey] = last[lastKey].replace(/\s*\|\s*$/, ""); rowClosed = true; }
       i++;
     } else {
       break;
@@ -472,8 +554,58 @@ function parseTableAfterHeading(raw, headingRe){
 function parseRoadmapTasks(raw){
   return parseTableAfterHeading(raw, /^##\s*Tasks/i);
 }
+// v1.80.0 fix ("open bugs shows 0" even though real open bugs exist): parseTableAfterHeading only
+// ever reads the table right after the FIRST heading matching /^##\s*Backlog/i. A real, long-
+// running BUGS.md can grow a SECOND (or third) bug table under a differently-worded heading —
+// e.g. "## Audit 2026-09-29 (codebase-auditor) — backlog findings not promoted to tasks" — added
+// later without renaming/merging it into the original "## Backlog" section. Every row in that
+// original table had since been closed (Fatto/RISOLTO), so parseBugsBacklog's old single-table
+// read always returned an all-Closed list and the "Open bugs" hero count was always 0, even
+// though the newer table held 15 real, currently-open bugs (B-032..B-046). Fixed by scanning the
+// WHOLE file for every table whose rows look like bug ids (B-\d+ in the first cell), not just the
+// one table that happens to follow the first "## Backlog" heading, and merging all their rows.
 function parseBugsBacklog(raw){
-  return parseTableAfterHeading(raw, /^##\s*Backlog/i);
+  const lines = raw.replace(/\r\n/g, "\n").split("\n");
+  const looksLikeRowStart = line => /^\|\s*B-\d+\b/i.test(line);
+  const rows = [];
+  let i = 0;
+  while (i < lines.length){
+    // find the next table header line (a "|...|" row immediately followed by a "|---|" separator)
+    if (/^\|.*\|\s*$/.test(lines[i]) && lines[i+1] && /^\|[\s:|-]+\|\s*$/.test(lines[i+1])){
+      const header = lines[i].split("|").slice(1,-1).map(c => c.trim().toLowerCase());
+      let j = i + 2;
+      let sawBugRow = false, rowClosed = false;
+      const tableRows = [];
+      while (j < lines.length){
+        if (lines[j].trim() === ""){ j++; continue; }
+        if (looksLikeRowStart(lines[j])){
+          sawBugRow = true;
+          const cells = lines[j].split("|").slice(1,-1).map(c => c.trim());
+          const row = {};
+          header.forEach((h, idx) => row[h] = cells[idx] || "");
+          if (Object.values(row).some(v => v)) tableRows.push(row);
+          rowClosed = /\|\s*$/.test(lines[j]);
+          j++;
+        } else if (tableRows.length && !rowClosed && !/^#{1,6}\s/.test(lines[j]) && !(/^\|.*\|\s*$/.test(lines[j]) && lines[j+1] && /^\|[\s:|-]+\|\s*$/.test(lines[j+1]))){
+          const last = tableRows[tableRows.length - 1];
+          const lastKey = header[header.length - 1];
+          last[lastKey] = (last[lastKey] ? last[lastKey] + " " : "") + lines[j].trim();
+          if (/\|\s*$/.test(lines[j])){ last[lastKey] = last[lastKey].replace(/\s*\|\s*$/, ""); rowClosed = true; }
+          j++;
+        } else {
+          break;
+        }
+      }
+      // Only keep this table's rows if it actually looked like a bug table (its first cell shape
+      // matched B-\d+ at least once) — this is what tells a real Backlog/Audit findings table
+      // apart from any other unrelated pipe table that might exist elsewhere in the same file.
+      if (sawBugRow) rows.push(...tableRows);
+      i = j;
+    } else {
+      i++;
+    }
+  }
+  return rows;
 }
 
 // v1.79.4 fix: real per-project docs are the PROJECT OWNER's own data and may write task/bug
@@ -508,6 +640,23 @@ function bugStatusBadge(raw){
   const words = s.split(/\s+/).slice(0, 3).join(" ");
   return {cls:"grey", label: words || "In progress"};
 }
+// v1.80.0: shared severity/open helpers (were local to renderBugBacklog). Severity is real free
+// text on BUGS.md rows, so bucket it to a small ordered enum; rank 0 = most severe.
+function bugSeverityInfo(raw){
+  const s = (raw || "").trim(), low = s.toLowerCase();
+  if (/\bnon-blocking\b/.test(low)) return {key:"minor", cls:"grey", label:"non-blocking", rank:4};
+  if (/\bblock/.test(low)) return {key:"blocking", cls:"red", label:"blocking", rank:0};
+  if (/\b(major|high|alta|critical|critica)\b/.test(low)) return {key:"major", cls:"red", label:"major", rank:1};
+  if (/\b(medium|media|med)\b/.test(low)) return {key:"medium", cls:"amber", label:"medium", rank:2};
+  if (/\b(minor|low|bassa)\b/.test(low)) return {key:"minor", cls:"grey", label:"minor", rank:3};
+  if (!s) return {key:"unspecified", cls:"grey", label:"unspecified", rank:5};
+  return {key:"unspecified", cls:"grey", label:(s.split(/\s+/)[0] || "other").toLowerCase().replace(/[^a-z0-9-]/g,"") || "other", rank:5};
+}
+function isBugOpen(r){
+  const s = (r.status || "").trim().toLowerCase();
+  if (/^(closed|fixed|done|fatto)\b/.test(s) || /\brisolto\b/.test(s) || /\bresolved\b/.test(s)) return false;
+  return true;
+}
 function statusBucket(raw){
   const s = (raw || "").trim().toLowerCase();
   if (s === "done" || s === "fatto") return "done";
@@ -521,6 +670,26 @@ function statusBucket(raw){
   if (s === "out of scope" || s === "fuori scope" || s.indexOf("out of scope") !== -1) return "outOfScope";
   return "todo";
 }
+// Heuristic: is this ROADMAP.md task row a bug-fix or a feature? Real Priority cells often say
+// so directly ("MVP (bug-fixing, HIGH)"); otherwise a reference to BUGS.md or a B-\d+ id in
+// Priority/Acceptance criteria is the next-best signal. Anything else is treated as a feature.
+function taskKind(row){
+  const hay = ((row.priority || "") + " " + (row["acceptance criteria"] || "")).toLowerCase();
+  if (/bug-fix|bug fix|bugs\.md/.test(hay) || /\bb-\d+\b/i.test(hay)) return "bug";
+  return "feature";
+}
+// Groups rows by their Release cell (added to ROADMAP.md v1.79.x), preserving first-seen order.
+// Rows with no Release cell (older docs-template projects that haven't added the column yet) all
+// fall into a single "(no release set)" bucket rather than being dropped.
+function groupByRelease(rows){
+  const order = [], groups = {};
+  rows.forEach(r => {
+    const rel = (r.release || "").trim() || "(no release set)";
+    if (!groups[rel]) { groups[rel] = []; order.push(rel); }
+    groups[rel].push(r);
+  });
+  return order.map(name => ({ name, rows: groups[name] }));
+}
 
 async function renderHero(){
   const [roadmap, bugs, status] = await Promise.all([fetchDoc('roadmap'), fetchDoc('bugs'), fetchDoc('status')]);
@@ -531,7 +700,7 @@ async function renderHero(){
     // real 150KB+ ROADMAP.md/BUGS.md is not guaranteed to match the parser's assumed table shape,
     // and an uncaught exception here used to leave ALL THREE hero cards frozen on "loading…"
     // forever since renderHero() never reached the code that fills any of them.
-    ['progressTasks','openBugsBreakdown','lastUpdateWhen'].forEach(id => {
+    ['progressTasks','openBugsBreakdown','releaseStatusOverall'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = "Could not parse this doc (" + (e && e.message || e) + ").";
     });
@@ -579,13 +748,9 @@ function renderHeroInner(roadmap, bugs, status){
     document.getElementById('openBugsCount').textContent = "0";
     document.getElementById('openBugsBreakdown').textContent = "BUGS.md has not been created yet.";
   } else {
-    const rows = parseBugsBacklog(bugs.content).filter(r => (r.status || "").toLowerCase() !== "closed"
-      && (r.status || "").toLowerCase() !== "fixed" && (r.status || "").toLowerCase() !== "done");
-    const sev = { blocking: 0, major: 0, minor: 0 };
-    rows.forEach(r => {
-      const s = (r.severity || "").toLowerCase();
-      if (sev[s] !== undefined) sev[s]++;
-    });
+    const rows = parseBugsBacklog(bugs.content).filter(isBugOpen);
+    const sev = { blocking: 0, major: 0, medium: 0, minor: 0, unspecified: 0 };
+    rows.forEach(r => { const k = bugSeverityInfo(r.severity).key; sev[k] = (sev[k] || 0) + 1; });
     document.getElementById('openBugsCount').textContent = String(rows.length);
     // v1.79.6 fix: "No bugs logged yet." used to show whenever the OPEN-filtered list was empty,
     // even when BUGS.md has a full backlog and every single one of them is resolved/closed — that
@@ -594,54 +759,32 @@ function renderHeroInner(roadmap, bugs, status){
     // has-bugs-but-none-open case.
     const allBugRows = parseBugsBacklog(bugs.content);
     document.getElementById('openBugsBreakdown').textContent = rows.length
-      ? ("🔴" + sev.blocking + " blocking · 🟠" + sev.major + " major · 🟡" + sev.minor + " minor")
+      ? ("🔴" + sev.blocking + " blocking · 🟠" + sev.major + " major · 🟡" + sev.medium + " medium · ⚪" + (sev.minor + sev.unspecified) + " minor/other")
       : (allBugRows.length
           ? "No open bugs right now — all logged bugs are currently resolved."
           : "No bugs logged yet.");
   }
 
-  // --- Last update (STATUS.md's own documented convention: "New entry AT THE TOP on every
-  // update. Don't delete history." under "## Log" — so the correct entry is the FIRST
-  // "### YYYY-MM-DD ..." heading found INSIDE the Log section, never the "Current state" block
-  // above it (that block is a present-tense snapshot, replaced in place, not dated log history)
-  // and never any other "###" occurrence anywhere else in the file. v1.79.4 fix: the previous
-  // "_(updated: ...)_ " regex required an exact ")_" right after the date to close the markdown
-  // italics, which real "Current state" prose (long paragraphs with their own parentheses) does
-  // not reliably produce — it silently failed and fell back to a *file-wide*, non-anchored
-  // "###" search that could match a stray "###" above the Log section. Now we explicitly find
-  // the "## Log" heading first and take the first dated entry after it. ---
-  if (status.error){
-    document.getElementById('lastUpdateWhen').textContent = "Could not reach the local server.";
-  } else if (!status.exists){
-    document.getElementById('lastUpdateWhen').textContent = "STATUS.md has not been created yet.";
-  } else {
-    const logSectionMatch = /^##\s*Log\s*$/im.exec(status.content);
-    const logSection = logSectionMatch
-      ? status.content.slice(logSectionMatch.index + logSectionMatch[0].length)
-      : status.content;
-    const logHeading = /^###\s*([^\n]+)/m.exec(logSection);
-    document.getElementById('lastUpdateWhen').textContent = logHeading ? logHeading[1].trim() : "See STATUS.md";
-    // v1.79.6 fix: this used to run /\*\*In progress:\*\*\s*([^\n]+)/ against the WHOLE file
-    // (status.content), looking for a BOLD "**In progress:**" label. The "## Current state"
-    // section at the top of a real STATUS.md — the section the file's own header comment
-    // documents as "REPLACED on every update", i.e. the only authoritative one — writes this as
-    // a plain, unbolded "In progress: ..." line. Because the regex required the bold markers, it
-    // never matched there and instead matched the FIRST bold "**In progress:**" occurrence
-    // anywhere later in the file, which is typically a stale dated Log entry near the bottom
-    // (confirmed: a real file's Log had one reading "**In progress:** none — T-011 closed Fatto
-    // ... No task currently \"In corso.\")_" that this used to surface as if it were current).
-    // Now we scope the search to the "## Current state" section itself (bounded by the next "##"
-    // heading, i.e. "## Log") and match "In progress:" with or without bold markers.
-    const currentStateMatch = /^##\s*Current state\s*$/im.exec(status.content);
-    let currentStateSection = "";
-    if (currentStateMatch){
-      const afterHeading = status.content.slice(currentStateMatch.index + currentStateMatch[0].length);
-      const nextHeadingMatch = /^##\s/m.exec(afterHeading);
-      currentStateSection = nextHeadingMatch ? afterHeading.slice(0, nextHeadingMatch.index) : afterHeading;
-    }
-    const inProgress = /(?:\*\*)?In progress:(?:\*\*)?\s*([^\n]+)/i.exec(currentStateSection);
-    document.getElementById('lastUpdateWhat').textContent = (inProgress && !/^\(empty/i.test(inProgress[1].trim()))
-      ? inProgress[1].trim() : "";
+  // --- Release status (v1.80.0, replaces "Last update"): overall % + one mini-bar per release,
+  // computed from ROADMAP.md's Release column over ALL tasks in that release (done / total), not
+  // just the open ones. Out-of-scope rows are excluded from both sides of the ratio. ---
+  const ov = document.getElementById('releaseStatusOverall');
+  const listEl = document.getElementById('releaseStatusList');
+  if (roadmap.error){ ov.textContent = "Could not reach the local server."; listEl.innerHTML = ""; }
+  else if (!roadmap.exists){ ov.textContent = "ROADMAP.md has not been created yet."; listEl.innerHTML = ""; }
+  else {
+    const all = parseRoadmapTasks(roadmap.content).filter(t => statusBucket(t.status) !== "outOfScope");
+    const groups = groupByRelease(all);
+    const done = all.filter(t => statusBucket(t.status) === "done").length;
+    ov.textContent = all.length
+      ? (groups.length + " release" + (groups.length === 1 ? "" : "s") + " · " + done + "/" + all.length + " task Done")
+      : "No tasks yet.";
+    listEl.innerHTML = groups.map(g => {
+      const d = g.rows.filter(t => statusBucket(t.status) === "done").length;
+      const pct = g.rows.length ? Math.round(d / g.rows.length * 100) : 0;
+      return '<div class="relrow"><span class="name" title="' + inlineEsc(g.name) + '">' + inlineEsc(g.name) +
+        '</span><span class="bar"><i style="width:' + pct + '%"></i></span><span class="pct">' + pct + '%</span></div>';
+    }).join("");
   }
 }
 
@@ -716,10 +859,20 @@ async function renderTimeline(){
     node.innerHTML =
       '<div class="dot ' + dotClass + '"></div>' +
       '<div class="lbl' + (dotClass==='active' ? ' active' : '') + '">' + escHtml(id) + '<br>' + escHtml(statusRaw) + '</div>' +
+      (taskKind(t) === 'bug' ? '<span class="tkind bug">🐞 bug fix</span>' : '<span class="tkind feature">⚙ feature</span>') +
       '<div class="tip">' + escHtml(t.feature || "") + '</div>';
     frag.appendChild(node);
   });
   el.appendChild(frag);
+  const banner = document.getElementById('currentBanner');
+  if (banner){
+    const cur = currentIdx === -1 ? null : tasks[currentIdx];
+    banner.innerHTML = cur
+      ? '<div class="current-banner">▶ In progress now: <b>' + escHtml(cur.id || "?") + '</b> — ' +
+        escHtml((cur.feature || "").replace(/~~/g, "")) + ' <span class="tkind ' + taskKind(cur) + '">' +
+        (taskKind(cur) === 'bug' ? '🐞 bug fix' : '⚙ feature') + '</span></div>'
+      : '<div class="current-banner" style="color:var(--dim);">No task currently In progress.</div>';
+  }
 }
 
 // v1.79.11: same "readable list" treatment as the bug backlog card, for ROADMAP.md's Tasks
@@ -746,132 +899,197 @@ function statusBadgeForTask(raw){
   if (bucket === "outOfScope") return {cls:"grey", label:"Out of scope"};
   return {cls:"grey", label:"To do"};
 }
+const MIN_ROWS = 10; // v1.80.0: show at least this many rows per list when that many are open
+const escH = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function idNum(id){ const m = /^[A-Za-z]{1,4}-(\d+)/.exec((id || "").trim()); return m ? parseInt(m[1], 10) : -1; }
+
+// Roadmap: open tasks only (todo/active/blocked), grouped by Release; % is computed over ALL
+// tasks of that release (out-of-scope excluded). Releases with zero open tasks are not listed
+// (they're 100% and already visible in the hero's Release status card).
 async function renderRoadmapTaskList(){
   const el = document.getElementById('roadmapTaskList');
   const roadmap = await fetchDoc('roadmap');
-  if (roadmap.error){
-    el.innerHTML = '<span style="color:var(--red);">Could not reach the local server.</span>';
-    return;
-  }
-  if (!roadmap.exists){
-    el.innerHTML = '<span style="font-style:italic;">No tasks yet — ROADMAP.md has not been created yet.</span>';
-    return;
-  }
+  if (roadmap.error){ el.innerHTML = '<span style="color:var(--red);">Could not reach the local server.</span>'; return; }
+  if (!roadmap.exists){ el.innerHTML = '<span style="font-style:italic;">ROADMAP.md has not been created yet.</span>'; return; }
   let rows;
-  try{
-    rows = parseRoadmapTasks(roadmap.content);
-  } catch(e){
-    el.innerHTML = '<span style="color:var(--red);">Could not parse ROADMAP.md (' + (e && e.message || e) + ').</span>';
-    return;
-  }
-  if (!rows.length){
-    el.innerHTML = '<span style="font-style:italic;">ROADMAP.md has no Tasks rows yet.</span>';
-    return;
-  }
-  const escHtml = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  // Same surfacing rule as the bug backlog: still-outstanding work first (in progress/blocked,
-  // then to-do), done and out-of-scope pushed to the bottom — this is a "what's left" list, not a
-  // full audit trail (that's what "Open full ROADMAP.md" is for).
-  const taskRank = r => {
-    const b = statusBucket(r.status);
-    if (b === "active" || b === "blocked") return 0;
-    if (b === "todo") return 1;
-    if (b === "done") return 2;
-    return 3; // outOfScope
-  };
-  const taskIdNum = r => {
-    const m = /^[A-Za-z]{1,4}-(\d+)/.exec((r.id || "").trim());
-    return m ? parseInt(m[1], 10) : -1;
-  };
-  const sortedRows = rows.slice().sort((a, b) => {
-    const ra = taskRank(a), rb = taskRank(b);
-    if (ra !== rb) return ra - rb;
-    return taskIdNum(a) - taskIdNum(b);
-  });
-  el.innerHTML = sortedRows.slice(0, 10).map(r => {
-    const badge = statusBadgeForTask(r.status);
-    const pri = priorityPill(r.priority);
-    const feature = (r.feature || "(untitled)").replace(/~~/g, "");
-    return '<div class="bugrow"><span class="pill ' + pri.cls + '" title="' + escHtml(r.priority || "") + '">' +
-      escHtml(pri.label) + '</span>' +
-      '<span class="badge ' + badge.cls + '" title="' + escHtml(r.status || "") + '">' +
-      '<span class="dot"></span>' + escHtml(badge.label) + '</span> ' +
-      '<b>' + escHtml(r.id || "?") + '</b> — ' + escHtml(feature) + '</div>';
+  try{ rows = parseRoadmapTasks(roadmap.content); }
+  catch(e){ el.innerHTML = '<span style="color:var(--red);">Could not parse ROADMAP.md (' + escH(String(e && e.message || e)) + ').</span>'; return; }
+  rows = rows.filter(r => statusBucket(r.status) !== "outOfScope");
+  if (!rows.length){ el.innerHTML = '<span style="font-style:italic;">ROADMAP.md has no Tasks rows yet.</span>'; return; }
+  const isOpenT = r => { const b = statusBucket(r.status); return b === "todo" || b === "active" || b === "blocked"; };
+  const groups = groupByRelease(rows).filter(g => g.rows.some(isOpenT));
+  if (!groups.length){ el.innerHTML = '<span style="color:var(--green);">No open tasks — all Done. 🎉</span>'; return; }
+  // Most-incomplete-work-first is less useful than release order as written in the file (file
+  // order tracks chronology), so keep first-seen order; within a release: active/blocked, then
+  // MVP before other priorities, then by id.
+  const rank = r => { const b = statusBucket(r.status); return (b === "active" || b === "blocked") ? 0 : 1; };
+  const priRank = r => priorityPill(r.priority).label === "MVP" ? 0 : 1;
+  let shown = 0;
+  el.innerHTML = groups.map(g => {
+    const done = g.rows.filter(r => statusBucket(r.status) === "done").length;
+    const pct = g.rows.length ? Math.round(done / g.rows.length * 100) : 0;
+    const open = g.rows.filter(isOpenT).sort((a, b) => rank(a) - rank(b) || priRank(a) - priRank(b) || idNum(a.id) - idNum(b.id));
+    shown += open.length;
+    return '<div class="relhead"><span class="name">' + escH(g.name) + '</span>' +
+      '<span style="display:flex;align-items:center;gap:8px;"><span class="bar" style="height:5px;border-radius:3px;background:#182338;overflow:hidden;width:110px;"><i style="display:block;height:100%;width:' + pct + '%;background:var(--green);"></i></span>' +
+      '<span class="pct">' + done + '/' + g.rows.length + ' done · ' + pct + '%</span></span></div>' +
+      '<table class="datatable" data-kind="task"><tr><th style="width:56px;">ID</th><th style="width:150px;">Status</th><th>Description</th></tr>' +
+      open.map(r => {
+        const badge = statusBadgeForTask(r.status), pri = priorityPill(r.priority);
+        return '<tr data-id="' + escH((r.id || "").trim()) + '"><td><b>' + escH(r.id || "?") + '</b></td><td>' +
+          '<span class="pill ' + pri.cls + '" title="' + escH(r.priority || "") + '">' + escH(pri.label) + '</span> ' +
+          '<span class="badge ' + badge.cls + '" title="' + escH(r.status || "") + '"><span class="dot"></span>' + escH(badge.label) + '</span>' +
+          '<span class="lbslot"></span></td><td>' + escH((r.feature || "(untitled)").replace(/~~/g, "")) + '</td></tr>';
+      }).join("") + '</table>';
   }).join("");
+  applyLiveBadges();
 }
+
 async function renderBugBacklog(){
   const el = document.getElementById('bugBacklogList');
   const bugs = await fetchDoc('bugs');
-  if (bugs.error){
-    el.innerHTML = '<span style="color:var(--red);">Could not reach the local server.</span>';
-    return;
-  }
-  if (!bugs.exists){
-    el.innerHTML = '<span style="font-style:italic;">No bugs logged yet — BUGS.md has not been created yet.</span>';
-    return;
-  }
+  if (bugs.error){ el.innerHTML = '<span style="color:var(--red);">Could not reach the local server.</span>'; return; }
+  if (!bugs.exists){ el.innerHTML = '<span style="font-style:italic;">BUGS.md has not been created yet.</span>'; return; }
   let rows;
+  try{ rows = parseBugsBacklog(bugs.content); }
+  catch(e){ el.innerHTML = '<span style="color:var(--red);">Could not parse BUGS.md (' + escH(String(e && e.message || e)) + ').</span>'; return; }
+  if (!rows.length){ el.innerHTML = '<span style="font-style:italic;">No bugs logged yet.</span>'; return; }
+  const open = rows.filter(isBugOpen);
+  if (!open.length){ el.innerHTML = '<span style="color:var(--green);">No open bugs — all ' + rows.length + ' logged bugs are resolved.</span>'; return; }
+  // Strictly by severity (blocking → major → medium → minor → unspecified), then by id ascending.
+  const bid = r => idNum(r.title || r.id || "");
+  open.sort((a, b) => bugSeverityInfo(a.severity).rank - bugSeverityInfo(b.severity).rank || bid(a) - bid(b));
+  el.innerHTML = '<table class="datatable" data-kind="bug"><tr><th style="width:56px;">ID</th><th style="width:78px;">Severity</th><th style="width:96px;">Status</th><th>Description</th></tr>' +
+    open.map(r => {
+      const sev = bugSeverityInfo(r.severity), badge = bugStatusBadge(r.status);
+      // Real BUGS.md rows are "B-032: short title" in a "title" column, or ID/title in separate cells.
+      const t = (r.title || r.id || "").trim();
+      const m = /^([A-Za-z]{1,4}-\d+)\s*[:\-—]?\s*(.*)$/.exec(t);
+      const id = m ? m[1] : (r.id || "?"), desc = m ? (m[2] || r.description || r.symptom || "") : t;
+      return '<tr data-id="' + escH(id) + '"><td><b>' + escH(id) + '</b></td>' +
+        '<td><span class="pill ' + sev.cls + '" title="' + escH(r.severity || "") + '">' + escH(sev.label) + '</span></td>' +
+        '<td><span class="badge ' + badge.cls + '" title="' + escH(r.status || "") + '"><span class="dot"></span>' + escH(badge.label.split(/\s+/)[0].replace(/:$/, "")) + '</span><span class="lbslot"></span></td>' +
+        '<td><div class="clamp" title="' + escH(desc) + '">' + escH(desc || "(untitled)") + '</div></td></tr>';
+    }).join("") + '</table>' +
+    '<div style="font-size:10.5px;color:var(--dim);margin-top:6px;">' + open.length + ' open bugs of ' + rows.length + ' logged</div>';
+  applyLiveBadges();
+}
+
+// ---- Recent status: priorities + owner actions, derived from the same real docs ----------------
+async function renderRecentPriorities(){
+  const el = document.getElementById('recentStatus');
+  const [roadmap, bugs, status] = await Promise.all([fetchDoc('roadmap'), fetchDoc('bugs'), fetchDoc('status')]);
+  if (roadmap.error || bugs.error || status.error){
+    el.textContent = "Could not reach the local server.";
+    document.getElementById('connStatus').innerHTML = '<span class="bad">✗</span> disconnected — is agent-console-server running?';
+    return;
+  }
+  document.getElementById('connStatus').innerHTML = '<span class="ok">✓</span> reading Claude/docs/ from the local server';
   try{
-    rows = parseBugsBacklog(bugs.content);
+    const out = [];
+    const row = (tag, html) => out.push('<div class="actionrow" style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--line-soft);"><span style="font-size:9.5px;color:var(--amber);border:1px solid rgba(255,180,84,.3);border-radius:4px;padding:1px 6px;white-space:nowrap;height:fit-content;">' + tag + '</span><span>' + html + '</span></div>');
+    if (roadmap.exists){
+      const all = parseRoadmapTasks(roadmap.content).filter(t => statusBucket(t.status) !== "outOfScope");
+      const openT = all.filter(t => { const b = statusBucket(t.status); return b === "todo" || b === "active" || b === "blocked"; });
+      const active = openT.filter(t => statusBucket(t.status) === "active");
+      const blocked = openT.filter(t => statusBucket(t.status) === "blocked");
+      const mvp = openT.filter(t => priorityPill(t.priority).label === "MVP");
+      if (active.length) row("IN PROGRESS", active.map(t => '<b>' + escH(t.id) + '</b> ' + escH((t.feature || "").replace(/~~/g,"").slice(0, 90))).join("<br>"));
+      if (blocked.length) row("BLOCCATI", blocked.map(t => '<b>' + escH(t.id) + '</b>').join(", ") + " — serve sblocco");
+      row("TASK PRIORITY", mvp.length + " MVP tasks open out of " + openT.length + " open in total.");
+    }
+    if (bugs.exists){
+      const ob = parseBugsBacklog(bugs.content).filter(isBugOpen);
+      ob.sort((a, b) => bugSeverityInfo(a.severity).rank - bugSeverityInfo(b.severity).rank);
+      const top = ob.filter(r => bugSeverityInfo(r.severity).rank === (ob.length ? bugSeverityInfo(ob[0].severity).rank : 0));
+      if (ob.length) row("BUG PRIORITY", top.length + " bug " + escH(bugSeverityInfo(ob[0].severity).label) + " on top: " +
+        top.slice(0, 6).map(r => '<b>' + escH(((r.title || r.id || "").match(/[A-Za-z]{1,4}-\d+/) || ["?"])[0]) + '</b>').join(", "));
+    }
+    if (status.exists){
+      // Owner actions: only lines in STATUS.md's own "Current state" section that explicitly say
+      // the owner/user must do something — never invented.
+      const m = /^##\s*Current state\s*$/im.exec(status.content);
+      let sec = "";
+      if (m){ const after = status.content.slice(m.index + m[0].length); const nx = /^##\s/m.exec(after); sec = nx ? after.slice(0, nx.index) : after; }
+      const acts = sec.split("\n").filter(l => /\b(owner|a tuo carico|azione (?:richiesta|owner)|action required|waiting on you|da verificare in play|serve (?:il tuo|tua))\b/i.test(l)).slice(0, 4);
+      if (acts.length) acts.forEach(l => row("OWNER ACTION", inlineEsc(l.replace(/^[-*\s]+/, ""))));
+      else row("OWNER ACTION", '<span style="color:var(--dim);">No explicit owner action in STATUS.md.</span>');
+    } else row("STATUS", "STATUS.md has not been created yet.");
+    el.innerHTML = out.join("") || "<i>Nothing to report yet.</i>";
   } catch(e){
-    el.innerHTML = '<span style="color:var(--red);">Could not parse BUGS.md (' + (e && e.message || e) + ').</span>';
-    return;
+    el.innerHTML = '<span style="color:var(--red);">Could not build status summary (' + escH(String(e && e.message || e)) + ').</span>';
   }
-  if (!rows.length){
-    el.innerHTML = '<span style="font-style:italic;">No bugs logged yet.</span>';
-    return;
+}
+
+// ---- Live rail (v1.80.0) -----------------------------------------------------------------------
+// Real data only: /log start/stop events. `active` mirrors agent-console-flow.html's stack; each
+// agent's sparkline = count of ITS log events per 5s bucket over the last 20 buckets (100s).
+const LR_BUCKET_MS = 5000, LR_BUCKETS = 20;
+let lrActive = [];       // [{agent, startTs}]
+let lrEvents = [];       // [{agent, ts, desc}] all seen since page load (bounded)
+let lrCount = 0;
+function taskIdFrom(desc){ const m = /\b([TB]-\d+)\b/.exec(desc || ""); return m ? m[1] : ""; }
+function processLrEntries(entries){
+  for (let i = lrCount; i < entries.length; i++){
+    const e = entries[i];
+    if (!e || typeof e.agent !== 'string' || !e.agent) continue;
+    const ts = Date.parse(e.ts) || Date.now();
+    lrEvents.push({agent: e.agent, ts, desc: e.desc || ""});
+    if (e.event === 'start') lrActive.push({agent: e.agent, startTs: ts});
+    else if (e.event === 'stop'){ const k = lrActive.findIndex(a => a.agent === e.agent); if (k !== -1) lrActive.splice(k, 1); }
   }
-  const escHtml = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  // v1.79.7 fix: Severity is real free text on some rows (e.g. "Major (was reopened 2026-09-09;
-  // RESOLVED 2026-09-10)" or "Was blocking (sole remaining open item on T-028 -- part (b) PASSed
-  // 2026-09-08)") rather than a clean one-word enum -- dumping the raw cell straight into the pill
-  // (as before) produced an overlong pill that wrapped the row onto two lines, inconsistent with
-  // every row whose Severity cell happens to already be short. Bucket it down to one of the known
-  // short severity labels first, same keyword-match approach as bugStatusBadge() above, and always
-  // drop the extra parenthetical context -- it isn't needed in the pill, the fuller detail already
-  // lives in "Probable cause"/the full BUGS.md.
-  const bugSeverityPill = raw => {
-    const s = (raw || "").trim();
-    const low = s.toLowerCase();
-    if (/\bnon-blocking\b/.test(low)) return {cls:"grey", label:"non-blocking"};
-    if (/\bblock/.test(low)) return {cls:"red", label:"blocking"};
-    if (/\bmajor\b/.test(low)) return {cls:"amber", label:"major"};
-    if (/\bminor\b/.test(low)) return {cls:"grey", label:"minor"};
-    if (!s) return {cls:"grey", label:"unspecified"};
-    const word = (s.split(/\s+/)[0] || "").toLowerCase().replace(/[^a-z0-9-]/g, "");
-    return {cls:"grey", label: word || "other"};
-  };
-  // v1.79.6 fix: this used to be rows.slice(0, 6) — just the first 6 rows in file order, i.e. the
-  // OLDEST bugs by id (B-001, B-002, ...) on any real, long-running BUGS.md, no matter how many
-  // newer/still-open bugs exist further down. Sort so still-open/blocked bugs surface first
-  // (reusing the same open/blocked/resolved bucketing bugStatusBadge() already does for the
-  // badge), and within the same bucket prefer the higher bug number as a safe structural proxy
-  // for "more recent" (ids are assigned sequentially) rather than parsing dates out of free-text
-  // Status/Probable cause prose.
-  const bugRank = r => {
-    const label = bugStatusBadge(r.status).label;
-    if (label === "Open" || label === "Blocked") return 0;
-    if (label === "No status" || label === "In progress") return 1;
-    return 2; // Resolved
-  };
-  const bugIdNum = r => {
-    const m = /^[A-Za-z]{1,4}-(\d+)/.exec((r.title || r.id || "").trim());
-    return m ? parseInt(m[1], 10) : -1;
-  };
-  const sortedRows = rows.slice().sort((a, b) => {
-    const ra = bugRank(a), rb = bugRank(b);
-    if (ra !== rb) return ra - rb;
-    return bugIdNum(b) - bugIdNum(a);
+  lrCount = entries.length;
+  if (lrEvents.length > 2000) lrEvents = lrEvents.slice(-1000);
+  renderLiveRail();
+  applyLiveBadges();
+}
+function liveIds(){
+  const map = {}; // id -> {agent, startTs}
+  lrActive.forEach(a => {
+    const last = lrEvents.slice().reverse().find(e => e.agent === a.agent && taskIdFrom(e.desc));
+    if (last) map[taskIdFrom(last.desc)] = a;
   });
-  el.innerHTML = sortedRows.slice(0, 6).map(r => {
-    const badge = bugStatusBadge(r.status);
-    const sev = bugSeverityPill(r.severity);
-    return '<div class="bugrow"><span class="pill ' + sev.cls + '" title="' + escHtml(r.severity || "") + '">' +
-      escHtml(sev.label) + '</span>' +
-      '<span class="badge ' + badge.cls + '" title="' + escHtml(r.status || "") + '">' +
-      '<span class="dot"></span>' + escHtml(badge.label) + '</span> ' +
-      escHtml(r.title || "(untitled)") + '</div>';
+  return map;
+}
+function applyLiveBadges(){
+  const live = liveIds();
+  document.querySelectorAll('table.datatable tr[data-id]').forEach(tr => {
+    const id = tr.getAttribute('data-id'), slot = tr.querySelector('.lbslot');
+    const a = live[id];
+    tr.classList.toggle('live', !!a);
+    if (slot) slot.innerHTML = a ? '<span class="livebadge"><span class="pulse-dot"></span>' + escH(a.agent) + ' · ' + Math.max(0, Math.round((Date.now() - a.startTs) / 60000)) + 'm</span>' : "";
+  });
+}
+function renderLiveRail(){
+  const rail = document.getElementById('liverail'), body = document.getElementById('liverailBody');
+  if (!rail || !body) return;
+  if (!lrActive.length){ rail.style.display = 'none'; return; }
+  rail.style.display = 'block';
+  const now = Date.now(), seen = {};
+  body.innerHTML = lrActive.filter(a => !seen[a.agent] && (seen[a.agent] = 1)).map(a => {
+    const buckets = new Array(LR_BUCKETS).fill(0);
+    let total = 0, lastId = "";
+    lrEvents.forEach(e => {
+      if (e.agent !== a.agent) return;
+      total++;
+      if (taskIdFrom(e.desc)) lastId = taskIdFrom(e.desc);
+      const k = LR_BUCKETS - 1 - Math.floor((now - e.ts) / LR_BUCKET_MS);
+      if (k >= 0 && k < LR_BUCKETS) buckets[k]++;
+    });
+    const mx = Math.max(1, ...buckets);
+    return '<div class="lr-agent"><div class="lr-head"><div class="lr-name"><span class="lr-dot"></span>' + escH(a.agent) +
+      '</div><div class="lr-count">' + total + ' calls</div></div><div class="spark">' +
+      buckets.map(v => '<i style="height:' + Math.max(5, Math.round(v / mx * 100)) + '%"></i>').join("") + '</div>' +
+      '<div class="lr-sub">' + (lastId ? escH(lastId) + ' · ' : '') + 'active for ' + Math.max(0, Math.round((now - a.startTs) / 60000)) + 'm</div></div>';
   }).join("");
+}
+async function pollLiveRail(){
+  try{
+    const res = await fetch('/log', {cache:'no-store'});
+    if (!res.ok) return;
+    const data = await res.json();
+    if (Array.isArray(data)) processLrEntries(data);
+  } catch(e){ /* server not reachable: rail simply stays hidden, never fabricated */ }
 }
 
 async function markMissingDocs(){
@@ -887,12 +1105,49 @@ async function markMissingDocs(){
   }
 }
 
-loadRecentStatus();
+renderRecentPriorities();
 markMissingDocs();
 renderHero();
 renderTimeline();
 renderRoadmapTaskList();
 renderBugBacklog();
+pollLiveRail();
+setInterval(pollLiveRail, 2000);
+</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.80.0";})();</script>
+<script>
+/* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
+   if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
+(function(){
+  var REPO="mimmo-the-root/UEFN-dream-bot-team", KEY="uefnKitUpdate", TTL=6*3600*1000;
+  function ls(f){try{return f();}catch(e){return null;}}
+  function parse(v){var m=/(\d+)\.(\d+)\.(\d+)/.exec(v||"");return m?[+m[1],+m[2],+m[3]]:null;}
+  function newer(a,b){for(var i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i];}return false;}
+  var vEl=document.getElementById("kitVersion")||document.getElementById("flowKitVersion");
+  var cur=parse(vEl&&vEl.textContent); if(!cur)return;
+  function show(tag,url){
+    var t=parse(tag); if(!t||!newer(t,cur))return;
+    if(ls(function(){return localStorage.getItem(KEY+"Dismissed");})===tag)return;
+    var anchor=document.querySelector(".termlines, header, .hdrbar"); if(!anchor||document.getElementById("updateBanner"))return;
+    var d=document.createElement("div"); d.id="updateBanner";
+    d.style.cssText="display:flex;align-items:center;gap:10px;margin:12px 0;padding:8px 12px;border:1px solid rgba(57,255,136,.35);background:rgba(57,255,136,.06);border-radius:8px;font-size:12px;color:var(--text);";
+    d.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--green);flex:none;"></span><span><b style="color:var(--green);">Update available:</b> '+
+      tag.replace(/[<>&"]/g,"")+' (you have v'+cur.join(".")+') — <a target="_blank" rel="noopener" style="color:var(--blue);text-decoration:underline;" href="'+url+'">view release notes</a> · download the new kit from GitHub, replace the hooks files, then hard-refresh (Ctrl+Shift+R)</span>'+
+      '<span title="Dismiss until the next version" style="margin-left:auto;color:var(--dim);cursor:pointer;">✕</span>';
+    d.lastChild.onclick=function(){ls(function(){localStorage.setItem(KEY+"Dismissed",tag);});d.remove();};
+    anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  }
+  var c=ls(function(){return JSON.parse(localStorage.getItem(KEY)||"null");});
+  if(c&&Date.now()-c.at<TTL){show(c.tag,c.url);return;}
+  fetch("https://api.github.com/repos/"+REPO+"/releases/latest",{headers:{Accept:"application/vnd.github+json"}})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){
+      if(!j||!j.tag_name)return;
+      var url=/^https:\/\/github\.com\//.test(j.html_url||"")?j.html_url:"https://github.com/"+REPO+"/releases";
+      ls(function(){localStorage.setItem(KEY,JSON.stringify({at:Date.now(),tag:j.tag_name,url:url}));});
+      show(j.tag_name,url);
+    }).catch(function(){});
+})();
 </script>
 </body>
 </html>

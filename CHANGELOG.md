@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.80.0
+
+- New: update notice on all four consoles. Reads the latest published GitHub Release (checked at most every 6h, silent if offline) and shows a dismissible bar when it is newer than the running version.
+- All four consoles (Console, Stats, Docs, Flow) now share one page chrome: same theme (font, background), container width, header spacing, title + version, and right-side view switch with page info. UI text is English (project standard).
+- (was) Docs and Flow consoles now share the main console header (title + version). All UI text in the Docs console is English (project standard).
+- Docs & Status console redesigned around what is still OPEN (mockup-approved):
+  - Fixed "Open bugs = 0": `parseBugsBacklog` now scans the whole BUGS.md for every bug table
+    (B-xxx rows), not just the one after the first "## Backlog" heading.
+  - Roadmap card: open tasks only, grouped by the new ROADMAP.md "Release" column, with a
+    done/total % per release; table columns ID | Status (priority + status) | Description.
+  - Bug card: open bugs sorted by severity, table ID | Severity | Status | Description.
+  - Hero: "Last update" replaced by a "Release status" card; Open bugs shows a severity breakdown.
+  - Timeline nodes tagged bug fix / feature, plus a banner naming the current In progress task.
+  - "Recent status" now shows task/bug priorities and explicit owner actions from STATUS.md.
+  - Live rail: per-active-agent call-count sparkline (real /log events in 5s buckets) and a
+    pulsing badge on the task/bug row that agent's latest log line references.
+- Table parser fix: a paragraph following a closed table row is no longer merged into the last
+  row's last cell.
+
 ## v1.79.11
 
 - Added a "Recent roadmap tasks" card to the Docs & Status console

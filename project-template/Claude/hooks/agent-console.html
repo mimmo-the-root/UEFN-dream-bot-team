@@ -484,7 +484,7 @@
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.79.11";
+const KIT_VERSION = "v1.80.0";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -1612,6 +1612,40 @@ pollWhoami();
 setInterval(poll, 1000);
 setInterval(pollWhoami, 5000);
 setInterval(tickTimers, 1000);
+</script>
+<script>
+/* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
+   if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
+(function(){
+  var REPO="mimmo-the-root/UEFN-dream-bot-team", KEY="uefnKitUpdate", TTL=6*3600*1000;
+  function ls(f){try{return f();}catch(e){return null;}}
+  function parse(v){var m=/(\d+)\.(\d+)\.(\d+)/.exec(v||"");return m?[+m[1],+m[2],+m[3]]:null;}
+  function newer(a,b){for(var i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i];}return false;}
+  var vEl=document.getElementById("kitVersion")||document.getElementById("flowKitVersion");
+  var cur=parse(vEl&&vEl.textContent); if(!cur)return;
+  function show(tag,url){
+    var t=parse(tag); if(!t||!newer(t,cur))return;
+    if(ls(function(){return localStorage.getItem(KEY+"Dismissed");})===tag)return;
+    var anchor=document.querySelector(".termlines, header, .hdrbar"); if(!anchor||document.getElementById("updateBanner"))return;
+    var d=document.createElement("div"); d.id="updateBanner";
+    d.style.cssText="display:flex;align-items:center;gap:10px;margin:12px 0;padding:8px 12px;border:1px solid rgba(57,255,136,.35);background:rgba(57,255,136,.06);border-radius:8px;font-size:12px;color:var(--text);";
+    d.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--green);flex:none;"></span><span><b style="color:var(--green);">Update available:</b> '+
+      tag.replace(/[<>&"]/g,"")+' (you have v'+cur.join(".")+') — <a target="_blank" rel="noopener" style="color:var(--blue);text-decoration:underline;" href="'+url+'">view release notes</a> · download the new kit from GitHub, replace the hooks files, then hard-refresh (Ctrl+Shift+R)</span>'+
+      '<span title="Dismiss until the next version" style="margin-left:auto;color:var(--dim);cursor:pointer;">✕</span>';
+    d.lastChild.onclick=function(){ls(function(){localStorage.setItem(KEY+"Dismissed",tag);});d.remove();};
+    anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  }
+  var c=ls(function(){return JSON.parse(localStorage.getItem(KEY)||"null");});
+  if(c&&Date.now()-c.at<TTL){show(c.tag,c.url);return;}
+  fetch("https://api.github.com/repos/"+REPO+"/releases/latest",{headers:{Accept:"application/vnd.github+json"}})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){
+      if(!j||!j.tag_name)return;
+      var url=/^https:\/\/github\.com\//.test(j.html_url||"")?j.html_url:"https://github.com/"+REPO+"/releases";
+      ls(function(){localStorage.setItem(KEY,JSON.stringify({at:Date.now(),tag:j.tag_name,url:url}));});
+      show(j.tag_name,url);
+    }).catch(function(){});
+})();
 </script>
 </body>
 </html>

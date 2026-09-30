@@ -167,25 +167,36 @@ header{display:flex;justify-content:space-between;align-items:flex-start;padding
 .truck{transition:transform .85s cubic-bezier(.4,0,.2,1);}
 .truck rect,.truck circle,.truck path{filter:drop-shadow(0 0 4px rgba(0,0,0,.5));}
 </style>
+<style>
+.termlines-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.view-switch{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.view-switch a{font-size:10px;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;padding:3px 10px;color:var(--dim);background:var(--panel2,#0a0e17);}
+.view-switch a.on{color:var(--text);background:var(--panel);border-left:2px solid var(--blue,#4b8bff);padding-left:8px;}
+.view-switch a:not(.on):hover{color:var(--text);}
+.termlines-side .comment{font-size:12px;color:var(--dim);}
+</style>
+<style>
+/* Unified page chrome — identical to agent-console.html / agent-console-stats.html (font, background, container, header spacing). Keep in sync across all 4 pages. */
+html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'Consolas','Courier New',monospace;overflow-x:hidden;}
+body{background-image:
+  radial-gradient(ellipse at 50% -10%, rgba(75,139,255,0.14), transparent 60%),
+  radial-gradient(ellipse at 50% 60%, rgba(185,139,255,0.06), transparent 55%),
+  repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px 16px;}
+header{align-items:baseline;padding:14px 4px 12px;margin-bottom:16px;}
+</style>
 </head>
 <body>
 
 <div class="wrap">
-  <div class="topnav">
-    <a class="navlink" href="agent-console.html">← Main console</a>
-    <a class="navlink" href="agent-console-docs.html">Docs &amp; Status</a>
-    <a class="navlink" href="agent-console-stats.html">Stats</a>
-  </div>
-
   <header>
-    <div><div class="title"><span class="dream">DREAM</span> <span class="loop">team coding loop</span><span id="flowKitVersion" style="font-size:10px;font-weight:normal;letter-spacing:.5px;color:var(--dim);margin-left:8px;vertical-align:middle;"></span></div>
-    <div class="subtitle">Flow of flows · assembly-line pipeline, hazard-stripe belt, real agent registry</div></div>
-    <div class="statrow" title="Sample layout — this kit doesn't currently log per-decision audit counts, see the note below the pipeline band">
+    <div><style>.hdr-blink{animation:hdrblink 1.1s steps(1) infinite;}@keyframes hdrblink{50%{opacity:0;}}</style><div style="font-size:12px;line-height:1.5;font-weight:bold;letter-spacing:.5px;color:var(--blue,#4b8bff);">&gt; <span style="font-size:17px;letter-spacing:1px;">DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="hdr-blink">_</span></span><span id="flowKitVersion" style="font-size:10px;font-weight:normal;letter-spacing:.5px;color:var(--dim);margin-left:8px;vertical-align:middle;"></span></div></div>
+    <div class="termlines-side"><div class="view-switch"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html" class="on">Flow</a></div><div class="comment"># flow of flows · assembly-line pipeline, hazard-stripe belt, real agent registry</div><div class="statrow" title="Sample layout — this kit doesn't currently log per-decision audit counts, see the note below the pipeline band">
       <div class="stat"><div class="l">shipped</div><div class="n">17</div></div>
       <div class="stat"><div class="l">steps</div><div class="n">63</div></div>
       <div class="stat"><div class="l">decisions</div><div class="n">211</div></div>
       <div class="stat you"><div class="l">sent to you</div><div class="n">3</div></div>
-    </div>
+    </div></div>
   </header>
 
   <div class="flowband" style="height:196px;">
@@ -341,7 +352,7 @@ header{display:flex;justify-content:space-between;align-items:flex-start;padding
   </div>
 </div>
 
-<script>document.getElementById('flowKitVersion').textContent = 'v1.79.11';</script>
+<script>document.getElementById('flowKitVersion').textContent = 'v1.80.0';</script>
 <script>
 // v1.78.0 — REAL state, replacing the old always-on decorative loop. Same source of truth the
 // main console (agent-console.html) uses: poll /log every second, replay start/stop events into
@@ -660,6 +671,40 @@ async function tick(){
 refreshStations();
 tick();
 setInterval(tick, 1000);
+</script>
+<script>
+/* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
+   if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
+(function(){
+  var REPO="mimmo-the-root/UEFN-dream-bot-team", KEY="uefnKitUpdate", TTL=6*3600*1000;
+  function ls(f){try{return f();}catch(e){return null;}}
+  function parse(v){var m=/(\d+)\.(\d+)\.(\d+)/.exec(v||"");return m?[+m[1],+m[2],+m[3]]:null;}
+  function newer(a,b){for(var i=0;i<3;i++){if(a[i]!==b[i])return a[i]>b[i];}return false;}
+  var vEl=document.getElementById("kitVersion")||document.getElementById("flowKitVersion");
+  var cur=parse(vEl&&vEl.textContent); if(!cur)return;
+  function show(tag,url){
+    var t=parse(tag); if(!t||!newer(t,cur))return;
+    if(ls(function(){return localStorage.getItem(KEY+"Dismissed");})===tag)return;
+    var anchor=document.querySelector(".termlines, header, .hdrbar"); if(!anchor||document.getElementById("updateBanner"))return;
+    var d=document.createElement("div"); d.id="updateBanner";
+    d.style.cssText="display:flex;align-items:center;gap:10px;margin:12px 0;padding:8px 12px;border:1px solid rgba(57,255,136,.35);background:rgba(57,255,136,.06);border-radius:8px;font-size:12px;color:var(--text);";
+    d.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--green);flex:none;"></span><span><b style="color:var(--green);">Update available:</b> '+
+      tag.replace(/[<>&"]/g,"")+' (you have v'+cur.join(".")+') — <a target="_blank" rel="noopener" style="color:var(--blue);text-decoration:underline;" href="'+url+'">view release notes</a> · download the new kit from GitHub, replace the hooks files, then hard-refresh (Ctrl+Shift+R)</span>'+
+      '<span title="Dismiss until the next version" style="margin-left:auto;color:var(--dim);cursor:pointer;">✕</span>';
+    d.lastChild.onclick=function(){ls(function(){localStorage.setItem(KEY+"Dismissed",tag);});d.remove();};
+    anchor.parentNode.insertBefore(d,anchor.nextSibling);
+  }
+  var c=ls(function(){return JSON.parse(localStorage.getItem(KEY)||"null");});
+  if(c&&Date.now()-c.at<TTL){show(c.tag,c.url);return;}
+  fetch("https://api.github.com/repos/"+REPO+"/releases/latest",{headers:{Accept:"application/vnd.github+json"}})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){
+      if(!j||!j.tag_name)return;
+      var url=/^https:\/\/github\.com\//.test(j.html_url||"")?j.html_url:"https://github.com/"+REPO+"/releases";
+      ls(function(){localStorage.setItem(KEY,JSON.stringify({at:Date.now(),tag:j.tag_name,url:url}));});
+      show(j.tag_name,url);
+    }).catch(function(){});
+})();
 </script>
 </body>
 </html>
