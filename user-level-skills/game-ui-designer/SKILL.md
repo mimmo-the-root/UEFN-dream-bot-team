@@ -7,6 +7,8 @@ maturity: partial
 
 # Game UI Designer
 
+> **Reference images are private.** The public kit contains no example screenshots (they would be third-party material). Put your own in `references/examples/<archetype>/` and list them in `manifest.md`; the folder is git-ignored, so they stay on your computer.
+
 Personal, user-level design skill (`~/.claude/skills/game-ui-designer/`) for building UEFN
 in-game UI screens (menus, shops, HUDs — built with UMG/Verse widgets, not literal web pages)
 in a consistent, polished "chunky cartoon game UI" style, learned from real examples the owner

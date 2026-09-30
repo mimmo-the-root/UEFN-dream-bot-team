@@ -12,3 +12,17 @@ __pycache__/
 
 # Zip packages built from this source — not checked in, built on demand
 *.zip
+
+# Skill Harness (v1.81): private layer of genre skills (map names, task IDs, notes, decisions).
+# Must never be committed or released.
+user-level-skills/genre/*/local/
+**/genre/*/local/
+
+# Files parked for manual deletion (the assistant cannot delete files on your computer)
+_to_delete/
+
+# Third-party UI reference screenshots stay private (only the manifest is shared)
+user-level-skills/game-ui-designer/references/examples/**/*.png
+user-level-skills/game-ui-designer/references/examples/**/*.jpg
+user-level-skills/game-ui-designer/references/examples/**/*.jpeg
+user-level-skills/game-ui-designer/references/examples/**/*.webp
