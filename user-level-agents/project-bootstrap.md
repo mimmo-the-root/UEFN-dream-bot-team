@@ -32,16 +32,14 @@ private copy of the genre's accumulated knowledge.
    owner-only decision rule 13's plan-first gate exists for.
 4. Write the chosen slug (just the slug, one line, no other text) to `Claude/docs/.genre` —
    same pattern as `.island-code` and `.active-task`.
-5. Check whether `~/.claude/skills/genre/<slug>/` already exists.
-   - If it exists: nothing else to do, `coder` will consult it normally going forward.
-   - If it does NOT exist: bootstrap it now, empty — create `~/.claude/skills/genre/<slug>/SKILL.md`
-     with YAML frontmatter `genre_slug`, `status: draft`, `maturity: partial`,
-     `variants_mature: []`, `variants_draft: []`, and a short body stating this is a fresh genre
-     with no design patterns yet — content will come ONLY from analyzing this genre's real maps
-     as they're built, never pre-written from general knowledge. Do NOT invent variants or
-     patterns at this step, even plausible-sounding ones — an empty, honest skill is the correct
-     starting state (see `~/.claude/skills/genre/survival/SKILL.md` in this kit for the format to
-     follow, once at least one genre skill exists as a worked example).
+5. Make sure the genre skill exists and has its layers: run
+   `python3 Claude/hooks/skills_lib.py init <slug>` (on Windows use `python` or `py -3` if `python3`
+   is not found). It is safe to repeat: it creates `~/.claude/skills/genre/<slug>/` with an EMPTY
+   `SKILL.md`, a shareable `pack/patterns.json` and a private `local/` folder when they are
+   missing, and leaves an existing skill untouched. Do NOT write patterns or variants yourself,
+   not even plausible-sounding ones — content appears only when the owner approves a lesson
+   learned from a real map (see the `skill-reflector` agent and the Skills page of the Agent
+   Console). An empty, honest skill is the correct starting state.
 6. Report to the owner, in one line, which genre was set and whether a new Genre Skill was just
    bootstrapped or an existing one was found.
 

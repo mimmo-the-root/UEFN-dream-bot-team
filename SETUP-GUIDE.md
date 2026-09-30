@@ -108,7 +108,7 @@ every project you want to use this kit on.
    restarted after the file was created, *Auto Start Server* actually toggled on).
 5. **Install this kit's user-level files:**
    - Copy everything from `user-level-agents/` into `~/.claude/agents/` (Windows:
-     `%USERPROFILE%\.claude\agents\`). Fourteen files: coder, qa-regression, planner-docs,
+     `%USERPROFILE%\.claude\agents\`). Fifteen files: coder, qa-regression, planner-docs, skill-reflector,
      project-bootstrap, release-gate, second-brain-librarian, second-brain-trainer,
      second-brain-scout, coder-prep, growth-manager, intent-gate, intent-reviewer,
      compliance-reviewer, and codebase-auditor.
@@ -120,6 +120,13 @@ every project you want to use this kit on.
      — the two-gate compliance check `coder` invokes on itself before reporting any task done, see
      section 2. `codebase-auditor` is an independent, on-demand whole-codebase quality audit — see
      section 2.
+   - **Genre skills and the Skills page (v1.81+).** `skill-reflector` (in `user-level-agents/`) queues
+     lessons learned from your real maps; you approve them on the **Skills** page of the Agent
+     Console. The engine is `Claude/hooks/skills_lib.py` (installed with the project scaffold; needs
+     only Python 3). If you already have genre skills in `~/.claude/skills/genre/<slug>/`, run
+     `python3 Claude/hooks/skills_lib.py init <slug>` once per genre: it adds the private `local/`
+     layer and the shareable `pack/` layer without deleting anything you have. Map names, task
+     IDs and notes never leave `local/`.
    - Copy `user-level-memory/CLAUDE.md` into `~/.claude/CLAUDE.md`. If that file already
      exists, paste this content at the end of it — don't overwrite what's already there.
    - **Upgrading from an older kit version: delete removed agent files, don't just copy new ones
@@ -1134,6 +1141,24 @@ Entirely optional — remove the `SessionStart`/`PreToolUse`/`SubagentStop`/`Pos
 "startup" blocks from `.claude/settings.json` and ignore the
 `agent-console-*`/`session-start-reminder.*` files if you don't want any of it; nothing else in
 the kit depends on it.
+
+## If the MCP connection to UEFN drops
+
+The Epic MCP server listens on `http://127.0.0.1:8000/mcp` by default. When Claude "loses" UEFN, go in this order:
+
+1. **Is anything listening on port 8000?** In PowerShell: `Get-NetTCPConnection -LocalPort 8000 -State Listen`. No result means the server is off (not overloaded) — go to step 4.
+2. **Check the editor Output Log** for the server start-up lines (binding address, port, `/mcp` path). Binding failures such as a port conflict show up there too.
+3. **It listens but does not answer?** Run `npx @modelcontextprotocol/inspector`, open it, and connect to `http://127.0.0.1:8000/mcp` with the Streamable HTTP transport. If the Inspector lists the tools, the server is fine and the problem is on the Claude side (restart the session).
+4. **Restart the server — this is always manual**, from the editor console: `ModelContextProtocol.StartServer` (optionally with a port, e.g. `ModelContextProtocol.StartServer 8000`).
+
+Source: Epic's "Unreal MCP in Unreal Editor" documentation.
+
+## Automatic kit updates (v1.84+)
+
+Install once by hand as before, and also copy the whole `project-template/` folder into `~/.claude/kit-template/`
+(Windows: `%USERPROFILE%\.claude\kit-template\`). From then on, every time you start `claude` in a map, the kit checks that
+map's files against this copy and updates what is old or missing, then tells you to restart the session. To update all
+your maps after a new kit release: replace `~/.claude/kit-template/` with the new `project-template/` and open each map once.
 
 ## 6. Scaling to many projects: a dashboard idea
 

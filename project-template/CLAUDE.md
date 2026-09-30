@@ -84,6 +84,21 @@ with the real assets and project:
   specifically so a batch of already-analyzed/pre-existing projects gets the genre set the first
   time each is opened after this rule was added, without the owner having to invoke anything by
   name project by project.
+<!-- KIT:BEGIN skill-harness -->
+- **Skill Harness — the genre skill learns from this map (v1.81+)**: this project's genre skill
+  (`~/.claude/skills/genre/<slug>/SKILL.md`, slug in `Claude/docs/.genre`) is where the kit keeps
+  what it has learned about building this KIND of map. Two duties, both cheap:
+  1. *Use it*: before designing or changing core gameplay, read that SKILL.md once per session. Its
+     "Learned patterns" block says how far to trust each pattern (proven = rule, confirmed =
+     default, hypothesis = suggestion and tell the owner it is unproven, contested = show both
+     options and ask). If the block is empty, nothing is learned yet — never invent patterns.
+  2. *Feed it*: when a playtest finishes, a release-gate check passes, or a batch of tasks closes
+     and something reusable about this genre became clear, invoke the `skill-reflector` agent
+     (after-playtest already does it automatically). It only QUEUES lessons; the owner approves or
+     rejects each one on the Skills page. Never edit anything under `~/.claude/skills/genre/`
+     yourself, and never put map names, island codes or task/bug IDs into a lesson — those stay on
+     this computer only.
+<!-- KIT:END skill-harness -->
 - **UI reference harvest (automatic, every session, independent of any single task or of
   `coder` having touched anything)**: if `~/.claude/skills/game-ui-designer/` exists, this has two
   parts — do BOTH every session, not just when a task happens to close:

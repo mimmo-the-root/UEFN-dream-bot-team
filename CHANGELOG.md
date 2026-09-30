@@ -1,5 +1,63 @@
 # Changelog
 
+## v1.84.0 — Automatic kit updates, Skills page fix, MCP troubleshooting
+
+- **Automatic project updates.** New SessionStart hook `kit-sync` (`kit_sync.py`, `kit-sync.ps1/.sh`). The FIRST install
+  is still a manual copy. After that, each new session compares the project's kit files with a reference copy in your
+  user profile (`~/.claude/kit-template`, i.e. a copy of `project-template/`), replaces obsolete/missing files, saves the
+  old versions under `Claude/logs/kit-backup/<timestamp>/`, adds new hooks to `.claude/settings.json` (additive only) and
+  refreshes `<!-- KIT:BEGIN x -->` blocks in `CLAUDE.md`. When something changed it says "Kit updated — restart the session".
+  Never touches `Claude/docs`, your logs, permissions or the rest of your `CLAUDE.md`. New file `Claude/KIT-VERSION`.
+- **No manual genre init.** The same hook creates the genre skill for the genre in `Claude/docs/.genre`.
+- **Community packs staging.** Packs dropped in `~/.claude/skills/genre/<slug>/local/incoming/*.json` are validated and
+  queued as ONE proposal each on the Skills page; nothing changes until you approve. Processed files move to `incoming/done/`
+  (or `incoming/rejected/`).
+- **Fix: the Skills page did not open on Windows.** The PowerShell console server (`agent-console-server.ps1`) now serves
+  `/skills`, `/skills-data`, `/skills-act`, `/skills-check`. The page says so if the running server is older than the page.
+  `skills_lib.py act` accepts `--exclude`.
+- SETUP-GUIDE: "If the MCP connection drops" (port 8000 check, editor log, Inspector, manual restart).
+
+## v1.83.0 — Skill Harness, part 3 (reflection at playtest)
+
+- New agent `skill-reflector` (user-level). After a playtest (`after-playtest.ps1/.sh` now has a third
+  step), or when invoked after a release-gate pass, it reads the real evidence (BUGS/STATUS/
+  RETENTION-NOTES, logs, code) and QUEUES at most 3 generalized lessons for the genre skill. It only
+  proposes; it never edits skills. "Nothing to learn" is an allowed outcome.
+- `project-template/CLAUDE.md` rule: read the genre skill before designing core gameplay, trust each
+  pattern according to its confidence, feed it via `skill-reflector`. `release-gate` reminds the
+  main session to invoke it after a READY verdict.
+- `project-bootstrap` Step 0.5 now creates the genre skill with `skills_lib.py init` instead of hand-writing one.
+- `skills_lib.py patterns <genre>` lists existing patterns with their exact wording (support for an
+  existing pattern is matched by content).
+- Not verified from the development environment: running `skill-reflector` through `claude -p` on
+  Windows, and the PowerShell `skill-consult.ps1` hook (the bash version is tested).
+
+## v1.82.0 — Skill Harness, part 2 (approval + merge)
+
+- Skills page: approve / edit wording / reject each lesson; apply or skip a community pack update
+  item by item. The local server gets `POST /skills-act` and `/skills-check`, protected by an origin
+  check and a custom header.
+- Merge engine (`skills_lib.py merge`): an incoming pack is validated (format, links, commands,
+  instructions to the AI, private terms) and becomes ONE proposal: new patterns enter as community
+  hypotheses, known patterns only sum support counts (never double-counted on re-merge), conflicts
+  are kept as contested. Your own evidence always wins; community support never raises a tier.
+- `skill-consult` hook (PreToolUse on Read) counts when the coder reads a genre skill, feeding "Used by coder".
+
+## v1.81.0 — Skill Harness, part 1 (layers, validator, Skills page)
+
+- Genre skills learn from the first map: confidence ladder hypothesis -> confirmed (2 maps) -> proven
+  (3+ maps or 2 + retention metric); a contradicting map marks the pattern contested. Replaces the
+  "3 maps before anything is used" rule.
+- Three layers per genre skill: generated `SKILL.md`, shareable `pack/patterns.json` (generalized
+  patterns, stable IDs, support counts), private `local/` (map names, task IDs, notes, ledger,
+  decisions, inbox). `local/` is git-ignored; `tool/sync-skills.ps1` no longer promotes `genre`.
+- `skills_lib.py`: deterministic validator + secret/PII redaction (adapted from autoharness, MIT), privacy check
+  and export (refuses to export if a map name, code, task ID, link or command is found), provenance ledger.
+- New page `agent-console-skills.html` ("Skills") with a summary row (waiting for you, learning from,
+  pattern confidence, used by coder) and a fifth entry in the menu of every console.
+- Seed genre skills (survival, roguelike) restructured; the old per-variant `evidence.md` templates were moved to `_to_delete/`.
+- Tests: `python3 tests/test_skills_lib.py`.
+
 ## v1.80.0
 
 - New: update notice on all four consoles. Reads the latest published GitHub Release (checked at most every 6h, silent if offline) and shows a dismissible bar when it is newer than the running version.

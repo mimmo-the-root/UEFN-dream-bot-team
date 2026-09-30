@@ -96,6 +96,8 @@ $islandCodeFile = Join-Path $docsDir ".island-code"
 $statsHtmlPath = Join-Path $root "agent-console-stats.html"
 $docsHtmlPath = Join-Path $root "agent-console-docs.html"
 $flowHtmlPath = Join-Path $root "agent-console-flow.html"
+$skillsHtmlPath = Join-Path $root "agent-console-skills.html"
+$skillsLibPath = Join-Path $root "skills_lib.py"
 $metricsCacheFile = Join-Path $logsDir "fortnite-metrics-cache.json"
 $infoCacheFile = Join-Path $logsDir "fortnite-island-info-cache.json"
 $rankingsCacheFile = Join-Path $logsDir "fortnite-island-rankings-cache.json"
@@ -133,6 +135,8 @@ $State = [hashtable]::Synchronized(@{
     StatsHtmlPath       = $statsHtmlPath
     DocsHtmlPath        = $docsHtmlPath
     FlowHtmlPath        = $flowHtmlPath
+    SkillsHtmlPath      = $skillsHtmlPath
+    SkillsLibPath       = $skillsLibPath
     MetricsCacheFile    = $metricsCacheFile
     InfoCacheFile       = $infoCacheFile
     RankingsCacheFile   = $rankingsCacheFile
@@ -432,6 +436,60 @@ $RequestHandler = {
                 $response.StatusCode = 404
             } else {
                 $bytes = [System.IO.File]::ReadAllBytes($State.DocsHtmlPath)
+                $response.ContentType = "text/html; charset=utf-8"
+                $response.ContentLength64 = $bytes.Length
+                $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            }
+        } elseif ($request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check") {
+            $sk = { param($Lib, $CliArgs)
+                foreach ($cand in @(@("py","-3"), @("python"), @("python3"))) {
+                    $exe = Get-Command $cand[0] -ErrorAction SilentlyContinue
+                    if (-not $exe) { continue }
+                    try {
+                        $pre = @(); if ($cand.Count -gt 1) { $pre = @($cand[1]) }
+                        $o = & $exe.Source @pre $Lib @CliArgs 2>&1 | Out-String
+                        if ($o -and $o.TrimStart().StartsWith("{")) { return $o }
+                    } catch { }
+                }
+                return '{"ok": false, "error": "Python 3 not found - install Python to use the Skills page"}'
+            }
+            $json = $null; $code = 200
+            $path = $request.Url.AbsolutePath
+            if ($path -eq "/skills-data") {
+                $json = & $sk $State.SkillsLibPath @("summary")
+            } else {
+                $origin = $request.Headers["Origin"]
+                $own = "http://" + $request.Url.Authority
+                if ($request.HttpMethod -ne "POST" -or $request.Headers["X-Skills-Action"] -ne "1" -or ($origin -and $origin -ne $own)) {
+                    $code = 403; $json = '{"ok": false, "error": "forbidden"}'
+                } else {
+                    try {
+                        $reader = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
+                        $body = $reader.ReadToEnd()
+                        if ($body.Length -gt 65536) { throw "body too large" }
+                        $d = $body | ConvertFrom-Json
+                        $g = [string]$d.genre
+                        if ($path -eq "/skills-check") {
+                            $a = @("check"); if ($g) { $a += $g }
+                        } else {
+                            $a = @("act", $g, [string]$d.proposal, [string]$d.action)
+                            if ($d.statement) { $a += @("--statement", [string]$d.statement) }
+                            foreach ($x in @($d.exclude)) { if ($x) { $a += @("--exclude", [string]$x) } }
+                        }
+                        $json = & $sk $State.SkillsLibPath $a
+                    } catch { $code = 400; $json = '{"ok": false, "error": "bad request"}' }
+                }
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.StatusCode = $code
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+        } elseif ($request.Url.AbsolutePath -eq "/skills" -or $request.Url.AbsolutePath -eq "/agent-console-skills.html") {
+            if (-not (Test-Path $State.SkillsHtmlPath)) {
+                $response.StatusCode = 404
+            } else {
+                $bytes = [System.IO.File]::ReadAllBytes($State.SkillsHtmlPath)
                 $response.ContentType = "text/html; charset=utf-8"
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)

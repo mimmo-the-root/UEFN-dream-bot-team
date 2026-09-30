@@ -48,4 +48,11 @@ try {
     "planner-docs returned an error, check the log." | Out-File -Append -FilePath $log
 }
 
+"=== skill-reflector (started $(Get-Date)) ===" | Out-File -Append -FilePath $log
+try {
+    claude -p "planner-docs just finished the post-playtest update. Check whether this playtest taught something new about this map's genre (see Claude/docs/.genre) and queue at most 3 lessons for the owner's approval, exactly as your instructions say. Never edit skills yourself; if there is nothing real to learn, say so and stop." --agent skill-reflector 2>&1 | Out-File -Append -FilePath $log
+} catch {
+    "skill-reflector returned an error, check the log." | Out-File -Append -FilePath $log
+}
+
 Write-Output "Automatic post-playtest check complete. Details in $log"

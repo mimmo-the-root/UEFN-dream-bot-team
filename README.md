@@ -23,6 +23,28 @@ compliance-reviewer → planner-docs):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
+## What's new (v1.83)
+
+- **Skills page — the kit learns from your maps** (`agent-console-skills.html`). Genre skills
+  (survival, roguelike, …) used to stay empty until three maps had been studied. Now a genre skill
+  starts learning from your first map: after a playtest the `skill-reflector` agent queues lessons,
+  and **you approve, edit or reject each one** on the Skills page. Every pattern carries a
+  confidence level from your own maps (hypothesis → confirmed → proven), and a map that contradicts
+  a pattern marks it **contested** instead of overwriting it.
+- **Your map data stays on your computer.** Map names, task IDs and notes live in a private
+  `local/` layer that is never exported or committed. Only generalized patterns (`pack/`) can be
+  shared, and only after a privacy check. Incoming community packs are merged by pattern ID into a
+  proposal you review; your own evidence always wins.
+- **Everything is English and looks the same**: all five consoles (Console, Stats, Docs, Flow,
+  Skills) share one header, theme and menu, and show an update notice when a newer GitHub Release
+  exists.
+- **Docs & Status console redesigned** around what is still open: roadmap grouped by release with
+  progress, open bugs sorted by severity, priorities and owner actions, and a live activity rail.
+
+Design ideas for the Skills mechanics are adapted from
+[tigerless-labs/autoharness](https://github.com/tigerless-labs/autoharness) (MIT, see
+`THIRD-PARTY-NOTICES.md`).
+
 ## What's new (v1.79)
 
 - **Docs & Status console** (`agent-console-docs.html`) — a second dashboard page reading your

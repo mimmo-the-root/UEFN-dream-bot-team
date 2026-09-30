@@ -64,6 +64,14 @@ HTML_PATH = os.path.join(ROOT, "agent-console.html")
 STATS_HTML_PATH = os.path.join(ROOT, "agent-console-stats.html")
 DOCS_HTML_PATH = os.path.join(ROOT, "agent-console-docs.html")
 FLOW_HTML_PATH = os.path.join(ROOT, "agent-console-flow.html")
+SKILLS_HTML_PATH = os.path.join(ROOT, "agent-console-skills.html")
+# Skill Harness (v1.81+): the Skills page reads/writes the genre skills under ~/.claude/skills/genre
+# through skills_lib.py (same folder). If the module is missing the rest of the console still works.
+try:
+    sys.path.insert(0, ROOT)
+    import skills_lib
+except Exception:  # pragma: no cover - missing/broken module must never take the console down
+    skills_lib = None
 PROJECT_DIR = os.path.dirname(os.path.dirname(ROOT))
 SERVER_STARTED_AT = datetime.now(timezone.utc).isoformat()
 LOGS_DIR = os.path.join(os.path.dirname(ROOT), "logs")
@@ -387,6 +395,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._send_json_bytes(json.dumps(_get_island_info()).encode("utf-8"))
         elif self.path.startswith("/island-rankings"):
             self._send_json_bytes(json.dumps(_get_island_rankings()).encode("utf-8"))
+        elif self.path.startswith("/skills-data"):
+            # Real data only, computed from the local genre-skill files by skills_lib.summary().
+            if skills_lib is None:
+                self._send_json_bytes(json.dumps({"error": "skills_lib.py not found next to the server"}).encode("utf-8"))
+            else:
+                try:
+                    self._send_json_bytes(json.dumps(skills_lib.summary()).encode("utf-8"))
+                except Exception as e:
+                    self._send_json_bytes(json.dumps({"error": "could not read skills: %s" % e}).encode("utf-8"))
+        elif self.path.startswith("/skills") or self.path.startswith("/agent-console-skills.html"):
+            self._serve_html_file(SKILLS_HTML_PATH)
         elif self.path.startswith("/stats") or self.path.startswith("/agent-console-stats.html"):
             self._serve_html_file(STATS_HTML_PATH)
         elif self.path.startswith("/docs") or self.path.startswith("/agent-console-docs.html"):
@@ -399,6 +418,42 @@ class Handler(http.server.BaseHTTPRequestHandler):
             # Anything else (e.g. an unrecognized path) falls back to the main console rather
             # than a bare 404, matching this server's original behavior for unknown paths.
             self._serve_html_file(HTML_PATH)
+
+    def _origin_ok(self):
+        # Browsers always send Origin on a cross-site POST; only accept our own origin (or none,
+        # i.e. a local script). Together with the custom header this blocks drive-by web pages.
+        origin = self.headers.get("Origin")
+        if origin in (None, "http://127.0.0.1:%d" % PORT, "http://localhost:%d" % PORT):
+            return self.headers.get("X-Skills-Action") == "1"
+        return False
+
+    def _send_json_status(self, code, obj):
+        body = json.dumps(obj).encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_POST(self):
+        # Owner decisions on the Skills page: approve / edit / reject a lesson, run the privacy check.
+        if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check")):
+            return self._send_json_status(404, {"ok": False, "error": "unknown endpoint"})
+        if not self._origin_ok():
+            return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            if n > 65536:
+                return self._send_json_status(413, {"ok": False, "error": "body too large"})
+            data = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
+            if self.path.startswith("/skills-check"):
+                res = skills_lib.check(data.get("genre"))
+            else:
+                res = skills_lib.act(data.get("genre"), data.get("proposal"), data.get("action"),
+                                     data.get("statement"), data.get("exclude") or [])
+            self._send_json_status(200, res)
+        except (ValueError, KeyError, TypeError) as e:
+            self._send_json_status(400, {"ok": False, "error": str(e)})
 
     def _serve_html_file(self, file_path):
         # Shared by the main console and its Stats/Docs/Flow pages — both the short server routes

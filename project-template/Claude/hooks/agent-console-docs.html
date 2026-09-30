@@ -186,7 +186,7 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
 </style>
 <style>.hdr-blink{animation:hdrblink 1.1s steps(1) infinite;}@keyframes hdrblink{50%{opacity:0;}}</style><div class="hdrbar" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 24px;padding:14px 4px 12px;border-bottom:1px solid var(--line);margin-bottom:16px;">
       <div style="font-size:12px;line-height:1.5;font-weight:bold;letter-spacing:.5px;color:var(--blue,#4b8bff);">&gt; <span style="font-size:17px;letter-spacing:1px;">DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="hdr-blink">_</span></span><span id="kitVersion" style="font-size:10px;font-weight:normal;letter-spacing:.5px;color:var(--dim);margin-left:8px;vertical-align:middle;"></span></div>
-      <div class="termlines-side"><div class="view-switch"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html" class="on">Docs</a><a href="agent-console-flow.html">Flow</a></div><div class="comment"># docs &amp; status console</div><div id="connStatus" style="margin:0;">… reading Claude/docs/ from the local server</div></div>
+      <div class="termlines-side"><div class="view-switch"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html" class="on">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a></div><div class="comment"># docs &amp; status console</div><div id="connStatus" style="margin:0;">… reading Claude/docs/ from the local server</div></div>
     </div>
 
     <!-- HERO: roadmap progress ring + open bugs + last update — all three are populated at
@@ -1114,7 +1114,7 @@ renderBugBacklog();
 pollLiveRail();
 setInterval(pollLiveRail, 2000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.80.0";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.84.0";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

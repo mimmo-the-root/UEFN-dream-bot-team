@@ -34,4 +34,7 @@ claude -p "A test play-session in this project just ended. Analyze logs and proj
 echo "=== planner-docs (started $(date)) ===" >> "$LOG"
 claude -p "qa-regression just analyzed the last play-session (see $LOG and Claude/docs/BUGS.md, Newly reported section). Update Claude/docs/STATUS.md with a new entry and reprioritize Claude/docs/BUGS.md." --agent planner-docs >> "$LOG" 2>&1 || echo "planner-docs returned an error, check the log." >> "$LOG"
 
+echo "=== skill-reflector (started $(date)) ===" >> "$LOG"
+claude -p "planner-docs just finished the post-playtest update. Check whether this playtest taught something new about this map's genre (see Claude/docs/.genre) and queue at most 3 lessons for the owner's approval, exactly as your instructions say. Never edit skills yourself; if there is nothing real to learn, say so and stop." --agent skill-reflector >> "$LOG" 2>&1 || echo "skill-reflector returned an error, check the log." >> "$LOG"
+
 echo "Automatic post-playtest check complete. Details in $LOG"

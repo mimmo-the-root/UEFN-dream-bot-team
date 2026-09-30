@@ -7,6 +7,17 @@
   "hooks": {
     "SessionStart": [
       {
+        "_comment": "Kit self-update (v1.84): compares this project's kit files with the reference copy in ~/.claude/kit-template, updates obsolete/missing ones automatically (backups in Claude/logs/kit-backup), creates the genre skill folders, ingests community packs from the skills 'incoming' folder, and tells you to restart the session when files changed. Needs Python 3; silent no-op without it or without the template copy.",
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/kit-sync.ps1\"",
+            "timeout": 20
+          }
+        ]
+      },
+      {
         "_comment": "Only fires when you launch `claude` fresh (matcher 'startup'), not on every /clear or /compact. If the optional Agent Console is installed on this project, deterministically ensures its server is running AND correctly scoped to THIS project (killing and replacing a stale/wrong-project server bound to the same port if needed), then opens it in your default browser automatically, before Claude's first reply — no permission asked, nothing to answer. On Windows without bash available, use session-start-reminder.ps1 (already set below); with bash/WSL/Git Bash you can switch to session-start-reminder.sh.",
         "matcher": "startup",
         "hooks": [
@@ -52,6 +63,17 @@
           {
             "type": "command",
             "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-mcp.ps1\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "_comment": "Skill Harness (v1.82): counts when the coder reads a genre skill (~/.claude/skills/genre/...) so the Skills page can show real usage. Does nothing for any other file. Safe to remove; the Skills page then just shows 0 consultations.",
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/skill-consult.ps1\"",
             "timeout": 10
           }
         ]

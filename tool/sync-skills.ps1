@@ -34,7 +34,12 @@ param(
     # Cartelle sotto $ProfilePath da ignorare sempre: non sono skill vere, sono
     # bookkeeping interno di Claude Code (es. "synced" contiene solo cartelle
     # con GUID e file .bucket-* vuoti). Aggiungi qui altri nomi se ne scopri altri.
-    [string[]]$ExcludeNames = @("synced")
+    # "genre" is excluded on purpose (v1.81, Skill Harness): in your profile the genre skills hold
+    # PRIVATE data from your maps (local/ folder: map names, task IDs, notes) and learned patterns.
+    # They must never be promoted to the kit repo by a folder copy. The seed files in the repo are
+    # edited by hand; patterns are shared only through `skills_lib.py export`, which runs a privacy
+    # check first.
+    [string[]]$ExcludeNames = @("synced", "genre")
 )
 
 $ErrorActionPreference = "Stop"

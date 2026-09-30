@@ -1,21 +1,18 @@
 # Variants — Survival
 
 List of recognized variants for the Survival genre, with independent
-status for each. A mature variant does NOT make the genre mature: see
-`SKILL.md` for the two-tier promotion rule.
+status for each. Confidence is tracked per pattern (hypothesis / confirmed / proven / contested), see `SKILL.md`.
 
-| variant slug       | description (working label)                            | status | maps analyzed |
-|--------------------|-------------------------------------------------------|-------|-------------------|
-| loop-100           | structured cycle loop (e.g. round/wave with a fixed count) | draft | 0 |
-| loop-infinito      | continuous-loop survival with no structural ending      | draft | 0 |
-| space-war-2team     | space setting, 2 opposing teams                         | draft | 0 |
+| variant slug       | description (working label)                            | status |
+|--------------------|-------------------------------------------------------|-------|
+| loop-100           | structured cycle loop (e.g. round/wave with a fixed count) | draft |
+| loop-infinito      | continuous-loop survival with no structural ending      | draft |
+| space-war-2team     | space setting, 2 opposing teams                         | draft |
 
 ## Adding a new variant
 
-If a map doesn't clearly fit any existing variant, create
-a new folder `variants/<new-slug>/` with an empty `evidence.md` and
-add a row here with status `draft` and 0 maps. There's no need to pre-write
-any pattern: the variant starts empty and gets populated map by map.
+If a map doesn't clearly fit any existing variant, add a row here and use its slug in the `variant` field of new lessons. There's no need to pre-write
+any pattern: the variant starts empty and gets populated map by map (map names and notes stay in the private `local/` layer).
 
 ## Note on official Epic tags
 
