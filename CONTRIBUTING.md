@@ -308,6 +308,8 @@ If you discover a security vulnerability, do **not** publish sensitive exploit d
 
 Follow the project's security reporting process described in `SECURITY.md`.
 
+Code-scanning alerts (CodeQL) and Copilot Autofix pull requests: read [`docs/code-scanning-lessons.md`](docs/code-scanning-lessons.md) first, and run `python tests/test_skills_lib.py` and `python tests/test_skills_safety.py` on the fix before merging it.
+
 ---
 
 # 📚 Documentation
