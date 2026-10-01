@@ -900,8 +900,13 @@ def _cli(argv=None):
                         a.task, a.note, a.metric_backed)
     except (ValueError, OSError) as e:
         r = {"ok": False, "error": str(e)}
-    # Redact secret-looking strings before anything reaches stdout/logs (clear-text logging fix).
-    print(redact(json.dumps(r, indent=2, ensure_ascii=False)))
+    # Emit a minimal response envelope to avoid logging potentially sensitive payload fields.
+    safe_out = {"ok": bool(isinstance(r, dict) and r.get("ok") is not False)}
+    if isinstance(r, dict) and r.get("ok") is False:
+        safe_out["ok"] = False
+        safe_out["error"] = str(r.get("error", "operation_failed"))
+    # Redact remains as defense-in-depth for any unexpected string content.
+    print(redact(json.dumps(safe_out, indent=2, ensure_ascii=False)))
     return 0 if not (isinstance(r, dict) and r.get("ok") is False) else 1
 
 
