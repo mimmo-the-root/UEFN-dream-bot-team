@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.84.3 — Roadmap progress ignores out-of-scope tasks
+
+- Fixed: the Docs page progress ring counted "Out of scope" rows in the total (82 Done + 4 To do + 10 Out of scope showed 82 of 96, 85%). Out-of-scope means discarded, so it is now 82 of 86 (95%), with a note of how many were left out.
+
+## v1.84.2 — Verse header history is pruned
+
+- New rule (user-level CLAUDE.md section 6, `coder`, `compliance-reviewer`): header history lines in Verse files are capped at 15; when exceeded the oldest are merged into one rolled-up line and the newest 8 are kept. Summary and Last modified are never dropped.
+
+## v1.84.1 — Docs page reads task status by its first word
+
+- Fixed: ROADMAP task Status cells such as "Done (closed by owner decision ...)" or "Fatto - verificato in play" were counted as "To do"
+  because the page compared the whole cell. It now matches the leading word (Done/Fatto/Closed/Risolto, In progress/In corso,
+  Blocked/Bloccato); anything else is still "To do". The roadmap template says so, and STATUS.md has an "Owner actions" line.
+
 ## v1.84.0 — Automatic kit updates, Skills page fix, MCP troubleshooting
 
 - **Automatic project updates.** New SessionStart hook `kit-sync` (`kit_sync.py`, `kit-sync.ps1/.sh`). The FIRST install

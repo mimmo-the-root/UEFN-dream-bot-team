@@ -45,7 +45,7 @@ files/devices it touched.
    only exists in the Outliner/device tree, say plainly in your verdict that it's taken on
    `coder`'s report rather than independently confirmed — don't imply you checked it live.
 3. **Header documentation** — every touched/created Verse file has an up-to-date header (what it
-   does, per-section comments, current date, incremented version).
+   does, per-section comments, current date, incremented version). Also flag (non-blocking) a header whose history lines exceed 15; coder prunes it on the next touch.
 4. **Multiplayer authority** — anything touching shared state has visibly been thought through for
    server/client authority and concurrent players, not "works for one player" logic.
 5. **State machine** — multi-phase logic (lobby/round/end-of-match, a device's states) uses one

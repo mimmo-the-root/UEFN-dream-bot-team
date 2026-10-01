@@ -118,6 +118,14 @@ Every Verse file (created or modified) must have a comment block at the top in t
   instead of guessing) and increments the version number every time it substantially modifies
   that file. There's no Git tracking versions, so this header is the only history we have: keep
   it disciplined and up to date, don't let it fall behind.
+- **History lines and pruning**: if a file keeps change notes in its header (e.g. `# v12 2026-09-30: ...`),
+  keep them SHORT (one line per version) and cap them at **15 lines**. When a new entry would exceed
+  15, merge the oldest entries into ONE rolled-up line and keep only the newest 8 individually, e.g.
+  `# v1-v14: initial build, wave spawner, shop, VIP bindings (details condensed)`. Never drop the
+  Summary or the "Last modified" line, never delete a decision that still matters (move it into the
+  rolled-up line in a few words), and do the pruning in the same edit that adds the new entry — no
+  separate cleanup task. Files whose header is already longer than the cap are shortened the next
+  time `coder` touches them.
 - If an existing Verse file doesn't have this header, `coder` adds it the first time it touches
   that file (starting at v1 with today's date); `project-bootstrap` flags files still missing
   it in BUGS.md as a non-blocking gap.

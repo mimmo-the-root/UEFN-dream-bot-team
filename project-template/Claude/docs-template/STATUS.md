@@ -16,6 +16,8 @@ _(updated: YYYY-MM-DD)_
 
 **Recommended next step:** (empty)
 
+**Owner actions:** (empty — one line per item, each starting with "Owner action:", so the console's Docs page can list them)
+
 ---
 
 ## Log

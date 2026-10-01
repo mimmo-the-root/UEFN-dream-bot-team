@@ -659,9 +659,12 @@ function isBugOpen(r){
 }
 function statusBucket(raw){
   const s = (raw || "").trim().toLowerCase();
-  if (s === "done" || s === "fatto") return "done";
-  if (s === "in progress" || s === "in corso") return "active";
-  if (s === "blocked" || s === "bloccato") return "blocked";
+  // v1.84.3: match the LEADING word, not the whole cell. Agents often append a note
+  // ("Done (closed by owner decision ...)", "Fatto - verificato in play"); the first word is what
+  // carries the state, the rest is free text. Anything unrecognized still falls to "todo".
+  if (/^(done|fatto|complet\w*|chiuso|closed|risolto|resolved)\b/.test(s)) return "done";
+  if (/^(in progress|in corso|wip)\b/.test(s)) return "active";
+  if (/^(blocked|bloccat\w*)\b/.test(s)) return "blocked";
   // v1.79.6 fix: "Out of scope" rows (a real, deliberate status a project owner uses for tasks
   // explicitly decided against, distinct from "not started yet") used to fall into the default
   // "todo" bucket below, getting counted as still-remaining/open work alongside genuine "Da
@@ -715,7 +718,11 @@ function renderHeroInner(roadmap, bugs, status){
     document.getElementById('progressTasks').textContent = "ROADMAP.md has not been created yet.";
     document.getElementById('progressPct').textContent = "–";
   } else {
-    const tasks = parseRoadmapTasks(roadmap.content);
+    // v1.84.3: "Out of scope" = thrown away, so those rows are NOT part of the denominator
+    // (82 Done + 4 To do + 10 Out of scope reads 82 of 86, not 82 of 96).
+    const allTasks = parseRoadmapTasks(roadmap.content);
+    const tasks = allTasks.filter(t => statusBucket(t.status) !== "outOfScope");
+    const outCount = allTasks.length - tasks.length;
     const total = tasks.length;
     const done = tasks.filter(t => statusBucket(t.status) === "done").length;
     // v1.79.6 fix: "remaining" used to be (total - done), which silently folded "Out of scope"
@@ -733,7 +740,7 @@ function renderHeroInner(roadmap, bugs, status){
     document.getElementById('progressRing').setAttribute('stroke-dashoffset',
       String(circumference - (circumference * pct / 100)));
     document.getElementById('progressTasks').textContent = total
-      ? (done + " of " + total + " tasks Done")
+      ? (done + " of " + total + " tasks Done" + (outCount ? " (" + outCount + " out of scope, not counted)" : ""))
       : "ROADMAP.md has no Tasks rows yet.";
     document.getElementById('progressRemaining').textContent = total
       ? (remaining + " task" + (remaining === 1 ? "" : "s") + " remaining")
@@ -1114,7 +1121,7 @@ renderBugBacklog();
 pollLiveRail();
 setInterval(pollLiveRail, 2000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.84.0";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.84.3";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

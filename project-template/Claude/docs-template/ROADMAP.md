@@ -20,7 +20,7 @@
 |---|---|---|---|---|
 | T-001 | (example — replace) | To do | (short, verifiable — "the player can X and Y happens") | MVP |
 
-Status values: **To do** (not started) / **In progress** (coder is actively on it — flips this
+Status values (the cell must START with one of these words; any note goes after it, e.g. "Done - verified in play"): **To do** (not started) / **In progress** (coder is actively on it — flips this
 itself) / **Blocked** (blocked — coder flips this and says why in STATUS.md) / **Done** (done —
 only planner-docs sets this, only after both intent-reviewer and compliance-reviewer return PASS on the task's work).
 
