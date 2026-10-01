@@ -522,6 +522,16 @@ def _proposal_path(slug, proposal_id):
     return ppath
 
 
+def _remove_proposal_file(slug, ppath):
+    inbox = os.path.realpath(_inbox_dir(slug))
+    target = os.path.realpath(ppath)
+    if os.path.commonpath([inbox, target]) != inbox:
+        raise ValueError("unsafe proposal path")
+    if not target.endswith(".json") or not os.path.isfile(target):
+        raise ValueError("invalid proposal file")
+    os.remove(target)
+
+
 def act(slug, proposal_id, action, statement=None, exclude=()):
     """Owner decision on one queued proposal: approve | edit | reject."""
     slug = _slug(slug)
@@ -547,7 +557,7 @@ def act(slug, proposal_id, action, statement=None, exclude=()):
             ov.setdefault("rejected_support", []).append("%s:%s" % (pid, prop.get("map_key")))
         _write_json(os.path.join(ldir(slug), "overlay.json"), ov)
         _ledger(slug, "reject", pid or prop["id"], "owner rejected " + kind)
-        os.remove(ppath)
+        _remove_proposal_file(slug, ppath)
         return {"ok": True, "result": "rejected"}
 
     if action == "edit":
@@ -576,7 +586,7 @@ def act(slug, proposal_id, action, statement=None, exclude=()):
         _save_support(slug, sup)
         save_pack(slug, pack)
         render_skill(slug)
-        os.remove(ppath)
+        _remove_proposal_file(slug, ppath)
         return {"ok": True, "result": "merged", "applied": res}
     else:
         return {"ok": False, "error": "unknown proposal kind"}
@@ -585,7 +595,7 @@ def act(slug, proposal_id, action, statement=None, exclude=()):
     save_pack(slug, pack)
     _ledger(slug, "approve", pid, kind, {"map_key": prop.get("map_key"), "tasks": prop.get("tasks", [])})
     render_skill(slug)
-    os.remove(ppath)
+    _remove_proposal_file(slug, ppath)
     return {"ok": True, "result": "approved"}
 
 
