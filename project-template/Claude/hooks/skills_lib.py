@@ -82,9 +82,21 @@ def _today():
     return datetime.date.today().isoformat()
 
 
+def _safe_skills_path(path):
+    root = os.path.realpath(skills_root())
+    full = os.path.realpath(path)
+    try:
+        if os.path.commonpath([root, full]) != root:
+            raise ValueError("path outside skills root")
+    except ValueError:
+        raise ValueError("path outside skills root")
+    return full
+
+
 def _read_json(path, default):
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        safe_path = _safe_skills_path(path)
+        with open(safe_path, "r", encoding="utf-8") as f:
             return json.load(f)
     except (OSError, ValueError):
         return default
