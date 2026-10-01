@@ -512,14 +512,24 @@ def _apply_support(slug, pack, sup, pid, mk, stance, metric_backed=False):
         recompute(p, sup)
 
 
+def _proposal_path(slug, proposal_id):
+    if not re.match(r"^pr-[0-9a-f]{10}$", str(proposal_id)):
+        return None
+    inbox = os.path.realpath(_inbox_dir(slug))
+    ppath = os.path.realpath(os.path.join(inbox, proposal_id + ".json"))
+    if os.path.commonpath([inbox, ppath]) != inbox:
+        return None
+    return ppath
+
+
 def act(slug, proposal_id, action, statement=None, exclude=()):
     """Owner decision on one queued proposal: approve | edit | reject."""
     slug = _slug(slug)
     if action not in ("approve", "edit", "reject"):
         return {"ok": False, "error": "action must be approve, edit or reject"}
-    if not re.match(r"^pr-[0-9a-f]{10}$", str(proposal_id)):
+    ppath = _proposal_path(slug, proposal_id)
+    if not ppath:
         return {"ok": False, "error": "bad proposal id"}
-    ppath = os.path.join(_inbox_dir(slug), proposal_id + ".json")
     prop = _read_json(ppath, None)
     if not prop:
         return {"ok": False, "error": "proposal not found (already handled?)"}
