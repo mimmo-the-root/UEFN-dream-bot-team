@@ -115,8 +115,11 @@ CHANGELOG.md             Version history
 
 ## Contributing
 
-Issues and pull requests are welcome. If you hit a bug in the kit itself (not in your own UEFN
-project), open an issue with the agent/hook involved and what you expected vs. what happened.
+Issues and pull requests are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md). If you
+hit a bug in the kit itself (not in your own UEFN project), open an issue with the agent/hook
+involved and what you expected vs. what happened. Please follow the
+[Code of Conduct](CODE_OF_CONDUCT.md); report security problems privately as described in
+[`SECURITY.md`](.github/SECURITY.md).
 
 ## License
 

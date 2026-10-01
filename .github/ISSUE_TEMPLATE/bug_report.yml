@@ -1,0 +1,71 @@
+name: Bug report
+description: Something in the kit (agent, hook, console, script) does not work as expected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! This form is for bugs in the **kit itself**, not in your own UEFN project.
+        Please do not paste API keys, tokens or private map data.
+  - type: input
+    id: version
+    attributes:
+      label: Kit version
+      description: Shown in the console header or at the top of CHANGELOG.md
+      placeholder: "v1.84.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - An agent
+        - A hook
+        - Agent Console (any page)
+        - Console server (PowerShell)
+        - Console server (Python)
+        - Skills / skill-reflector
+        - Setup / install scripts
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: component
+    attributes:
+      label: Agent / hook / file involved
+      placeholder: "coder, intent-reviewer, agent-console-server.ps1 ..."
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: "Windows 11, Claude Code x.y.z, PowerShell server"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Redact anything private.
+      render: shell
