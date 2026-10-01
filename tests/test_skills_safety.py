@@ -146,3 +146,10 @@ try:
 except (OSError, NotImplementedError):
     print("SKIP symlink proposal test (no symlink privilege)")
 print("STEP 5 OK")
+
+# --- step 6: containment must not be fooled by a sibling directory that shares the prefix ---
+sib_base = tempfile.mkdtemp(); sib = sib_base + "-evil"; os.makedirs(sib, exist_ok=True)
+ok(raises(S._inside, sib_base, os.path.join(sib, "x.json")), "_inside rejects a sibling directory with the same name prefix")
+ok(S._inside(sib_base, sib_base) == os.path.realpath(sib_base), "_inside accepts the base directory itself")
+ok(S._inside(sib_base, os.path.join(sib_base, "a", "b.json")).endswith("b.json"), "_inside accepts a nested path")
+print("STEP 6 OK")

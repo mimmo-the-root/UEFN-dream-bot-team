@@ -88,11 +88,9 @@ def _inside(base, path):
     visible error and never looks like a missing file."""
     root = os.path.realpath(base)
     full = os.path.realpath(path)
-    try:
-        inside = os.path.commonpath([root, full]) == root
-    except ValueError:  # e.g. different drives on Windows
-        inside = False
-    if not inside:
+    # realpath + startswith on the separator-terminated root: the check static analyzers recognize,
+    # and it also rejects a sibling such as /skills-evil when the root is /skills.
+    if full != root and not full.startswith(root.rstrip(os.sep) + os.sep):
         raise ValueError("path outside allowed directory")
     return full
 
