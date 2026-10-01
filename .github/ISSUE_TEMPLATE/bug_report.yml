@@ -13,7 +13,7 @@ body:
     attributes:
       label: Kit version
       description: Shown in the console header or at the top of CHANGELOG.md
-      placeholder: "v1.84.0"
+      placeholder: "v1.85.0"
     validations:
       required: true
   - type: dropdown
