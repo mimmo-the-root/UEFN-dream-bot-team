@@ -103,24 +103,27 @@ def _read_json(path, default):
 
 
 def _write_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
+    safe_path = _safe_skills_path(path)
+    os.makedirs(os.path.dirname(safe_path), exist_ok=True)
+    tmp = safe_path + ".tmp"
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
         json.dump(obj, f, indent=2, ensure_ascii=False)
         f.write("\n")
-    os.replace(tmp, path)
+    os.replace(tmp, safe_path)
 
 
 def _append_jsonl(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "a", encoding="utf-8", newline="\n") as f:
+    safe_path = _safe_skills_path(path)
+    os.makedirs(os.path.dirname(safe_path), exist_ok=True)
+    with open(safe_path, "a", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
 
 def _read_jsonl(path):
     out = []
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        safe_path = _safe_skills_path(path)
+        with open(safe_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -128,7 +131,7 @@ def _read_jsonl(path):
                         out.append(json.loads(line))
                     except ValueError:
                         pass
-    except OSError:
+    except (OSError, ValueError):
         pass
     return out
 
