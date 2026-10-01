@@ -103,12 +103,13 @@ def _read_json(path, default):
 
 
 def _write_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
+    safe_path = _safe_skills_path(path)
+    os.makedirs(os.path.dirname(safe_path), exist_ok=True)
+    tmp = _safe_skills_path(safe_path + ".tmp")
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
         json.dump(obj, f, indent=2, ensure_ascii=False)
         f.write("\n")
-    os.replace(tmp, path)
+    os.replace(tmp, safe_path)
 
 
 def _append_jsonl(path, obj):
