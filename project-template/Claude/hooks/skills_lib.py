@@ -861,7 +861,8 @@ def _cli(argv=None):
                         a.task, a.note, a.metric_backed)
     except (ValueError, OSError) as e:
         r = {"ok": False, "error": str(e)}
-    print(json.dumps(r, indent=2, ensure_ascii=False))
+    # Redact secret-looking strings before anything reaches stdout/logs (clear-text logging fix).
+    print(redact(json.dumps(r, indent=2, ensure_ascii=False)))
     return 0 if not (isinstance(r, dict) and r.get("ok") is False) else 1
 
 
