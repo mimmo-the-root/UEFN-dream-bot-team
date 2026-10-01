@@ -82,45 +82,53 @@ def _today():
     return datetime.date.today().isoformat()
 
 
-def _safe_skills_path(path):
-    root = os.path.realpath(skills_root())
+def _inside(base, path):
+    """Single gate for file access: return the real path of `path` only if it stays inside `base`
+    (symlinks and '..' are resolved first). Raises ValueError otherwise, so a blocked path is a
+    visible error and never looks like a missing file."""
+    root = os.path.realpath(base)
     full = os.path.realpath(path)
     try:
-        if os.path.commonpath([root, full]) != root:
-            raise ValueError("path outside skills root")
-    except ValueError:
-        raise ValueError("path outside skills root")
+        inside = os.path.commonpath([root, full]) == root
+    except ValueError:  # e.g. different drives on Windows
+        inside = False
+    if not inside:
+        raise ValueError("path outside allowed directory")
     return full
 
 
-def _read_json(path, default):
+def _safe_skills_path(path):
+    return _inside(skills_root(), path)
+
+
+def _read_json(path, default, base=None):
+    full = _inside(base or skills_root(), path)
     try:
-        safe_path = _safe_skills_path(path)
-        with open(safe_path, "r", encoding="utf-8") as f:
+        with open(full, "r", encoding="utf-8") as f:
             return json.load(f)
-    except (OSError, ValueError):
+    except (OSError, ValueError):  # missing or corrupt file -> default
         return default
 
 
-def _write_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
+def _write_json(path, obj, base=None):
+    full = _inside(base or skills_root(), path)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    tmp = _inside(os.path.dirname(full), full + ".tmp")
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
         json.dump(obj, f, indent=2, ensure_ascii=False)
         f.write("\n")
-    os.replace(tmp, path)
+    os.replace(tmp, full)
 
 
-def _append_jsonl(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "a", encoding="utf-8", newline="\n") as f:
-        f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+def _append_jsonl(path, obj, base=None):
+    _append_text(path, json.dumps(obj, ensure_ascii=False) + "\n", base)
 
 
-def _read_jsonl(path):
+def _read_jsonl(path, base=None):
+    full = _inside(base or skills_root(), path)
     out = []
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(full, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -131,6 +139,46 @@ def _read_jsonl(path):
     except OSError:
         pass
     return out
+
+
+def _append_text(path, text, base=None):
+    full = _inside(base or skills_root(), path)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, "a", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+
+
+def _write_text(path, text, base=None):
+    full = _inside(base or skills_root(), path)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+
+
+def _makedirs(path, base=None):
+    os.makedirs(_inside(base or skills_root(), path), exist_ok=True)
+
+
+def _listdir(path, base=None):
+    return os.listdir(_inside(base or skills_root(), path))
+
+
+def _remove_file(path, base=None):
+    os.remove(_inside(base or skills_root(), path))
+
+
+def _isfile(path, base=None):
+    try:
+        return os.path.isfile(_inside(base or skills_root(), path))
+    except ValueError:
+        return False
+
+
+def _isdir(path, base=None):
+    try:
+        return os.path.isdir(_inside(base or skills_root(), path))
+    except ValueError:
+        return False
 
 
 # ----------------------------------------------------------------------------- text safety
@@ -261,15 +309,14 @@ def _pack_path(slug):
 def init_genre(slug):
     """Create the pack/ + local/ layers for a genre skill if missing. Idempotent."""
     slug = _slug(slug)
-    os.makedirs(os.path.join(gdir(slug), "pack"), exist_ok=True)
+    _makedirs(os.path.join(gdir(slug), "pack"))
     for sub in ("inbox", "evidence"):
-        os.makedirs(os.path.join(ldir(slug), sub), exist_ok=True)
-    if not os.path.isfile(_pack_path(slug)):
+        _makedirs(os.path.join(ldir(slug), sub))
+    if not _isfile(_pack_path(slug)):
         _write_json(_pack_path(slug), {"schema": SCHEMA, "genre": slug, "revision": 0, "patterns": []})
     skill = os.path.join(gdir(slug), "SKILL.md")
-    if not os.path.isfile(skill):
-        with open(skill, "w", encoding="utf-8", newline="\n") as f:
-            f.write("---\ngenre_slug: %s\nstatus: draft\nlast_updated: %s\n---\n\n# Genre Skill: %s\n\n"
+    if not _isfile(skill):
+        _write_text(skill, "---\ngenre_slug: %s\nstatus: draft\nlast_updated: %s\n---\n\n# Genre Skill: %s\n\n"
                     "Fresh genre skill. Content appears only when you approve lessons learned from real maps.\n"
                     % (slug, _today(), slug))
     render_skill(slug)
@@ -344,11 +391,8 @@ def _frontmatter_split(text):
 def render_skill(slug):
     """Regenerate the Learned-patterns block of SKILL.md from pack/patterns.json."""
     slug = _slug(slug)
-    base_dir = os.path.realpath(gdir(slug))
-    path = os.path.join(gdir(slug), "SKILL.md")
-    path_real = os.path.realpath(path)
-    if os.path.commonpath([base_dir, path_real]) != base_dir:
-        raise ValueError("resolved skill path escapes genre directory")
+    base_dir = gdir(slug)
+    path_real = _inside(base_dir, os.path.join(base_dir, "SKILL.md"))
     try:
         with open(path_real, "r", encoding="utf-8") as f:
             text = f.read()
@@ -396,10 +440,7 @@ def render_skill(slug):
                 break
         else:
             lines.append("%s: %s" % (k, v))
-    tmp = path + ".tmp"
-    tmp_real = os.path.realpath(tmp)
-    if os.path.commonpath([base_dir, tmp_real]) != base_dir:
-        raise ValueError("resolved temp path escapes genre directory")
+    tmp_real = _inside(base_dir, path_real + ".tmp")
     with open(tmp_real, "w", encoding="utf-8", newline="\n") as f:
         f.write("---\n" + "\n".join(lines) + "\n---\n\n" + body.lstrip("\n"))
     os.replace(tmp_real, path_real)
@@ -472,7 +513,7 @@ def propose(slug, variant, condition, action, statement, map_name, stance="for",
             "say": say, "map_name": map_name.strip(), "map_key": mk, "stance": stance,
             "tasks": [str(t) for t in tasks], "note": redact(note or ""), "metric_backed": bool(metric_backed),
             "created": _now()}
-    if os.path.isfile(os.path.join(_inbox_dir(slug), prop["id"] + ".json")):
+    if _isfile(os.path.join(_inbox_dir(slug), prop["id"] + ".json")):
         return {"ok": True, "skipped": "already waiting for your approval", "proposal": prop["id"]}
     _save_proposal(slug, prop)
     return {"ok": True, "proposal": prop["id"], "kind": kind}
@@ -483,8 +524,8 @@ def list_proposals(slug=None):
     out = []
     for s in slugs:
         d = _inbox_dir(s)
-        if os.path.isdir(d):
-            for fn in sorted(os.listdir(d)):
+        if _isdir(d):
+            for fn in sorted(_listdir(d)):
                 if fn.endswith(".json"):
                     p = _read_json(os.path.join(d, fn), None)
                     if isinstance(p, dict) and p.get("id"):
@@ -495,9 +536,7 @@ def list_proposals(slug=None):
 
 def _evidence_note(slug, variant, map_name, text):
     path = os.path.join(ldir(slug), "evidence", "%s.md" % (variant if variant != "*" else "general"))
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "a", encoding="utf-8", newline="\n") as f:
-        f.write("\n## %s — %s\n%s\n" % (map_name, _today(), text))
+    _append_text(path, "\n## %s — %s\n%s\n" % (map_name, _today(), text))
 
 
 def _apply_support(slug, pack, sup, pid, mk, stance, metric_backed=False):
@@ -515,21 +554,18 @@ def _apply_support(slug, pack, sup, pid, mk, stance, metric_backed=False):
 def _proposal_path(slug, proposal_id):
     if not re.match(r"^pr-[0-9a-f]{10}$", str(proposal_id)):
         return None
-    inbox = os.path.realpath(_inbox_dir(slug))
-    ppath = os.path.realpath(os.path.join(inbox, proposal_id + ".json"))
-    if os.path.commonpath([inbox, ppath]) != inbox:
+    try:
+        return _inside(_inbox_dir(slug), os.path.join(_inbox_dir(slug), proposal_id + ".json"))
+    except ValueError:
         return None
-    return ppath
 
 
 def _remove_proposal_file(slug, ppath):
-    inbox = os.path.realpath(_inbox_dir(slug))
-    target = os.path.realpath(ppath)
-    if os.path.commonpath([inbox, target]) != inbox:
-        raise ValueError("unsafe proposal path")
-    if not target.endswith(".json") or not os.path.isfile(target):
+    inbox = _inbox_dir(slug)
+    target = _inside(inbox, ppath)
+    if not target.endswith(".json") or not _isfile(target):
         raise ValueError("invalid proposal file")
-    os.remove(target)
+    _remove_file(target, base=inbox)
 
 
 def act(slug, proposal_id, action, statement=None, exclude=()):
@@ -616,7 +652,7 @@ def export_pack(slug, out_dir):
     out = {"schema": SCHEMA, "genre": slug, "pack_version": int(pack.get("revision", 0)),
            "exported_at": _now(), "patterns": items}
     path = os.path.join(out_dir, slug, "patterns.json")
-    _write_json(path, out)
+    _write_json(path, out, base=out_dir)
     return {"ok": True, "path": path, "patterns": len(items)}
 
 
@@ -739,7 +775,7 @@ def check(slug=None):
                 findings.append({"genre": s, "pattern": p.get("id"), "field": field, "reason": reason})
         result = {"ts": _now(), "ok": not [f for f in findings if f["genre"] == s],
                   "findings": len([f for f in findings if f["genre"] == s])}
-        if os.path.isdir(ldir(s)):
+        if _isdir(ldir(s)):
             _write_json(os.path.join(ldir(s), "export_check.json"), result)
     return {"ok": not findings, "ts": _now(), "findings": findings}
 
@@ -748,7 +784,7 @@ def check(slug=None):
 def consult(slug):
     """Record that the coder read this genre skill (called by a PreToolUse Read hook)."""
     slug = _slug(slug)
-    if not os.path.isdir(ldir(slug)):
+    if not _isdir(ldir(slug)):
         return {"ok": False, "error": "genre not initialised"}
     p = os.path.join(ldir(slug), "usage.json")
     u = _read_json(p, {"total": 0, "days": []})
@@ -773,10 +809,10 @@ def consult_from_path(file_path):
 # ----------------------------------------------------------------------------- summary (server)
 def _genres():
     root = genre_root()
-    if not os.path.isdir(root):
+    if not _isdir(root):
         return []
-    return sorted(d for d in os.listdir(root)
-                  if SLUG_RE.match(d) and os.path.isdir(os.path.join(root, d)))
+    return sorted(d for d in _listdir(root)
+                  if SLUG_RE.match(d) and _isdir(os.path.join(root, d)))
 
 
 def summary():
@@ -828,7 +864,7 @@ def summary():
     totals["maps"] = len(all_maps)
     community = sum(1 for p in pending if p["kind"] == "pack_update")
     oldest = min((p["created"] for p in pending), default=None)
-    return {"root": genre_root(), "root_exists": os.path.isdir(genre_root()), "genres": genres, "totals": totals,
+    return {"root": genre_root(), "root_exists": _isdir(genre_root()), "genres": genres, "totals": totals,
             "pending": pending, "pending_lessons": len(pending) - community, "pending_packs": community,
             "oldest_pending": oldest, "variants": len(variants_seen), "last_learned": last_learned,
             "usage_week": [week[d] for d in days], "usage_week_total": sum(week.values()),

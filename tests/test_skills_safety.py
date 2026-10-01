@@ -66,3 +66,38 @@ for bad in ["../x", "a/b", "a\\b", "", ".hidden", "x" * 200, None]:
     except ValueError:
         ok(True, "slug rejects %r" % (bad,))
 print("SAFETY NET OK")
+
+# --- step 2: one gate (_inside) for every internal file access ---
+outside = tempfile.mkdtemp()
+def raises(fn, *a, **k):
+    try:
+        fn(*a, **k); return False
+    except ValueError:
+        return True
+gd = S.gdir("survival")
+ok(S._inside(gd, os.path.join(gd, "SKILL.md")).endswith("SKILL.md"), "_inside accepts a path inside base")
+ok(raises(S._inside, gd, os.path.join(gd, "..", "..", "x")), "_inside rejects '..' escape")
+ok(raises(S._inside, gd, os.path.join(outside, "x.json")), "_inside rejects an unrelated directory")
+ok(raises(S._read_json, os.path.join(outside, "x.json"), None), "_read_json: blocked path is an error, not 'missing'")
+ok(S._read_json(os.path.join(gd, "no-such.json"), "dflt") == "dflt", "_read_json: genuinely missing file -> default")
+ok(raises(S._write_json, os.path.join(outside, "x.json"), {}), "_write_json refuses to write outside the skills root")
+ok(raises(S._append_jsonl, os.path.join(outside, "x.jsonl"), {}), "_append_jsonl refuses outside the skills root")
+ok(raises(S._read_jsonl, os.path.join(outside, "x.jsonl")), "_read_jsonl: blocked path is an error")
+ok(raises(S._listdir, outside), "_listdir refuses outside the skills root")
+ok(raises(S._remove_file, os.path.join(outside, "x.json")), "_remove_file refuses outside the skills root")
+ok(S._isfile(os.path.join(outside, "x.json")) is False, "_isfile outside root -> False")
+ok(not os.path.exists(os.path.join(outside, "x.json")), "nothing was written outside")
+# symlink inside the skills tree pointing outside must be refused
+link = os.path.join(gd, "evil-link")
+try:
+    os.symlink(outside, link)
+    ok(raises(S._write_json, os.path.join(link, "pwn.json"), {}), "_write_json refuses to follow a symlink out of the root")
+    ok(not os.path.exists(os.path.join(outside, "pwn.json")), "symlink escape wrote nothing")
+    os.remove(link)
+except (OSError, NotImplementedError):
+    print("SKIP symlink test (no symlink privilege)")
+# user-chosen export dir: the pack must land inside THAT dir
+ex2 = tempfile.mkdtemp()
+r = S.export_pack("survival", ex2); ok(r["ok"] and os.path.realpath(r["path"]).startswith(os.path.realpath(ex2)), "export lands inside the chosen directory")
+print("STEP 2 OK")
+
