@@ -344,9 +344,13 @@ def _frontmatter_split(text):
 def render_skill(slug):
     """Regenerate the Learned-patterns block of SKILL.md from pack/patterns.json."""
     slug = _slug(slug)
+    base_dir = os.path.realpath(gdir(slug))
     path = os.path.join(gdir(slug), "SKILL.md")
+    path_real = os.path.realpath(path)
+    if os.path.commonpath([base_dir, path_real]) != base_dir:
+        raise ValueError("resolved skill path escapes genre directory")
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path_real, "r", encoding="utf-8") as f:
             text = f.read()
     except OSError:
         text = "---\ngenre_slug: %s\n---\n\n# Genre Skill: %s\n" % (slug, slug)
@@ -393,9 +397,12 @@ def render_skill(slug):
         else:
             lines.append("%s: %s" % (k, v))
     tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+    tmp_real = os.path.realpath(tmp)
+    if os.path.commonpath([base_dir, tmp_real]) != base_dir:
+        raise ValueError("resolved temp path escapes genre directory")
+    with open(tmp_real, "w", encoding="utf-8", newline="\n") as f:
         f.write("---\n" + "\n".join(lines) + "\n---\n\n" + body.lstrip("\n"))
-    os.replace(tmp, path)
+    os.replace(tmp_real, path_real)
 
 
 # ----------------------------------------------------------------------------- proposals
