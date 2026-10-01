@@ -61,7 +61,7 @@ def genre_root():
 
 
 def _slug(slug):
-    if not isinstance(slug, str) or not SLUG_RE.match(slug):
+    if not isinstance(slug, str) or not SLUG_RE.fullmatch(slug):
         raise ValueError("invalid genre slug: %r" % (slug,))
     return slug
 
@@ -82,45 +82,51 @@ def _today():
     return datetime.date.today().isoformat()
 
 
-def _safe_skills_path(path):
-    root = os.path.realpath(skills_root())
+def _inside(base, path):
+    """Single gate for file access: return the real path of `path` only if it stays inside `base`
+    (symlinks and '..' are resolved first). Raises ValueError otherwise, so a blocked path is a
+    visible error and never looks like a missing file."""
+    root = os.path.realpath(base)
     full = os.path.realpath(path)
-    try:
-        if os.path.commonpath([root, full]) != root:
-            raise ValueError("path outside skills root")
-    except ValueError:
-        raise ValueError("path outside skills root")
+    # realpath + startswith on the separator-terminated root: the check static analyzers recognize,
+    # and it also rejects a sibling such as /skills-evil when the root is /skills.
+    if full != root and not full.startswith(root.rstrip(os.sep) + os.sep):
+        raise ValueError("path outside allowed directory")
     return full
 
 
-def _read_json(path, default):
+def _safe_skills_path(path):
+    return _inside(skills_root(), path)
+
+
+def _read_json(path, default, base=None):
+    full = _inside(base or skills_root(), path)
     try:
-        safe_path = _safe_skills_path(path)
-        with open(safe_path, "r", encoding="utf-8") as f:
+        with open(full, "r", encoding="utf-8") as f:
             return json.load(f)
-    except (OSError, ValueError):
+    except (OSError, ValueError):  # missing or corrupt file -> default
         return default
 
 
-def _write_json(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
+def _write_json(path, obj, base=None):
+    full = _inside(base or skills_root(), path)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    tmp = _inside(os.path.dirname(full), full + ".tmp")
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
         json.dump(obj, f, indent=2, ensure_ascii=False)
         f.write("\n")
-    os.replace(tmp, path)
+    os.replace(tmp, full)
 
 
-def _append_jsonl(path, obj):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "a", encoding="utf-8", newline="\n") as f:
-        f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+def _append_jsonl(path, obj, base=None):
+    _append_text(path, json.dumps(obj, ensure_ascii=False) + "\n", base)
 
 
-def _read_jsonl(path):
+def _read_jsonl(path, base=None):
+    full = _inside(base or skills_root(), path)
     out = []
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(full, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -131,6 +137,83 @@ def _read_jsonl(path):
     except OSError:
         pass
     return out
+
+
+def _append_text(path, text, base=None):
+    full = _inside(base or skills_root(), path)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, "a", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+
+
+def _write_text(path, text, base=None):
+    full = _inside(base or skills_root(), path)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+
+
+def _makedirs(path, base=None):
+    os.makedirs(_inside(base or skills_root(), path), exist_ok=True)
+
+
+def _listdir(path, base=None):
+    return os.listdir(_inside(base or skills_root(), path))
+
+
+def _remove_file(path, base=None):
+    os.remove(_inside(base or skills_root(), path))
+
+
+def _isfile(path, base=None):
+    try:
+        return os.path.isfile(_inside(base or skills_root(), path))
+    except ValueError:
+        return False
+
+
+def _isdir(path, base=None):
+    try:
+        return os.path.isdir(_inside(base or skills_root(), path))
+    except ValueError:
+        return False
+
+
+# Paths the owner types on the command line (a pack file to merge, a folder to export into) are
+# legitimately OUTSIDE the skills root, so they get their own narrow checks instead of _inside().
+_MAX_USER_FILE = 2 * 1024 * 1024
+
+
+def _user_file(path):
+    """An existing .json file chosen by the owner. Returns its real path or raises ValueError."""
+    if not isinstance(path, str) or not path.strip() or "\x00" in path:
+        raise ValueError("pack file path is empty or invalid")
+    full = os.path.realpath(path)
+    if not full.lower().endswith(".json"):
+        raise ValueError("pack file must be a .json file")
+    if not os.path.isfile(full):
+        raise ValueError("pack file not found: %s" % os.path.basename(full))
+    if os.path.getsize(full) > _MAX_USER_FILE:
+        raise ValueError("pack file is too large (limit %d KB)" % (_MAX_USER_FILE // 1024))
+    return full
+
+
+def _read_user_json(path):
+    full = _user_file(path)
+    with open(full, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _user_dir(path):
+    """A directory chosen by the owner to export into (may not exist yet). Returns its real path."""
+    if not isinstance(path, str) or not path.strip() or "\x00" in path:
+        raise ValueError("export folder path is empty or invalid")
+    full = os.path.realpath(path)
+    if os.path.dirname(full) == full:
+        raise ValueError("refusing to export into a filesystem root")
+    if os.path.exists(full) and not os.path.isdir(full):
+        raise ValueError("export path is a file, not a folder")
+    return full
 
 
 # ----------------------------------------------------------------------------- text safety
@@ -228,9 +311,9 @@ def validate_pattern(p, deny_terms=()):
     f = []
     if not isinstance(p, dict):
         return [("pattern", "not_an_object")]
-    if not re.match(r"^p-[0-9a-f]{12}$", str(p.get("id", ""))):
+    if not re.fullmatch(r"p-[0-9a-f]{12}", str(p.get("id", ""))):
         f.append(("id", "bad_format"))
-    if not VARIANT_RE.match(str(p.get("variant", ""))):
+    if not VARIANT_RE.fullmatch(str(p.get("variant", ""))):
         f.append(("variant", "bad_format"))
     for field, limit in (("statement", MAX_STATEMENT), ("condition", MAX_CONDITION), ("action", MAX_ACTION)):
         v = p.get(field)
@@ -261,15 +344,14 @@ def _pack_path(slug):
 def init_genre(slug):
     """Create the pack/ + local/ layers for a genre skill if missing. Idempotent."""
     slug = _slug(slug)
-    os.makedirs(os.path.join(gdir(slug), "pack"), exist_ok=True)
+    _makedirs(os.path.join(gdir(slug), "pack"))
     for sub in ("inbox", "evidence"):
-        os.makedirs(os.path.join(ldir(slug), sub), exist_ok=True)
-    if not os.path.isfile(_pack_path(slug)):
+        _makedirs(os.path.join(ldir(slug), sub))
+    if not _isfile(_pack_path(slug)):
         _write_json(_pack_path(slug), {"schema": SCHEMA, "genre": slug, "revision": 0, "patterns": []})
     skill = os.path.join(gdir(slug), "SKILL.md")
-    if not os.path.isfile(skill):
-        with open(skill, "w", encoding="utf-8", newline="\n") as f:
-            f.write("---\ngenre_slug: %s\nstatus: draft\nlast_updated: %s\n---\n\n# Genre Skill: %s\n\n"
+    if not _isfile(skill):
+        _write_text(skill, "---\ngenre_slug: %s\nstatus: draft\nlast_updated: %s\n---\n\n# Genre Skill: %s\n\n"
                     "Fresh genre skill. Content appears only when you approve lessons learned from real maps.\n"
                     % (slug, _today(), slug))
     render_skill(slug)
@@ -344,11 +426,8 @@ def _frontmatter_split(text):
 def render_skill(slug):
     """Regenerate the Learned-patterns block of SKILL.md from pack/patterns.json."""
     slug = _slug(slug)
-    base_dir = os.path.realpath(gdir(slug))
-    path = os.path.join(gdir(slug), "SKILL.md")
-    path_real = os.path.realpath(path)
-    if os.path.commonpath([base_dir, path_real]) != base_dir:
-        raise ValueError("resolved skill path escapes genre directory")
+    base_dir = gdir(slug)
+    path_real = _inside(base_dir, os.path.join(base_dir, "SKILL.md"))
     try:
         with open(path_real, "r", encoding="utf-8") as f:
             text = f.read()
@@ -396,10 +475,7 @@ def render_skill(slug):
                 break
         else:
             lines.append("%s: %s" % (k, v))
-    tmp = path + ".tmp"
-    tmp_real = os.path.realpath(tmp)
-    if os.path.commonpath([base_dir, tmp_real]) != base_dir:
-        raise ValueError("resolved temp path escapes genre directory")
+    tmp_real = _inside(base_dir, path_real + ".tmp")
     with open(tmp_real, "w", encoding="utf-8", newline="\n") as f:
         f.write("---\n" + "\n".join(lines) + "\n---\n\n" + body.lstrip("\n"))
     os.replace(tmp_real, path_real)
@@ -426,7 +502,7 @@ def propose(slug, variant, condition, action, statement, map_name, stance="for",
         return {"ok": False, "error": "stance must be 'for' or 'against'"}
     if not (map_name or "").strip():
         return {"ok": False, "error": "map_name is required (it stays on this computer)"}
-    if not VARIANT_RE.match(variant or ""):
+    if not VARIANT_RE.fullmatch(variant or ""):
         return {"ok": False, "error": "variant must be a lowercase slug or '*'"}
     pid = pattern_id(variant, condition, action)
     deny = _deny_terms(slug) + [map_name.strip()]
@@ -472,7 +548,7 @@ def propose(slug, variant, condition, action, statement, map_name, stance="for",
             "say": say, "map_name": map_name.strip(), "map_key": mk, "stance": stance,
             "tasks": [str(t) for t in tasks], "note": redact(note or ""), "metric_backed": bool(metric_backed),
             "created": _now()}
-    if os.path.isfile(os.path.join(_inbox_dir(slug), prop["id"] + ".json")):
+    if _isfile(os.path.join(_inbox_dir(slug), prop["id"] + ".json")):
         return {"ok": True, "skipped": "already waiting for your approval", "proposal": prop["id"]}
     _save_proposal(slug, prop)
     return {"ok": True, "proposal": prop["id"], "kind": kind}
@@ -483,8 +559,8 @@ def list_proposals(slug=None):
     out = []
     for s in slugs:
         d = _inbox_dir(s)
-        if os.path.isdir(d):
-            for fn in sorted(os.listdir(d)):
+        if _isdir(d):
+            for fn in sorted(_listdir(d)):
                 if fn.endswith(".json"):
                     p = _read_json(os.path.join(d, fn), None)
                     if isinstance(p, dict) and p.get("id"):
@@ -495,9 +571,7 @@ def list_proposals(slug=None):
 
 def _evidence_note(slug, variant, map_name, text):
     path = os.path.join(ldir(slug), "evidence", "%s.md" % (variant if variant != "*" else "general"))
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "a", encoding="utf-8", newline="\n") as f:
-        f.write("\n## %s — %s\n%s\n" % (map_name, _today(), text))
+    _append_text(path, "\n## %s — %s\n%s\n" % (map_name, _today(), text))
 
 
 def _apply_support(slug, pack, sup, pid, mk, stance, metric_backed=False):
@@ -513,33 +587,36 @@ def _apply_support(slug, pack, sup, pid, mk, stance, metric_backed=False):
 
 
 def _proposal_path(slug, proposal_id):
-    if not re.match(r"^pr-[0-9a-f]{10}$", str(proposal_id)):
-        return None
-    inbox = os.path.realpath(_inbox_dir(slug))
-    ppath = os.path.realpath(os.path.join(inbox, proposal_id + ".json"))
-    if os.path.commonpath([inbox, ppath]) != inbox:
-        return None
-    return ppath
+    """Path of an EXISTING proposal file. The file name comes from the inbox listing, never from the caller."""
+    inbox = _inbox_dir(slug)
+    if _isdir(inbox):
+        for fn in _listdir(inbox):
+            if fn == str(proposal_id) + ".json":
+                try:
+                    return _inside(inbox, os.path.join(inbox, fn))
+                except ValueError:
+                    return None
+    return None
 
 
 def _remove_proposal_file(slug, ppath):
-    inbox = os.path.realpath(_inbox_dir(slug))
-    target = os.path.realpath(ppath)
-    if os.path.commonpath([inbox, target]) != inbox:
-        raise ValueError("unsafe proposal path")
-    if not target.endswith(".json") or not os.path.isfile(target):
+    inbox = _inbox_dir(slug)
+    target = _inside(inbox, ppath)
+    if not target.endswith(".json") or not _isfile(target):
         raise ValueError("invalid proposal file")
-    os.remove(target)
+    _remove_file(target, base=inbox)
 
 
 def act(slug, proposal_id, action, statement=None, exclude=()):
     """Owner decision on one queued proposal: approve | edit | reject."""
-    slug = _slug(slug)
+    slug = resolve_genre(slug)
     if action not in ("approve", "edit", "reject"):
         return {"ok": False, "error": "action must be approve, edit or reject"}
+    if not re.fullmatch(r"pr-[0-9a-f]{10}", str(proposal_id)):
+        return {"ok": False, "error": "bad proposal id"}
     ppath = _proposal_path(slug, proposal_id)
     if not ppath:
-        return {"ok": False, "error": "bad proposal id"}
+        return {"ok": False, "error": "proposal not found (already handled?)"}
     prop = _read_json(ppath, None)
     if not prop:
         return {"ok": False, "error": "proposal not found (already handled?)"}
@@ -605,6 +682,10 @@ def export_pack(slug, out_dir):
     chk = check(slug)
     if not chk["ok"]:
         return {"ok": False, "error": "privacy check failed — nothing exported", "findings": chk["findings"]}
+    try:
+        out_root = _user_dir(out_dir)
+    except ValueError as e:
+        return {"ok": False, "error": str(e)}
     pack = load_pack(slug)
     items = []
     for p in pack["patterns"]:
@@ -615,8 +696,8 @@ def export_pack(slug, out_dir):
         items.append(item)
     out = {"schema": SCHEMA, "genre": slug, "pack_version": int(pack.get("revision", 0)),
            "exported_at": _now(), "patterns": items}
-    path = os.path.join(out_dir, slug, "patterns.json")
-    _write_json(path, out)
+    path = os.path.join(out_root, slug, "patterns.json")
+    _write_json(path, out, base=out_root)
     return {"ok": True, "path": path, "patterns": len(items)}
 
 
@@ -727,7 +808,7 @@ def _apply_pack_update(slug, pack, sup, prop, exclude):
 # ----------------------------------------------------------------------------- privacy check
 def check(slug=None):
     """Privacy/format check run before anything is exported. Writes local/export_check.json."""
-    slugs = [_slug(slug)] if slug else _genres()
+    slugs = [resolve_genre(slug)] if slug else _genres()
     findings = []
     for s in slugs:
         deny = _deny_terms(s)
@@ -739,7 +820,7 @@ def check(slug=None):
                 findings.append({"genre": s, "pattern": p.get("id"), "field": field, "reason": reason})
         result = {"ts": _now(), "ok": not [f for f in findings if f["genre"] == s],
                   "findings": len([f for f in findings if f["genre"] == s])}
-        if os.path.isdir(ldir(s)):
+        if _isdir(ldir(s)):
             _write_json(os.path.join(ldir(s), "export_check.json"), result)
     return {"ok": not findings, "ts": _now(), "findings": findings}
 
@@ -748,7 +829,7 @@ def check(slug=None):
 def consult(slug):
     """Record that the coder read this genre skill (called by a PreToolUse Read hook)."""
     slug = _slug(slug)
-    if not os.path.isdir(ldir(slug)):
+    if not _isdir(ldir(slug)):
         return {"ok": False, "error": "genre not initialised"}
     p = os.path.join(ldir(slug), "usage.json")
     u = _read_json(p, {"total": 0, "days": []})
@@ -765,18 +846,28 @@ def consult_from_path(file_path):
     except ValueError:
         return {"ok": False}
     parts = rel.replace("\\", "/").split("/")
-    if len(parts) >= 2 and parts[0] != ".." and SLUG_RE.match(parts[0]) and "local" not in parts[1:2]:
+    if len(parts) >= 2 and parts[0] != ".." and SLUG_RE.fullmatch(parts[0]) and "local" not in parts[1:2]:
         return consult(parts[0])
     return {"ok": False}
 
 
 # ----------------------------------------------------------------------------- summary (server)
+def resolve_genre(value):
+    """Map a requested genre onto an EXISTING genre directory. The returned name is taken from the
+    filesystem listing, never from the caller's string, so request data cannot steer a file path."""
+    if isinstance(value, str):
+        for g in _genres():
+            if g == value:
+                return g
+    raise ValueError("unknown genre")
+
+
 def _genres():
     root = genre_root()
-    if not os.path.isdir(root):
+    if not _isdir(root):
         return []
-    return sorted(d for d in os.listdir(root)
-                  if SLUG_RE.match(d) and os.path.isdir(os.path.join(root, d)))
+    return sorted(d for d in _listdir(root)
+                  if SLUG_RE.fullmatch(d) and _isdir(os.path.join(root, d)))
 
 
 def summary():
@@ -828,7 +919,7 @@ def summary():
     totals["maps"] = len(all_maps)
     community = sum(1 for p in pending if p["kind"] == "pack_update")
     oldest = min((p["created"] for p in pending), default=None)
-    return {"root": genre_root(), "root_exists": os.path.isdir(genre_root()), "genres": genres, "totals": totals,
+    return {"root": genre_root(), "root_exists": _isdir(genre_root()), "genres": genres, "totals": totals,
             "pending": pending, "pending_lessons": len(pending) - community, "pending_packs": community,
             "oldest_pending": oldest, "variants": len(variants_seen), "last_learned": last_learned,
             "usage_week": [week[d] for d in days], "usage_week_total": sum(week.values()),
@@ -874,8 +965,7 @@ def _cli(argv=None):
         elif a.cmd == "export":
             r = export_pack(a.genre, a.out_dir)
         elif a.cmd == "merge":
-            with open(a.pack_file, "r", encoding="utf-8") as f:
-                obj = json.load(f)
+            obj = _read_user_json(a.pack_file)
             r = merge_pack(a.genre, obj, a.source or os.path.basename(os.path.dirname(os.path.abspath(a.pack_file))))
         elif a.cmd == "consult":
             r = consult(a.genre)
