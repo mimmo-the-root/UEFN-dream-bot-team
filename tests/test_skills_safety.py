@@ -153,3 +153,16 @@ ok(raises(S._inside, sib_base, os.path.join(sib, "x.json")), "_inside rejects a 
 ok(S._inside(sib_base, sib_base) == os.path.realpath(sib_base), "_inside accepts the base directory itself")
 ok(S._inside(sib_base, os.path.join(sib_base, "a", "b.json")).endswith("b.json"), "_inside accepts a nested path")
 print("STEP 6 OK")
+
+# --- step 7: entry points (HTTP/CLI) resolve genre and proposal against what EXISTS on disk ---
+ok(S.resolve_genre("survival") == "survival", "resolve_genre returns an existing genre")
+for bad in ["nope", "../x", "survival\n", "", None, "SURVIVAL", "survival/../survival"]:
+    ok(raises(S.resolve_genre, bad), "resolve_genre rejects %r" % (bad,))
+ok(raises(S.act, "../../etc", "pr-0123456789", "reject"), "act on a hostile genre raises ValueError")
+ok(raises(S.act, "nope", "pr-0123456789", "reject"), "act on an unknown genre raises ValueError")
+ok(raises(S.check, "nope"), "check on an unknown genre raises ValueError")
+ok(S.check("survival")["ok"] is True, "check on an existing genre works")
+r = S.act("survival", "pr-0123456789", "reject"); ok(r.get("ok") is False and "not found" in r.get("error", ""), "well-formed but absent proposal -> 'not found'")
+ok(S.init_genre("brand-new").get("ok", True) is not False and os.path.isdir(S.gdir("brand-new")), "a NEW genre can still be created with init_genre")
+ok(S.resolve_genre("brand-new") == "brand-new", "the new genre is then resolvable")
+print("STEP 7 OK")

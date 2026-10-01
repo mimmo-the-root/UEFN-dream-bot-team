@@ -587,12 +587,16 @@ def _apply_support(slug, pack, sup, pid, mk, stance, metric_backed=False):
 
 
 def _proposal_path(slug, proposal_id):
-    if not re.fullmatch(r"pr-[0-9a-f]{10}", str(proposal_id)):
-        return None
-    try:
-        return _inside(_inbox_dir(slug), os.path.join(_inbox_dir(slug), proposal_id + ".json"))
-    except ValueError:
-        return None
+    """Path of an EXISTING proposal file. The file name comes from the inbox listing, never from the caller."""
+    inbox = _inbox_dir(slug)
+    if _isdir(inbox):
+        for fn in _listdir(inbox):
+            if fn == str(proposal_id) + ".json":
+                try:
+                    return _inside(inbox, os.path.join(inbox, fn))
+                except ValueError:
+                    return None
+    return None
 
 
 def _remove_proposal_file(slug, ppath):
@@ -605,12 +609,14 @@ def _remove_proposal_file(slug, ppath):
 
 def act(slug, proposal_id, action, statement=None, exclude=()):
     """Owner decision on one queued proposal: approve | edit | reject."""
-    slug = _slug(slug)
+    slug = resolve_genre(slug)
     if action not in ("approve", "edit", "reject"):
         return {"ok": False, "error": "action must be approve, edit or reject"}
+    if not re.fullmatch(r"pr-[0-9a-f]{10}", str(proposal_id)):
+        return {"ok": False, "error": "bad proposal id"}
     ppath = _proposal_path(slug, proposal_id)
     if not ppath:
-        return {"ok": False, "error": "bad proposal id"}
+        return {"ok": False, "error": "proposal not found (already handled?)"}
     prop = _read_json(ppath, None)
     if not prop:
         return {"ok": False, "error": "proposal not found (already handled?)"}
@@ -802,7 +808,7 @@ def _apply_pack_update(slug, pack, sup, prop, exclude):
 # ----------------------------------------------------------------------------- privacy check
 def check(slug=None):
     """Privacy/format check run before anything is exported. Writes local/export_check.json."""
-    slugs = [_slug(slug)] if slug else _genres()
+    slugs = [resolve_genre(slug)] if slug else _genres()
     findings = []
     for s in slugs:
         deny = _deny_terms(s)
@@ -846,6 +852,16 @@ def consult_from_path(file_path):
 
 
 # ----------------------------------------------------------------------------- summary (server)
+def resolve_genre(value):
+    """Map a requested genre onto an EXISTING genre directory. The returned name is taken from the
+    filesystem listing, never from the caller's string, so request data cannot steer a file path."""
+    if isinstance(value, str):
+        for g in _genres():
+            if g == value:
+                return g
+    raise ValueError("unknown genre")
+
+
 def _genres():
     root = genre_root()
     if not _isdir(root):
