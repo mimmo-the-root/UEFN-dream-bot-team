@@ -101,3 +101,22 @@ ex2 = tempfile.mkdtemp()
 r = S.export_pack("survival", ex2); ok(r["ok"] and os.path.realpath(r["path"]).startswith(os.path.realpath(ex2)), "export lands inside the chosen directory")
 print("STEP 2 OK")
 
+# --- step 3: user-chosen paths (pack file to merge, directory to export into) ---
+ud = tempfile.mkdtemp()
+good = os.path.join(ud, "pack.json"); open(good, "w").write(json.dumps({"patterns": []}))
+txt = os.path.join(ud, "pack.txt"); open(txt, "w").write("{}")
+bad_json = os.path.join(ud, "broken.json"); open(bad_json, "w").write("{not json")
+big = os.path.join(ud, "big.json"); open(big, "w").write(" " * (S._MAX_USER_FILE + 1))
+ok(S._user_file(good) == os.path.realpath(good), "_user_file accepts an existing .json file anywhere")
+for label, bad in [("missing file", os.path.join(ud, "nope.json")), ("a directory", ud), ("wrong extension", txt),
+                   ("too large", big), ("empty string", ""), ("None", None), ("NUL byte", good + "\x00.json")]:
+    ok(raises(S._user_file, bad), "_user_file rejects %s" % label)
+ok(S._user_dir(ud) == os.path.realpath(ud), "_user_dir accepts a directory")
+ok(S._user_dir(os.path.join(ud, "new", "sub")).endswith("sub"), "_user_dir accepts a directory that does not exist yet")
+for label, bad in [("a file", good), ("empty string", ""), ("None", None), ("filesystem root", os.path.abspath(os.sep))]:
+    ok(raises(S._user_dir, bad), "_user_dir rejects %s" % label)
+r = S.export_pack("survival", good); ok(r["ok"] is False and r.get("error"), "export_pack into a file path -> readable error, no exception")
+for label, f in [("missing", os.path.join(ud, "nope.json")), ("wrong extension", txt), ("broken json", bad_json), ("too large", big)]:
+    rc, out, raw = cli("merge", "survival", f); ok(rc == 1 and out and out.get("ok") is False and out.get("error"), "cli merge %s -> exit 1 + error" % label)
+rc, out, _ = cli("merge", "survival", pack); ok(rc == 0 and out and out.get("ok"), "cli merge of a valid external pack still works")
+print("STEP 3 OK")

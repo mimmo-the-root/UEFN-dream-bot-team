@@ -181,6 +181,43 @@ def _isdir(path, base=None):
         return False
 
 
+# Paths the owner types on the command line (a pack file to merge, a folder to export into) are
+# legitimately OUTSIDE the skills root, so they get their own narrow checks instead of _inside().
+_MAX_USER_FILE = 2 * 1024 * 1024
+
+
+def _user_file(path):
+    """An existing .json file chosen by the owner. Returns its real path or raises ValueError."""
+    if not isinstance(path, str) or not path.strip() or "\x00" in path:
+        raise ValueError("pack file path is empty or invalid")
+    full = os.path.realpath(path)
+    if not full.lower().endswith(".json"):
+        raise ValueError("pack file must be a .json file")
+    if not os.path.isfile(full):
+        raise ValueError("pack file not found: %s" % os.path.basename(full))
+    if os.path.getsize(full) > _MAX_USER_FILE:
+        raise ValueError("pack file is too large (limit %d KB)" % (_MAX_USER_FILE // 1024))
+    return full
+
+
+def _read_user_json(path):
+    full = _user_file(path)
+    with open(full, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _user_dir(path):
+    """A directory chosen by the owner to export into (may not exist yet). Returns its real path."""
+    if not isinstance(path, str) or not path.strip() or "\x00" in path:
+        raise ValueError("export folder path is empty or invalid")
+    full = os.path.realpath(path)
+    if os.path.dirname(full) == full:
+        raise ValueError("refusing to export into a filesystem root")
+    if os.path.exists(full) and not os.path.isdir(full):
+        raise ValueError("export path is a file, not a folder")
+    return full
+
+
 # ----------------------------------------------------------------------------- text safety
 # Secret / PII rules adapted from autoharness redaction_rules.toml (MIT). Over-redaction is fine.
 _SECRET_RULES = [
@@ -641,6 +678,10 @@ def export_pack(slug, out_dir):
     chk = check(slug)
     if not chk["ok"]:
         return {"ok": False, "error": "privacy check failed — nothing exported", "findings": chk["findings"]}
+    try:
+        out_root = _user_dir(out_dir)
+    except ValueError as e:
+        return {"ok": False, "error": str(e)}
     pack = load_pack(slug)
     items = []
     for p in pack["patterns"]:
@@ -651,8 +692,8 @@ def export_pack(slug, out_dir):
         items.append(item)
     out = {"schema": SCHEMA, "genre": slug, "pack_version": int(pack.get("revision", 0)),
            "exported_at": _now(), "patterns": items}
-    path = os.path.join(out_dir, slug, "patterns.json")
-    _write_json(path, out, base=out_dir)
+    path = os.path.join(out_root, slug, "patterns.json")
+    _write_json(path, out, base=out_root)
     return {"ok": True, "path": path, "patterns": len(items)}
 
 
@@ -910,8 +951,7 @@ def _cli(argv=None):
         elif a.cmd == "export":
             r = export_pack(a.genre, a.out_dir)
         elif a.cmd == "merge":
-            with open(a.pack_file, "r", encoding="utf-8") as f:
-                obj = json.load(f)
+            obj = _read_user_json(a.pack_file)
             r = merge_pack(a.genre, obj, a.source or os.path.basename(os.path.dirname(os.path.abspath(a.pack_file))))
         elif a.cmd == "consult":
             r = consult(a.genre)
