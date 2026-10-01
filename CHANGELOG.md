@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.85.0 — Security hardening of the Skills library (CodeQL alerts: 18 → 0)
+
+- **Hardened:** every file access in `skills_lib.py` goes through one gate (`_inside`), which resolves `..` and symlinks and refuses anything outside the allowed folder. A blocked path is now a visible error instead of a silent "file not found".
+- **Hardened:** the Skills page endpoints (`/skills-act`, `/skills-check`) resolve the genre and the proposal id against what actually exists on disk (`resolve_genre`, inbox listing) instead of using the text sent by the browser. An unknown genre now returns HTTP 400.
+- **Hardened:** paths the owner types on the command line (`merge` pack file, `export` folder) get their own checks: an existing `.json` file under 2 MB, a folder that is not a file or a filesystem root. Export still works to any folder you choose.
+- **Fixed:** slugs, variants and ids with a trailing newline (`survival\n`, `pr-0123456789\n`) were accepted because the validation regexes used `$`; they now use `fullmatch`.
+- **Tests:** new `tests/test_skills_safety.py` (CLI output shapes, export/merge to external paths, hostile ids and slugs, symlink escapes). Run both `tests/test_skills_lib.py` and `tests/test_skills_safety.py`.
+- **Repository:** added `SECURITY.md`, issue forms, a pull-request template, `CODEOWNERS`, `CODE_OF_CONDUCT.md` and `CONTRIBUTING.md` (GitHub community profile), and `docs/code-scanning-lessons.md` with the lessons and a checklist for reviewing Copilot Autofix pull requests.
+- Includes the changes of v1.84.1 – v1.84.3 below.
+
 ## v1.84.3 — Roadmap progress ignores out-of-scope tasks
 
 - Fixed: the Docs page progress ring counted "Out of scope" rows in the total (82 Done + 4 To do + 10 Out of scope showed 82 of 96, 85%). Out-of-scope means discarded, so it is now 82 of 86 (95%), with a note of how many were left out.
