@@ -120,3 +120,29 @@ for label, f in [("missing", os.path.join(ud, "nope.json")), ("wrong extension",
     rc, out, raw = cli("merge", "survival", f); ok(rc == 1 and out and out.get("ok") is False and out.get("error"), "cli merge %s -> exit 1 + error" % label)
 rc, out, _ = cli("merge", "survival", pack); ok(rc == 0 and out and out.get("ok"), "cli merge of a valid external pack still works")
 print("STEP 3 OK")
+
+# --- step 4: validation regexes must not accept a trailing newline ---
+ok(raises(S._slug, "survival\n"), "slug with trailing newline rejected")
+r = S.act("survival", "pr-0123456789\n", "reject"); ok(r.get("ok") is False and "bad proposal id" in r.get("error", ""), "proposal id with trailing newline rejected")
+r = S.propose("survival", map_name="Map Nl", variant="loop-100\n", condition="the first wave starts early", action="give a weapon pickup",
+              statement="A short safe start helps players who join late."); ok(r.get("ok") is False, "variant with trailing newline rejected")
+inc2 = {"schema": S.SCHEMA, "genre": "survival", "patterns": [dict(id="p-aaaaaaaaaaaa\n", variant="x", statement="A calm opening helps new players.",
+        condition="a calm opening", action="slow the first wave", tier="hypothesis", status="active", support=1)]}
+r = S.merge_pack("survival", inc2, "nl-test"); rj = r.get("rejected"); nrej = rj if isinstance(rj, int) else len(rj or [])
+ok(nrej == 1 and r.get("new", 0) == 0, "pattern id with trailing newline rejected in a merged pack: %s" % r)
+ok(S.consult_from_path(os.path.join(S.genre_root(), "survival\n", "SKILL.md")).get("ok") is False, "consult ignores a slug with trailing newline")
+print("STEP 4 OK")
+
+# --- step 5: a proposal file that is a symlink out of the inbox is refused visibly, outside file untouched ---
+victim = os.path.join(outside, "victim.json"); open(victim, "w").write("{}")
+ibx = S._inbox_dir("survival"); os.makedirs(ibx, exist_ok=True)
+evil = os.path.join(ibx, "pr-aaaaaaaaaa.json")
+try:
+    os.symlink(victim, evil)
+    r = S.act("survival", "pr-aaaaaaaaaa", "reject")
+    ok(r.get("ok") is False and r.get("error"), "act refuses a symlinked proposal with a visible error")
+    ok(os.path.exists(victim), "the file outside the inbox was not deleted")
+    os.remove(evil)
+except (OSError, NotImplementedError):
+    print("SKIP symlink proposal test (no symlink privilege)")
+print("STEP 5 OK")

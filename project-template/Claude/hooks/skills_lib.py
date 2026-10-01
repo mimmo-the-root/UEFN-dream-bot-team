@@ -61,7 +61,7 @@ def genre_root():
 
 
 def _slug(slug):
-    if not isinstance(slug, str) or not SLUG_RE.match(slug):
+    if not isinstance(slug, str) or not SLUG_RE.fullmatch(slug):
         raise ValueError("invalid genre slug: %r" % (slug,))
     return slug
 
@@ -313,9 +313,9 @@ def validate_pattern(p, deny_terms=()):
     f = []
     if not isinstance(p, dict):
         return [("pattern", "not_an_object")]
-    if not re.match(r"^p-[0-9a-f]{12}$", str(p.get("id", ""))):
+    if not re.fullmatch(r"p-[0-9a-f]{12}", str(p.get("id", ""))):
         f.append(("id", "bad_format"))
-    if not VARIANT_RE.match(str(p.get("variant", ""))):
+    if not VARIANT_RE.fullmatch(str(p.get("variant", ""))):
         f.append(("variant", "bad_format"))
     for field, limit in (("statement", MAX_STATEMENT), ("condition", MAX_CONDITION), ("action", MAX_ACTION)):
         v = p.get(field)
@@ -504,7 +504,7 @@ def propose(slug, variant, condition, action, statement, map_name, stance="for",
         return {"ok": False, "error": "stance must be 'for' or 'against'"}
     if not (map_name or "").strip():
         return {"ok": False, "error": "map_name is required (it stays on this computer)"}
-    if not VARIANT_RE.match(variant or ""):
+    if not VARIANT_RE.fullmatch(variant or ""):
         return {"ok": False, "error": "variant must be a lowercase slug or '*'"}
     pid = pattern_id(variant, condition, action)
     deny = _deny_terms(slug) + [map_name.strip()]
@@ -589,7 +589,7 @@ def _apply_support(slug, pack, sup, pid, mk, stance, metric_backed=False):
 
 
 def _proposal_path(slug, proposal_id):
-    if not re.match(r"^pr-[0-9a-f]{10}$", str(proposal_id)):
+    if not re.fullmatch(r"pr-[0-9a-f]{10}", str(proposal_id)):
         return None
     try:
         return _inside(_inbox_dir(slug), os.path.join(_inbox_dir(slug), proposal_id + ".json"))
@@ -842,7 +842,7 @@ def consult_from_path(file_path):
     except ValueError:
         return {"ok": False}
     parts = rel.replace("\\", "/").split("/")
-    if len(parts) >= 2 and parts[0] != ".." and SLUG_RE.match(parts[0]) and "local" not in parts[1:2]:
+    if len(parts) >= 2 and parts[0] != ".." and SLUG_RE.fullmatch(parts[0]) and "local" not in parts[1:2]:
         return consult(parts[0])
     return {"ok": False}
 
@@ -853,7 +853,7 @@ def _genres():
     if not _isdir(root):
         return []
     return sorted(d for d in _listdir(root)
-                  if SLUG_RE.match(d) and _isdir(os.path.join(root, d)))
+                  if SLUG_RE.fullmatch(d) and _isdir(os.path.join(root, d)))
 
 
 def summary():
