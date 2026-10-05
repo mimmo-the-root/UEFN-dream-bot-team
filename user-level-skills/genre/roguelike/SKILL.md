@@ -28,6 +28,10 @@ the maps the owner actually builds, one map at a time — no need to wait for 3 
   part that can be shared or merged from the community. Do not edit the block below by hand
   (`python Claude/hooks/skills_lib.py ...` regenerates it).
 
+## Starting a new project of this genre
+
+Read `references/starter.md` (structure and questions only, no pre-written rules), then the learned patterns below.
+
 ## Known variants (prototype placeholders — rename or drop as soon as real maps show otherwise)
 
 **run-based-solo** (attempt-based runs, one player), **run-based-coop** (shared run in co-op),

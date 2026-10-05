@@ -477,8 +477,8 @@ def _run(project, out):
                                     % (out.get("version") or "?", "current" if os.path.isfile(os.path.join(mdir, "meta.json")) else "not needed (5 Verse files or fewer)",
                                        (", %d card(s) to learn" % pend) if pend else ", nothing to learn"))
             if pend:
-                out["notes"].append("LEARN: %d Verse map card(s) not learned yet%s. Follow planner-docs step 4b: `python Claude/hooks/verse_map.py learn`, "
-                                    "read only those cards, queue proposals for the owner's approval, then `verse_map.py learned`."
+                out["notes"].append("LEARN: %d Verse map card(s) not learned yet%s. Follow `.claude/commands/learn-map.md` (planner-docs step 4b): "
+                                    "`verse_map.py learn` in batches, queue proposals for the owner's approval, `verse_map.py learned`, repeat."
                                     % (pend, " (first pass: whole map)" if lr[0] else ""))
     except Exception:
         pass

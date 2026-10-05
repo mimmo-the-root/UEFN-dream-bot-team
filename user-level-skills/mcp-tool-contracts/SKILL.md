@@ -37,6 +37,12 @@ probably has a different project open. Every agent that touches MCP before writi
 anything runs this check first (`coder`, `qa-regression` before a play-session, `project-bootstrap`
 during initial analysis).
 
+## Contract: detecting MCP mode (before reading or changing anything in the level)
+
+**Modes:** `live` = the UEFN MCP answers (`ValkyrieToolset.VerseToolset.ListFiles` works and matches the project identity, see above). `offline` = no MCP tools, or the check fails.
+
+**Procedure:** run the project-identity check once per session. In `live` mode you may read devices and wiring in the level (read-only unless the task is a change). In `offline` mode work from the Verse map and the code only, and name in the report exactly which devices, settings and wiring were not inspected. Never skip the level silently and never guess device settings.
+
 ## Adding a new contract
 
 When a new MCP-tool gotcha gets discovered (a tool that seems right by name but doesn't do what's

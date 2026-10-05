@@ -6,8 +6,8 @@ Zero AI tokens. Reads the .verse files only; writes ONLY to --out (default <proj
   python verse_map.py check [--project DIR] [--out DIR]    which files changed since the map was built (hash)
   python verse_map.py symbol NAME [--out DIR]              where a symbol is defined (file:line), nothing else
   python verse_map.py role FILE "TEXT" [--out DIR]         set a file's one-line role (kept across rebuilds in roles.tsv)
-  python verse_map.py learn [--out DIR]                    cards the learning step has not read yet (all of them the first time)
-  python verse_map.py learned [--out DIR]                  mark the current cards as learned (after proposals were queued)
+  python verse_map.py learn [--batch N] [--full] [--out DIR]  next N unread cards (default 12, signal-only view; --full = whole cards), never truncated
+  python verse_map.py learned [--all] [--out DIR]          mark the cards of the last batch as learned (--all: every card)
 Facts only: role comes from the file's "# Summary:" header, everything else from the code. Anything the code cannot
 tell (level-placed device config and wiring) is NOT guessed here; it stays [I]/unknown for the coder's MCP tools.
 Output: INDEX.md (read first, small), WIRING.md, symbols.tsv, cards/<file>.md, meta.json.
@@ -250,26 +250,61 @@ def learn_pending(outdir):
     return (not os.path.isfile(lp), [f for f, v in cur.items() if seen.get(f) != v["sha"]], len(cur))
 
 
-def cmd_learn(outdir):
-    """Which cards has the learning step not seen yet? (zero tokens; the agent then reads only those cards)"""
+def _card_path(outdir, f):
+    return os.path.join(outdir, "cards", f.replace("/", "__")[:-6] + ".md")
+
+
+def _brief(text):
+    """Signal-only view of a card: header, role, links, type headings, subscriptions, persistent state, pitfall comments."""
+    keep, mode = [], None
+    for line in text.splitlines():
+        if line.startswith("## "):
+            mode = "full" if any(k in line for k in ("Pitfall", "Per-player", "Subscriptions")) else None
+            keep.append(line) if (mode or line[3:].split(" ")[0] in ("class", "struct", "enum", "interface", "module")) else None
+            continue
+        if mode == "full" and line.strip():
+            keep.append(line)
+        elif line.startswith(("# ", "role:", "uses (files)", "used by", "note:", "events declared")):
+            keep.append(line)
+    return "\n".join(keep)
+
+
+def cmd_learn(outdir, batch=12, full=False):
+    """Print the next batch of cards the learning step has not read (complete, never truncated); remember the batch."""
     r = learn_pending(outdir)
     if r is None:
         print("no map yet: run build"); return
     first, todo, total = r
-    print("learning: %s, %d of %d cards to read" % ("FIRST PASS (whole map)" if first else "incremental", len(todo), total))
-    for f in todo[:60]:
-        print("  cards/" + f.replace("/", "__")[:-6] + ".md")
+    print("learning: %s, %d of %d cards to read; this batch: %d" % ("FIRST PASS (whole map)" if first else "incremental", len(todo), total, min(batch, len(todo))))
+    part = todo[:batch]
+    json.dump({"files": part}, open(os.path.join(outdir, "learn-batch.json"), "w"))
+    for f in part:
+        cp = _card_path(outdir, f)
+        text = open(cp, encoding="utf-8").read() if os.path.isfile(cp) else "# %s\n(no card)" % f
+        print("\n=== %s ===\n%s" % (f, text if full else _brief(text)))
+    if len(todo) > len(part):
+        print("\n[%d more after this batch: queue proposals, run `learned`, then `learn` again]" % (len(todo) - len(part)))
+    elif part:
+        print("\n[last batch: queue proposals, then run `learned`]")
 
 
-def cmd_learned(outdir):
-    """Mark every current card as learned (call after the proposals were queued)."""
+def cmd_learned(outdir, all_cards=False):
+    """Mark as learned the cards of the last printed batch (or every card with --all)."""
     mp = os.path.join(outdir, "meta.json")
     if not os.path.isfile(mp):
         print("no map yet: run build"); return
     cur = json.load(open(mp))["files"]
-    json.dump({"at": time.strftime("%Y-%m-%d %H:%M"), "files": {f: v["sha"] for f, v in cur.items()}},
-              open(os.path.join(outdir, "learned.json"), "w"), indent=0)
-    print("learned.json updated: %d cards marked as learned" % len(cur))
+    lp = os.path.join(outdir, "learned.json")
+    seen = json.load(open(lp)).get("files", {}) if os.path.isfile(lp) else {}
+    bp = os.path.join(outdir, "learn-batch.json")
+    batch = list(cur) if all_cards else (json.load(open(bp)).get("files", []) if os.path.isfile(bp) else [])
+    for f in batch:
+        if f in cur:
+            seen[f] = cur[f]["sha"]
+    json.dump({"at": time.strftime("%Y-%m-%d %H:%M"), "files": seen}, open(lp, "w"), indent=0)
+    if os.path.isfile(bp):
+        os.remove(bp)
+    print("learned.json updated: %d card(s) marked, %d of %d learned in total" % (len(batch), len([f for f in cur if seen.get(f) == cur[f]["sha"]]), len(cur)))
 
 
 def main():
@@ -284,9 +319,10 @@ def main():
     elif a[0] == "check":
         cmd_check(project, outdir)
     elif a[0] == "learn":
-        cmd_learn(outdir)
+        n = opt("--batch", "12")
+        cmd_learn(outdir, int(n) if n.isdigit() else 12, "--full" in a)
     elif a[0] == "learned":
-        cmd_learned(outdir)
+        cmd_learned(outdir, "--all" in a)
     elif a[0] == "role":
         cmd_role(outdir, a[1], a[2]) if len(a) > 2 else print('usage: role FILE "TEXT"')
     else:

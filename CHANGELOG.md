@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.96.0 — Learning without truncation, MCP detection, roguelike starter skeleton (plan P1-R1)
+
+Includes the unreleased 1.95.0 and 1.95.1 entries below.
+
+- **Fix:** `verse_map.py learn` now prints the next batch of unread cards complete (default 12, signal-only view: roles, links, subscriptions, per-player state, pitfall comments; `--full` for whole cards) and `learned` marks only the cards of the last batch (`--all` for every card). Before, a long output could be cut and every card was still marked as learned.
+- `/learn-map` and planner-docs step 4b loop batch by batch until nothing is left, and explicitly handle the devices in the level.
+- **mcp-tool-contracts:** new contract "Detecting MCP mode" (`live` or `offline`): in `offline` the report names the devices and wiring not inspected; nothing is skipped silently or guessed.
+- **Roguelike:** `references/starter.md`, a structure-only skeleton for a new project (run loop, architecture, devices, progression, strategies around death and progress, persistence, performance, launch checklist). It contains no pre-written rules; strategies are learned as patterns.
+
 ## v1.95.1 — `/learn-map`: force the learning step
 
 - **New:** `/learn-map` runs the learning step now (planner-docs step 4b): reads the cards not learned yet (the whole map the first time, afterwards only changed files), queues skill proposals for approval on the Skills page, then marks them learned. Delivered to projects by `kit_sync`.
