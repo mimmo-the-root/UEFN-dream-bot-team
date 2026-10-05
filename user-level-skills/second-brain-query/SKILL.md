@@ -24,3 +24,6 @@ task needs. Ask narrowly.
   pattern doesn't exist yet.
 - **Never ask it to summarize the whole vault** or a whole thematic wiki "just in case" — that's
   exactly the kind of broad request this skill exists to avoid.
+
+## Names and free checks
+The vault may mix English and Italian names. `names.json` (next to this file) maps each canonical English name to the Italian ones; `scripts/vault_check.py names|links|stats` checks the vault at no AI cost.

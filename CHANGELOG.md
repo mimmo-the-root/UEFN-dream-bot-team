@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.91.0 — Second brain: mixed-language vaults and free checks (plan P0-R2)
+
+- **Decision:** existing vaults are NOT migrated. A vault may mix English and Italian names (pages are copied from the web in both languages). The kit writes new notes in English and resolves names through a table.
+- **New:** `second-brain-query/names.json` (canonical English name -> Italian synonyms for folders, index files, frontmatter fields and section titles) and `second-brain-query/scripts/vault_check.py names|links|stats`: read-only, no AI tokens. `names` warns when an English twin of an Italian folder exists, `links` finds broken `[[wikilinks]]`, `stats` counts articles and gaps.
+- **Changed:** `second-brain-librarian` uses the vault's existing names and never creates the English twin of an existing Italian folder or index.
+- Test: `test_vault_check.py`.
+
 ## v1.90.0 — /kit-update --fetch and restore points (plan P0-R1)
 
 - **New:** `/kit-update --fetch` (`Claude/hooks/kit_fetch.py`): downloads the latest GitHub release (HTTPS to api.github.com only, zip paths checked, 60 MB cap, only the kit, agents and skills folders), updates `~/.claude/kit-template`, `agents` and `skills` (never `local/` or `pack/`, never `CLAUDE.md`), copies every replaced file to `~/.claude/kit-backup/<time>/`, then syncs the project. `--check` only compares versions; `--zip FILE` uses a downloaded release.

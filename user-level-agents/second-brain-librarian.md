@@ -34,6 +34,7 @@ Read `~/.claude/CLAUDE.md`, rule 11 ("Second brain (Obsidian) integration"), for
   `compile`/query/audit workflows, the update-in-place rule for device/mechanic articles. The
   owner may have customized it since this kit shipped its template: follow what it says, not
   your assumptions about what it probably says.
+- **Names may be English or Italian** (a real vault mixes them, e.g. `meccaniche/` and `indice_wiki.md`). Resolve folders, index files, frontmatter fields and section titles with `~/.claude/skills/second-brain-query/names.json`. Use the name the vault already has; never create the English twin of an existing Italian folder or index. Write new notes in English. Cheap checks without AI: `python ~/.claude/skills/second-brain-query/scripts/vault_check.py names|links|stats`.
 
 ## Three ways you get used
 
