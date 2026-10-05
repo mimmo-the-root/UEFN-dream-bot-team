@@ -29,11 +29,12 @@ Read `~/.claude/CLAUDE.md`, rule 11 ("Second brain (Obsidian) integration"), for
   find: say what you looked for and what you found instead, verbatim, rather than a generic
   "missing." Don't fail loudly if you're being invoked as a side-effect of UEFN work (see "Sync
   mode" below) — a one-line note is enough, this is an optional feature.
-- Otherwise, read `<SECOND_BRAIN_PATH>/CLAUDE.md` in full. That file is the authority on this
+- Otherwise, read `<SECOND_BRAIN_PATH>/CLAUDE.md` BY SECTION, not in full (it is ~6.6k tokens; a query needs ~0.3k): run `python ~/.claude/skills/second-brain-query/scripts/vault_check.py sections`, then `... section "<heading text>"` for only what this task needs (query: `Workflow: Query` + `Anti-duplication`; compile: `Workflow: Compile` + `Editorial conventions` + `Tracking the latest`; audit: `Workflow: Audit`; evolve: `Emergent synthesis` + `Workflow: Evolve`). Read the whole file only if a section is missing or the task is unclear. That file is the authority on this
   vault's actual conventions — folder naming, article structure, frontmatter fields, the
   `compile`/query/audit workflows, the update-in-place rule for device/mechanic articles. The
   owner may have customized it since this kit shipped its template: follow what it says, not
   your assumptions about what it probably says.
+- **Before creating any article, search by concept, not only by title**: run `vault_check.py dups` and grep the new topic's name, its Verse identifiers and its aliases (both languages) in `wiki/`. If an article for the same device or mechanic exists, update it (and add the new name to its `aliases`) instead of creating a second one.
 - **Names may be English or Italian** (a real vault mixes them, e.g. `meccaniche/` and `indice_wiki.md`). Resolve folders, index files, frontmatter fields and section titles with `~/.claude/skills/second-brain-query/names.json`. Use the name the vault already has; never create the English twin of an existing Italian folder or index. Write new notes in English. Cheap checks without AI: `python ~/.claude/skills/second-brain-query/scripts/vault_check.py names|links|stats`.
 
 ## Three ways you get used

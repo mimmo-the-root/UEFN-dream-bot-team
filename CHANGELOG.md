@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.92.0 — Second brain: read by section, no duplicate articles
+
+- **Cheaper queries:** `vault_check.py sections` lists the headings of the vault's `CLAUDE.md` with their size, `section "<text>"` prints only the one needed. `second-brain-librarian` now reads the vault rules by section instead of the whole file (about 6.6k tokens): a query needs about 0.3k (Workflow: Query), a compile about 2.3k. The vault's own file stays the authority and is not changed.
+- **No duplicate articles:** `vault_check.py dups` finds articles sharing an alias or title, or whose names differ only by release/versione; rename-redirect stubs (tag `rinominato`/`renamed`) are ignored and counted in `stats`. The librarian searches by concept, Verse identifiers and aliases (both languages) before creating an article, and updates the existing one.
+- Test: `test_vault_check.py` extended.
+
 ## v1.91.0 — Second brain: mixed-language vaults and free checks (plan P0-R2)
 
 - **Decision:** existing vaults are NOT migrated. A vault may mix English and Italian names (pages are copied from the web in both languages). The kit writes new notes in English and resolves names through a table.

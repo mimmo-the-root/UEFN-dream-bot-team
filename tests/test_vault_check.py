@@ -19,6 +19,14 @@ try:
     assert "1 broken link" in o and "missing-one" in o, o
     o = run("stats")
     assert "with a Verse implementation section: 1" in o and "missing created/sources fields: 1" in o, o
+    w("CLAUDE.md", "## Role\nr\n## Workflow: Query\nq1\n```\n## not a heading\n```\n### Sub\ns\n## Other\no\n")
+    o = run("sections")
+    assert "Workflow: Query" in o and "not a heading" not in o, o
+    r = subprocess.run([sys.executable, S, "section", "Workflow: Query", "--vault", d], capture_output=True, text=True).stdout
+    assert "q1" in r and "Other" not in r and "s" in r, r
+    w("wiki/mechanics/stub.md", "---\ntags: [renamed]\n---\n# Renamed\n")
+    w("wiki/mechanics/dup-a.md", fm % ("created", "sources") + "# Zone Loop\naliases: x\n")
+    assert "rename stubs (redirect pages, safe to delete by hand): 1" in run("stats")
     print("vault check tests OK")
 finally:
     shutil.rmtree(d, ignore_errors=True)
