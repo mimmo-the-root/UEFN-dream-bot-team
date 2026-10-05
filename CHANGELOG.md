@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.90.0 — /kit-update --fetch and restore points (plan P0-R1)
+
+- **New:** `/kit-update --fetch` (`Claude/hooks/kit_fetch.py`): downloads the latest GitHub release (HTTPS to api.github.com only, zip paths checked, 60 MB cap, only the kit, agents and skills folders), updates `~/.claude/kit-template`, `agents` and `skills` (never `local/` or `pack/`, never `CLAUDE.md`), copies every replaced file to `~/.claude/kit-backup/<time>/`, then syncs the project. `--check` only compares versions; `--zip FILE` uses a downloaded release.
+- **New:** restore points (`Claude/hooks/safety_net.py`, `/restore-point`): copies of all `.verse` files and `Claude/docs/*.md` as `.bak` files (UEFN never compiles them) in `Claude/logs/restore-points/`, newest 5 kept. `changes` lists added/modified/deleted files since a point, `restore ID` shows what it would do and `--apply` does it (after saving the current state; added files are left, nothing is deleted). Created automatically at session start when the newest is older than 6 hours; `coder` creates one before L tasks and refactors and puts the one-line `changes --brief` in the hand-off.
+- Tests: `test_kit_fetch.py`, `test_safety_net.py`.
+
 ## v1.89.0 — Checks and /kit-doctor (plan P0-R1)
 
 - **New:** `/kit-doctor` (script `Claude/hooks/kit_doctor.py`, no AI tokens): checks kit version vs your profile, kit files, `.verse` backups under `Claude/logs`, hook settings, second brain path, docs format and `.mcp.json` in `.gitignore`; `--fix` repairs what is safe. Delivered by the sync.

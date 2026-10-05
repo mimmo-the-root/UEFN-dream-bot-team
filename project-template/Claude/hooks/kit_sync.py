@@ -27,7 +27,7 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md")
+MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md")
 CREATE_ONLY = ("Claude/docs-template/",)
 SKIP_PARTS = ("__pycache__",)
 FAILED = []
@@ -447,6 +447,13 @@ def _run(project, out):
     out["notes"] += neutralize_backups(project)
     out["notes"] += history_align(project)
     out["notes"] += genre_and_inbox(project)
+    try:  # restore point at session start when the code changed and the newest point is older than 6 h (silent)
+        import safety_net
+        pts = safety_net.points(project)
+        if not pts or time.time() - os.path.getmtime(os.path.join(project, safety_net.RP, pts[0], "manifest.json")) > 6 * 3600:
+            safety_net.snapshot(project, "session start")
+    except Exception:
+        pass
     if out["updated"] or out["added"]:
         msg = restart_console(project)
         if msg:
