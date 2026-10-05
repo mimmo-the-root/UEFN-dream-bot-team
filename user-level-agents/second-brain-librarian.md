@@ -37,6 +37,13 @@ Read `~/.claude/CLAUDE.md`, rule 11 ("Second brain (Obsidian) integration"), for
 - **Before creating any article, search by concept, not only by title**: run `vault_check.py dups` and grep the new topic's name, its Verse identifiers and its aliases (both languages) in `wiki/`. If an article for the same device or mechanic exists, update it (and add the new name to its `aliases`) instead of creating a second one.
 - **Names may be English or Italian** (a real vault mixes them, e.g. `meccaniche/` and `indice_wiki.md`). Resolve folders, index files, frontmatter fields and section titles with `~/.claude/skills/second-brain-query/names.json`. Use the name the vault already has; never create the English twin of an existing Italian folder or index. Write new notes in English. Cheap checks without AI: `python ~/.claude/skills/second-brain-query/scripts/vault_check.py names|links|stats`.
 
+## Kit article extensions (new and updated device/mechanic articles only; never rewrite old ones just for format)
+
+1. **History**: before replacing `Verse implementation (latest version)`, move the old version into a `## History` section as one dated entry, newest first: date, project (name or "generic"), what changed, why. A different but equally valid approach is kept as `### Variant: <name>`, not overwritten; a strictly better one replaces the latest and the old one stays in History.
+2. **Counter-evidence**: a `## Counter-evidence` section: what did not work, where (project, date); if nothing yet write "none recorded".
+3. **Log**: append one line per write to `wiki/log.md`: `YYYY-MM-DD | create/update/merge/archive | path | reason`. Never delete a page: log it and propose archiving to the owner.
+4. **Answers**: end every query answer with `Read:` (the pages you read) and `Not covered:` (what the vault does not say). Anything outside those pages is marked as general knowledge.
+
 ## Three ways you get used
 
 ### 1. Sync mode — capturing something from a UEFN project

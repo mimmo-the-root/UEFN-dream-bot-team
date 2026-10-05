@@ -1,28 +1,89 @@
 {
   "_note": "Canonical name first (English, what the kit writes), then names found in existing vaults. A vault may mix both; resolve by this table, never create a duplicate.",
   "folders": {
-    "mechanics": ["mechanics", "meccaniche"],
-    "verse-patterns": ["verse-patterns", "pattern-verse"],
-    "uefn-release-notes": ["uefn-release-notes", "note-di-rilascio-uefn"],
-    "device": ["device"],
-    "retention": ["retention"],
-    "ui": ["ui"],
-    "meta": ["meta"]
+    "mechanics": [
+      "mechanics",
+      "meccaniche"
+    ],
+    "verse-patterns": [
+      "verse-patterns",
+      "pattern-verse"
+    ],
+    "uefn-release-notes": [
+      "uefn-release-notes",
+      "note-di-rilascio-uefn"
+    ],
+    "device": [
+      "device"
+    ],
+    "retention": [
+      "retention"
+    ],
+    "ui": [
+      "ui"
+    ],
+    "meta": [
+      "meta"
+    ]
   },
-  "index_files": ["wiki-index.md", "indice_wiki.md", "indice.md", "index.md"],
+  "index_files": [
+    "wiki-index.md",
+    "indice_wiki.md",
+    "indice.md",
+    "index.md"
+  ],
   "frontmatter": {
-    "created": ["created", "data_creazione"],
-    "updated": ["updated", "data_aggiornamento"],
-    "sources": ["sources", "fonti"],
-    "tags": ["tags"],
-    "aliases": ["aliases"],
-    "status": ["status", "stato"]
+    "created": [
+      "created",
+      "data_creazione"
+    ],
+    "updated": [
+      "updated",
+      "data_aggiornamento"
+    ],
+    "sources": [
+      "sources",
+      "fonti"
+    ],
+    "tags": [
+      "tags"
+    ],
+    "aliases": [
+      "aliases"
+    ],
+    "status": [
+      "status",
+      "stato"
+    ]
   },
   "sections": {
-    "verse_implementation": ["Verse implementation (latest version)", "Implementazione Verse (ultima versione)"],
-    "tested_on": ["Tested on", "Visto/testato su"],
-    "sources": ["Sources", "Fonti"],
-    "related": ["Related articles", "Articoli correlati"],
-    "key_points": ["Key points", "Punti chiave"]
+    "verse_implementation": [
+      "Verse implementation (latest version)",
+      "Implementazione Verse (ultima versione)"
+    ],
+    "tested_on": [
+      "Tested on",
+      "Visto/testato su"
+    ],
+    "sources": [
+      "Sources",
+      "Fonti"
+    ],
+    "related": [
+      "Related articles",
+      "Articoli correlati"
+    ],
+    "key_points": [
+      "Key points",
+      "Punti chiave"
+    ],
+    "history": [
+      "History",
+      "Cronologia"
+    ],
+    "counter_evidence": [
+      "Counter-evidence",
+      "Controprove"
+    ]
   }
 }

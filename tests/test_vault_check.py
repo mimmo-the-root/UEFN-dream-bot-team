@@ -26,7 +26,8 @@ try:
     assert "q1" in r and "Other" not in r and "s" in r, r
     w("wiki/mechanics/stub.md", "---\ntags: [renamed]\n---\n# Renamed\n")
     w("wiki/mechanics/dup-a.md", fm % ("created", "sources") + "# Zone Loop\naliases: x\n")
-    assert "rename stubs (redirect pages, safe to delete by hand): 1" in run("stats")
+    st = run("stats")
+    assert "rename stubs (redirect pages, safe to delete by hand): 1" in st and "with History 0, with Counter-evidence 0, log.md no" in st, st
     print("vault check tests OK")
 finally:
     shutil.rmtree(d, ignore_errors=True)

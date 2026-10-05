@@ -104,6 +104,7 @@ def cmd_links(vault):
 def cmd_stats(vault):
     wiki = os.path.join(vault, "wiki")
     per, miss_src, miss_fm, impl, unlisted, stubs = {}, [], [], 0, [], []
+    hist = cev = 0
     created_keys = set(N["frontmatter"]["created"]); src_keys = set(N["frontmatter"]["sources"])
     src_secs = N["sections"]["sources"]; impl_secs = N["sections"]["verse_implementation"]
     idx_text = {}
@@ -126,10 +127,13 @@ def cmd_stats(vault):
         if not any(("## " + s) in t for s in src_secs):
             miss_src.append(rel)
         impl += any(("## " + s) in t for s in impl_secs)
+        hist += any(("## " + s) in t for s in N["sections"]["history"])
+        cev += any(("## " + s) in t for s in N["sections"]["counter_evidence"])
         if b[:-3].lower() not in idx_text.get(os.path.dirname(p), "") and rel.count("/") >= 1:
             unlisted.append(rel)
     print("articles: %d  (%s)" % (sum(per.values()), ", ".join("%s %d" % kv for kv in sorted(per.items()))))
     print("with a Verse implementation section: %d" % impl)
+    print("kit format (new/updated articles only): with History %d, with Counter-evidence %d, log.md %s" % (hist, cev, "yes" if os.path.isfile(os.path.join(wiki, "log.md")) else "no"))
     print("rename stubs (redirect pages, safe to delete by hand): %d" % len(stubs))
     for label, lst in (("missing created/sources fields", miss_fm), ("without a Sources section", miss_src), ("not named in their folder index", unlisted)):
         print("%s: %d%s" % (label, len(lst), ("  e.g. " + ", ".join(lst[:3])) if lst else ""))

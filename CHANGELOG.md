@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.93.0 — Second brain: history, counter-evidence, log, honest answers (plan P0-R2)
+
+- **second-brain-librarian**, for new and updated device/mechanic articles only (old ones are not rewritten for format): (1) the replaced Verse implementation moves to a dated `## History` entry, equally valid approaches are kept as `### Variant: <name>`; (2) a `## Counter-evidence` section (what did not work, where); (3) one line per write in `wiki/log.md`, no page is ever deleted, archiving is proposed instead; (4) every query answer ends with `Read:` and `Not covered:`.
+- `names.json` knows the section names (History/Cronologia, Counter-evidence/Controprove); `vault_check.py stats` reports how many articles already use the new format and whether `log.md` exists.
+
 ## v1.92.0 — Second brain: read by section, no duplicate articles
 
 - **Cheaper queries:** `vault_check.py sections` lists the headings of the vault's `CLAUDE.md` with their size, `section "<text>"` prints only the one needed. `second-brain-librarian` now reads the vault rules by section instead of the whole file (about 6.6k tokens): a query needs about 0.3k (Workflow: Query), a compile about 2.3k. The vault's own file stays the authority and is not changed.
