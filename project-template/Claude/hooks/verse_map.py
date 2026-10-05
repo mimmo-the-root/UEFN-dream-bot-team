@@ -5,20 +5,21 @@ Zero AI tokens. Reads the .verse files only; writes ONLY to --out (default <proj
   python verse_map.py build [--project DIR] [--out DIR]    (re)generate; unchanged files keep their card
   python verse_map.py check [--project DIR] [--out DIR]    which files changed since the map was built (hash)
   python verse_map.py symbol NAME [--out DIR]              where a symbol is defined (file:line), nothing else
+  python verse_map.py role FILE "TEXT" [--out DIR]         set a file's one-line role (kept across rebuilds in roles.tsv)
 Facts only: role comes from the file's "# Summary:" header, everything else from the code. Anything the code cannot
 tell (level-placed device config and wiring) is NOT guessed here; it stays [I]/unknown for the coder's MCP tools.
 Output: INDEX.md (read first, small), WIRING.md, symbols.tsv, cards/<file>.md, meta.json.
 """
 import hashlib, json, os, re, sys, time
 
-VERSION = 1
+VERSION = 3
 SKIP = {"Claude", ".git", "node_modules", "__pycache__"}
 TYPE_RE = re.compile(r"^(\w+)\s*(?:<[^>]*>)*\s*:=\s*(class|struct|enum|interface|module)\b(?:\(([^)]*)\))?")
 EDIT_RE = re.compile(r"^\s*@editable\s+(\w+)\s*:\s*([^=#]+?)\s*(?:=|#|$)")
 VAR_RE = re.compile(r"^\s*var\s+(?:<[^>]*>\s*)?(\w+)\s*:\s*([^=#]+?)\s*(?:=|#|$)")
 EVENT_RE = re.compile(r"^\s*(\w+)\s*(?:<[^>]*>)*\s*:\s*(?:event|listenable|subscribable)\s*\(")
 FUNC_RE = re.compile(r"^(\s*)(\w+)((?:<\w+>)*)\s*\(.*\)\s*((?:<\w+>)*)\s*(?::\s*[^=#]+?)?\s*=")
-SUB_RE = re.compile(r"([\w\.\[\]\(\)]+?)\.(\w+)\.Subscribe\(\s*(\w+)\s*\)")
+SUB_RE = re.compile(r"([\w\.\[\]\(\)]+?)\.Subscribe\(\s*([\w\.]+)")
 NOTE_RE = re.compile(r"#.*\b(NOTE|WARNING|ATTENZIONE|ATTENTION|TODO|FIXME|BUG|B-\d+|CRITICAL|IMPORTANT)\b", re.I)
 KW = {"if", "for", "loop", "block", "case", "else", "set", "return", "break", "spawn", "branch", "race", "sync", "rush", "defer", "using", "option", "not", "and", "or", "array", "map"}
 
@@ -57,9 +58,16 @@ def parse(rel, text):
         if not ln.startswith((" ", "\t")):
             m = TYPE_RE.match(ln)
             if m:
-                prev = lines[n - 2].strip() if n >= 2 and lines[n - 2].lstrip().startswith("#") else ""
+                block, k = [], n - 2
+                while k >= 0 and lines[k].lstrip().startswith("#"):
+                    s = lines[k].lstrip("# ").strip()
+                    s = s.strip("-= ")
+                    if s and not re.fullmatch(r"[-=_*#\s]+", s) and not (s.upper() == s and len(s) < 60):
+                        block.insert(0, s)
+                    k -= 1
+                prev = " ".join(block[:2])
                 cur = {"name": m.group(1), "kind": m.group(2), "parents": (m.group(3) or "").strip(), "line": n,
-                       "doc": prev.lstrip("# ").strip()[:100], "editables": [], "vars": [], "events": [], "funcs": []}
+                       "doc": prev[:140], "editables": [], "vars": [], "events": [], "funcs": []}
                 info["types"].append(cur)
             else:
                 cur = None
@@ -82,7 +90,11 @@ def parse(rel, text):
         if m and m.group(2) not in KW and len(m.group(1)) <= 4:
             cur["funcs"].append((m.group(2), (m.group(3) + m.group(4)).replace("><", ",").strip("<>"), n))
         for s in SUB_RE.finditer(ln):
-            info["subs"].append((cur["name"], s.group(1), s.group(2), s.group(3), n))
+            src = s.group(1)
+            ev = re.sub(r"\(\)$", "", src.split(".")[-1])
+            info["subs"].append((cur["name"], src[: -len(src.split(".")[-1]) - 1] or "?", ev, s.group(2), n))
+    if not info["summary"] and info["types"] and info["types"][0]["doc"]:
+        info["summary"] = "(from comment) " + info["types"][0]["doc"]
     names = {e[0] for t in info["types"] for e in t["editables"]}
     for ln in lines:
         for m in re.finditer(r"\b(\w+)\.(\w+)\(", ln):
@@ -110,8 +122,9 @@ def card(info, edges):
     out.append("role: %s" % (info["summary"] or "(no '# Summary:' header; unknown)"))
     outs = sorted(((b, c) for (a, b), c in edges.items() if a == f), key=lambda x: -x[1])
     ins = sorted(((a, c) for (a, b), c in edges.items() if b == f), key=lambda x: -x[1])
-    out.append("uses (files): " + (", ".join("%s(%d)" % x for x in outs[:8]) or "none found"))
-    out.append("used by (files): " + (", ".join("%s(%d)" % x for x in ins[:8]) or "no reference found in project .verse files"))
+    more = lambda l: (" (+%d more)" % (len(l) - 15)) if len(l) > 15 else ""
+    out.append("uses (files): " + (", ".join("%s(%d)" % x for x in outs[:15]) + more(outs) or "none found"))
+    out.append("used by (files): " + (", ".join("%s(%d)" % x for x in ins[:15]) + more(ins) or "no reference found in project .verse files"))
     for t in info["types"]:
         out += ["", "## %s `%s`%s  (line %d)" % (t["kind"], t["name"], (" : " + t["parents"]) if t["parents"] else "", t["line"])]
         if t["doc"]:
@@ -136,18 +149,42 @@ def card(info, edges):
     return "\n".join(out) + "\n"
 
 
+def load_roles(outdir):
+    p = os.path.join(outdir, "roles.tsv")
+    out = {}
+    if os.path.isfile(p):
+        for ln in open(p, encoding="utf-8"):
+            if "\t" in ln:
+                k, v = ln.rstrip("\n").split("\t", 1)
+                out[k] = v
+    return out
+
+
+def cmd_role(outdir, rel, text):
+    roles = load_roles(outdir)
+    roles[rel] = text.strip()[:160]
+    os.makedirs(outdir, exist_ok=True)
+    open(os.path.join(outdir, "roles.tsv"), "w", encoding="utf-8").write("".join("%s\t%s\n" % kv for kv in sorted(roles.items())))
+    print("role saved for %s (rebuild to refresh its card and the index)" % rel)
+
+
 def cmd_build(project, outdir):
     files = list(verse_files(project))
     texts = {f: open(os.path.join(project, f), encoding="utf-8", errors="replace").read() for f in files}
     meta_p = os.path.join(outdir, "meta.json")
-    old = json.load(open(meta_p))["files"] if os.path.isfile(meta_p) else {}
+    meta_old = json.load(open(meta_p)) if os.path.isfile(meta_p) else {}
+    old = meta_old.get("files", {}) if meta_old.get("tool") == VERSION else {}
     infos = {f: parse(f, texts[f]) for f in files}
+    roles = load_roles(outdir)
+    for f, i in infos.items():
+        if f in roles:
+            i["summary"] = roles[f]
     defined, edges = build_graph(infos, texts)
     os.makedirs(os.path.join(outdir, "cards"), exist_ok=True)
     changed = 0
     for f, i in infos.items():
         cp = os.path.join(outdir, "cards", f.replace("/", "__")[:-6] + ".md")
-        if old.get(f, {}).get("sha") != i["sha"] or not os.path.isfile(cp):
+        if old.get(f, {}).get("sha") != i["sha"] or old.get(f, {}).get("role") != roles.get(f) or not os.path.isfile(cp):
             open(cp, "w", encoding="utf-8").write(card(i, edges)); changed += 1
     # symbols
     sym = []
@@ -179,7 +216,7 @@ def cmd_build(project, outdir):
     for f, i in sorted(infos.items()):
         w += ["- %s `%s`: %s.%s -> %s (line %d)" % (f, s[0], s[1], s[2], s[3], s[4]) for s in i["subs"]]
     open(os.path.join(outdir, "WIRING.md"), "w", encoding="utf-8").write("\n".join(w) + "\n")
-    json.dump({"tool": VERSION, "built": time.strftime("%Y-%m-%d %H:%M"), "files": {f: {"sha": i["sha"], "lines": i["lines"]} for f, i in infos.items()}},
+    json.dump({"tool": VERSION, "built": time.strftime("%Y-%m-%d %H:%M"), "files": {f: {"sha": i["sha"], "lines": i["lines"], "role": roles.get(f)} for f, i in infos.items()}},
               open(meta_p, "w", encoding="utf-8"), indent=1)
     print("map built: %d files, %d lines, %d symbols; %d card(s) regenerated; index ~%d tokens" % (
         len(infos), tot, len(sym), changed, os.path.getsize(os.path.join(outdir, "INDEX.md")) // 4))
@@ -202,7 +239,7 @@ def cmd_check(project, outdir):
 
 def main():
     a = sys.argv[1:]
-    if not a or a[0] not in ("build", "check", "symbol"):
+    if not a or a[0] not in ("build", "check", "symbol", "role"):
         print(__doc__); return 0
     opt = lambda k, d: a[a.index(k) + 1] if k in a and a.index(k) + 1 < len(a) else d
     project = os.path.abspath(opt("--project", os.getcwd()))
@@ -211,6 +248,8 @@ def main():
         cmd_build(project, outdir)
     elif a[0] == "check":
         cmd_check(project, outdir)
+    elif a[0] == "role":
+        cmd_role(outdir, a[1], a[2]) if len(a) > 2 else print('usage: role FILE "TEXT"')
     else:
         q = a[1].lower() if len(a) > 1 else ""
         sp = os.path.join(outdir, "symbols.tsv")

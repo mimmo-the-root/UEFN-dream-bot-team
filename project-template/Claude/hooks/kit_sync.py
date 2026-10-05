@@ -27,7 +27,7 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md")
+MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md", ".claude/commands/verse-map.md")
 CREATE_ONLY = ("Claude/docs-template/",)
 SKIP_PARTS = ("__pycache__",)
 FAILED = []
@@ -447,6 +447,13 @@ def _run(project, out):
     out["notes"] += neutralize_backups(project)
     out["notes"] += history_align(project)
     out["notes"] += genre_and_inbox(project)
+    try:  # refresh the Verse map at session start, only if the project already has one (first build is explicit: /verse-map)
+        import verse_map
+        mdir = os.path.join(project, "Claude", "docs", "map")
+        if os.path.isfile(os.path.join(mdir, "meta.json")):
+            verse_map.cmd_build(project, mdir)
+    except Exception:
+        pass
     try:  # restore point at session start when the code changed and the newest point is older than 6 h (silent)
         import safety_net
         pts = safety_net.points(project)

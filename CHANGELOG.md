@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.94.0 — Verse map: no more re-studying the project (plan P1-R1)
+
+- **New:** `Claude/hooks/verse_map.py` and `/verse-map`: reads the project's `.verse` files (read-only, no AI tokens) and writes `Claude/docs/map/`: `INDEX.md` (one line per file, about 2k tokens), one card per file (role from its `# Summary:` header, types, `@editable` bindings, events declared, event subscriptions, calls made on bound devices, per-player state, pitfall comments, which files use it), `WIRING.md` (file coupling, subscriptions), `symbols.tsv` and `meta.json` (hash per file). `check` lists files changed since the build, `symbol NAME` finds a definition, `role FILE "TEXT"` stores a role the code does not give (kept in `roles.tsv`).
+- The first build is explicit (`/verse-map`, or the coder when the project has more than about 5 Verse files); after that `kit_sync` refreshes the map at session start. Level-placed device configuration and wiring are not in the code and stay unknown until read with the UEFN MCP tools.
+- **coder** reads the INDEX and only the card of the file it touches, instead of the sources.
+- Pilot on a 38-file, 13.5k-line roguelike project: index about 1.7k tokens, cards about 12 times smaller than their sources; the subscription and "used by" queries matched a grep of the code.
+- Test: `test_verse_map.py`.
+
 ## v1.93.0 — Second brain: history, counter-evidence, log, honest answers (plan P0-R2)
 
 - **second-brain-librarian**, for new and updated device/mechanic articles only (old ones are not rewritten for format): (1) the replaced Verse implementation moves to a dated `## History` entry, equally valid approaches are kept as `### Variant: <name>`; (2) a `## Counter-evidence` section (what did not work, where); (3) one line per write in `wiki/log.md`, no page is ever deleted, archiving is proposed instead; (4) every query answer ends with `Read:` and `Not covered:`.

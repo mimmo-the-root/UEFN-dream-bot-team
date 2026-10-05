@@ -209,6 +209,10 @@ When the project is connected to UEFN via MCP:
 4. Maximum 5 consecutive attempts on the same error. Beyond that, guessing at random costs tokens and often makes things worse: STOP, write in Claude/docs/BUGS.md what you tried, the exact current error, and your best hypothesis about the cause, then ask the owner how to proceed.
 5. If during this cycle you discover a non-obvious error, save it as a short note — one line, not a novel — so it isn't rediscovered from scratch. Where it goes depends on its scope: if it's specific to this project (a quirk of one of THIS project's devices, assets, or design decisions), save it to your per-project memory. If it's about Verse/UEFN/the MCP tooling itself and would apply on any island (e.g. a counter-intuitive Verse syntax rule, a device type that always behaves differently than documented), add it instead to `~/.claude/skills/uefn-lessons/SKILL.md`, under the matching category. Don't save generic or obvious things either way: only what you'd have wanted to know beforehand.
 
+## Verse map (script, no tokens): do not re-study the project
+
+If `Claude/docs/map/INDEX.md` exists: read it first (about 2k tokens), then open ONLY the card of the file you will touch (`cards/<file>.md`); find a symbol with `py -3 Claude/hooks/verse_map.py symbol NAME`; read the source only for the lines you change. Before relying on a card run `verse_map.py check`; if it says STALE, run `verse_map.py build` (seconds). After a task that changed Verse, run `build`. The map holds facts from the code only; level-placed device config and wiring stay unknown until you read them with the UEFN MCP tools. If the map does not exist and the project has more than about 5 Verse files, run `build` once.
+
 ## Safety net (script, no tokens)
 
 Before an L task, a refactor or any change the owner approved as "big": `py -3 Claude/hooks/safety_net.py snapshot --why "<task id>"`. At task close, put the output of `safety_net.py changes --brief` in the hand-off (one line). To undo: show `safety_net.py restore <id>` first, apply with `--apply` only on the owner's yes.
