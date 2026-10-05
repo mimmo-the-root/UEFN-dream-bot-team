@@ -18,7 +18,7 @@ all silent and safe when there is nothing to do:
 Never touches: Claude/docs, Claude/logs (except backups), your settings.json permissions, your CLAUDE.md
 outside KIT blocks. Best effort: any failure is swallowed so a session can always start.
 """
-import hashlib
+import hashlib, contextlib, io
 import json
 import os
 import re
@@ -499,7 +499,10 @@ def _run(project, out):
 def main():
     project = os.environ.get("CLAUDE_PROJECT_DIR") or (sys.argv[1] if len(sys.argv) > 1 else os.getcwd())
     try:
-        r = run(project)
+        # Hooks must print ONE JSON object and nothing else: anything a helper prints (e.g. "map built: ...")
+        # would make Claude Code ignore the whole message, so all helper output is captured here.
+        with contextlib.redirect_stdout(io.StringIO()):
+            r = run(project)
     except Exception:
         r = {"updated": [], "added": [], "settings": [], "claude_md": [], "notes": [], "version": ""}
     changed = r["updated"] or r["added"] or r["settings"] or r["claude_md"]

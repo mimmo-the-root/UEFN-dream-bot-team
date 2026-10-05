@@ -93,6 +93,12 @@ try:
     mk = os.path.join(p2, "Claude", "logs", ".post-update"); os.makedirs(os.path.dirname(mk), exist_ok=True); open(mk, "w").write("9.9.9")
     r = kit_sync.run(p2); assert any("post-update check done" in n and "nothing to learn" in n for n in r["notes"]), r["notes"]
     assert not os.path.exists(mk); r = kit_sync.run(p2); assert not any("post-update" in n for n in r["notes"])
+    # the hook output must be ONE JSON object even when helpers print (a map exists): otherwise Claude Code drops the message
+    os.remove(os.path.join(p2, "Claude", "docs", "map", "learned.json"))
+    env = dict(os.environ, CLAUDE_PROJECT_DIR=p2, UEFN_KIT_TEMPLATE=os.path.join(d, "none"))
+    hook = subprocess.run([sys.executable, os.path.join(root, "project-template", "Claude", "hooks", "kit_sync.py")], capture_output=True, text=True, env=env)
+    import json as _json
+    msg = _json.loads(hook.stdout)["systemMessage"]; assert "LEARN" in msg, hook.stdout
     # nothing written into the project
     assert sorted(os.listdir(proj)) == ["Claude", "src"] and os.listdir(os.path.join(proj, "Claude")) == ["ignored.verse"]
     print("verse map tests OK")

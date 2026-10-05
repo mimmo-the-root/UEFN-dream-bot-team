@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.96.1 — Fix: the kit update message was silently dropped
+
+- **Fix:** when a project had a Verse map (since 1.94.0), the session-start refresh printed a line ("map built: ...") before the hook's JSON. Claude Code then ignores the whole message, so the kit updated its files (and the console) but never told you to restart, and the rest stayed old until a restart. `kit_sync.py` now captures everything helpers print and emits exactly one JSON object.
+- Test: `test_verse_map.py` runs the hook as Claude Code does and parses its output as JSON while a map exists.
+
 ## v1.96.0 — Learning without truncation, MCP detection, roguelike starter skeleton (plan P1-R1)
 
 Includes the unreleased 1.95.0 and 1.95.1 entries below.
