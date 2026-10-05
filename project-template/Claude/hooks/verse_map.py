@@ -6,6 +6,8 @@ Zero AI tokens. Reads the .verse files only; writes ONLY to --out (default <proj
   python verse_map.py check [--project DIR] [--out DIR]    which files changed since the map was built (hash)
   python verse_map.py symbol NAME [--out DIR]              where a symbol is defined (file:line), nothing else
   python verse_map.py role FILE "TEXT" [--out DIR]         set a file's one-line role (kept across rebuilds in roles.tsv)
+  python verse_map.py learn [--out DIR]                    cards the learning step has not read yet (all of them the first time)
+  python verse_map.py learned [--out DIR]                  mark the current cards as learned (after proposals were queued)
 Facts only: role comes from the file's "# Summary:" header, everything else from the code. Anything the code cannot
 tell (level-placed device config and wiring) is NOT guessed here; it stays [I]/unknown for the coder's MCP tools.
 Output: INDEX.md (read first, small), WIRING.md, symbols.tsv, cards/<file>.md, meta.json.
@@ -237,9 +239,42 @@ def cmd_check(project, outdir):
             print("  %s %s" % (tag, f))
 
 
+def learn_pending(outdir):
+    """(first_pass, [files not learned yet]) or None when there is no map."""
+    mp = os.path.join(outdir, "meta.json")
+    if not os.path.isfile(mp):
+        return None
+    cur = json.load(open(mp))["files"]
+    lp = os.path.join(outdir, "learned.json")
+    seen = json.load(open(lp)).get("files", {}) if os.path.isfile(lp) else {}
+    return (not os.path.isfile(lp), [f for f, v in cur.items() if seen.get(f) != v["sha"]], len(cur))
+
+
+def cmd_learn(outdir):
+    """Which cards has the learning step not seen yet? (zero tokens; the agent then reads only those cards)"""
+    r = learn_pending(outdir)
+    if r is None:
+        print("no map yet: run build"); return
+    first, todo, total = r
+    print("learning: %s, %d of %d cards to read" % ("FIRST PASS (whole map)" if first else "incremental", len(todo), total))
+    for f in todo[:60]:
+        print("  cards/" + f.replace("/", "__")[:-6] + ".md")
+
+
+def cmd_learned(outdir):
+    """Mark every current card as learned (call after the proposals were queued)."""
+    mp = os.path.join(outdir, "meta.json")
+    if not os.path.isfile(mp):
+        print("no map yet: run build"); return
+    cur = json.load(open(mp))["files"]
+    json.dump({"at": time.strftime("%Y-%m-%d %H:%M"), "files": {f: v["sha"] for f, v in cur.items()}},
+              open(os.path.join(outdir, "learned.json"), "w"), indent=0)
+    print("learned.json updated: %d cards marked as learned" % len(cur))
+
+
 def main():
     a = sys.argv[1:]
-    if not a or a[0] not in ("build", "check", "symbol", "role"):
+    if not a or a[0] not in ("build", "check", "symbol", "role", "learn", "learned"):
         print(__doc__); return 0
     opt = lambda k, d: a[a.index(k) + 1] if k in a and a.index(k) + 1 < len(a) else d
     project = os.path.abspath(opt("--project", os.getcwd()))
@@ -248,6 +283,10 @@ def main():
         cmd_build(project, outdir)
     elif a[0] == "check":
         cmd_check(project, outdir)
+    elif a[0] == "learn":
+        cmd_learn(outdir)
+    elif a[0] == "learned":
+        cmd_learned(outdir)
     elif a[0] == "role":
         cmd_role(outdir, a[1], a[2]) if len(a) > 2 else print('usage: role FILE "TEXT"')
     else:

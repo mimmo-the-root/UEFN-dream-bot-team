@@ -57,6 +57,13 @@ try:
     open(os.path.join(proj, "src", "Mgr.verse"), "a").write("\n# edit\n")
     c = run("check", "--project", proj, "--out", out)
     assert "STALE" in c and "changed src/Mgr.verse" in c, c
+    # learning: whole map first, then only cards of changed files (script decides, no relevance guess)
+    run("build", "--project", proj, "--out", out)
+    l = run("learn", "--out", out); assert "FIRST PASS" in l and "2 of 2" in l, l
+    assert "learned" in run("learned", "--out", out)
+    l = run("learn", "--out", out); assert "incremental" in l and "0 of 2" in l, l
+    open(os.path.join(proj, "src", "Helper.verse"), "a").write("\n# small update\n"); run("build", "--project", proj, "--out", out)
+    l = run("learn", "--out", out); assert "1 of 2" in l and "cards/src__Helper.md" in l and "Mgr" not in l, l
     # kit_sync refreshes an existing project map at session start (no map -> nothing is created)
     sys.path.insert(0, os.path.join(root, "project-template", "Claude", "hooks")); os.environ["UEFN_KIT_TEMPLATE"] = os.path.join(d, "none")
     import kit_sync
@@ -65,6 +72,20 @@ try:
     run("build", "--project", proj); kit_sync.run(proj)
     assert "current" in run("check", "--project", proj)
     shutil.rmtree(os.path.join(proj, "Claude", "docs"), ignore_errors=True); shutil.rmtree(os.path.join(proj, "Claude", "logs"), ignore_errors=True)
+    # bootstrap: a project with more than 5 Verse files and no map gets one at session start; learning is announced when a genre is set
+    p2 = os.path.join(d, "proj2"); os.makedirs(os.path.join(p2, "src")); os.makedirs(os.path.join(p2, "Claude", "docs"))
+    for i in range(6):
+        open(os.path.join(p2, "src", "F%d.verse" % i), "w").write("c%d := class:\n    Run() : void = {}\n" % i)
+    r = kit_sync.run(p2); assert os.path.isfile(os.path.join(p2, "Claude", "docs", "map", "meta.json")), r
+    assert any("Verse map created" in n for n in r["notes"]) and not any("LEARN" in n for n in r["notes"]), r["notes"]
+    open(os.path.join(p2, "Claude", "docs", ".genre"), "w").write("roguelike")
+    r = kit_sync.run(p2); assert any("LEARN: 6" in n and "first pass" in n for n in r["notes"]), r["notes"]
+    run("learned", "--out", os.path.join(p2, "Claude", "docs", "map"))
+    r = kit_sync.run(p2); assert not any("LEARN" in n for n in r["notes"]), r["notes"]
+    # post-update restart: a marker left by the update session triggers a one-time confirmation, then disappears
+    mk = os.path.join(p2, "Claude", "logs", ".post-update"); os.makedirs(os.path.dirname(mk), exist_ok=True); open(mk, "w").write("9.9.9")
+    r = kit_sync.run(p2); assert any("post-update check done" in n and "nothing to learn" in n for n in r["notes"]), r["notes"]
+    assert not os.path.exists(mk); r = kit_sync.run(p2); assert not any("post-update" in n for n in r["notes"])
     # nothing written into the project
     assert sorted(os.listdir(proj)) == ["Claude", "src"] and os.listdir(os.path.join(proj, "Claude")) == ["ignored.verse"]
     print("verse map tests OK")

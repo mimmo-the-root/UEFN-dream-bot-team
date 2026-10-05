@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.95.0 — Skills learn from the whole map, every session (plan P1-R1)
+
+- **New:** `verse_map.py learn` / `learned` (zero tokens): list the map cards the learning step has not read yet, the whole map the first time and afterwards only the cards of files that changed since the last learning, so a small update to an old map costs a few cards. State in `Claude/docs/map/learned.json`.
+- **planner-docs** step 4b: every session, reads only those cards (plus device facts through the UEFN MCP, read-only, on the first full pass, like `template-reader` does for an Epic template), reuses existing pattern wording and queues observations with `skills_lib.py propose`. No minimum count: everything is queued at once, you approve it on the Skills page as before, and maturity (hypothesis, confirmed, proven, contested) evolves by itself from how many of your maps back a pattern.
+- **Session start (`kit_sync`)**: an old project map is refreshed (also regenerated when the kit's map format changed); a project with more than 5 Verse files and no map gets one built automatically (script, no AI tokens). If a genre is set and cards are not learned yet, the session gets a one-line `LEARN:` instruction, so learning no longer depends only on a task being closed: what changed last session is learned at the start of the next one.
+- **Restart after a kit update**: the session that applies an update leaves a marker (`Claude/logs/.post-update`) and does not announce learning yet, because its agents are still the old ones. The first session after the restart does a one-time post-update check: confirms the kit version, the map state and how many cards are waiting to be learned, then removes the marker.
+- Test: `test_verse_map.py` covers first pass, incremental pass and the changed-card list.
+
 ## v1.94.0 — Verse map: no more re-studying the project (plan P1-R1)
 
 - **New:** `Claude/hooks/verse_map.py` and `/verse-map`: reads the project's `.verse` files (read-only, no AI tokens) and writes `Claude/docs/map/`: `INDEX.md` (one line per file, about 2k tokens), one card per file (role from its `# Summary:` header, types, `@editable` bindings, events declared, event subscriptions, calls made on bound devices, per-player state, pitfall comments, which files use it), `WIRING.md` (file coupling, subscriptions), `symbols.tsv` and `meta.json` (hash per file). `check` lists files changed since the build, `symbol NAME` finds a definition, `role FILE "TEXT"` stores a role the code does not give (kept in `roles.tsv`).

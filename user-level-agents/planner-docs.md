@@ -120,6 +120,19 @@ The routine end-of-session case, now anchored to task IDs instead of freeform re
    convergence and, only where something genuinely matches across variants, add it to
    `references/evidence-shared.md` — leaving it empty is a legitimate outcome, not a gap to force.
    Mention any promotion in this task's line in STATUS.md's Log (see step 5).
+4b. Learn from the map (every session, script decides what is new, no relevance judgement). If
+   `Claude/docs/map/meta.json` exists and `Claude/docs/.genre` is set (not `epic-template`), run
+   `python Claude/hooks/verse_map.py learn`. It lists the cards not read yet: the whole map the first
+   time (same full read as `template-reader` does for an Epic template, including device facts through
+   the UEFN MCP read-only when reachable), afterwards only cards whose file changed since the last
+   learning, so a small update costs a few cards. Read ONLY those cards, not the source. For each
+   reusable, generalized rule you can see (no map names, ids, links), first check
+   `skills_lib.py patterns <slug>` and reuse the exact wording of an existing pattern, then queue it with
+   `skills_lib.py propose` (stance `for`; `against` when the cards show the opposite). There is no
+   minimum count: every observation is queued at once and the owner approves it on the Skills page as
+   before. Maturity (hypothesis, confirmed, proven, contested) evolves by itself from how many of the
+   owner's maps back a pattern. Finish with `python Claude/hooks/verse_map.py learned`. Say in the Log
+   line how many proposals were queued. Nothing is written to a skill without approval.
 5. If the task just closed (Done) was building or reworking an in-game UI screen (store, shop,
    missions/quests, teleporter, rewards, inventory, HUD panel, or similar): automatically ingest
    into `~/.claude/skills/game-ui-designer/` — no need to ask the owner's permission for this

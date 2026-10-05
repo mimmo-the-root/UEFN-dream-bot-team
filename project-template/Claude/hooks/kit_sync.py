@@ -447,11 +447,39 @@ def _run(project, out):
     out["notes"] += neutralize_backups(project)
     out["notes"] += history_align(project)
     out["notes"] += genre_and_inbox(project)
-    try:  # refresh the Verse map at session start, only if the project already has one (first build is explicit: /verse-map)
+    try:  # Verse map at session start: refresh an old map (also after a kit update), or bootstrap a missing one
         import verse_map
         mdir = os.path.join(project, "Claude", "docs", "map")
-        if os.path.isfile(os.path.join(mdir, "meta.json")):
+        has_map = os.path.isfile(os.path.join(mdir, "meta.json"))
+        if has_map:
             verse_map.cmd_build(project, mdir)
+        elif sum(1 for _ in verse_map.verse_files(project)) > 5:
+            verse_map.cmd_build(project, mdir)
+            out["notes"].append("Verse map created in Claude/docs/map/ (script, no AI tokens). Read INDEX.md plus one card instead of the sources.")
+        gp = os.path.join(project, "Claude", "docs", ".genre")
+        genre = open(gp, encoding="utf-8").read().strip() if os.path.isfile(gp) else ""
+        lr = verse_map.learn_pending(mdir) if genre and genre != "epic-template" else None
+        pend = len(lr[1]) if lr else 0
+        marker = os.path.join(project, "Claude", "logs", ".post-update")
+        if out["updated"] or out["added"]:
+            # The agents loaded in THIS session are still the old ones: leave a marker, announce learning after the restart.
+            os.makedirs(os.path.dirname(marker), exist_ok=True)
+            with open(marker, "w") as f:
+                f.write(out.get("version") or "")
+        else:
+            was_update = os.path.isfile(marker)
+            if was_update:
+                try:
+                    os.remove(marker)
+                except OSError:
+                    pass
+                out["notes"].append("Kit v%s is active (post-update check done): Verse map %s%s."
+                                    % (out.get("version") or "?", "current" if os.path.isfile(os.path.join(mdir, "meta.json")) else "not needed (5 Verse files or fewer)",
+                                       (", %d card(s) to learn" % pend) if pend else ", nothing to learn"))
+            if pend:
+                out["notes"].append("LEARN: %d Verse map card(s) not learned yet%s. Follow planner-docs step 4b: `python Claude/hooks/verse_map.py learn`, "
+                                    "read only those cards, queue proposals for the owner's approval, then `verse_map.py learned`."
+                                    % (pend, " (first pass: whole map)" if lr[0] else ""))
     except Exception:
         pass
     try:  # restore point at session start when the code changed and the newest point is older than 6 h (silent)
