@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.95.1 — `/learn-map`: force the learning step
+
+- **New:** `/learn-map` runs the learning step now (planner-docs step 4b): reads the cards not learned yet (the whole map the first time, afterwards only changed files), queues skill proposals for approval on the Skills page, then marks them learned. Delivered to projects by `kit_sync`.
+
 ## v1.95.0 — Skills learn from the whole map, every session (plan P1-R1)
 
 - **New:** `verse_map.py learn` / `learned` (zero tokens): list the map cards the learning step has not read yet, the whole map the first time and afterwards only the cards of files that changed since the last learning, so a small update to an old map costs a few cards. State in `Claude/docs/map/learned.json`.
