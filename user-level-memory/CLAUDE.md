@@ -234,11 +234,9 @@ it's added there as a new contract, not described inline in whichever agent foun
 
 ## 11. Second brain (Obsidian) integration — optional
 
-**Second brain path**: `C:\SecondBrainOssidian` (this machine's Obsidian vault root — the folder
-containing `raw/`, `wiki/`, `output/`, and its own `CLAUDE.md`, see `second-brain-template/` in
-this kit. If you're setting this up on a different machine, or reusing this kit yourself,
-replace it with your own vault's absolute path — or with the literal placeholder
-`<SECOND_BRAIN_PATH>` to keep this feature off.)
+**Second brain path**: `<SECOND_BRAIN_PATH>` (replace it with the absolute path of your Obsidian
+vault root — the folder containing `raw/`, `wiki/`, `output/`, and its own `CLAUDE.md`, see
+`second-brain-template/` in this kit. While it stays the literal placeholder, this feature is off.)
 
 `uefn-lessons` (rule 10 above) captures short, one-line tooling/syntax gotchas. This is a
 different, complementary layer: a full Obsidian wiki of **game mechanics and Verse device

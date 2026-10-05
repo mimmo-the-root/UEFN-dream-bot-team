@@ -10,9 +10,9 @@ rilasciato e quando resta tracciabile (e puo' finire su git insieme al
 resto).
 
 Percorsi di default (modificabili anche da riga di comando):
-  Profilo (sorgente, evolve)  : C:\Users\mimmo\.claude\skills
-  Progetto (destinazione, git): C:\UEFNDreamTeamBot\user-level-skills
-  (C:\UEFNDreamTeamBot è il repo del kit stesso — le skill "di progetto" da
+  Profilo (sorgente, evolve)  : $env:USERPROFILE\.claude\skills
+  Progetto (destinazione, git): <cartella del kit>\user-level-skills (la cartella sopra tool\)
+  (La cartella del kit è il repo del kit stesso — le skill "di progetto" da
   rilasciare stanno sotto user-level-skills, non sotto Claude\skills, che
   invece è la struttura usata DENTRO ogni progetto UEFN che usa il kit)
 
@@ -27,8 +27,8 @@ Nota: il confronto e' per HASH del contenuto (non per data), cosi' una skill
 #>
 
 param(
-    [string]$ProfilePath = "C:\Users\mimmo\.claude\skills",
-    [string]$ProjectPath = "C:\UEFNDreamTeamBot\user-level-skills",
+    [string]$ProfilePath = (Join-Path $env:USERPROFILE ".claude\skills"),
+    [string]$ProjectPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "user-level-skills"),
     [switch]$Apply,
     [switch]$All,
     # Cartelle sotto $ProfilePath da ignorare sempre: non sono skill vere, sono

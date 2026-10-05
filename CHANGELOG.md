@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.89.0 — Checks and /kit-doctor (plan P0-R1)
+
+- **New:** `/kit-doctor` (script `Claude/hooks/kit_doctor.py`, no AI tokens): checks kit version vs your profile, kit files, `.verse` backups under `Claude/logs`, hook settings, second brain path, docs format and `.mcp.json` in `.gitignore`; `--fix` repairs what is safe. Delivered by the sync.
+- **New:** GitHub workflow `.github/workflows/tests.yml` runs `tests/run_all.py` on every push and pull request (tests, privacy scan, skill validator, token budget); tag pushes need it green.
+- **New checks (`tool/`):** `privacy_scan.py` (tokens, personal paths, e-mails, files that must not be committed), `validate_skills.py` (name/description, size caps, broken references; warns on missing `last_reviewed`/`sources`), `token_budget.py` (fails if the always-loaded text grows more than 10% over `tests/token-budget.json`).
+- **New templates** in `docs-template/` (on demand, not seeded): `DEPENDENCY-MAP.md`, `DESIGN-SYSTEM.md`, `TEST-PLAN.md`; rule: no refactor code before the owner approves the design.
+- **Changed:** personal paths removed from the repo (second brain path in rule 11 is now the placeholder `<SECOND_BRAIN_PATH>`; your own `~/.claude/CLAUDE.md` is never overwritten), weekly sync script uses its own folder, `tool/sync-skills.ps1` derives its default paths, test fixtures use "Map One".
+- Tests: `test_repo_checks.py`, `test_kit_doctor.py`.
+
 ## v1.88.2 — Audit findings get their own release
 
 - When an audit (codebase-auditor) produces findings, planner-docs groups every finding that becomes a task into ONE dedicated release of the Active phase (`P<phase>-R<n>`, theme `Audit fixes <date>`, tasks ordered by severity), never mixed into a feature release or left in the backlog. Small findings still go to BUGS.md. Rule added to CLAUDE.md block `delivery-standard`, codebase-auditor and planner-docs.

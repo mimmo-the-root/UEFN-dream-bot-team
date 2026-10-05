@@ -23,7 +23,8 @@
 
 $ErrorActionPreference = "Stop"
 
-$vaultPath = "C:\SecondBrainOssidian"
+# The script lives in the vault root, so the vault is the folder this file is in.
+$vaultPath = $PSScriptRoot
 
 $prompt = @"
 Use the second-brain-librarian agent's UEFN release-notes sync workflow: fetch

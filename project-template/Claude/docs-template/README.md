@@ -16,3 +16,7 @@ Don't hand-edit these files expecting it to affect any existing project — it w
 already past the point where they were seeded from here. If you want to change what a *brand
 new* project starts with, edit the files in this folder; an existing project's own `Claude/docs/`
 is edited directly instead.
+
+## On-demand templates
+
+`DEPENDENCY-MAP.md`, `DESIGN-SYSTEM.md` and `TEST-PLAN.md` are NOT seeded into new projects. Copy one into `Claude/docs/` when the work needs it (refactor: map, then design, then test plan). Rule: no refactor code before the owner approves the design.

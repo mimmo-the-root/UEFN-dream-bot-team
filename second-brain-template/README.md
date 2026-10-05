@@ -30,9 +30,8 @@ you browse yourself in Obsidian, and that the kit's agents read and write to whe
      `output/` too if anything looks off later — Explorer's view can be stale or misleading in
      ways a directory listing isn't.
 4. Note the vault's full absolute path — you'll need it for the kit-side setup step below (see
-   the main `SETUP-GUIDE.md`, Phase 1). This kit's own default vault lives at
-   `C:\SecondBrainOssidian`; if you're reusing this kit yourself, point it at your own vault's
-   path instead.
+   the main `SETUP-GUIDE.md`, Phase 1). The kit has no default vault location: you choose it
+   (for example `C:\path\to\your\vault`).
 5. **Optional but recommended**: install the community `obsidian-skills` Claude Code plugin
    marketplace (by kepano, an Obsidian team member) — a set of skills that teach Claude Code
    better conventions for working inside an Obsidian vault (formatting, linking, front matter,
@@ -95,15 +94,15 @@ keep prompts passed this way free of nested double quotes.
 **Test the script by hand before scheduling it** — run it once directly and confirm it reports a
 sync result with no permission errors:
 ```
-powershell -ExecutionPolicy Bypass -File C:\SecondBrainOssidian\weekly-release-notes-sync.ps1
+powershell -ExecutionPolicy Bypass -File <your-vault>\weekly-release-notes-sync.ps1
 ```
 Only wire it into Task Scheduler/cron once this works standalone.
 
-**Windows (Task Scheduler, via `schtasks`)** — run once, from a terminal, adjusting the path if
-your vault isn't at `C:\SecondBrainOssidian`:
+**Windows (Task Scheduler, via `schtasks`)** — run once, from a terminal, replacing `<your-vault>`
+with your vault's absolute path:
 ```
 schtasks /create /tn "SecondBrain-UEFN-ReleaseNotes" /sc weekly /d THU /st 09:00 ^
-  /tr "powershell.exe -ExecutionPolicy Bypass -File C:\SecondBrainOssidian\weekly-release-notes-sync.ps1"
+  /tr "powershell.exe -ExecutionPolicy Bypass -File <your-vault>\weekly-release-notes-sync.ps1"
 ```
 Verify it's registered: `schtasks /query /tn "SecondBrain-UEFN-ReleaseNotes"`. Remove it later
 with `schtasks /delete /tn "SecondBrain-UEFN-ReleaseNotes" /f`.

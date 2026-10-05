@@ -36,7 +36,7 @@ rc, out, _ = cli("act", "survival", "pr-0123456789", "approve"); ok(rc == 1 and 
 # propose through the CLI, then see it in the list
 args = ["propose", "survival", "--variant", "loop-100", "--condition", "the first wave starts before the player has a weapon",
         "--action", "give a weapon pickup and a short safe start", "--statement",
-        "Players leave when wave 1 hits before they have a weapon; a short safe start helps.", "--map", "Harrow Zero"]
+        "Players leave when wave 1 hits before they have a weapon; a short safe start helps.", "--map", "Map One"]
 rc, out, _ = cli(*args); ok(rc == 0 and out and out.get("ok"), "cli propose ok")
 rc, out, _ = cli("proposals", "survival"); ok(rc == 0 and isinstance(out, list) and len(out) == 1, "cli proposals lists the new proposal")
 pid = out[0]["id"]
@@ -44,7 +44,7 @@ pid = out[0]["id"]
 # secrets in user text never reach stdout
 secret = "abcdef1234567890XYZ"
 rc, out, raw = cli("propose", "survival", "--variant", "loop-100", "--condition", "c c c c c", "--action", "a a a a a",
-                   "--statement", "api_key=" + secret, "--map", "Harrow Zero")
+                   "--statement", "api_key=" + secret, "--map", "Map One")
 ok(secret not in raw, "cli output never echoes a secret-looking value")
 
 # --- user-chosen paths must keep working (they live OUTSIDE the skills root) ---

@@ -194,7 +194,7 @@ every project you want to use this kit on.
      inside the vault folder must show exactly `CLAUDE.md`, nothing else — before moving on.
    - Note that vault's full absolute path, then open `~/.claude/CLAUDE.md` and set it as the
      "Second brain path" value in rule 11 ("Second brain (Obsidian) integration") — e.g.
-     `C:\SecondBrainOssidian` on Windows, or the literal placeholder `<SECOND_BRAIN_PATH>` to
+     `C:\path\to\your\vault` on Windows, or the literal placeholder `<SECOND_BRAIN_PATH>` to
      keep the feature off.
    - That's the entire setup — no registration command needed. `second-brain-librarian` reads
      that path from `~/.claude/CLAUDE.md` automatically from the next session onward, on any
