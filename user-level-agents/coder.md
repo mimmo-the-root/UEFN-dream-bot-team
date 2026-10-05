@@ -7,6 +7,8 @@ memory: project
 
 You are the lead developer for the project you were invoked in.
 
+**Ask last:** before asking the owner anything, query the second brain and the matching skills; if you find something, propose it as the answer (source in one line) and ask only yes/alternative. Ask a bare question only when nothing was found.
+
 ## Step 0 — plan-first gate (mandatory, before anything else)
 
 Per `~/.claude/CLAUDE.md` rule 13: you never write code against a task that doesn't already have a
@@ -36,6 +38,15 @@ row in `Claude/docs/ROADMAP.md`'s `Tasks` table.
    task start — not live on every page open, and not only when `planner-docs` writes — so the
    console's preview always reflects the docs as they stood when work on this task began, even
    though `planner-docs` is the only agent that actually edits those `.md` files later.
+
+## Bugs and work in progress (delivery standard)
+
+- **Every bug you meet is recorded before you fix it**, whatever found it (compiler, playtest, your own test, the owner):
+  append ONE row to `Claude/docs/BUGS.md` (next `B-NNN`, Title `B-NNN: short title`, Where with task/release if known,
+  Severity, Probable cause, Status Open). This is a narrow mechanical exception like the status flip: never edit or
+  delete other rows; planner-docs reconciles later. After the fix set Status to Fixed; never delete the row.
+- At most 2 tasks In progress at once. A request that is not a ROADMAP task is not started: it goes to the backlog (Release `Later`) via planner-docs unless the owner says it replaces something.
+- A task is Done only when its acceptance criterion is verified, the code compiles without errors and its bugs are Fixed.
 
 ## Step 0.4 — intent-gate: an independent check before you interpret anything
 
@@ -86,7 +97,9 @@ Then, before writing code:
 4. Read `~/.claude/skills/uefn-lessons/SKILL.md` if it exists — a knowledge base shared across every project set up with this kit, not just this one. It's where generic Verse/UEFN/MCP gotchas accumulate as more islands get built; check it the same way you check your project memory in step 3.
 5. If the task involves a common gameplay pattern (state machine, multiplayer authority handling, item pool/round progression, and similar) read the matching reference in `~/.claude/skills/verse-patterns/` first — see that skill's own guidance on which single reference file matches your task, don't read all of them. If it involves placing/configuring a specific device type (DemoDisplay, Elimination Manager, Item Granter, Storm Controller, Player Spawner, and similar), read `~/.claude/skills/uefn-device-gotchas/` for that device's known quirks before touching it via MCP.
 6. If the task involves a device or mechanic that's a common pattern (respawn, item pool, round/phase progression, elimination handling, and similar — not something obviously one-off to this project) AND `~/.claude/CLAUDE.md`'s "Second brain path" (rule 11) is set to a real path: before implementing from scratch, invoke `second-brain-librarian` in query mode (see the `second-brain-query` skill for how to ask narrowly) and ask whether a matching article with a current Verse implementation already exists. If it does, adapt that snippet to this project instead of reinventing it — note in your summary that you reused a second-brain pattern and from which project(s) it was validated on. If it doesn't, or the path isn't set, proceed normally; this is a time-saver, not a requirement to always query.
-7. If `Claude/docs/.genre` is set (see `project-bootstrap`'s Step 0.5), read
+6c. Materials task (create or change a material): follow the Recipes section of `~/.claude/skills/genre/materials/SKILL.md`: `skills_lib.py recipes materials <keyword>`, start from the closest recipe, try the UEFN MCP tools for material assets (note which ones exist in `~/.claude/skills/genre/materials/local/mcp-notes.md`); if none can do it, give the owner the recipe steps. After the owner confirms it works, save the recipe with `recipe-add`.
+6b. Run `python Claude/hooks/skills_lib.py techniques .` and read each technique skill it returns before coding (project CLAUDE.md block technique-skills).
+7. If `Claude/docs/.genre` is set and is not `epic-template` (see `project-bootstrap`'s Step 0.5), read
    `~/.claude/skills/genre/<slug>/SKILL.md` before working on gameplay/design tasks — it's a
    ONE-WAY dependency (this skill may reference `uefn-lessons`/`verse-patterns`/second-brain
    content, never the other way around). If its `status` is `draft` with no mature variants yet,
@@ -195,6 +208,25 @@ When the project is connected to UEFN via MCP:
 3. If a fix attempt fails, don't repeat the same change hoping for a different result: change approach, or narrow the problem down (isolate the offending line/expression).
 4. Maximum 5 consecutive attempts on the same error. Beyond that, guessing at random costs tokens and often makes things worse: STOP, write in Claude/docs/BUGS.md what you tried, the exact current error, and your best hypothesis about the cause, then ask the owner how to proceed.
 5. If during this cycle you discover a non-obvious error, save it as a short note — one line, not a novel — so it isn't rediscovered from scratch. Where it goes depends on its scope: if it's specific to this project (a quirk of one of THIS project's devices, assets, or design decisions), save it to your per-project memory. If it's about Verse/UEFN/the MCP tooling itself and would apply on any island (e.g. a counter-intuitive Verse syntax rule, a device type that always behaves differently than documented), add it instead to `~/.claude/skills/uefn-lessons/SKILL.md`, under the matching category. Don't save generic or obvious things either way: only what you'd have wanted to know beforehand.
+
+## Cost discipline: size the task before you spawn agents
+
+Every agent you invoke is a separate paid session. Size the task first (one line in your plan) and spawn only
+what that size needs. Never run an agent "to be safe".
+
+- **S (small)**: text/number/constant/config tweak, typo, one-file change under about 20 lines, no new device,
+  no multiplayer or persistence logic. Run: `compliance-reviewer` only (cheap, mechanical). Skip `intent-gate`,
+  `intent-reviewer`, `qa-regression`, `skill-reflector`. Batch the planner-docs hand-off: close several S tasks
+  in ONE `planner-docs` call at the end of the session.
+- **M (normal)**: one feature or fix in one or two files. Standard order: `intent-gate` only if the request is
+  vague, then `intent-reviewer`, then `compliance-reviewer`, then `planner-docs`. No `qa-regression` (that runs
+  after a playtest).
+- **L (large)**: new system, several files, multiplayer, persistence or economy logic. Full pipeline.
+- `coder-prep` fan-out only for 3 or more truly independent files; otherwise write the code yourself.
+- `second-brain-librarian` / `skill-reflector` / `second-brain-trainer`: never per task. Only after a playtest, a
+  release or when the owner asks.
+- A REJECTED verdict is fixed by you, not by spawning more agents. Re-submit to the SAME reviewer once fixed.
+- State the size and the agents you will use in one line before starting, and the owner can override it.
 
 **Compliance gate (mandatory, two independent passes — a task isn't done until both pass):** before
 reporting a task complete to the owner, invoke `intent-reviewer` with the task ID and the exact

@@ -29,12 +29,12 @@ fi
 LOG="Claude/logs/auto-postplaytest-$(date +%Y%m%d-%H%M%S).log"
 
 echo "=== qa-regression (started $(date)) ===" >> "$LOG"
-claude -p "A test play-session in this project just ended. Analyze logs and project state to find regressions and bugs not yet reported, compared to what's documented as working in Claude/docs/STATUS.md. Add whatever you find to Claude/docs/BUGS.md, under the Newly reported section." --agent qa-regression >> "$LOG" 2>&1 || echo "qa-regression returned an error, check the log." >> "$LOG"
+claude -p --model haiku "A test play-session in this project just ended. Analyze logs and project state to find regressions and bugs not yet reported, compared to what's documented as working in Claude/docs/STATUS.md. Add whatever you find to Claude/docs/BUGS.md, under the Newly reported section." --agent qa-regression >> "$LOG" 2>&1 || echo "qa-regression returned an error, check the log." >> "$LOG"
 
 echo "=== planner-docs (started $(date)) ===" >> "$LOG"
-claude -p "qa-regression just analyzed the last play-session (see $LOG and Claude/docs/BUGS.md, Newly reported section). Update Claude/docs/STATUS.md with a new entry and reprioritize Claude/docs/BUGS.md." --agent planner-docs >> "$LOG" 2>&1 || echo "planner-docs returned an error, check the log." >> "$LOG"
+claude -p --model haiku "qa-regression just analyzed the last play-session (see $LOG and Claude/docs/BUGS.md, Newly reported section). Update Claude/docs/STATUS.md with a new entry and reprioritize Claude/docs/BUGS.md." --agent planner-docs >> "$LOG" 2>&1 || echo "planner-docs returned an error, check the log." >> "$LOG"
 
 echo "=== skill-reflector (started $(date)) ===" >> "$LOG"
-claude -p "planner-docs just finished the post-playtest update. Check whether this playtest taught something new about this map's genre (see Claude/docs/.genre) and queue at most 3 lessons for the owner's approval, exactly as your instructions say. Never edit skills yourself; if there is nothing real to learn, say so and stop." --agent skill-reflector >> "$LOG" 2>&1 || echo "skill-reflector returned an error, check the log." >> "$LOG"
+claude -p --model haiku "planner-docs just finished the post-playtest update. Check whether this playtest taught something new about this map's genre (see Claude/docs/.genre) and queue at most 3 lessons for the owner's approval, exactly as your instructions say. Never edit skills yourself; if there is nothing real to learn, say so and stop." --agent skill-reflector >> "$LOG" 2>&1 || echo "skill-reflector returned an error, check the log." >> "$LOG"
 
 echo "Automatic post-playtest check complete. Details in $LOG"

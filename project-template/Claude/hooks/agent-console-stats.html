@@ -538,7 +538,7 @@ function showSetupNeeded(){
 loadData();
 setInterval(loadData, 5 * 60 * 1000); // API data is daily-granularity; a 5-min poll just picks up cache refreshes
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.85.0";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.88.2";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -571,6 +571,22 @@ setInterval(loadData, 5 * 60 * 1000); // API data is daily-granularity; a 5-min 
       ls(function(){localStorage.setItem(KEY,JSON.stringify({at:Date.now(),tag:j.tag_name,url:url}));});
       show(j.tag_name,url);
     }).catch(function(){});
+})();
+</script>
+<script>
+/* Kit status (v1.88.2) - same snippet in all 5 consoles. If a newer kit is installed in your profile than the files of
+   this project, say so and what to do. Local only (/kit-status), silent on any failure. */
+(function(){
+  function a(){return document.querySelector(".termlines, header, .hdrbar");}
+  fetch("/kit-status").then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||!j.outdated||document.getElementById("kitLocalBanner")||!a())return;
+    var d=document.createElement("div"); d.id="kitLocalBanner";
+    d.style.cssText="display:flex;align-items:center;gap:10px;margin:12px 0;padding:8px 12px;border:1px solid rgba(255,176,32,.45);background:rgba(255,176,32,.08);border-radius:8px;font-size:12px;color:var(--text);";
+    d.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--amber);flex:none;"></span><span><b style="color:var(--amber);">New kit version ready:</b> v'+
+      String(j.template).replace(/[<>&"]/g,"")+' is installed in your profile, this project still has '+(j.project?"v"+String(j.project).replace(/[<>&"]/g,""):"an old kit")+
+      '. Close and reopen Claude Code on this project: it updates the files by itself and restarts this console.</span>';
+    a().parentNode.insertBefore(d,a().nextSibling);
+  }).catch(function(){});
 })();
 </script>
 </body>

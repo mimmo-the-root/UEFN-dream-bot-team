@@ -1,5 +1,164 @@
 # Changelog
 
+## v1.88.2 — Audit findings get their own release
+
+- When an audit (codebase-auditor) produces findings, planner-docs groups every finding that becomes a task into ONE dedicated release of the Active phase (`P<phase>-R<n>`, theme `Audit fixes <date>`, tasks ordered by severity), never mixed into a feature release or left in the backlog. Small findings still go to BUGS.md. Rule added to CLAUDE.md block `delivery-standard`, codebase-auditor and planner-docs.
+
+## v1.88.1 — /kit-update command
+
+- **New:** `/kit-update` slash command in every project: runs the kit sync right now (from the profile's kit template), without closing Claude Code, and reports the result. Delivered by the sync itself (`.claude/commands/kit-update.md`), so it appears in a project after its first update to this version.
+
+## v1.88.0 — Delivery standard: phases, releases, backlog, bugs
+
+- **New standard** (CLAUDE.md block `delivery-standard`, planner-docs, project-bootstrap, coder, release-gate): ROADMAP.md gets a `## Phases` table (PH-0 MVP, PH-1 Launch, PH-2 Growth; one Active; exit criteria; Phase 0 exit = a playtest with up to 3 players completes the core loop without a blocking bug and the owner decides). Releases are `P<phase>-R<n>`, planned only for the Active and the next phase; everything else is Release `Later` (the backlog). Mid-release requests go to the backlog.
+- **Bugs:** every bug is recorded in BUGS.md before it is fixed, never deleted (Fixed, then Closed after verification, same id reopened if it returns). coder may append one BUGS row mechanically (narrow exception).
+- Also: at most 2 tasks In progress, Definition of Done, release close = 3-line note + 3-question retrospective in STATUS.md, release-gate checks the phase exit criteria.
+- **Docs templates and lint:** new ROADMAP template with Phases; `docs_lint` checks the Phases table and the P<phase>-R<n>/Later release names, only for projects that have a `## Phases` section and only for open tasks (older projects and closed tasks keep their old names; planner-docs introduces the section on its next planning pass).
+- **Console (Docs page):** Phases card (status, goal, exit criteria) and Backlog card (tasks with Release Later); backlog tasks are excluded from the release bars and the open-tasks-by-release list.
+- Test: `tests/test_delivery_standard.py`.
+
+## v1.87.4 — Approve all lessons
+
+- **New (Skills page):** "Approve all N lessons" button above the waiting lessons (shown when 2 or more). It asks once, then approves them one by one and stops at the first error. Contradictions (they mark a pattern Contested) and pack updates are never bulk-approved and stay for individual review.
+
+## v1.87.3 — Audits feed an empty skill
+
+- **New:** after an audit, if the genre skill or a detected technique skill has fewer than 3 patterns backed by the owner's maps (`skills_lib.py needs-feeding <slug>`), `codebase-auditor` tells the main session to call ONE `skill-reflector` with the audit's verified findings as evidence. Lessons only reach the owner's approval queue (Skills page). Reference/official patterns do not count as owner-backed.
+- skill-reflector accepts audit findings as evidence; CLAUDE.md block skill-harness gains duty 3. Test: needs-feeding in `tests/test_materials_skill.py`.
+
+## v1.87.2 — Material recipes
+
+- **New:** recipes in the materials skill: "start from this known asset, change these parameters". One official recipe (`ui-flat-shape`, from Epic's UI material docs, parameter names to be verified in the editor). `skills_lib.py recipes materials [keyword]` lists them, `recipe-add` saves a learned one in `local/recipes.json` (hypothesis; confirmed when a second map reuses it, each map counts once; never overwritten by profile updates).
+- coder step 6c: for a materials task, use the closest recipe, try the UEFN MCP tools for material assets (tool names noted in `local/mcp-notes.md`), otherwise give the owner the steps; save the recipe after the owner confirms. materials-expert hands recipes to the coder.
+- Test: recipes in `tests/test_materials_skill.py`.
+
+## v1.87.1 — materials-expert agent
+
+- **New:** `materials-expert` agent (sonnet, read-only): inventory and audit of materials, reuse search (project, then second brain), harvest of reusable materials as lessons for the materials skill (via one batched skill-reflector call, owner approval). Listed on the console (15 agents). The technique-skills rule delegates materials work to it.
+
+## v1.87.0 — Materials technique skill, second brain before asking
+
+- **New:** technique skill `materials` (same engine and growth rules: reference, then confirmed/proven from the owner's maps, approval on the Skills page). Official pack of 9 reference patterns (UI material instances, reuse through parents/functions, texture cost), built from Epic's material docs in our own words. Detected automatically from asset names (`M_`, `MI_`, `MF_`, `MPC_`, a `Materials` folder) or Verse markers.
+- **New:** `python Claude/hooks/skills_lib.py materials <dir>`: read-only inventory of the material assets by folder and prefix, to harvest reusable materials from the owner's maps as lessons.
+- **New:** rule "second brain before asking" (CLAUDE.md block `brain-before-asking`, user rule 11, coder / project-bootstrap / template-reader): before asking the owner, look in the second brain and the skills, and propose the solution found (asking only yes or alternative); bare questions only when nothing was found.
+- `update-my-profile.cmd` also copies the materials official pack. Test: `tests/test_materials_skill.py`.
+
+## v1.86.22 — Fix: history-trim backups broke the UEFN build
+
+- **Fix (important):** the pre-trim backup of a `.verse` file was copied with its `.verse` extension into `Claude/logs/kit-backup/`; UEFN compiles every `.verse` under `Content/`, so the copies caused duplicate-definition errors. Verse backups are now written as `<name>.verse.bak`, and kit-sync renames any stray `.verse` under `Claude/logs/` to `.verse.bak` at session start.
+- Test: `tests/test_history_trim.py` checks no `.verse` is left in the backup.
+
+## v1.86.21 — Island strip position on Docs
+
+- **Fix:** on the Docs page the island strip appeared above the title; it now sits right under the header, like on the other pages.
+
+## v1.86.20 — Skills page: filtered, paginated patterns
+
+- **Changed:** the patterns list of a genre/technique skill is sorted by confidence (contested, proven, confirmed, hypothesis, reference), shows 8 per page (Prev/Next), has tier chips with counts and a search box. Default view "Relevant" hides official reference patterns nobody has tested yet (0 support, 0 against); they stay one click away under "Reference" / "All". Only the visible page is rendered.
+
+## v1.86.19 — Bug fixing progress card
+
+- **Changed (Docs page):** the "Open bugs" card is now "Bug fixing progress": a ring with the % of closed bugs, "N bugs in total · C closed · O open", and the severity breakdown of the open ones, laid out like the roadmap progress card.
+- Removed the misleading "N open bugs of M logged" footer under the open-bugs list.
+
+## v1.86.18 — Automatic history trimming
+
+- **New:** `history_trim.py`, run by kit-sync at session start: old STATUS.md log entries and resolved BUGS.md sections move to `Claude/docs/archive/`; long history comment blocks in `.verse` files over 20 KB are condensed to 3 lines plus a pointer (full text archived). Code lines are never touched (checked before writing), a backup goes to `Claude/logs/kit-backup/<ts>-trim/`, and a second run changes nothing. Opt out with an empty `Claude/docs/.no-history-trim`.
+- CLAUDE.md `token-discipline` block: do not read `Claude/docs/archive/` unless the task is about history.
+- Test: `tests/test_history_trim.py`.
+
+## v1.86.17 — Island info strip on every console page
+
+- **New:** the island strip (title, code, tags, project genre badge) that only the Stats page showed now appears under the header on Console, Docs, Flow and Skills too. Local data only; hidden if unavailable.
+- Docs: SETUP-GUIDE suggests the optional third-party `caveman` plugin (Phase 1 step 11).
+
+## v1.86.16 — Token discipline
+
+- **New:** CLAUDE.md block `token-discipline`: never read ROADMAP/STATUS/BUGS in full (Current state + newest entry only; Grep the row by id), big Verse files by symbol with offset/limit, no re-reading, no long tool output pasted back, no re-running checks on unchanged code, `/compact` suggestion.
+- **Changed:** user-level rule 9 (concise style) now forbids filler openers/closers, whole-file reprints and long subagent reports (max 15 lines).
+
+## v1.86.15 — Genre taken from Epic's ranking when the project has none
+
+- **Fixed:** a project with an island code but no `Claude/docs/.genre` never showed the genre badge on the Stats page (and its genre skill never started). `kit_sync` now reads the genre Epic ranks the island in from the console's cached rankings, validates it against the official genre list, writes `.genre`, creates the genre skill and says so. Never overrides an existing `.genre`; `epic-template` is left alone. `project-bootstrap` uses Epic's data before asking.
+
+## v1.86.14 — Reminder repair also recognizes a hand-fixed hook
+
+- **Fixed:** `kit_sync`'s repair of the Stop reminder now also matches a version already quoted by hand (`echo 'Reminder: ...'`), so it is replaced by the standard one instead of being duplicated.
+
+## v1.86.13 — Fixed the Stop reminder hook (bash syntax error)
+
+- **Fixed:** the Stop hook reminder added in v1.86.7 had unquoted parentheses and failed in bash ("syntax error near unexpected token"). The text is now quoted and has no parentheses. `kit_sync` repairs existing projects: any old or broken `echo Reminder:` Stop hook is replaced by the fixed one and duplicates are removed.
+
+## v1.86.12 — Update messages start with a green check
+
+- **Changed:** kit update messages start with "✅ KIT UPDATED" so they stand out in the session header.
+
+## v1.86.11 — Clear update messages
+
+- **Changed:** the update message now says where it comes from and what changed: "Kit updated from vA to vB: N files (M new); K hook settings; CLAUDE.md blocks: ...". When the project's own hook and the global hook both act in the same start, the second says "one more step of the same update was applied (what)" instead of repeating the full restart notice.
+
+## v1.86.10 — Docs data follows the format; kit banner on every page
+
+- **New:** `docs_migrate.py` aligns old ROADMAP.md / BUGS.md data to the current format (adds the Release column with "Unassigned", puts `B-NNN:` ids in bug Titles, folds a separate ID column into the Title, keeps every row, backs up first). `kit_sync` runs it at every session start, idempotent. Rule in CLAUDE.md block `docs-format` and in `planner-docs`.
+- **Fixed:** the format check wrongly required an ID and a Release column in BUGS.md; the console reads bugs as `B-NNN: title` and never uses a bug Release. BUGS.md is back to `Title | Where | Severity | Probable cause | Status`.
+- **Fixed:** the "new kit version" and "update available" bars never showed on the Skills page (no anchor element).
+
+## v1.86.9 — Two simultaneous kit updates no longer collide
+
+- **Fixed:** at session start the project's own `kit-sync` and the global one in your profile ran together on Windows, and one failed with "Permission denied" on a file the other was writing (the update itself still completed). `kit_sync` now takes a lock (`Claude/logs/.kit-sync.lock`, stale after 90 s) so only one instance writes and the other exits quietly, retries a busy file up to 4 times, and a file that stays busy no longer aborts the whole update: it is reported and done at the next session start.
+
+## v1.86.8 — Console warns about a newer kit and restarts after an update
+
+- **New:** when the kit in your profile is newer than the files of the project, every console page shows an amber bar "New kit version ready" (new local endpoint `/kit-status` on both servers). It tells you to reopen Claude Code on the project.
+- **New:** when `kit_sync` replaces or adds files, it now restarts the console server of THAT project (only if the listener on 8765 answers `/whoami` with this project), so the new pages and endpoints are served immediately. Reload the browser tab.
+
+## v1.86.7 — Cost discipline: fewer subagents, cheaper models
+
+- **Fixed:** the post-playtest hook started three headless `claude -p` sessions on your default model each time; they now use `--model haiku` (the sessions only delegate; the real work stays in the agents).
+- **Cheaper agents:** `planner-docs` and `skill-reflector` run on haiku (planner-docs is protected by the docs format check). Reviewers that judge intent, `coder`, `qa-regression` and `template-reader` stay on sonnet.
+- **Planning:** `coder` sizes each task S/M/L and spawns only what that size needs (S = compliance-reviewer only, planner-docs batched at session end; no qa/skill-reflector/second brain per task; no helper fan-out under 3 independent files). Same rule as CLAUDE.md block `cost-discipline`.
+
+## v1.86.6 — One fixed format for ROADMAP and BUGS, checked automatically
+
+- **Fixed:** the docs templates did not match what the console reads (ROADMAP had no Release column, BUGS had no ID column), so agents invented formats and the release card stayed empty. Templates now carry the exact columns plus a FORMAT CONTRACT comment.
+- **New:** `docs_lint.py` checks columns, `T-`/`B-` ids, status words, empty Release cells, duplicate ids and bugs written as prose. A PostToolUse hook (`docs-lint.ps1`/`.sh`) runs it right after any edit of ROADMAP.md/BUGS.md and tells Claude to fix problems (exit 2). Never fires for other files.
+- **Rules:** `planner-docs` and `qa-regression` get an explicit "never reinvent the format" contract; CLAUDE.md block `docs-format`.
+
+## v1.86.5 — Island code saved by a hook
+
+- **Fixed:** the island code the owner types in chat used to end up in the assistant's memory instead of `Claude/docs/.island-code` (the rule was only a mention). A `UserPromptSubmit` hook (`island-code.ps1`/`.sh`) now writes it to the file, and a CLAUDE.md block forbids copying it elsewhere. A different code never overwrites the saved one: Claude asks first.
+
+## v1.86.4 — Old kits update themselves too
+
+- **New:** a global SessionStart hook (`user-level-hooks/kit-sync-global.py`, installed into `~/.claude` by `update-my-profile.cmd`) updates any project that has the kit, even one with no update hook of its own. Tested on a copy of a pre-1.84 project.
+
+- **Fixed:** projects with a kit older than v1.84 never updated (no update hook yet). The user-level CLAUDE.md now has section 14: at session start Claude compares versions with the profile template and runs `kit_sync.py` itself. Copy the new user-level `CLAUDE.md` to your profile once.
+
+## v1.86.3 — Technique skills engage automatically
+
+- **New:** `skills_lib.py techniques <dir>` finds the technique skills a project uses (markers in the Verse code). The CLAUDE.md block, `coder` and `codebase-auditor` run it first and read the matching skills, so a plain "audit the map" uses them without being asked.
+
+## Unreleased — tool
+
+- **New (personal tool, not shipped):** `tool/promote-genre-skills.py` compares your profile genre/technique skills with the repo and promotes official packs, references, SKILL.md (patterns block emptied) and an exported community pack, after privacy and format checks. Report-only by default.
+
+## v1.86.2 — Console shows template-reader and skill-reflector
+
+- **New:** the Console orbit lists `template-reader` and `skill-reflector`, so template analysis and lesson queuing are visible while they run.
+
+## v1.86.1 — Epic templates are recognized automatically
+
+- **Fixed:** analyzing an Epic template no longer asks for a genre. The word "template" (or a template-looking folder name, or the `template-reader` agent) writes `epic-template` to `.genre`, creates no genre skill and teaches nothing to genre skills; knowledge goes to the technique skill.
+
+## v1.86.0 — Technique skills and official reference patterns
+
+- **New:** a fifth confidence level, **reference**, for official guidance (Epic docs and templates). It stays reference until your own maps back it (1 map = confirmed, 2 = proven; a map against = contested). Only packs loaded as official can carry it; community packs cannot.
+- **New:** technique skills share the genre engine. First one: `llm-npc-conversations` (16 official patterns, audit checklist). Official packs in `<skill>/official/*.json` are queued for approval on the Skills page at session start; re-ingestion is idempotent.
+- **New:** `template-reader` agent studies docs/templates read-only and writes a card plus an official pack in its own words.
+- **Skills page:** blue "reference" segment in the confidence bars, OFFICIAL pill, "added as official reference" text.
+- **CLAUDE.md:** KIT block `technique-skills`. `skills_lib.py merge --official`. Tests extended.
+- Profile copy of skills: use `robocopy user-level-skills "%USERPROFILE%\.claude\skills" /E /XD local pack` so learned data is not overwritten.
+
 ## v1.85.0 — Security hardening of the Skills library (CodeQL alerts: 18 → 0)
 
 - **Hardened:** every file access in `skills_lib.py` goes through one gate (`_inside`), which resolves `..` and symlinks and refuses anything outside the allowed folder. A blocked path is now a visible error instead of a silent "file not found".

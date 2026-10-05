@@ -1,0 +1,106 @@
+{
+ "schema": 1,
+ "genre": "materials",
+ "pack_version": "2026-10-01",
+ "patterns": [
+  {
+   "variant": "ui-materials",
+   "condition": "A UI element needs a flat shape, border or gradient",
+   "action": "Use a material instance of a UI shape material (domain User Interface) as the widget fill instead of an imported texture",
+   "statement": "Epic's UI material instances replace textures for flat shapes",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-7f6b0dca4436"
+  },
+  {
+   "variant": "ui-materials",
+   "condition": "UI shapes need hover, focus, press or disabled looks",
+   "action": "Use the instance state parameters of the UI shape material for each interaction state",
+   "statement": "Epic's UI shape instances expose interaction state parameters",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-13ae523edd90"
+  },
+  {
+   "variant": "ui-materials",
+   "condition": "A material instance used as UI fill shows transparent edges",
+   "action": "Assign a physical material (typically Wood) to the instance",
+   "statement": "Epic notes UI instances need a physical material assigned",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-92b03682c0f9"
+  },
+  {
+   "variant": "reuse",
+   "condition": "Several materials share the same look with different values",
+   "action": "Make one parent material and an instance per variation; parent changes propagate to every child",
+   "statement": "Epic's parent and instance model gives reuse",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-bd721ce8e154"
+  },
+  {
+   "variant": "reuse",
+   "condition": "The same node logic is repeated in several materials",
+   "action": "Put it in a material function and expose its parameters in the instance editor",
+   "statement": "Epic's material functions package reusable logic",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-e02c25ac87dc"
+  },
+  {
+   "variant": "reuse",
+   "condition": "Instance values must follow player or game data",
+   "action": "Bind instance parameters to widget properties through view bindings so they update at runtime",
+   "statement": "Epic binds instance parameters to UMG properties",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-9a825d058164"
+  },
+  {
+   "variant": "performance",
+   "condition": "Complex UI art is built from many textures",
+   "action": "Prefer materials; if a texture is needed, one signed distance field texture is lighter and cleaner than several",
+   "statement": "Epic calls textures memory intensive and favors SDF textures",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-05a6ef0bb8e9"
+  },
+  {
+   "variant": "performance",
+   "condition": "A UI material is asked for soft shadows or detailed art",
+   "action": "Know the limits: UI materials give basic shapes, stroke and gradients only; custom SDF shapes cannot soften shadows",
+   "statement": "Epic documents the UI material limits",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-3ef3989c2c20"
+  },
+  {
+   "variant": "performance",
+   "condition": "A widget looks complex",
+   "action": "Layer several simple image widgets deliberately to balance look and cost",
+   "statement": "Epic suggests layering image widgets strategically",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-644bd8bec567"
+  }
+ ]
+}

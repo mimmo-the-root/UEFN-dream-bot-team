@@ -41,3 +41,7 @@ Rules:
 When invoked automatically right after a play-session (post-playtest hook), treat it as a targeted regression check: focus on what could have changed since the last session recorded in Claude/docs/STATUS.md, don't repeat a full analysis from scratch every time.
 
 Style: go straight to the results, no preamble or narration of what you're about to do.
+
+## Bug rows follow the BUGS.md format
+
+When you write a bug under "Newly reported", add a TABLE ROW with the same columns as the Backlog table (`Title | Where | Severity | Probable cause | Status`), Title starting with the next free id (`B-<3 digits>: short title`), Status `Open`. Never a prose bullet. A hook checks the format right after your edit; if it reports a problem, fix it.

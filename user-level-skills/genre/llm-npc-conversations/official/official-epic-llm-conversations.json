@@ -1,0 +1,183 @@
+{
+  "schema": 1,
+  "genre": "llm-npc-conversations",
+  "pack_version": "2026-10-01",
+  "patterns": [
+    {
+      "variant": "persona-setup",
+      "condition": "An NPC should speak through an LLM persona",
+      "action": "Attach a persona component to the NPC character definition and spawn it with an NPC spawner; behavior logic lives in a Verse npc_behavior",
+      "statement": "Epic's template wires conversation this way",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-9ac383ce30a5"
+    },
+    {
+      "variant": "persona-setup",
+      "condition": "One character needs several personalities",
+      "action": "Create one character definition per persona; a definition carries only one persona",
+      "statement": "Epic documents a one persona per definition limit",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-bd9827013123"
+    },
+    {
+      "variant": "persona-setup",
+      "condition": "Planning a conversation feature",
+      "action": "Check the experimental Persona Modifier and its constraints before design; features may change between releases",
+      "statement": "Epic labels the persona modifier experimental",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-950d71b228d4"
+    },
+    {
+      "variant": "structured-output",
+      "condition": "Game state must change from what the NPC says",
+      "action": "Define a struct with logic, int, float, enum or message fields, describe each field for the model, and register it as an action on the session",
+      "statement": "Free text cannot be trusted to drive game state",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-caa348fc9568"
+    },
+    {
+      "variant": "structured-output",
+      "condition": "The model returns a value that affects score or price",
+      "action": "Validate range and type in Verse before applying it; the template does not clamp numeric results",
+      "statement": "Code review of the template found unchecked values",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-d38a44c58e6f"
+    },
+    {
+      "variant": "structured-output",
+      "condition": "A session ends or the NPC despawns",
+      "action": "Cancel every subscription created for the session, including speech event subscriptions, not only the structured output ones",
+      "statement": "The template cleans only the structured output actions",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-09b9daa4c640"
+    },
+    {
+      "variant": "turn-loop",
+      "condition": "Handlers fire while the NPC is still speaking",
+      "action": "Set flags inside handlers and apply them at one stop-of-speech checkpoint, so game changes follow the spoken line",
+      "statement": "Template reference loop applies flags when speech stops",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-5146ee1435d1"
+    },
+    {
+      "variant": "turn-loop",
+      "condition": "NPC is removed right after its last line",
+      "action": "Wait a short moment, about one second, before despawn so the final audio is not cut",
+      "statement": "Template sleeps 0.8 s before despawn",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-9ced0a1ad5ac"
+    },
+    {
+      "variant": "turn-loop",
+      "condition": "The player interrupts the NPC",
+      "action": "Handle the interrupted event explicitly instead of ignoring it, and decide whether the turn is lost or retried",
+      "statement": "Template ignores interruptions",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-9f9f8805fd98"
+    },
+    {
+      "variant": "caption-ui",
+      "condition": "Players need to read what the NPC says",
+      "action": "Drive captions from the commit and stop speech events through a UI manager and a widget, and hide them when speech stops",
+      "statement": "Epic caption UI approach",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-f45611793f91"
+    },
+    {
+      "variant": "caption-ui",
+      "condition": "Score or state is shown beside captions",
+      "action": "Route score changes through the same UI manager so the widget and game state cannot diverge",
+      "statement": "Single update path avoids cascading display errors",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-3c57e917231f"
+    },
+    {
+      "variant": "constraints",
+      "condition": "Designing for voice players",
+      "action": "Voice chat is required and the language is English only; plan a fallback for players who cannot speak",
+      "statement": "Epic lists these as current limits",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-457efdc0c745"
+    },
+    {
+      "variant": "constraints",
+      "condition": "Targeting a brand island",
+      "action": "LLM conversation is not supported on brand islands; keep a non-LLM path or build on a standard island",
+      "statement": "Epic lists brand islands as unsupported",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-71a6dc328e4b"
+    },
+    {
+      "variant": "constraints",
+      "condition": "Session continuity matters",
+      "action": "The session is not persistent; store anything that must survive in your own state and re-supply it as context next session",
+      "statement": "Epic documents non-persistent sessions",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-d3b6dcdf8dd3"
+    },
+    {
+      "variant": "turn-loop",
+      "condition": "Response time is unknown",
+      "action": "Latency and turn-taking are undocumented; measure them in your own playtests and add a timeout with a fallback line",
+      "statement": "Gap in Epic documentation, kit guidance",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-af6e0af4e375"
+    },
+    {
+      "variant": "multiplayer",
+      "condition": "More than one player talks to one NPC",
+      "action": "Multi-player limits are undocumented; test with two players early and serialize turns through one owner of the conversation",
+      "statement": "Gap in Epic documentation, kit guidance",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-3d9900cfac78"
+    }
+  ]
+}

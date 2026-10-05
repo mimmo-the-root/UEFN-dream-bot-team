@@ -78,7 +78,8 @@ with the real assets and project:
   history. If it already has a value, do nothing further and don't mention it. If it's missing OR
   empty, immediately follow `~/.claude/agents/project-bootstrap.md`'s "Step 0.5 — Genre selection
   & Genre Skill bootstrap" procedure right now, in this same session, even if you're not running a
-  full bootstrap — that step is self-contained and was written to be triggerable on its own. Don't
+  full bootstrap — that step is self-contained and was written to be triggerable on its own. If the project is an Epic template (the request or folder name says template),
+  Step 0.5's rule 0 applies: write `epic-template` and do NOT ask. Don't
   ask permission to check or to run the step itself; DO stop and ask the owner which genre to pick
   (that one decision is genuinely theirs, never guess it) before writing `.genre`. This exists
   specifically so a batch of already-analyzed/pre-existing projects gets the genre set the first
@@ -98,6 +99,7 @@ with the real assets and project:
      rejects each one on the Skills page. Never edit anything under `~/.claude/skills/genre/`
      yourself, and never put map names, island codes or task/bug IDs into a lesson — those stay on
      this computer only.
+  3. *Feed it after an audit* (automatic): when `codebase-auditor` reports that a skill needs feeding (`skills_lib.py needs-feeding <slug>`: fewer than 3 owner-backed patterns), invoke ONE `skill-reflector` call with the audit's verified findings as evidence. Do not ask first; the lessons only reach the owner's approval queue.
 <!-- KIT:END skill-harness -->
 - **UI reference harvest (automatic, every session, independent of any single task or of
   `coder` having touched anything)**: if `~/.claude/skills/game-ui-designer/` exists, this has two
@@ -145,3 +147,42 @@ with the real assets and project:
   "http://127.0.0.1:8765/"`; macOS: `open http://127.0.0.1:8765/`; Linux: `xdg-open
   http://127.0.0.1:8765/`) — the owner wants it opened automatically every session, not just
   mentioned. Never ask permission first — just do it and say so.
+<!-- KIT:BEGIN technique-skills -->
+- Technique skills (automatic): before any audit, review, QA or implementation work, run
+  `python Claude/hooks/skills_lib.py techniques .` (use `py -3` if `python` is missing). It lists the technique
+  skills (LLM conversations, materials, and later Web UI or brand islands) that this project actually uses, by looking for
+  their markers in the Verse code. For every slug it returns, read `~/.claude/skills/genre/<slug>/SKILL.md`
+  and its patterns first, and apply them (and its audit checklist) without being asked. Items marked
+  reference are official platform facts; items backed by the owner's maps outrank them. Mention in your
+  report which technique skills you used. Do not ask permission.
+  For materials work (audit, reuse, which material to use) delegate to the `materials-expert` agent.
+<!-- KIT:END technique-skills -->
+<!-- KIT:BEGIN brain-before-asking -->
+- **Second brain before asking** (automatic): before you ask the owner a question or offer a choice, first look for the
+  answer in the second brain (`second-brain-librarian` query, only if a vault path is set; skip silently if not) and in
+  the genre/technique skills. If something relevant is found, do not ask an open question: propose the solution you
+  found (one line, with where it comes from) and ask only for a yes or an alternative. Ask a bare question only when
+  nothing was found. One query per question, never a loop; the vault being unreachable is never a reason to stop.
+<!-- KIT:END brain-before-asking -->
+<!-- KIT:BEGIN delivery-standard -->
+- **Delivery standard** (planner-docs owns it; the console shows it): ROADMAP.md has a `## Phases` table (PH-0 MVP, PH-1 Launch, PH-2 Growth;
+  one Active; each with exit criteria; Phase 0 exit = a playtest with up to 3 players completes the core loop with no blocking bug and the
+  owner decides). Releases are `P<phase>-R<n>`; plan only the Active phase and the next one; everything else is Release `Later` (backlog).
+  A request that arrives mid-release goes to the backlog unless the owner says what it replaces. EVERY bug is a row in BUGS.md before it is fixed;
+  never deleted (Fixed, then Closed after verification). At most 2 tasks In progress. Done = acceptance criterion verified, compiles, bugs Fixed.
+  **Audit findings always get their own release** (`P<phase>-R<n>`, theme `Audit fixes <date>`, tasks by severity), never mixed into a feature release.
+  At release close planner-docs adds a 3-line release note and a 3-question retrospective to STATUS.md. Old project without `## Phases`:
+  planner-docs adds it on its next planning pass.
+<!-- KIT:END delivery-standard -->
+<!-- KIT:BEGIN island-code -->
+- **Island code**: the code (1234-5678-9012) lives ONLY in `Claude/docs/.island-code`. A hook saves it from the owner's message automatically and tells you so. Never write it into memory, skills, lessons or other files, and never ask what to do with a code the owner just gave. If the hook says a different code was mentioned, ask once whether it replaces the saved one.
+<!-- KIT:END island-code -->
+<!-- KIT:BEGIN docs-format -->
+- **Docs format**: ROADMAP.md and BUGS.md are read by the Agent Console in ONE fixed format (see the FORMAT CONTRACT comment at the top of each table). Every agent that edits them keeps that format, adds rows (never new sections or tables), never leaves a task's Release cell empty, starts every bug Title with its `B-NNN:` id, and runs `python Claude/hooks/docs_lint.py` after the edit. A hook re-checks automatically after each edit and tells you what to fix. The release shown in the console comes only from the Release column. **Alignment rule**: when the format changes in a kit update, existing data is aligned automatically at session start (`docs_migrate.py`: adds missing columns, `B-NNN:` ids, keeps every row, backs up first). If `docs_lint.py` still reports a problem on an old file, align it to the contract by hand without losing any row or id and say what you changed.
+<!-- KIT:END docs-format -->
+<!-- KIT:BEGIN cost-discipline -->
+- **Cost discipline**: every subagent is a separate paid session. Size each task first (S small, M normal, L large) and spawn only the agents that size needs: S = compliance-reviewer only and a batched planner-docs call at the end; M = intent-reviewer, compliance-reviewer, planner-docs; L = full pipeline. qa-regression, skill-reflector and the second brain run after playtests or releases, never per task. Do not fan out helpers for fewer than 3 independent files. Do not run a reviewer twice for the same unchanged work. The owner can always override the size.
+<!-- KIT:END cost-discipline -->
+<!-- KIT:BEGIN token-discipline -->
+- **Token discipline** (cost is mostly what gets READ, not what gets written): never read ROADMAP.md, STATUS.md or BUGS.md in full. STATUS.md: only the "Current state" section and the newest log entry (first ~40 lines). ROADMAP.md / BUGS.md: `Grep` the row of the id you need, or read the table only. Verse files over about 300 lines: `Grep -n` the symbol first, then `Read` with offset/limit around it; read a whole big file only when the task is a full audit. Do not re-read a file already read this session unless it changed. Do not paste long tool output back; summarize it. Do not re-run a build or a check on unchanged code. Answer concisely: no preamble, no closing offers, diff instead of the whole file. Old history is archived automatically at session start (STATUS/BUGS old entries, long history comments in big .verse files: a `# (history, N more lines: ...)` pointer remains): never read `Claude/docs/archive/` unless the task is about that history. After finishing a task, suggest `/compact` or a fresh session when the conversation has grown long.
+<!-- KIT:END token-discipline -->

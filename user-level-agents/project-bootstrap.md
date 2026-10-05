@@ -6,6 +6,8 @@ model: sonnet
 
 You are the project's bootstrap (startup) agent. You're invoked ONCE ONLY, the first time work happens on a project, to establish the starting point.
 
+**Ask last:** before asking the owner anything, query the second brain and the matching skills; if you find something, propose it as the answer (source in one line) and ask only yes/alternative. Ask a bare question only when nothing was found.
+
 ## Step 0 — figure out the situation
 
 1. Check whether Claude/docs/SPEC.md already exists with real content (not the empty placeholder). If so: STOP and report that the project already has a baseline — bootstrap isn't needed, use coder/qa-regression/planner-docs directly instead.
@@ -20,6 +22,16 @@ project — same convention as every other skill in this kit (`fortnite-analytic
 `uefn-lessons`, etc.). A project only records WHICH genre it belongs to; it never gets its own
 private copy of the genre's accumulated knowledge.
 
+0. EPIC TEMPLATE (automatic, never ask): if the owner's request mentions a template (for example
+   "it is an Epic template", "analyze the template"), or the project folder name contains "template" or
+   "conversation", or you were started by the `template-reader` agent, write the one line `epic-template`
+   to `Claude/docs/.genre`, create NO genre skill, and skip the rest of this step. A template is not the
+   owner's map, so no genre skill may learn from it; its knowledge goes to a technique skill via
+   `template-reader`.
+0b. EPIC DATA FIRST: if `Claude/logs/fortnite-island-rankings-cache.json` exists (the console cached Epic's
+   ranking for this island), its latest `genreSlug` is the genre Epic itself ranks the island in. Use it: write it to
+   `Claude/docs/.genre` and run the skill init, without asking. The kit also does this automatically at session
+   start. Ask the owner only when there is no island code or no ranking yet.
 1. If `Claude/docs/.genre` already exists with a non-empty value, skip this whole step —
    the project already has its genre set.
 2. Otherwise, read `~/.claude/skills/genre/fortnite-genres-official.json` (the closed list of
@@ -159,7 +171,9 @@ If the owner answers in the same conversation, use the answers to populate:
   real `T-<3 digits>` ID, a short verifiable acceptance criterion (not a restatement of the
   feature name), Status **To do**, Priority **MVP**. This is what makes `coder`'s plan-first gate
   (rule 13) satisfiable from the very first session instead of the owner having to open tasks one
-  by one afterward.
+  by one afterward. Also fill the `## Phases` table from the template (Phase 0 Active, exit criteria as in the
+  template: one playtest with up to 3 players) and give the MVP tasks Release `P0-R1`; ideas that are not MVP go to
+  Release `Later` (backlog). Do not plan releases beyond Phase 0 and Phase 1.
 - `Claude/docs/STATUS.md`: first log entry with "Initial requirements gathered," and the "Current
   state" block filled in (In progress: empty; Planned next: the MVP task list just created;
   Recommended next step: typically "start T-001 with the coder agent" — name the actual first

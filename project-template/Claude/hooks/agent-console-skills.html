@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DREAM BOT TEAM AGENT CONSOLE FOR UEFN — Skills</title>
 <style>
+.chip{display:inline-block;padding:2px 9px;border:1px solid var(--line);border-radius:20px;font-size:10px;color:var(--dim);cursor:pointer;margin-right:5px;user-select:none}.chip.on{color:var(--green);border-color:var(--green)}.pgbar{padding:8px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:4px}.pgq{margin-left:auto;background:var(--panel2,#0a0e17);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:3px 8px;font-size:11px;width:130px}.pgnav{padding:8px 10px;text-align:center;font-size:11px}
 :root{--bg:#060810;--panel:#0d121c;--panel2:#0a0e17;--line:#1c2740;--line-soft:#223050;--text:#c9d6f0;--dim:#5a7088;--blue:#4b8bff;--green:#39ff88;--amber:#ffb454;--red:#ff4d5e;--violet:#b98bff}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Consolas,'Courier New',monospace}
 body{background-image:radial-gradient(ellipse at 50% -10%,rgba(75,139,255,.14),transparent 60%),repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px)}
@@ -21,7 +22,7 @@ body{background-image:radial-gradient(ellipse at 50% -10%,rgba(75,139,255,.14),t
 .prop{padding:12px 0;border-bottom:1px solid var(--line-soft)}.prop:last-child{border-bottom:none}
 .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
 .p-new{background:rgba(75,139,255,.14);color:var(--blue)}.p-upd{background:rgba(57,255,136,.12);color:var(--green)}.p-con{background:rgba(255,77,94,.12);color:var(--red)}
-.p-hyp{background:rgba(90,112,136,.18);color:#8fa5c0}.p-conf{background:rgba(255,180,84,.12);color:var(--amber)}.p-prov{background:rgba(57,255,136,.12);color:var(--green)}.p-comm{background:rgba(185,139,255,.14);color:var(--violet)}
+.p-hyp{background:rgba(90,112,136,.18);color:#8fa5c0}.p-conf{background:rgba(255,180,84,.12);color:var(--amber)}.p-prov{background:rgba(57,255,136,.12);color:var(--green)}.p-ref{background:rgba(87,166,255,.14);color:var(--blue)}.p-comm{background:rgba(185,139,255,.14);color:var(--violet)}
 .say{font-size:13px;margin:7px 0 6px;line-height:1.5}.chips{font-size:10.5px;color:var(--dim)}
 .chips span{border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-right:6px}
 .btns{display:flex;gap:8px;margin-top:9px}.btn{font:inherit;font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
@@ -81,9 +82,9 @@ function ago(iso){
 }
 function tierPill(p){
   if (p.status === "contested") return '<span class="pill p-con">CONTESTED</span>';
-  var m = {proven:"p-prov", confirmed:"p-conf", hypothesis:"p-hyp"};
+  var m = {proven:"p-prov", confirmed:"p-conf", hypothesis:"p-hyp", reference:"p-ref"};
   return '<span class="pill ' + m[p.tier] + '">' + esc(p.tier.toUpperCase()) + '</span>' +
-    (p.origin === "community" ? ' <span class="pill p-comm">COMMUNITY</span>' : "");
+    (p.origin === "community" ? ' <span class="pill p-comm">COMMUNITY</span>' : (p.origin === "official" ? ' <span class="pill p-ref">OFFICIAL</span>' : ""));
 }
 
 function renderHero(d){
@@ -100,9 +101,9 @@ function renderHero(d){
       '</small></div><div class="s">' + (d.last_learned ? "last learned: " + esc(ago(d.last_learned)) : "nothing learned yet") + '</div></div>' +
     '<div class="hc"><div class="k">Pattern confidence</div><div class="n">' + tot + ' <small>pattern' + (tot === 1 ? "" : "s") + '</small></div>' +
       '<div class="stack"><i style="width:' + w(t.proven) + ';background:var(--green)"></i><i style="width:' + w(t.confirmed) +
-      ';background:var(--amber)"></i><i style="width:' + w(t.hypothesis) + ';background:#8fa5c0"></i><i style="width:' + w(t.contested) +
+      ';background:var(--amber)"></i><i style="width:' + w(t.reference||0) + ';background:var(--blue)"></i><i style="width:' + w(t.hypothesis) + ';background:#8fa5c0"></i><i style="width:' + w(t.contested) +
       ';background:var(--red)"></i></div><div class="s">' + c(t.proven) + ' proven · ' + c(t.confirmed) + ' confirmed · ' + c(t.hypothesis) +
-      ' hypothesis · ' + c(t.contested) + ' contested</div></div>' +
+      ' hypothesis · ' + (t.reference ? c(t.reference) + ' reference · ' : "") + c(t.contested) + ' contested</div></div>' +
     '<div class="hc"><div class="k">Used by coder — last 7 days</div><div class="n">' + d.usage_week_total + ' <small>consultation' +
       (d.usage_week_total === 1 ? "" : "s") + '</small></div><div class="spark">' +
       d.usage_week.map(function(v){ return '<i style="height:' + Math.max(8, Math.round(100 * v / maxU)) + '%"></i>'; }).join("") + '</div>' +
@@ -129,7 +130,7 @@ function packCard(p){
   };
   return '<div class="prop"><div class="say"><b>' + esc(p.source) + ' pack v' + esc(p.version) + '</b> — ' + esc(p.genre) + '. Nothing has changed on your computer yet.</div>' +
     '<div class="diff">' +
-    rows(p.new, "+ new", "var(--green)", function(it){ return ' <span class="dim">(added as a community hypothesis)</span>'; }) +
+    rows(p.new, "+ new", "var(--green)", function(it){ return ' <span class="dim">(' + (p.official ? 'added as official reference' : 'added as a community hypothesis') + ')</span>'; }) +
     rows(p.known, "= known", "var(--amber)", function(it){ return ' <span class="dim">(support ' + (it.delta > 0 ? "+" : "") + it.delta + ' — your text stays)</span>'; }) +
     rows(p.conflicts, "! conflict", "var(--red)", function(it){ return ' <span class="dim">(differs from yours: “' + esc(it.local_statement) + '” — kept as Contested, yours wins)</span>'; }) +
     '</div>' + (p.rejected && p.rejected.length ? '<div class="sub">' + p.rejected.length + ' pattern(s) were refused by the format/safety check.</div>' : "") +
@@ -149,7 +150,10 @@ function render(d){
     var withP = d.genres.filter(function(g){ return g.patterns.length; })[0] || d.genres[0];
     SELECTED = withP ? withP.slug : null;
   }
+  var bulk = lessons.filter(function(p){ return p.kind !== "contradiction"; }), contra = lessons.length - bulk.length;
   var h = '<div class="lab">Lessons — waiting for you ' + (lessons.length ? '<span class="cnt">' + lessons.length + ' to review</span>' : "") + '</div><div class="card">' +
+    (bulk.length > 1 ? '<div class="btns" style="padding:8px 10px"><button class="btn ok" id="bulkbtn" onclick="approveAll()">✓ Approve all ' + bulk.length + ' lessons</button>' +
+      (contra ? '<span class="sub">' + contra + ' contradiction' + (contra === 1 ? "" : "s") + ' stay for individual review</span>' : "") + '<span class="err" id="bulkmsg"></span></div>' : "") +
     (lessons.length ? lessons.map(proposalCard).join("") :
       '<div class="empty">No lessons waiting. Lessons appear here after a playtest (the <code>skill-reflector</code> agent proposes them) or when you ask Claude to propose a lesson from a map. Nothing is learned without your approval.</div>') + '</div>';
   h += '<div class="grid"><div>';
@@ -159,16 +163,12 @@ function render(d){
       return '<tr class="pick' + (g.slug === SELECTED ? " sel" : "") + '" onclick="pickGenre(\'' + esc(g.slug) + '\')"><td>' + esc(g.slug) + '<div class="sub">' +
         (g.last_learned ? "updated " + esc(ago(g.last_learned)) : "no maps yet") + '</div></td><td>' + g.maps + '</td><td>' +
         (n ? '<div class="lad"><i style="width:' + w(c.proven) + ';background:var(--green)"></i><i style="width:' + w(c.confirmed) + ';background:var(--amber)"></i><i style="width:' + w(c.hypothesis) +
-          ';background:#8fa5c0"></i><i style="width:' + w(c.contested) + ';background:var(--red)"></i></div><div class="sub">' + c.proven + ' proven · ' + c.confirmed + ' confirmed · ' + c.hypothesis + ' hypothesis · ' + c.contested + ' contested</div>'
+          ';background:#8fa5c0"></i><i style="width:' + w(c.reference||0) + ';background:var(--blue)"></i><i style="width:' + w(c.contested) + ';background:var(--red)"></i></div><div class="sub">' + c.proven + ' proven · ' + c.confirmed + ' confirmed · ' + c.hypothesis + ' hypothesis · ' + (c.reference ? c.reference + ' reference · ' : "") + c.contested + ' contested</div>'
           : '<span class="dim">— nothing learned yet</span>') + '</td><td>' + (g.consulted ? g.consulted + " times" : '<span class="dim">—</span>') + '</td></tr>';
     }).join("") : '<tr><td colspan="4" class="dim">No genre skills yet.</td></tr>') + '</table></div>';
   var sel = d.genres.filter(function(g){ return g.slug === SELECTED; })[0];
   if (sel){
-    h += '<div class="lab">' + esc(sel.slug) + ' — patterns</div><div class="card"><table><tr><th>Pattern</th><th>Confidence</th><th>Support</th></tr>' +
-      (sel.patterns.length ? sel.patterns.map(function(p){
-        return '<tr><td>' + esc(p.statement) + '<div class="sub">[' + esc(p.variant) + '] when ' + esc(p.condition) + ' → ' + esc(p.action) + '</div></td><td>' + tierPill(p) + '</td><td class="sub">' +
-          (p.support || 0) + ' for' + (p.against ? ' · ' + p.against + ' against' : '') + (p.community_support ? ' · community ' + p.community_support : '') + '</td></tr>';
-      }).join("") : '<tr><td colspan="3" class="dim">No approved patterns yet.</td></tr>') + '</table></div>';
+    h += patternsCard(sel);
   }
   h += '</div><div>';
   h += '<div class="lab">Community pack updates ' + (packs.length ? '<span class="cnt">' + packs.length + ' available</span>' : "") + '</div><div class="card">' +
@@ -203,6 +203,26 @@ function act(g, id, action, statement, exclude){
     load();
   }).catch(function(){ BUSY = false; showErr(id, "Could not reach the local server (is the page opened through it?)"); });
 }
+
+/* Approve every waiting lesson in one go (new patterns and extra support). Contradictions (they mark a pattern
+   Contested) and pack updates are never bulk-approved. Stops at the first error and reports it. */
+function approveAll(){
+  if (BUSY || !DATA) return;
+  var todo = (DATA.pending || []).filter(function(p){ return p.kind !== "pack_update" && p.kind !== "contradiction"; });
+  if (!todo.length) return;
+  if (!window.confirm("Approve all " + todo.length + " lessons? Each one becomes part of its skill. You can still archive or edit patterns later.")) return;
+  BUSY = true;
+  var msg = document.getElementById("bulkmsg"), btn = document.getElementById("bulkbtn"), done = 0;
+  if (btn) btn.disabled = true;
+  (function next(){
+    if (!todo.length){ BUSY = false; load(); return; }
+    var p = todo.shift();
+    post("/skills-act", {genre:p.genre, proposal:p.id, action:"approve", exclude:[]}).then(function(r){
+      if (!r.ok){ BUSY = false; if (msg) msg.textContent = " Stopped after " + done + ": " + (r.error || "failed"); load(); return; }
+      done++; if (msg) msg.textContent = " " + done + " approved…"; next();
+    }).catch(function(){ BUSY = false; if (msg) msg.textContent = " Could not reach the local server after " + done + " approved."; });
+  })();
+}
 function applyPack(g, id){
   var off = [].slice.call(document.querySelectorAll('input[data-pack="' + id + '"]')).filter(function(i){ return !i.checked; }).map(function(i){ return i.value; });
   act(g, id, "approve", null, off);
@@ -213,7 +233,51 @@ function editWording(g, id){
   say.innerHTML = '<textarea class="edit" rows="3" id="ta-' + esc(id) + '" maxlength="200">' + esc(cur.pattern.statement) + '</textarea>' +
     '<div class="btns"><button class="btn ok" onclick="act(\'' + esc(g) + '\',\'' + esc(id) + '\',\'edit\',document.getElementById(\'ta-' + esc(id) + '\').value)">Save &amp; approve</button></div>';
 }
-function pickGenre(s){ SELECTED = s; render(DATA); }
+
+/* Patterns list: filtered + paginated so it stays readable and light as it grows (v1.88.1).
+   Default view "Relevant" hides official reference patterns nobody has tested yet (0 support, 0 against):
+   they are the kit's starting knowledge, one click away under "Reference", not noise. */
+var PG = {page:0, filter:"relevant", q:"", size:8};
+var TIER_ORDER = {contested:0, proven:1, confirmed:2, hypothesis:3, reference:4};
+function ptier(p){ return p.status === "contested" ? "contested" : p.tier; }
+function untestedRef(p){ return p.tier === "reference" && !(p.support || 0) && !(p.against || 0) && p.status !== "contested"; }
+function pgMatch(p, f){
+  if (f === "all") return true;
+  if (f === "relevant") return !untestedRef(p);
+  return ptier(p) === f;
+}
+function patternsCard(sel){
+  var all = sel.patterns.slice().sort(function(x, y){
+    return (TIER_ORDER[ptier(x)] - TIER_ORDER[ptier(y)]) || ((y.support || 0) - (x.support || 0));
+  });
+  var q = PG.q.trim().toLowerCase();
+  var cnt = function(f){ return all.filter(function(p){ return pgMatch(p, f); }).length; };
+  var list = all.filter(function(p){
+    return pgMatch(p, PG.filter) && (!q || (p.statement + " " + p.condition + " " + p.action + " " + p.variant).toLowerCase().indexOf(q) >= 0);
+  });
+  var pages = Math.max(1, Math.ceil(list.length / PG.size));
+  if (PG.page >= pages) PG.page = pages - 1;
+  var slice = list.slice(PG.page * PG.size, PG.page * PG.size + PG.size);
+  var chips = [["relevant","Relevant"],["proven","Proven"],["confirmed","Confirmed"],["hypothesis","Hypothesis"],["contested","Contested"],["reference","Reference"],["all","All"]]
+    .map(function(c){
+      var n = cnt(c[0]); if (!n && c[0] !== "relevant" && c[0] !== "all") return "";
+      return '<a class="chip' + (PG.filter === c[0] ? " on" : "") + '" onclick="pgSet(\'' + c[0] + '\')">' + c[1] + ' ' + n + '</a>';
+    }).join("");
+  var h = '<div class="lab">' + esc(sel.slug) + ' — patterns <span class="cnt">' + all.length + '</span></div><div class="card">' +
+    '<div class="pgbar">' + chips + '<input id="pgq" class="pgq" type="search" placeholder="search…" value="' + esc(PG.q) + '" oninput="pgQuery(this.value)"></div>' +
+    '<table><tr><th>Pattern</th><th>Confidence</th><th>Support</th></tr>' +
+    (slice.length ? slice.map(function(p){
+      return '<tr><td>' + esc(p.statement) + '<div class="sub">[' + esc(p.variant) + '] when ' + esc(p.condition) + ' → ' + esc(p.action) + '</div></td><td>' + tierPill(p) + '</td><td class="sub">' +
+        (p.support || 0) + ' for' + (p.against ? ' · ' + p.against + ' against' : '') + (p.community_support ? ' · community ' + p.community_support : '') + '</td></tr>';
+    }).join("") : '<tr><td colspan="3" class="dim">' + (all.length ? 'Nothing matches this filter.' : 'No approved patterns yet.') + '</td></tr>') + '</table>' +
+    (list.length > PG.size ? '<div class="pgnav"><a class="chip" onclick="pgGo(-1)">‹ Prev</a> <span class="dim">' + (PG.page * PG.size + 1) + '–' + Math.min(list.length, (PG.page + 1) * PG.size) + ' of ' + list.length + '</span> <a class="chip" onclick="pgGo(1)">Next ›</a></div>' : '') +
+    '</div>';
+  return h;
+}
+function pgSet(f){ PG.filter = f; PG.page = 0; render(DATA); }
+function pgGo(d){ PG.page = Math.max(0, PG.page + d); render(DATA); }
+function pgQuery(v){ PG.q = v; PG.page = 0; render(DATA); var e = document.getElementById("pgq"); if (e){ e.focus(); e.setSelectionRange(v.length, v.length); } }
+function pickGenre(s){ SELECTED = s; PG.page = 0; render(DATA); }
 function runCheck(){ post("/skills-check", {}).then(function(r){ load(); }).catch(function(){ showErr("x", "Could not reach the local server"); }); }
 
 function load(){
@@ -222,7 +286,7 @@ function load(){
     DATA = d;
     document.getElementById("conn").innerHTML = '<span class="ok">✓</span> reading genre skills from the local server';
     var ae = document.activeElement;
-    if (!(ae && ae.tagName === "TEXTAREA")) render(d);  // never re-render under a wording edit in progress
+    if (!(ae && ae.tagName === "TEXTAREA" || ae.tagName === "INPUT")) render(d);  // never re-render under a wording edit in progress
   }).catch(function(){
     document.getElementById("conn").innerHTML = '<span class="bad">✗</span> disconnected — is agent-console-server running?';
     document.getElementById("hero").innerHTML = '<div class="hc" style="grid-column:1/-1"><div class="k">Skills</div><div class="s">Could not reach the local server. Open this page through the console (the server serves it at /skills).</div></div>';
@@ -230,7 +294,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.85.0";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.88.2";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -244,7 +308,7 @@ load(); setInterval(load, 4000);
   function show(tag,url){
     var t=parse(tag); if(!t||!newer(t,cur))return;
     if(ls(function(){return localStorage.getItem(KEY+"Dismissed");})===tag)return;
-    var anchor=document.querySelector(".termlines, header, .hdrbar"); if(!anchor||document.getElementById("updateBanner"))return;
+    var anchor=document.querySelector(".termlines, header, .hdrbar, .wrap > .h"); if(!anchor||document.getElementById("updateBanner"))return;
     var d=document.createElement("div"); d.id="updateBanner";
     d.style.cssText="display:flex;align-items:center;gap:10px;margin:12px 0;padding:8px 12px;border:1px solid rgba(57,255,136,.35);background:rgba(57,255,136,.06);border-radius:8px;font-size:12px;color:var(--text);";
     d.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--green);flex:none;"></span><span><b style="color:var(--green);">Update available:</b> '+
@@ -263,6 +327,52 @@ load(); setInterval(load, 4000);
       ls(function(){localStorage.setItem(KEY,JSON.stringify({at:Date.now(),tag:j.tag_name,url:url}));});
       show(j.tag_name,url);
     }).catch(function(){});
+})();
+</script>
+<script>
+/* Kit status (v1.88.2) - same snippet in all 5 consoles. If a newer kit is installed in your profile than the files of
+   this project, say so and what to do. Local only (/kit-status), silent on any failure. */
+(function(){
+  function a(){return document.querySelector(".termlines, header, .hdrbar, .wrap > .h");}
+  fetch("/kit-status").then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||!j.outdated||document.getElementById("kitLocalBanner")||!a())return;
+    var d=document.createElement("div"); d.id="kitLocalBanner";
+    d.style.cssText="display:flex;align-items:center;gap:10px;margin:12px 0;padding:8px 12px;border:1px solid rgba(255,176,32,.45);background:rgba(255,176,32,.08);border-radius:8px;font-size:12px;color:var(--text);";
+    d.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--amber);flex:none;"></span><span><b style="color:var(--amber);">New kit version ready:</b> v'+
+      String(j.template).replace(/[<>&"]/g,"")+' is installed in your profile, this project still has '+(j.project?"v"+String(j.project).replace(/[<>&"]/g,""):"an old kit")+
+      '. Close and reopen Claude Code on this project: it updates the files by itself and restarts this console.</span>';
+    a().parentNode.insertBefore(d,a().nextSibling);
+  }).catch(function(){});
+})();
+</script>
+<script>
+/* Island info strip (title, code, tags, project genre) — same block as the Stats page, shown on every page.
+   Local /island-info + /project-genre only; silent on any failure. Stats page renders its own copy. */
+(function(){
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  var st=document.createElement("style");
+  st.textContent=".island-strip{font-size:11px;color:var(--dim,#5a7088);margin:8px 4px 14px;}"
+   +".island-strip b{color:var(--text,#c9d6f0);font-weight:normal;}"
+   +".island-strip .tag-list{display:inline-flex;gap:5px;margin-left:10px;flex-wrap:wrap;vertical-align:middle;}"
+   +".island-strip .tag-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--dim,#5a7088);border:1px solid var(--line,#1c2740);border-radius:10px;padding:2px 8px;background:var(--panel,#0d121c);}"
+   +".island-strip .genre-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--bg,#060810);border:1px solid var(--green,#39ff88);border-radius:10px;padding:2px 8px;background:var(--green,#39ff88);font-weight:bold;margin-right:6px;}";
+  document.head.appendChild(st);
+  var box=document.createElement("div"); box.className="island-strip"; box.id="islandStrip"; box.style.display="none";
+  var vs=document.querySelector(".view-switch,.vs"), anchor=vs&&vs.closest(".termlines,.hdrbar,.h,header");
+  if(anchor&&anchor.parentNode) anchor.parentNode.insertBefore(box,anchor.nextSibling);
+  else (document.querySelector("main,.wrap")||document.body).insertBefore(box,(document.querySelector("main,.wrap")||document.body).firstChild);
+  var html="";
+  function show(){ if(html){box.innerHTML=html;box.style.display="";} }
+  fetch("/island-info",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(i){
+    if(i&&i.title){
+      html="Isola: <b>"+esc(i.title)+"</b>"+(i.code?" ("+esc(i.code)+")":"");
+      if(Array.isArray(i.tags)&&i.tags.length) html+='<span class="tag-list">'+i.tags.map(function(t){return '<span class="tag-badge">'+esc(t)+'</span>';}).join("")+'</span>';
+    }
+  }).catch(function(){}).then(function(){
+    return fetch("/project-genre",{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(g){
+      g=(g||"").trim(); if(g&&g.length<60) html+='<span class="genre-badge" title="Genre assigned to the project (Claude/docs/.genre)">'+esc(g)+'</span>';
+    }).catch(function(){});
+  }).then(show);
 })();
 </script>
 </body>

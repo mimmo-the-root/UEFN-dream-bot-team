@@ -352,7 +352,7 @@ header{align-items:baseline;padding:14px 4px 12px;margin-bottom:16px;}
   </div>
 </div>
 
-<script>document.getElementById('flowKitVersion').textContent = 'v1.85.0';</script>
+<script>document.getElementById('flowKitVersion').textContent = 'v1.88.2';</script>
 <script>
 // v1.78.0 — REAL state, replacing the old always-on decorative loop. Same source of truth the
 // main console (agent-console.html) uses: poll /log every second, replay start/stop events into
@@ -704,6 +704,52 @@ setInterval(tick, 1000);
       ls(function(){localStorage.setItem(KEY,JSON.stringify({at:Date.now(),tag:j.tag_name,url:url}));});
       show(j.tag_name,url);
     }).catch(function(){});
+})();
+</script>
+<script>
+/* Kit status (v1.88.2) - same snippet in all 5 consoles. If a newer kit is installed in your profile than the files of
+   this project, say so and what to do. Local only (/kit-status), silent on any failure. */
+(function(){
+  function a(){return document.querySelector(".termlines, header, .hdrbar");}
+  fetch("/kit-status").then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||!j.outdated||document.getElementById("kitLocalBanner")||!a())return;
+    var d=document.createElement("div"); d.id="kitLocalBanner";
+    d.style.cssText="display:flex;align-items:center;gap:10px;margin:12px 0;padding:8px 12px;border:1px solid rgba(255,176,32,.45);background:rgba(255,176,32,.08);border-radius:8px;font-size:12px;color:var(--text);";
+    d.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--amber);flex:none;"></span><span><b style="color:var(--amber);">New kit version ready:</b> v'+
+      String(j.template).replace(/[<>&"]/g,"")+' is installed in your profile, this project still has '+(j.project?"v"+String(j.project).replace(/[<>&"]/g,""):"an old kit")+
+      '. Close and reopen Claude Code on this project: it updates the files by itself and restarts this console.</span>';
+    a().parentNode.insertBefore(d,a().nextSibling);
+  }).catch(function(){});
+})();
+</script>
+<script>
+/* Island info strip (title, code, tags, project genre) — same block as the Stats page, shown on every page.
+   Local /island-info + /project-genre only; silent on any failure. Stats page renders its own copy. */
+(function(){
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  var st=document.createElement("style");
+  st.textContent=".island-strip{font-size:11px;color:var(--dim,#5a7088);margin:8px 4px 14px;}"
+   +".island-strip b{color:var(--text,#c9d6f0);font-weight:normal;}"
+   +".island-strip .tag-list{display:inline-flex;gap:5px;margin-left:10px;flex-wrap:wrap;vertical-align:middle;}"
+   +".island-strip .tag-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--dim,#5a7088);border:1px solid var(--line,#1c2740);border-radius:10px;padding:2px 8px;background:var(--panel,#0d121c);}"
+   +".island-strip .genre-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--bg,#060810);border:1px solid var(--green,#39ff88);border-radius:10px;padding:2px 8px;background:var(--green,#39ff88);font-weight:bold;margin-right:6px;}";
+  document.head.appendChild(st);
+  var box=document.createElement("div"); box.className="island-strip"; box.id="islandStrip"; box.style.display="none";
+  var vs=document.querySelector(".view-switch,.vs"), anchor=vs&&vs.closest(".termlines,.hdrbar,.h,header");
+  if(anchor&&anchor.parentNode) anchor.parentNode.insertBefore(box,anchor.nextSibling);
+  else (document.querySelector("main,.wrap")||document.body).insertBefore(box,(document.querySelector("main,.wrap")||document.body).firstChild);
+  var html="";
+  function show(){ if(html){box.innerHTML=html;box.style.display="";} }
+  fetch("/island-info",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(i){
+    if(i&&i.title){
+      html="Isola: <b>"+esc(i.title)+"</b>"+(i.code?" ("+esc(i.code)+")":"");
+      if(Array.isArray(i.tags)&&i.tags.length) html+='<span class="tag-list">'+i.tags.map(function(t){return '<span class="tag-badge">'+esc(t)+'</span>';}).join("")+'</span>';
+    }
+  }).catch(function(){}).then(function(){
+    return fetch("/project-genre",{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(g){
+      g=(g||"").trim(); if(g&&g.length<60) html+='<span class="genre-badge" title="Genre assigned to the project (Claude/docs/.genre)">'+esc(g)+'</span>';
+    }).catch(function(){});
+  }).then(show);
 })();
 </script>
 </body>

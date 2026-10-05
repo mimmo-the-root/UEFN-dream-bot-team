@@ -398,6 +398,18 @@ $RequestHandler = {
             $response.ContentType = "text/plain; charset=utf-8"
             $response.ContentLength64 = $bytes.Length
             $response.OutputStream.Write($bytes, 0, $bytes.Length)
+        } elseif ($request.Url.AbsolutePath -eq "/kit-status") {
+            $tplDir = if ($env:UEFN_KIT_TEMPLATE) { $env:UEFN_KIT_TEMPLATE } else { Join-Path $env:USERPROFILE ".claude\kit-template" }
+            $pv = ""; $tv = ""
+            try { $pv = (Get-Content -Raw (Join-Path $State.ProjectDir "Claude\KIT-VERSION")).Trim() } catch {}
+            try { $tv = (Get-Content -Raw (Join-Path $tplDir "Claude\KIT-VERSION")).Trim() } catch {}
+            $out = $false
+            try { if ($tv) { $out = ([version]$tv) -gt $(if ($pv) { [version]$pv } else { [version]"0.0" }) } } catch {}
+            $json = (@{ project = $pv; template = $tv; outdated = $out } | ConvertTo-Json -Compress)
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
         } elseif ($request.Url.AbsolutePath -eq "/whoami") {
             $json = (@{ project = $State.ProjectDir; started_at = $State.ServerStartedAt } | ConvertTo-Json -Compress)
             $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)

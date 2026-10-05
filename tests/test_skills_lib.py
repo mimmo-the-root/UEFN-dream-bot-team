@@ -57,4 +57,20 @@ for bad in ("../x","a/b","A","" ):
     try: S.gdir(bad); ok(False,"slug %r accepted"%bad)
     except ValueError: pass
 ok(True,"bad slugs rejected")
+# official reference tier
+d3=tempfile.mkdtemp(); os.environ["UEFN_SKILLS_DIR"]=d3; S.init_genre("llm-test")
+OP=dict(variant="turn-loop",condition="handler fires while NPC speaks",action="apply flags at one checkpoint",statement="Official loop.")
+op=dict(OP,id=S.pattern_id(OP["variant"],OP["condition"],OP["action"]),tier="reference",status="active",support=0)
+pack={"schema":1,"genre":"llm-test","pack_version":"1","patterns":[op]}
+r=S.merge_pack("llm-test",pack,"off"); S.act("llm-test",r["proposal"],"approve")
+ok(S.load_pack("llm-test")["patterns"][0]["tier"]=="hypothesis","non-official pack cannot claim reference")
+S.init_genre("llm-test2")
+r=S.merge_pack("llm-test2",dict(pack,genre="llm-test2"),"off",official=True); a=S.act("llm-test2",r["proposal"],"approve")
+q=S.load_pack("llm-test2")["patterns"][0]; ok(q["tier"]=="reference" and q["origin"]=="official","official pack -> reference")
+r2=S.merge_pack("llm-test2",dict(pack,genre="llm-test2"),"off",official=True); ok(r2["ok"],"re-ingestion ok")
+r=S.propose("llm-test2",map_name="Own Map",**OP); S.act("llm-test2",r["proposal"],"approve")
+ok(S.load_pack("llm-test2")["patterns"][0]["tier"]=="confirmed","1 owner map -> confirmed")
+r=S.propose("llm-test2",map_name="Own Map B",**OP); S.act("llm-test2",r["proposal"],"approve")
+ok(S.load_pack("llm-test2")["patterns"][0]["tier"]=="proven","2 owner maps -> proven")
+shutil.rmtree(d3)
 shutil.rmtree(d); shutil.rmtree(d2); print("ALL OK")

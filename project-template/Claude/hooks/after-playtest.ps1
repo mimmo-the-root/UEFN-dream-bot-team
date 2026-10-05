@@ -36,21 +36,21 @@ $log = Join-Path $logsDir "auto-postplaytest-$timestamp.log"
 
 "=== qa-regression (started $(Get-Date)) ===" | Out-File -Append -FilePath $log
 try {
-    claude -p "A test play-session in this project just ended. Analyze logs and project state to find regressions and bugs not yet reported, compared to what's documented as working in Claude/docs/STATUS.md. Add whatever you find to Claude/docs/BUGS.md, under the Newly reported section." --agent qa-regression 2>&1 | Out-File -Append -FilePath $log
+    claude -p --model haiku "A test play-session in this project just ended. Analyze logs and project state to find regressions and bugs not yet reported, compared to what's documented as working in Claude/docs/STATUS.md. Add whatever you find to Claude/docs/BUGS.md, under the Newly reported section." --agent qa-regression 2>&1 | Out-File -Append -FilePath $log
 } catch {
     "qa-regression returned an error, check the log." | Out-File -Append -FilePath $log
 }
 
 "=== planner-docs (started $(Get-Date)) ===" | Out-File -Append -FilePath $log
 try {
-    claude -p "qa-regression just analyzed the last play-session (see $log and Claude/docs/BUGS.md, Newly reported section). Update Claude/docs/STATUS.md with a new entry and reprioritize Claude/docs/BUGS.md." --agent planner-docs 2>&1 | Out-File -Append -FilePath $log
+    claude -p --model haiku "qa-regression just analyzed the last play-session (see $log and Claude/docs/BUGS.md, Newly reported section). Update Claude/docs/STATUS.md with a new entry and reprioritize Claude/docs/BUGS.md." --agent planner-docs 2>&1 | Out-File -Append -FilePath $log
 } catch {
     "planner-docs returned an error, check the log." | Out-File -Append -FilePath $log
 }
 
 "=== skill-reflector (started $(Get-Date)) ===" | Out-File -Append -FilePath $log
 try {
-    claude -p "planner-docs just finished the post-playtest update. Check whether this playtest taught something new about this map's genre (see Claude/docs/.genre) and queue at most 3 lessons for the owner's approval, exactly as your instructions say. Never edit skills yourself; if there is nothing real to learn, say so and stop." --agent skill-reflector 2>&1 | Out-File -Append -FilePath $log
+    claude -p --model haiku "planner-docs just finished the post-playtest update. Check whether this playtest taught something new about this map's genre (see Claude/docs/.genre) and queue at most 3 lessons for the owner's approval, exactly as your instructions say. Never edit skills yourself; if there is nothing real to learn, say so and stop." --agent skill-reflector 2>&1 | Out-File -Append -FilePath $log
 } catch {
     "skill-reflector returned an error, check the log." | Out-File -Append -FilePath $log
 }

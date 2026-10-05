@@ -41,9 +41,9 @@ import re
 import sys
 
 SCHEMA = 1
-TIERS = ("hypothesis", "confirmed", "proven")
+TIERS = ("hypothesis", "confirmed", "proven", "reference")
 STATUSES = ("active", "contested", "superseded")
-ORIGINS = ("local", "community")
+ORIGINS = ("local", "community", "official")
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,40}$")
 VARIANT_RE = re.compile(r"^(\*|[a-z0-9][a-z0-9-]{0,40})$")
 MAX_STATEMENT, MAX_CONDITION, MAX_ACTION = 200, 140, 200
@@ -293,10 +293,15 @@ def recompute(pat, sup):
     """Derive tier/status/counts of one pattern from its local support record."""
     s = sup.get(pat["id"], {})
     n_for, n_against = len(s.get("for", [])), len(s.get("against", []))
-    if pat.get("origin") == "local" or s:
+    if pat.get("origin") in ("local", "official") or s:
         pat["support"] = n_for
         pat["against"] = n_against
-        pat["tier"] = tier_for(n_for, bool(s.get("metric_backed")))
+        if pat.get("origin") == "official":
+            # Official (e.g. Epic template/doc) guidance: "reference" until one of the owner's own maps
+            # backs it; the official source then counts as one map (1 owner map = confirmed, 2 = proven).
+            pat["tier"] = "reference" if n_for == 0 else tier_for(n_for + 1, bool(s.get("metric_backed")))
+        else:
+            pat["tier"] = tier_for(n_for, bool(s.get("metric_backed")))
         if n_for >= 1 and n_against >= 1:
             pat["status"] = "contested"
         elif pat.get("conflicts_with"):
@@ -440,11 +445,12 @@ def render_skill(slug):
     pats = [p for p in pack["patterns"] if p.get("status") != "superseded"]
 
     def line(p):
-        tag = " (community)" if p.get("origin") == "community" else ""
+        tag = " (community)" if p.get("origin") == "community" else (" (official reference)" if p.get("origin") == "official" else "")
         return "- [%s] When %s → %s%s — %d map(s)" % (p["variant"], _norm(p["condition"]), p["action"].strip(" ."), tag, p.get("support", 0))
 
     groups = [("Proven", "follow as a rule", [p for p in pats if p["status"] == "active" and p["tier"] == "proven"]),
               ("Confirmed", "follow by default; say why if you deviate", [p for p in pats if p["status"] == "active" and p["tier"] == "confirmed"]),
+              ("Reference", "official guidance (e.g. Epic docs/templates), not yet validated in the owner's maps; use it as the documented way and verify in a playtest", [p for p in pats if p["status"] == "active" and p["tier"] == "reference"]),
               ("Hypothesis", "only a suggestion; tell the owner it is unproven", [p for p in pats if p["status"] == "active" and p["tier"] == "hypothesis"]),
               ("Contested", "evidence conflicts; show both options to the owner and ask", [p for p in pats if p["status"] == "contested"])]
     out = [BEGIN, "## Learned patterns (generated — do not edit by hand)",
@@ -465,8 +471,8 @@ def render_skill(slug):
     counts = {t: sum(1 for p in pats if p["status"] == "active" and p["tier"] == t) for t in TIERS}
     counts["contested"] = sum(1 for p in pats if p["status"] == "contested")
     keys = {"last_updated": _today(),
-            "pattern_counts": "proven=%d confirmed=%d hypothesis=%d contested=%d" % (
-                counts["proven"], counts["confirmed"], counts["hypothesis"], counts["contested"])}
+            "pattern_counts": "proven=%d confirmed=%d reference=%d hypothesis=%d contested=%d" % (
+                counts["proven"], counts["confirmed"], counts["reference"], counts["hypothesis"], counts["contested"])}
     lines = fm.splitlines()
     for k, v in keys.items():
         for i, ln in enumerate(lines):
@@ -705,7 +711,7 @@ def _norm_key(variant, condition):
     return _norm(variant) + "|" + _norm(condition)
 
 
-def merge_pack(slug, pack_obj, source):
+def merge_pack(slug, pack_obj, source, official=False):
     """Validate an incoming (community) pack and queue ONE proposal describing what would change.
     Nothing in your skill changes until you approve; your own evidence always wins."""
     slug = _slug(slug)
@@ -733,6 +739,10 @@ def merge_pack(slug, pack_obj, source):
             continue
         clean.setdefault("support", 0)
         clean["tier"] = clean["tier"] if clean["tier"] in TIERS else "hypothesis"
+        if clean["tier"] == "reference" and not official:
+            clean["tier"] = "hypothesis"   # only an explicitly official pack may carry the reference tier
+        if official:
+            clean["tier"] = "reference"
         clean["status"] = clean["status"] if clean["status"] in STATUSES else "active"
         fnd = validate_pattern(clean, deny)
         if fnd:
@@ -758,7 +768,7 @@ def merge_pack(slug, pack_obj, source):
         return {"ok": True, "skipped": "nothing new in this pack", "rejected": rejected}
     pid = "pu-%s-%s" % (version, source)
     prop = {"id": "pr-" + hashlib.sha1(("pack|%s|%s" % (source, version)).encode()).hexdigest()[:10],
-            "kind": "pack_update", "genre": slug, "source": source, "version": version,
+            "kind": "pack_update", "genre": slug, "source": source, "version": version, "official": bool(official),
             "new": new, "known": known, "conflicts": conflicts, "rejected": rejected, "pattern_id": pid,
             "say": "%s pack v%s is available. Nothing has changed on your computer yet." % (source, version),
             "created": _now()}
@@ -771,12 +781,14 @@ def _apply_pack_update(slug, pack, sup, prop, exclude):
     m = _read_json(os.path.join(ldir(slug), "merged.json"), {})
     src = m.setdefault("sources", {}).setdefault(prop["source"], {})
     n_new = n_known = n_conf = 0
+    off = bool(prop.get("official"))
     for it in prop["new"]:
         if it["id"] in exclude or _find(pack, it["id"]):
             continue
         pack["patterns"].append({"id": it["id"], "variant": it["variant"], "statement": it["statement"],
-                                 "condition": it["condition"], "action": it["action"], "tier": "hypothesis",
-                                 "status": "active", "origin": "community", "support": 0, "against": 0,
+                                 "condition": it["condition"], "action": it["action"],
+                                 "tier": "reference" if off else "hypothesis",
+                                 "status": "active", "origin": "official" if off else "community", "support": 0, "against": 0,
                                  "community_support": it["support"], "created": _today()})
         src[it["id"]] = it["support"]
         n_new += 1
@@ -826,6 +838,134 @@ def check(slug=None):
 
 
 # ----------------------------------------------------------------------------- usage
+def detect_techniques(project_dir):
+    """Which technique skills apply to this project? Looks for each technique skill's `markers:` words
+    (frontmatter of its SKILL.md) inside the project's Verse files. Read-only, returns slugs + hits."""
+    root = genre_root()
+    techs, fmarks = {}, {}
+    for g in (os.listdir(root) if os.path.isdir(root) else []):
+        sk = os.path.join(root, g, "SKILL.md")
+        if not os.path.isfile(sk):
+            continue
+        with open(sk, encoding="utf-8", errors="replace") as f:
+            head = f.read(2000)
+        m = re.search(r"^markers:\s*(.+)$", head, re.M)
+        istech = re.search(r"^kind:\s*technique", head, re.M)
+        if m and istech:
+            words = [w.strip() for w in m.group(1).split(",") if w.strip()]
+            if words:
+                techs[g] = words
+        fm = re.search(r"^file_markers:\s*(.+)$", head, re.M)
+        if fm and istech:
+            fmarks[g] = [w.strip() for w in fm.group(1).split(",") if w.strip()]
+    for g in fmarks:
+        techs.setdefault(g, [])
+    hits = {g: [] for g in techs}
+    scanned = 0
+    for base, dirs, files in os.walk(project_dir):
+        dirs[:] = [d for d in dirs if d not in (".git", "Claude", "node_modules", "__pycache__")]
+        for n in files:
+            if not n.endswith(".verse") or scanned > 3000:
+                continue
+            scanned += 1
+            try:
+                with open(os.path.join(base, n), encoding="utf-8", errors="replace") as f:
+                    txt = f.read(400000)
+            except OSError:
+                continue
+            for g, words in techs.items():
+                for w in words:
+                    if w in txt and w not in hits[g]:
+                        hits[g].append(w)
+    for g, marks in fmarks.items():  # asset names: prefixes (M_, MI_) or a folder name
+        for base, dirs, files in os.walk(project_dir):
+            dirs[:] = [d for d in dirs if d not in (".git", "Claude", "node_modules", "__pycache__")]
+            for w in marks:
+                if "file:" + w in hits[g]:
+                    continue
+                if w.endswith("_") and any(n.startswith(w) and n.endswith(".uasset") for n in files):
+                    hits[g].append("file:" + w)
+                elif not w.endswith("_") and w in dirs:
+                    hits[g].append("file:" + w)
+    return {"ok": True, "techniques": [{"slug": g, "markers_found": h} for g, h in hits.items() if h]}
+
+
+def materials_inventory(project_dir):
+    """Read-only inventory of material assets by folder and prefix (names only, binaries are not parsed)."""
+    kinds = {"M_": "parent", "MI_": "instance", "MF_": "function", "MPC_": "collection", "T_": "texture"}
+    folders, total = {}, {k: 0 for k in kinds.values()}
+    for base, dirs, files in os.walk(project_dir):
+        dirs[:] = [d for d in dirs if d not in (".git", "Claude", "node_modules", "__pycache__")]
+        for n in files:
+            if not n.endswith(".uasset"):
+                continue
+            for pre in ("MPC_", "MI_", "MF_", "M_", "T_"):
+                if n.startswith(pre):
+                    k = kinds[pre]
+                    rel = os.path.relpath(base, project_dir).replace(os.sep, "/")
+                    e = folders.setdefault(rel, {"parent": [], "instance": [], "function": [], "collection": [], "texture": []})
+                    e[k].append(n[:-7])
+                    total[k] += 1
+                    break
+    return {"ok": True, "totals": total, "folders": {f: {k: v for k, v in e.items() if v} for f, e in sorted(folders.items())}}
+
+
+# ----------------------------------------------------------------------------- recipes (v1.87.2)
+# A recipe = "start from this known asset, change these parameters". Official ones ship in
+# <skill>/official/recipes-official.json; learned ones live in <skill>/local/recipes.json (never overwritten by
+# profile updates). A learned recipe starts as hypothesis, confirmed when reused in a 2nd map (maps are counted once).
+def recipes_list(slug, query=""):
+    slug = _slug(slug)
+    out = []
+    op = os.path.join(gdir(slug), "official", "recipes-official.json")
+    for r in (_read_json(op, {"recipes": []}).get("recipes", []) if os.path.isfile(op) else []):
+        out.append(r)
+    lp = os.path.join(ldir(slug), "recipes.json")
+    for r in (_read_json(lp, {"recipes": []}).get("recipes", []) if os.path.isfile(lp) else []):
+        r["tier"] = "confirmed" if len(r.get("maps", [])) >= 2 else "hypothesis"
+        out.append(r)
+    q = (query or "").lower().strip()
+    if q:
+        out = [r for r in out if q in (r.get("name", "") + " " + r.get("use", "") + " " + r.get("parent", "")).lower()]
+    return {"ok": True, "recipes": out}
+
+
+def recipe_add(slug, recipe, map_name):
+    """Add or update a learned recipe; the map counts once. recipe: name, parent, use, steps[], params[]."""
+    slug = _slug(slug)
+    name = _norm(recipe.get("name", ""))
+    if not name or not recipe.get("parent") or not recipe.get("steps"):
+        return {"ok": False, "error": "recipe needs name, parent and steps"}
+    mk = _map_key(map_name)
+    lp = os.path.join(ldir(slug), "recipes.json")
+    os.makedirs(ldir(slug), exist_ok=True)
+    data = _read_json(lp, {"recipes": []})
+    for r in data["recipes"]:
+        if _norm(r.get("name", "")) == name:
+            if mk not in r.get("maps", []):
+                r.setdefault("maps", []).append(mk)
+            for k in ("parent", "use", "steps", "params"):
+                if recipe.get(k):
+                    r[k] = recipe[k]
+            _write_json(lp, data)
+            return {"ok": True, "updated": True, "maps": len(r["maps"])}
+    data["recipes"].append({"name": name, "origin": "owner", "parent": recipe["parent"], "use": recipe.get("use", ""),
+                            "steps": recipe["steps"], "params": recipe.get("params", []), "maps": [mk], "added": _today()})
+    _write_json(lp, data)
+    return {"ok": True, "updated": False, "maps": 1}
+
+
+def needs_feeding(slug, threshold=3):
+    """True when the skill has few patterns backed by the owner's own maps (reference/official ones do not
+    count). Used after an audit to decide whether skill-reflector should be asked for lessons."""
+    slug = _slug(slug)
+    if not os.path.isdir(gdir(slug)):
+        return {"ok": True, "genre": slug, "exists": False, "owner_backed": 0, "needs": True}
+    pats = load_pack(slug)["patterns"]
+    own = [x for x in pats if x.get("tier") != "reference" and x.get("origin") != "official" and x.get("status") != "archived"]
+    return {"ok": True, "genre": slug, "exists": True, "patterns": len(pats), "owner_backed": len(own), "needs": len(own) < threshold}
+
+
 def consult(slug):
     """Record that the coder read this genre skill (called by a PreToolUse Read hook)."""
     slug = _slug(slug)
@@ -873,7 +1013,7 @@ def _genres():
 def summary():
     """Everything the Skills page shows — computed only from real local files."""
     genres, pending = [], list_proposals()
-    totals = {"maps": 0, "patterns": 0, "proven": 0, "confirmed": 0, "hypothesis": 0, "contested": 0}
+    totals = {"maps": 0, "patterns": 0, "proven": 0, "confirmed": 0, "hypothesis": 0, "contested": 0, "reference": 0}
     days = [(datetime.date.today() - datetime.timedelta(days=i)).isoformat() for i in range(6, -1, -1)]
     week = {d: 0 for d in days}
     all_maps, check_ok, check_ts, variants_seen = set(), True, None, set()
@@ -890,7 +1030,7 @@ def summary():
         for p in pack["patterns"]:
             if p.get("status") == "superseded":
                 continue
-            recompute(p, sup) if p.get("origin") == "local" else None
+            recompute(p, sup) if p.get("origin") in ("local", "official") else None
             if p["status"] == "contested":
                 c["contested"] += 1
             else:
@@ -913,7 +1053,7 @@ def summary():
                        "consulted": int(usage.get("total", 0)),
                        "pending": sum(1 for p in pending if p["genre"] == s),
                        "variants": sorted({p["variant"] for p in pats})})
-        for k in ("proven", "confirmed", "hypothesis", "contested"):
+        for k in ("proven", "confirmed", "hypothesis", "contested", "reference"):
             totals[k] += c[k]
         totals["patterns"] += len(pats)
     totals["maps"] = len(all_maps)
@@ -936,7 +1076,12 @@ def _cli(argv=None):
     s = sub.add_parser("render"); s.add_argument("genre")
     s = sub.add_parser("check"); s.add_argument("genre", nargs="?")
     s = sub.add_parser("export"); s.add_argument("genre"); s.add_argument("out_dir")
-    s = sub.add_parser("merge"); s.add_argument("genre"); s.add_argument("pack_file"); s.add_argument("--source", default="")
+    s = sub.add_parser("merge"); s.add_argument("genre"); s.add_argument("pack_file"); s.add_argument("--source", default=""); s.add_argument("--official", action="store_true")
+    s = sub.add_parser("techniques"); s.add_argument("project_dir")
+    s = sub.add_parser("materials"); s.add_argument("project_dir")
+    s = sub.add_parser("needs-feeding"); s.add_argument("genre")
+    s = sub.add_parser("recipes"); s.add_argument("genre"); s.add_argument("query", nargs="?", default="")
+    s = sub.add_parser("recipe-add"); s.add_argument("genre"); s.add_argument("recipe_json_file"); s.add_argument("map_name")
     s = sub.add_parser("consult"); s.add_argument("genre")
     s = sub.add_parser("consult-path"); s.add_argument("file_path")
     sub.add_parser("consult-hook")  # reads a Claude Code hook payload (JSON) from stdin
@@ -966,7 +1111,18 @@ def _cli(argv=None):
             r = export_pack(a.genre, a.out_dir)
         elif a.cmd == "merge":
             obj = _read_user_json(a.pack_file)
-            r = merge_pack(a.genre, obj, a.source or os.path.basename(os.path.dirname(os.path.abspath(a.pack_file))))
+            r = merge_pack(a.genre, obj, a.source or os.path.basename(os.path.dirname(os.path.abspath(a.pack_file))), official=a.official)
+        elif a.cmd == "techniques":
+            r = detect_techniques(a.project_dir)
+        elif a.cmd == "recipes":
+            r = recipes_list(a.genre, a.query)
+        elif a.cmd == "recipe-add":
+            with open(a.recipe_json_file, encoding="utf-8") as _f:
+                r = recipe_add(a.genre, json.load(_f), a.map_name)
+        elif a.cmd == "needs-feeding":
+            r = needs_feeding(a.genre)
+        elif a.cmd == "materials":
+            r = materials_inventory(a.project_dir)
         elif a.cmd == "consult":
             r = consult(a.genre)
         elif a.cmd == "consult-path":

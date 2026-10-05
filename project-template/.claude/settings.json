@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo Reminder: if STATUS.md has not been updated automatically yet, ask planner-docs to update Claude/docs/STATUS.md."
+            "command": "echo \"Reminder: only if tasks were closed this session and not yet recorded, make ONE batched planner-docs call - never one per reply.\""
           },
           {
             "type": "command",
@@ -115,6 +115,27 @@
           {
             "type": "command",
             "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-tokens.ps1\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/docs-lint.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/island-code.ps1\"",
             "timeout": 10
           }
         ]

@@ -1,0 +1,31 @@
+{
+ "schema": 1,
+ "recipes": [
+  {
+   "name": "ui-flat-shape",
+   "origin": "official",
+   "parent": "M_UI_Shape_Rectangle (Epic's UI shape material; check the exact name in the project)",
+   "use": "Flat UI fill: rectangle with optional border and gradient, with interaction-state looks",
+   "steps": [
+    "Create a material instance of the UI shape parent",
+    "Set fill on (1.0) or off (0.0)",
+    "Set stroke thickness and transparency",
+    "Switch gradient on for fill and/or stroke and set the colors with the boolean toggles",
+    "Set the state properties for hover, focus, press, disabled if the widget needs them",
+    "Assign a physical material (typically Wood) to avoid transparent edges",
+    "Drag the instance into the widget blueprint; combine several instances for a full design"
+   ],
+   "params": [
+    "fill on/off",
+    "stroke thickness",
+    "stroke transparency",
+    "fill gradient toggle",
+    "stroke gradient toggle",
+    "state looks (hover, focus, press, disabled)"
+   ],
+   "verify_names": true,
+   "tier": "reference",
+   "maps": []
+  }
+ ]
+}

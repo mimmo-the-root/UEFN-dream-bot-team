@@ -1,7 +1,7 @@
 ---
 name: skill-reflector
 description: Proposes lessons for the genre skill after a real playtest, release-gate pass or map milestone. It ONLY queues proposals for the owner's approval on the Skills page; it never edits a skill itself.
-model: sonnet
+model: haiku
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -17,7 +17,7 @@ Skills page of the Agent Console.
    anything under `~/.claude/skills/`, and never write to `Claude/docs/` — you are not a docs agent.
 2. **Real evidence only.** Every lesson must rest on something that actually happened in this map:
    a bug in `Claude/docs/BUGS.md`, an entry in `Claude/docs/STATUS.md` or `RETENTION-NOTES.md`,
-   playtest logs in `Claude/logs/`, the code/devices you can see. Do not write design advice from
+   playtest logs in `Claude/logs/`, the code/devices you can see. After an audit the caller passes the audit's verified findings: they count as evidence too (cite file/device), and lessons from them are about how this KIND of map is built or goes wrong, not about this map. Do not write design advice from
    general knowledge — if you cannot point at evidence, propose nothing. "Nothing to learn this
    time" is a correct and common outcome; say so and stop.
 3. **Generalize.** A lesson is a rule about the genre, not a story about this map. The
@@ -29,7 +29,7 @@ Skills page of the Agent Console.
 
 ## Procedure
 
-1. Read `Claude/docs/.genre` (the genre slug). If missing or empty, stop and say so.
+1. Read `Claude/docs/.genre` (the genre slug). If missing or empty, or it is `epic-template`, stop and say so.
 2. Get the map's name from `Claude/docs/SPEC.md` (project identity) or, failing that, this project's
    folder name. It is stored only on this computer and is never exported.
 3. Run `python3 Claude/hooks/skills_lib.py init <genre>` (safe to repeat; on Windows use `python` or

@@ -27,9 +27,10 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION")
+MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", ".claude/commands/kit-update.md")
 CREATE_ONLY = ("Claude/docs-template/",)
 SKIP_PARTS = ("__pycache__",)
+FAILED = []
 BLOCK_RE = re.compile(r"<!-- KIT:BEGIN ([\w-]+) -->.*?<!-- KIT:END \1 -->", re.S)
 
 
@@ -83,7 +84,17 @@ def sync_files(project, tpl):
             os.makedirs(os.path.dirname(bdst), exist_ok=True)
             shutil.copy2(dst, bdst)
         os.makedirs(os.path.dirname(dst), exist_ok=True)
-        shutil.copyfile(src, dst)
+        ok = False
+        for attempt in range(4):  # Windows: a file can be locked for a moment (browser, antivirus, console)
+            try:
+                shutil.copyfile(src, dst)
+                ok = True
+                break
+            except PermissionError:
+                time.sleep(0.4 * (attempt + 1))
+        if not ok:
+            FAILED.append(rel)
+            continue
         (changed if exists else added).append(rel)
     return changed, added, backup
 
@@ -130,6 +141,42 @@ def merge_settings(project, tpl):
     return added
 
 
+REMINDER_NEW = 'echo "Reminder: only if tasks were closed this session and not yet recorded, make ONE batched planner-docs call - never one per reply."'
+REMINDER_OLD_PREFIX = "echo Reminder:"
+
+
+def repair_settings(project):
+    """Replace the old / broken unquoted 'echo Reminder: ...' Stop hooks (parentheses broke bash) by the fixed
+    one, and drop duplicates. Only touches commands that start with that exact echo."""
+    pp = os.path.join(project, ".claude", "settings.json")
+    if not os.path.isfile(pp):
+        return []
+    with open(pp, encoding="utf-8") as f:
+        d = json.load(f)
+    changed, seen = 0, False
+    for ev in (d.get("hooks") or {}).values():
+        for e in ev:
+            keep = []
+            for h in e.get("hooks", []):
+                c = h.get("command", "")
+                if re.match(r"^echo\s+[\"']?Reminder:", c):
+                    if seen:
+                        changed += 1
+                        continue
+                    seen = True
+                    if c != REMINDER_NEW:
+                        h["command"] = REMINDER_NEW
+                        changed += 1
+                keep.append(h)
+            e["hooks"] = keep
+    if changed:
+        with open(pp, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(d, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+        return ["settings.json: reminder hook repaired"]
+    return []
+
+
 def merge_claude_md(project, tpl):
     tp = os.path.join(tpl, "CLAUDE.md")
     pp = os.path.join(project, "CLAUDE.md")
@@ -163,6 +210,40 @@ def merge_claude_md(project, tpl):
     return done
 
 
+def genre_from_epic(project, skills_lib):
+    """No Claude/docs/.genre yet but the console already cached Epic's rankings for the island code: Epic
+    reports the genre the island is ranked in. Use that slug (it is a fact from Epic, not a guess), check it
+    against the official genre list when available, write .genre. Returns the slug or ""."""
+    try:
+        cache = os.path.join(project, "Claude", "logs", "fortnite-island-rankings-cache.json")
+        if not os.path.isfile(cache):
+            return ""
+        with open(cache, encoding="utf-8-sig") as f:
+            body = json.load(f)
+        data = (body.get("payload") or body).get("data") or []
+        slug = ""
+        for row in reversed(data):
+            g = (row.get("genres") or [])
+            if g and g[0].get("genreSlug"):
+                slug = str(g[0]["genreSlug"]).strip().lower()
+                break
+        if not slug or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,40}", slug):
+            return ""
+        official = os.path.join(skills_lib.genre_root(), "fortnite-genres-official.json")
+        if os.path.isfile(official):
+            with open(official, encoding="utf-8") as f:
+                known = {g.get("slug") for g in json.load(f).get("genres", [])}
+            if known and slug not in known:
+                return ""
+        gfile = os.path.join(project, "Claude", "docs", ".genre")
+        os.makedirs(os.path.dirname(gfile), exist_ok=True)
+        with open(gfile, "w", encoding="utf-8", newline="\n") as f:
+            f.write(slug + "\n")
+        return slug
+    except Exception:
+        return ""
+
+
 def genre_and_inbox(project):
     notes = []
     try:
@@ -176,7 +257,11 @@ def genre_and_inbox(project):
         if os.path.isfile(gfile):
             with open(gfile, encoding="utf-8") as f:
                 slug = f.read().strip().lower()
-        if slug:
+        if not slug:
+            slug = genre_from_epic(project, skills_lib)
+            if slug:
+                notes.append("genre '%s' taken from Epic's ranking of this island and saved in Claude/docs/.genre (edit that file to change it)" % slug)
+        if slug and slug != "epic-template":
             try:
                 if not os.path.isfile(os.path.join(skills_lib.gdir(slug), "pack", "patterns.json")):
                     skills_lib.init_genre(slug)
@@ -186,9 +271,7 @@ def genre_and_inbox(project):
         groot = skills_lib.genre_root()
         for g in (os.listdir(groot) if os.path.isdir(groot) else []):
             inc = os.path.join(groot, g, "local", "incoming")
-            if not os.path.isdir(inc):
-                continue
-            for n in sorted(os.listdir(inc)):
+            for n in (sorted(os.listdir(inc)) if os.path.isdir(inc) else []):
                 p = os.path.join(inc, n)
                 if not (n.endswith(".json") and os.path.isfile(p)):
                     continue
@@ -202,27 +285,172 @@ def genre_and_inbox(project):
                 os.makedirs(done, exist_ok=True)
                 shutil.move(p, os.path.join(done, n))
                 notes.append("community pack %s for '%s': %s" % (n, g, "queued for your approval" if res.get("ok") else "rejected (" + str(res.get("error")) + ")"))
+            # Official reference packs (shipped with the kit, e.g. distilled from Epic templates/docs) live in
+            # <genre>/official/*.json. They are proposed (never applied silently) and the call is idempotent:
+            # nothing new -> no proposal, a version you already skipped stays skipped.
+            off = os.path.join(groot, g, "official")
+            if os.path.isdir(off):
+                for n in sorted(os.listdir(off)):
+                    p = os.path.join(off, n)
+                    if not (n.endswith(".json") and os.path.isfile(p)):
+                        continue
+                    try:
+                        with open(p, encoding="utf-8") as f:
+                            obj = json.load(f)
+                        res = skills_lib.merge_pack(g, obj, os.path.splitext(n)[0], official=True)
+                    except Exception as e:
+                        res = {"ok": False, "error": str(e)}
+                    if res.get("ok") and res.get("proposal"):
+                        notes.append("official reference pack %s for '%s': queued for your approval (Skills page)" % (n, g))
     except Exception:
         pass
     return notes
 
 
+def docs_align(project):
+    """Keep ROADMAP.md / BUGS.md in the current format (adds missing columns, ids), with a backup. Idempotent."""
+    try:
+        sys.path.insert(0, os.path.join(project, "Claude", "hooks"))
+        import docs_migrate
+        bk = os.path.join(project, "Claude", "logs", "kit-backup", time.strftime("%Y%m%d-%H%M%S") + "-docs")
+        return ["docs aligned: " + n for n in docs_migrate.run(project, bk)]
+    except Exception:
+        return []
+
+
+def neutralize_backups(project):
+    """Backups must never be compilable: rename any .verse left under Claude/logs/ to .verse.bak
+    (v1.86.22: UEFN compiles every .verse below Content/, so a backup copy breaks the build)."""
+    notes, n = [], 0
+    root = os.path.join(project, "Claude", "logs")
+    try:
+        for base, dirs, files in os.walk(root):
+            for f in files:
+                if f.endswith(".verse"):
+                    p = os.path.join(base, f)
+                    try:
+                        os.rename(p, p + ".bak")
+                        n += 1
+                    except OSError:
+                        pass
+    except Exception:
+        pass
+    if n:
+        notes.append("backup copies of .verse files renamed to .verse.bak (%d) so UEFN does not compile them" % n)
+    return notes
+
+
+def history_align(project):
+    """Move old history out of STATUS/BUGS and condense history comments in big .verse files
+    (code is never touched; full text goes to Claude/docs/archive/, backup in kit-backup). Idempotent.
+    Opt out: create Claude/docs/.no-history-trim."""
+    try:
+        sys.path.insert(0, os.path.join(project, "Claude", "hooks"))
+        import history_trim
+        return ["history trimmed: " + l for l in history_trim.run(project, apply=True)]
+    except Exception:
+        return []
+
+
+def restart_console(project):
+    """After the kit files changed, restart THIS project's console server so it serves the new files
+    (v1.86.8). Only touches a listener on 8765 that answers /whoami with this project. Best effort."""
+    import subprocess
+    port = 8765
+    try:
+        import urllib.request
+        with urllib.request.urlopen("http://127.0.0.1:%d/whoami" % port, timeout=2) as r:
+            who = json.loads(r.read().decode("utf-8"))
+        norm = lambda x: os.path.normcase(os.path.abspath(str(x))).rstrip("\\/")
+        if norm(who.get("project", "")) != norm(project):
+            return ""
+    except Exception:
+        return ""
+    server_ps1 = os.path.join(project, "Claude", "hooks", "agent-console-server.ps1")
+    server_py = os.path.join(project, "Claude", "hooks", "agent-console-server.py")
+    try:
+        if os.name == "nt":
+            out = subprocess.run(["netstat", "-ano"], capture_output=True, text=True, timeout=10).stdout
+            pids = {l.split()[-1] for l in out.splitlines() if (":%d " % port) in l and "LISTENING" in l}
+            for pid in pids:
+                if pid.isdigit():
+                    subprocess.run(["taskkill", "/F", "/PID", pid], capture_output=True, timeout=10)
+            time.sleep(0.6)
+            if os.path.isfile(server_ps1):
+                flags = 0x00000008 | 0x08000000  # DETACHED_PROCESS | CREATE_NO_WINDOW
+                subprocess.Popen(["powershell", "-ExecutionPolicy", "Bypass", "-File", server_ps1],
+                                 creationflags=flags, close_fds=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            subprocess.run("lsof -ti tcp:%d | xargs -r kill" % port, shell=True, timeout=10)
+            time.sleep(0.6)
+            if os.path.isfile(server_py):
+                subprocess.Popen([sys.executable, server_py], cwd=project, start_new_session=True,
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return "Agent Console restarted with the new files (reload the browser tab)."
+    except Exception:
+        return ""
+
+
+LOCK_MAX_AGE = 90
+
+
+def _acquire_lock(project):
+    """Two kit-sync hooks can start together (the project's own and the global one in your profile).
+    Only one may write; the other exits quietly. A lock older than 90 s is considered stale."""
+    path = os.path.join(project, "Claude", "logs", ".kit-sync.lock")
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        if os.path.exists(path) and time.time() - os.path.getmtime(path) > LOCK_MAX_AGE:
+            os.remove(path)
+        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.close(fd)
+        return path
+    except FileExistsError:
+        return None
+    except OSError:
+        return ""  # cannot lock (read-only?): carry on without
+
+
 def run(project):
     out = {"updated": [], "added": [], "settings": [], "claude_md": [], "notes": [], "version": ""}
+    lock = _acquire_lock(project)
+    if lock is None:
+        return out  # another kit-sync is working on this project right now
+    try:
+        return _run(project, out)
+    finally:
+        if lock:
+            try:
+                os.remove(lock)
+            except OSError:
+                pass
+
+
+def _run(project, out):
     tpl = template_dir()
     if os.path.isdir(tpl):
         try:
             tv, pv = _read_version(tpl), _read_version(project)
             out["version"] = tv
+            out["from"] = pv
             if tv and pv and _newer(pv, tv):
                 pass  # project is newer than the profile template: never downgrade
             else:
                 out["updated"], out["added"], _ = sync_files(project, tpl)
-                out["settings"] = merge_settings(project, tpl)
+                out["settings"] = repair_settings(project) + merge_settings(project, tpl)
                 out["claude_md"] = merge_claude_md(project, tpl)
         except Exception as e:
             out["notes"].append("kit update skipped: %s" % e)
+    if FAILED:
+        out["notes"].append("%d file(s) were busy and will be updated at the next session start: %s" % (len(FAILED), ", ".join(FAILED[:3])))
+    out["notes"] += docs_align(project)
+    out["notes"] += neutralize_backups(project)
+    out["notes"] += history_align(project)
     out["notes"] += genre_and_inbox(project)
+    if out["updated"] or out["added"]:
+        msg = restart_console(project)
+        if msg:
+            out["notes"].append(msg)
     return out
 
 
@@ -235,9 +463,31 @@ def main():
     changed = r["updated"] or r["added"] or r["settings"] or r["claude_md"]
     msgs = []
     if changed:
-        n = len(r["updated"]) + len(r["added"]) + len(r["settings"]) + len(r["claude_md"])
-        msgs.append("Kit updated to v%s (%d change%s). Restart the session (close Claude and start it again) so the new files are read. "
-                    "Previous versions are saved in Claude/logs/kit-backup/." % (r["version"] or "?", n, "" if n == 1 else "s"))
+        parts = []
+        nf = len(r["updated"]) + len(r["added"])
+        if nf:
+            parts.append("%d file%s (%d new)" % (nf, "" if nf == 1 else "s", len(r["added"])))
+        if r["settings"]:
+            parts.append("%d hook setting%s" % (len(r["settings"]), "" if len(r["settings"]) == 1 else "s"))
+        if r["claude_md"]:
+            parts.append("CLAUDE.md block%s: %s" % ("" if len(r["claude_md"]) == 1 else "s", ", ".join(r["claude_md"])))
+        project = os.environ.get("CLAUDE_PROJECT_DIR") or (sys.argv[1] if len(sys.argv) > 1 else os.getcwd())
+        marker = os.path.join(project, "Claude", "logs", ".kit-sync-reported")
+        recent = False
+        try:
+            recent = os.path.isfile(marker) and time.time() - os.path.getmtime(marker) < 180
+            os.makedirs(os.path.dirname(marker), exist_ok=True)
+            with open(marker, "w") as f:
+                f.write(str(time.time()))
+        except OSError:
+            pass
+        if recent:
+            names = ", ".join((r["updated"] + r["added"])[:3]) or "settings"
+            msgs.append("✅ KIT: one more step of the same update was applied (%s: %s). Nothing else to do; restart once." % ("; ".join(parts), names))
+        else:
+            frm = ("from v%s " % r.get("from")) if r.get("from") else "from an old kit "
+            msgs.append("✅ KIT UPDATED %sto v%s: %s. Restart Claude Code (close and reopen) so the new files are read. "
+                        "Old versions are saved in Claude/logs/kit-backup/." % (frm, r["version"] or "?", "; ".join(parts)))
     msgs += r["notes"]
     if msgs:
         text = " ".join(msgs)

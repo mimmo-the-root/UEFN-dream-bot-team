@@ -189,6 +189,14 @@ Go straight to the results. No preamble like "I'll now proceed to..." or narrati
 you're about to do — do it, then report what you found/changed. This applies to every agent
 when reporting its output.
 
+- No filler openers ("Great! I can certainly help...") and no closers ("Let me know if you need
+  clarification!"). No explanations unless asked. Answer, then stop.
+- Code: show the diff or the changed function, never the whole file again.
+- Do not repeat what the owner just said or what a tool already showed. Reference task ids (`T-014`) instead
+  of re-describing work.
+- A subagent's final report is at most 15 lines in the fixed shape its own file defines; details go to the
+  files it edits, not to the report.
+
 ## 10. Code that doesn't compile is not a finished task, and learning from errors
 
 If the code you wrote doesn't compile, the task isn't done: it must be fixed and made to work,
@@ -274,6 +282,9 @@ invoke `second-brain-librarian`, don't mention it every session, it's simply off
   track record on other projects over purely theoretical ones — see `project-bootstrap.md`'s A4.
   Neither is required to query every time; it's a time-saver when the pattern is common enough
   to plausibly already be catalogued, not a mandatory step for every task.
+- **Ask last.** Before asking the owner a question or offering a choice, query the second brain (and the
+  genre/technique skills) first; if something relevant exists, propose that solution and ask only for a yes or an
+  alternative. Ask a bare question only when nothing was found.
 - **Never block on this.** If the vault path is unreachable (wrong path, drive not mounted,
   Obsidian vault moved), `second-brain-librarian` reports that and stops — `coder` and
   `project-bootstrap` treat a handoff exactly like a missing/misconfigured `uefn-lessons` file:
@@ -382,3 +393,21 @@ criteria. A task marked Done without recorded PASS verdicts from both `intent-re
 This rule exists specifically to cut down on repeated manual hand-offs and rediscovering context
 between sessions: a task's ID, status, and acceptance criteria are the one thing that should never
 need re-explaining from scratch, on this machine or a new one.
+
+<!-- KIT:BEGIN kit-self-update -->
+## 14. Kit self-update for older projects (automatic)
+
+Projects with a kit older than v1.84 have no update hook, so they never refresh themselves. As the very
+first action of ANY session in a project that has a `Claude/` folder next to a `CLAUDE.md` (with or without
+`Claude/KIT-VERSION`; a missing version file means a very old kit), compare the project's
+`Claude/KIT-VERSION` with `~/.claude/kit-template/Claude/KIT-VERSION`. If the project file is missing, older,
+or `.claude/settings.json` has no `kit-sync` entry, run once, without asking:
+
+`python ~/.claude/kit-template/Claude/hooks/kit_sync.py <project folder>` (use `py -3` if `python` is missing;
+the project folder is the one that contains `Claude/` and `.claude/`).
+
+It backs up replaced files under `Claude/logs/kit-backup/`, adds missing hooks and files, never touches
+Claude/docs or your permissions. Then tell the owner in one line: "Kit updated from vX to vY: restart the
+session so the new files are read." If the profile template folder does not exist, say so once and continue.
+Do not repeat the check when the versions already match.
+<!-- KIT:END kit-self-update -->

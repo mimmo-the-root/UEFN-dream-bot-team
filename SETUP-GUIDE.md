@@ -223,6 +223,16 @@ every project you want to use this kit on.
 10. **Verify it's registered**: `claude mcp list` should show `unreal-mcp` with scope "user".
    Optionally, ask Claude to list the available MCP tools to confirm the connection works
    end-to-end, not just that it's listed.
+11. **Optional, suggested: install the `caveman` plugin** (third-party, by JuliusBrussee) to make
+   Claude's replies much shorter and save output tokens. It is not part of this kit and is not
+   required. Outside Claude Code, in a terminal:
+   ```
+   claude plugin marketplace add JuliusBrussee/caveman
+   claude plugin install caveman@caveman
+   ```
+   Then in a session: `/caveman lite` (mild), `/caveman` (standard), `/caveman ultra`
+   (telegraphic), `/caveman off`, `/caveman-stats`. It only shortens replies; the kit's own
+   cost rules (cheap models, S/M/L sizing, history trimming) still do most of the saving.
 
 Phase 1 is done. You won't repeat any of this for future projects — go to Phase 2 for each one.
 
@@ -622,6 +632,8 @@ just work through a task normally if the areas aren't truly independent, or the 
 enough that splitting wouldn't save meaningful time.
 
 ## 3d. Seven more skills, for keeping token usage down
+
+> Suggested extra: the third-party `caveman` plugin shortens replies (see Phase 1, step 11).
 
 `uefn-lessons` (3b) and the second brain (3c) are the two original shared-knowledge layers. This
 kit adds seven more, all following the same **progressive disclosure** shape: a short, precise

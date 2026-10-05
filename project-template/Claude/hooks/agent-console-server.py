@@ -52,6 +52,7 @@ import http.server
 import socketserver
 import json
 import os
+import re
 import sys
 import time
 import urllib.request
@@ -315,6 +316,22 @@ def _read_json_object(path, default):
     return default
 
 
+def _kit_status():
+    """Is a newer kit installed in the user profile than this project's files? (v1.86.8)"""
+    def rd(path):
+        try:
+            with open(path, encoding="utf-8") as f:
+                return f.read().strip()
+        except OSError:
+            return ""
+    tpl = os.environ.get("UEFN_KIT_TEMPLATE") or os.path.join(os.path.expanduser("~"), ".claude", "kit-template")
+    proj_v = rd(os.path.join(PROJECT_DIR, "Claude", "KIT-VERSION"))
+    tpl_v = rd(os.path.join(tpl, "Claude", "KIT-VERSION"))
+    def t(v):
+        return tuple(int(x) for x in re.findall(r"\d+", v)[:3]) or (0,)
+    return {"project": proj_v, "template": tpl_v, "outdated": bool(tpl_v) and t(tpl_v) > t(proj_v)}
+
+
 class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass  # keep the terminal quiet — the browser polls this every second
@@ -387,6 +404,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+        elif self.path.startswith("/kit-status"):
+            self._send_json_bytes(json.dumps(_kit_status()).encode("utf-8"))
         elif self.path.startswith("/whoami"):
             self._send_json_bytes(json.dumps({"project": PROJECT_DIR, "started_at": SERVER_STARTED_AT}).encode("utf-8"))
         elif self.path.startswith("/island-metrics"):

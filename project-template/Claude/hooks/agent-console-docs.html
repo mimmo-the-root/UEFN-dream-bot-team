@@ -207,16 +207,30 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
           <div style="font-size:11px;color:var(--dim);margin-top:2px;" id="progressRemaining"></div>
         </div>
       </div>
-      <div class="card">
-        <div class="label">Open bugs</div>
-        <div style="font-size:30px;font-weight:700;color:var(--red);" id="openBugsCount">–</div>
-        <div style="font-size:11px;color:var(--dim);" id="openBugsBreakdown">loading…</div>
+      <div class="card ring">
+        <svg width="86" height="86" viewBox="0 0 86 86">
+          <circle cx="43" cy="43" r="36" fill="none" stroke="var(--line)" stroke-width="8"/>
+          <circle id="bugRing" cx="43" cy="43" r="36" fill="none" stroke="var(--green)" stroke-width="8"
+            stroke-dasharray="226" stroke-dashoffset="226" stroke-linecap="round" transform="rotate(-90 43 43)"/>
+          <text id="bugPct" x="43" y="49" text-anchor="middle" font-size="18" fill="var(--text)" font-weight="700">–</text>
+        </svg>
+        <div>
+          <div class="label">Bug fixing progress</div>
+          <div style="font-size:13px;margin-top:4px;" id="bugTotals">loading…</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:2px;" id="openBugsBreakdown"></div>
+        </div>
       </div>
       <div class="card">
         <div class="label">Release status</div>
         <div style="font-size:13px;margin-top:4px;" id="releaseStatusOverall">loading…</div>
         <div class="relwrap" id="releaseStatusList"></div>
       </div>
+    </div>
+
+    <!-- PHASES (from ROADMAP.md "## Phases"): hidden when the project has no such section yet -->
+    <div id="phasesBox" style="display:none;margin-bottom:18px;">
+      <div class="label" style="margin-bottom:8px;">Phases</div>
+      <div class="card" id="phasesList" style="font-size:11.5px;"></div>
     </div>
 
     <!-- TIMELINE ROADMAP (from Claude/docs/ROADMAP.md's Tasks table) -->
@@ -247,6 +261,12 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
         <div id="bugBacklogList" style="font-size:11.5px;color:var(--dim);">loading…</div>
         <a href="#" onclick="openPreview('bugs');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full BUGS.md →</a>
       </div>
+    </div>
+
+    <!-- BACKLOG: tasks whose Release is "Later" (not planned into a release yet) -->
+    <div id="backlogBox" style="display:none;margin-bottom:18px;">
+      <div class="label" style="margin-bottom:8px;">Backlog <span id="backlogCount" style="font-weight:400;color:var(--dim);"></span></div>
+      <div class="card" id="backlogList" style="font-size:11.5px;"></div>
     </div>
 
     <!-- RECENT STATUS: task/bug priorities + owner-action items, not raw STATUS.md lines
@@ -747,29 +767,29 @@ function renderHeroInner(roadmap, bugs, status){
       : "";
   }
 
-  // --- Open bugs ---
+  // --- Bug fixing progress (v1.88.1): closed / total as a ring, like the roadmap one; the open
+  // bugs keep their severity breakdown. Replaces the old "Open bugs" count card. ---
+  const bpct = document.getElementById('bugPct'), bring = document.getElementById('bugRing');
+  const btot = document.getElementById('bugTotals'), bdet = document.getElementById('openBugsBreakdown');
   if (bugs.error){
-    document.getElementById('openBugsCount').textContent = "–";
-    document.getElementById('openBugsBreakdown').textContent = "Could not reach the local server.";
+    bpct.textContent = "–"; btot.textContent = "Could not reach the local server."; bdet.textContent = "";
   } else if (!bugs.exists){
-    document.getElementById('openBugsCount').textContent = "0";
-    document.getElementById('openBugsBreakdown').textContent = "BUGS.md has not been created yet.";
+    bpct.textContent = "–"; btot.textContent = "BUGS.md has not been created yet."; bdet.textContent = "";
   } else {
-    const rows = parseBugsBacklog(bugs.content).filter(isBugOpen);
+    const allBugRows = parseBugsBacklog(bugs.content);
+    const rows = allBugRows.filter(isBugOpen);
     const sev = { blocking: 0, major: 0, medium: 0, minor: 0, unspecified: 0 };
     rows.forEach(r => { const k = bugSeverityInfo(r.severity).key; sev[k] = (sev[k] || 0) + 1; });
-    document.getElementById('openBugsCount').textContent = String(rows.length);
-    // v1.79.6 fix: "No bugs logged yet." used to show whenever the OPEN-filtered list was empty,
-    // even when BUGS.md has a full backlog and every single one of them is resolved/closed — that
-    // reads as "you haven't logged any bugs" when the truth is closer to "good news, none open
-    // right now". Distinguish the genuinely-empty file (no Backlog rows at all) from the
-    // has-bugs-but-none-open case.
-    const allBugRows = parseBugsBacklog(bugs.content);
-    document.getElementById('openBugsBreakdown').textContent = rows.length
-      ? ("🔴" + sev.blocking + " blocking · 🟠" + sev.major + " major · 🟡" + sev.medium + " medium · ⚪" + (sev.minor + sev.unspecified) + " minor/other")
-      : (allBugRows.length
-          ? "No open bugs right now — all logged bugs are currently resolved."
-          : "No bugs logged yet.");
+    const total = allBugRows.length, closed = total - rows.length;
+    const pct = total ? Math.round(closed / total * 100) : 0;
+    bpct.textContent = total ? (pct + "%") : "–";
+    bring.setAttribute('stroke-dashoffset', String(226 - (226 * pct / 100)));
+    btot.textContent = total
+      ? (total + " bugs in total · " + closed + " closed · " + rows.length + " open")
+      : "No bugs logged yet.";
+    bdet.textContent = rows.length
+      ? ("Open: \uD83D\uDD34" + sev.blocking + " blocking · \uD83D\uDFE0" + sev.major + " major · \uD83D\uDFE1" + sev.medium + " medium · \u26AA" + (sev.minor + sev.unspecified) + " minor/other")
+      : (total ? "No open bugs: all resolved." : "");
   }
 
   // --- Release status (v1.80.0, replaces "Last update"): overall % + one mini-bar per release,
@@ -780,7 +800,7 @@ function renderHeroInner(roadmap, bugs, status){
   if (roadmap.error){ ov.textContent = "Could not reach the local server."; listEl.innerHTML = ""; }
   else if (!roadmap.exists){ ov.textContent = "ROADMAP.md has not been created yet."; listEl.innerHTML = ""; }
   else {
-    const all = parseRoadmapTasks(roadmap.content).filter(t => statusBucket(t.status) !== "outOfScope");
+    const all = parseRoadmapTasks(roadmap.content).filter(t => statusBucket(t.status) !== "outOfScope" && !isBacklogRow(t));
     const groups = groupByRelease(all);
     const done = all.filter(t => statusBucket(t.status) === "done").length;
     ov.textContent = all.length
@@ -793,6 +813,38 @@ function renderHeroInner(roadmap, bugs, status){
         '</span><span class="bar"><i style="width:' + pct + '%"></i></span><span class="pct">' + pct + '%</span></div>';
     }).join("");
   }
+}
+
+
+// Delivery standard (v1.88): Release "Later"/"Backlog" = not planned into a release yet.
+function isBacklogRow(r){ return /^(later|backlog)$/i.test((r.release || "").trim()); }
+async function renderPhasesAndBacklog(){
+  const roadmap = await fetchDoc('roadmap');
+  const pbox = document.getElementById('phasesBox'), bbox = document.getElementById('backlogBox');
+  if (!roadmap || roadmap.error || !roadmap.exists){ pbox.style.display = "none"; bbox.style.display = "none"; return; }
+  try{
+    const phases = parseTableAfterHeading(roadmap.content, /^##\s*Phases/i);
+    if (phases.length){
+      pbox.style.display = "";
+      document.getElementById('phasesList').innerHTML = phases.map(p => {
+        const st = (p.status || "").trim(), low = st.toLowerCase();
+        const cls = low.startsWith("active") ? "var(--green)" : (low.startsWith("done") ? "var(--blue)" : "var(--dim)");
+        return '<div style="padding:6px 0;border-bottom:1px solid var(--line);"><b style="color:' + cls + ';">' + inlineEsc(p.phase || p.id) + '</b> ' +
+          '<span class="pill" style="margin-left:6px;">' + inlineEsc(st.split(/\s+/)[0] || "?") + '</span>' +
+          '<div style="color:var(--dim);margin-top:2px;">' + inlineEsc(p.goal || "") + '</div>' +
+          '<div style="margin-top:2px;"><span style="color:var(--dim);">Exit:</span> ' + inlineEsc(p["exit criteria"] || "") + '</div></div>';
+      }).join("");
+    } else { pbox.style.display = "none"; }
+    const back = parseRoadmapTasks(roadmap.content).filter(r => isBacklogRow(r) && statusBucket(r.status) !== "outOfScope" && statusBucket(r.status) !== "done");
+    if (back.length){
+      bbox.style.display = "";
+      document.getElementById('backlogCount').textContent = "— " + back.length + " task" + (back.length === 1 ? "" : "s") + " not planned into a release";
+      const shown = back.slice(0, 15);
+      document.getElementById('backlogList').innerHTML = '<table class="datatable"><tr><th style="width:56px;">ID</th><th>Feature</th><th style="width:70px;">Priority</th></tr>' +
+        shown.map(r => '<tr><td><b>' + inlineEsc(r.id || "") + '</b></td><td><div class="clamp" title="' + inlineEsc(r.feature || "") + '">' + inlineEsc(r.feature || "") + '</div></td><td>' + inlineEsc(r.priority || "") + '</td></tr>').join("") +
+        '</table>' + (back.length > shown.length ? '<div style="color:var(--dim);margin-top:6px;">+ ' + (back.length - shown.length) + ' more in ROADMAP.md</div>' : "");
+    } else { bbox.style.display = "none"; }
+  } catch(e){ pbox.style.display = "none"; bbox.style.display = "none"; }
 }
 
 async function renderTimeline(){
@@ -921,7 +973,7 @@ async function renderRoadmapTaskList(){
   let rows;
   try{ rows = parseRoadmapTasks(roadmap.content); }
   catch(e){ el.innerHTML = '<span style="color:var(--red);">Could not parse ROADMAP.md (' + escH(String(e && e.message || e)) + ').</span>'; return; }
-  rows = rows.filter(r => statusBucket(r.status) !== "outOfScope");
+  rows = rows.filter(r => statusBucket(r.status) !== "outOfScope" && !isBacklogRow(r));
   if (!rows.length){ el.innerHTML = '<span style="font-style:italic;">ROADMAP.md has no Tasks rows yet.</span>'; return; }
   const isOpenT = r => { const b = statusBucket(r.status); return b === "todo" || b === "active" || b === "blocked"; };
   const groups = groupByRelease(rows).filter(g => g.rows.some(isOpenT));
@@ -977,8 +1029,7 @@ async function renderBugBacklog(){
         '<td><span class="pill ' + sev.cls + '" title="' + escH(r.severity || "") + '">' + escH(sev.label) + '</span></td>' +
         '<td><span class="badge ' + badge.cls + '" title="' + escH(r.status || "") + '"><span class="dot"></span>' + escH(badge.label.split(/\s+/)[0].replace(/:$/, "")) + '</span><span class="lbslot"></span></td>' +
         '<td><div class="clamp" title="' + escH(desc) + '">' + escH(desc || "(untitled)") + '</div></td></tr>';
-    }).join("") + '</table>' +
-    '<div style="font-size:10.5px;color:var(--dim);margin-top:6px;">' + open.length + ' open bugs of ' + rows.length + ' logged</div>';
+    }).join("") + '</table>';
   applyLiveBadges();
 }
 
@@ -1116,12 +1167,13 @@ renderRecentPriorities();
 markMissingDocs();
 renderHero();
 renderTimeline();
+renderPhasesAndBacklog();
 renderRoadmapTaskList();
 renderBugBacklog();
 pollLiveRail();
 setInterval(pollLiveRail, 2000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.85.0";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.88.2";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -1154,6 +1206,52 @@ setInterval(pollLiveRail, 2000);
       ls(function(){localStorage.setItem(KEY,JSON.stringify({at:Date.now(),tag:j.tag_name,url:url}));});
       show(j.tag_name,url);
     }).catch(function(){});
+})();
+</script>
+<script>
+/* Kit status (v1.88.2) - same snippet in all 5 consoles. If a newer kit is installed in your profile than the files of
+   this project, say so and what to do. Local only (/kit-status), silent on any failure. */
+(function(){
+  function a(){return document.querySelector(".termlines, header, .hdrbar");}
+  fetch("/kit-status").then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||!j.outdated||document.getElementById("kitLocalBanner")||!a())return;
+    var d=document.createElement("div"); d.id="kitLocalBanner";
+    d.style.cssText="display:flex;align-items:center;gap:10px;margin:12px 0;padding:8px 12px;border:1px solid rgba(255,176,32,.45);background:rgba(255,176,32,.08);border-radius:8px;font-size:12px;color:var(--text);";
+    d.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--amber);flex:none;"></span><span><b style="color:var(--amber);">New kit version ready:</b> v'+
+      String(j.template).replace(/[<>&"]/g,"")+' is installed in your profile, this project still has '+(j.project?"v"+String(j.project).replace(/[<>&"]/g,""):"an old kit")+
+      '. Close and reopen Claude Code on this project: it updates the files by itself and restarts this console.</span>';
+    a().parentNode.insertBefore(d,a().nextSibling);
+  }).catch(function(){});
+})();
+</script>
+<script>
+/* Island info strip (title, code, tags, project genre) — same block as the Stats page, shown on every page.
+   Local /island-info + /project-genre only; silent on any failure. Stats page renders its own copy. */
+(function(){
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  var st=document.createElement("style");
+  st.textContent=".island-strip{font-size:11px;color:var(--dim,#5a7088);margin:8px 4px 14px;}"
+   +".island-strip b{color:var(--text,#c9d6f0);font-weight:normal;}"
+   +".island-strip .tag-list{display:inline-flex;gap:5px;margin-left:10px;flex-wrap:wrap;vertical-align:middle;}"
+   +".island-strip .tag-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--dim,#5a7088);border:1px solid var(--line,#1c2740);border-radius:10px;padding:2px 8px;background:var(--panel,#0d121c);}"
+   +".island-strip .genre-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--bg,#060810);border:1px solid var(--green,#39ff88);border-radius:10px;padding:2px 8px;background:var(--green,#39ff88);font-weight:bold;margin-right:6px;}";
+  document.head.appendChild(st);
+  var box=document.createElement("div"); box.className="island-strip"; box.id="islandStrip"; box.style.display="none";
+  var vs=document.querySelector(".view-switch,.vs"), anchor=vs&&vs.closest(".termlines,.hdrbar,.h,header");
+  if(anchor&&anchor.parentNode) anchor.parentNode.insertBefore(box,anchor.nextSibling);
+  else (document.querySelector("main,.wrap")||document.body).insertBefore(box,(document.querySelector("main,.wrap")||document.body).firstChild);
+  var html="";
+  function show(){ if(html){box.innerHTML=html;box.style.display="";} }
+  fetch("/island-info",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(i){
+    if(i&&i.title){
+      html="Isola: <b>"+esc(i.title)+"</b>"+(i.code?" ("+esc(i.code)+")":"");
+      if(Array.isArray(i.tags)&&i.tags.length) html+='<span class="tag-list">'+i.tags.map(function(t){return '<span class="tag-badge">'+esc(t)+'</span>';}).join("")+'</span>';
+    }
+  }).catch(function(){}).then(function(){
+    return fetch("/project-genre",{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(g){
+      g=(g||"").trim(); if(g&&g.length<60) html+='<span class="genre-badge" title="Genre assigned to the project (Claude/docs/.genre)">'+esc(g)+'</span>';
+    }).catch(function(){});
+  }).then(show);
 })();
 </script>
 </body>
