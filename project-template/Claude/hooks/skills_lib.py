@@ -49,6 +49,7 @@ VARIANT_RE = re.compile(r"^(\*|[a-z0-9][a-z0-9-]{0,40})$")
 MAX_STATEMENT, MAX_CONDITION, MAX_ACTION = 200, 140, 200
 MAX_PATTERNS_PER_PACK = 200
 BEGIN, END = "<!-- PATTERNS:BEGIN -->", "<!-- PATTERNS:END -->"
+SECTION_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,30}$")
 
 
 # ----------------------------------------------------------------------------- paths / io
@@ -329,6 +330,8 @@ def validate_pattern(p, deny_terms=()):
             f.append((field, "too_long(>%d)" % limit))
         for r in text_findings(v, deny_terms):
             f.append((field, r))
+    if "section" in p and not SECTION_RE.fullmatch(str(p.get("section"))):
+        f.append(("section", "bad_format"))
     if p.get("tier") not in TIERS:
         f.append(("tier", "unknown"))
     if p.get("status") not in STATUSES:
@@ -446,7 +449,7 @@ def render_skill(slug):
 
     def line(p):
         tag = " (community)" if p.get("origin") == "community" else (" (official reference)" if p.get("origin") == "official" else "")
-        return "- [%s] When %s → %s%s — %d map(s)" % (p["variant"], _norm(p["condition"]), p["action"].strip(" ."), tag, p.get("support", 0))
+        return "- [%s] When %s → %s%s — %d map(s)" % (p["variant"], p["condition"].strip(" ."), p["action"].strip(" ."), tag, p.get("support", 0))
 
     groups = [("Proven", "follow as a rule", [p for p in pats if p["status"] == "active" and p["tier"] == "proven"]),
               ("Confirmed", "follow by default; say why if you deviate", [p for p in pats if p["status"] == "active" and p["tier"] == "confirmed"]),
@@ -485,6 +488,88 @@ def render_skill(slug):
     with open(tmp_real, "w", encoding="utf-8", newline="\n") as f:
         f.write("---\n" + "\n".join(lines) + "\n---\n\n" + body.lstrip("\n"))
     os.replace(tmp_real, path_real)
+    render_starter(slug)
+
+
+def starter_sections(slug):
+    """Sections of the genre's starter (references/starter-sections.json): [{id, title, questions}]. [] when the genre has none."""
+    d = _read_json(os.path.join(gdir(slug), "references", "starter-sections.json"), None)
+    out = []
+    for x in (d or {}).get("sections", []) if isinstance(d, dict) else []:
+        if isinstance(x, dict) and SECTION_RE.fullmatch(str(x.get("id", ""))) and x.get("title"):
+            out.append({"id": x["id"], "title": str(x["title"]), "questions": str(x.get("questions", ""))})
+    return out
+
+
+def render_starter(slug):
+    """Regenerate references/starter.md from the sections + the approved patterns tagged with each section.
+    Zero tokens. Called on every render, so it follows the owner's maps: new patterns, tier changes, contested ones."""
+    slug = _slug(slug)
+    secs = starter_sections(slug)
+    if not secs:
+        return
+    pats = [p for p in load_pack(slug)["patterns"] if p.get("status") != "superseded"]
+    order = {"proven": 0, "confirmed": 1, "reference": 2, "hypothesis": 3}
+
+    def lines_for(items):
+        items = sorted(items, key=lambda p: (p.get("status") == "contested", order.get(p.get("tier"), 9)))
+        return ["- [%s%s] %s: when %s -> %s (%d map(s))" % (
+            p.get("tier", "?"), ", contested" if p.get("status") == "contested" else "", p["variant"],
+            p["condition"].strip(" ."), p["action"].strip(" ."), p.get("support", 0)) for p in items]
+
+    out = ["# Starter - %s (generated from the owner's approved patterns; do not edit by hand)" % slug, "",
+           "Use when the owner starts a NEW project of this genre. Each section lists what the owner's maps taught (proven = rule, confirmed = default, "
+           "hypothesis = suggestion, contested = ask) and the open questions. Nothing here comes from general knowledge: an empty section "
+           "means nothing was learned yet, so ask the owner and write a DESIGN-<system>.md for it. No code before the owner approves the design.", ""]
+    known = {x["id"] for x in secs}
+    for i, sec in enumerate(secs, 1):
+        mine = [p for p in pats if p.get("section") == sec["id"]]
+        out += ["## %d. %s" % (i, sec["title"]), ""]
+        if sec["questions"]:
+            out += ["Questions: " + sec["questions"], ""]
+        out += lines_for(mine) if mine else ["_Nothing learned yet for this section._"]
+        out.append("")
+    rest = [p for p in pats if p.get("section") not in known]
+    if rest:
+        out += ["## Not classified yet", "", "Run `skills_lib.py section %s <pattern id> <section id>` for each (ids: %s)." % (slug, ", ".join(sorted(known))), ""]
+        out += lines_for(rest) + [""]
+    _write_text(os.path.join(gdir(slug), "references", "starter.md"), "\n".join(out))
+
+
+def similar(slug, threshold=0.5):
+    """Zero-token duplicate finder: pairs of active patterns whose condition+action share most of their words (Jaccard)."""
+    slug = resolve_genre(slug)
+    stop = set("a an the of to in on and or for with when is are be it its that this by as at from so no not per each every".split())
+
+    def toks(p):
+        return set(w for w in re.findall(r"[a-z0-9]+", (p["condition"] + " " + p["action"]).lower()) if w not in stop and len(w) > 2)
+
+    pats = [p for p in load_pack(slug)["patterns"] if p.get("status") != "superseded"]
+    ts = [toks(p) for p in pats]
+    out = []
+    for i in range(len(pats)):
+        for j in range(i + 1, len(pats)):
+            u = ts[i] | ts[j]
+            sc = len(ts[i] & ts[j]) / len(u) if u else 0
+            if sc >= threshold:
+                out.append({"score": round(sc, 2), "a": pats[i]["id"], "b": pats[j]["id"], "a_text": pats[i]["condition"][:90], "b_text": pats[j]["condition"][:90],
+                            "same_section": pats[i].get("section") == pats[j].get("section")})
+    return sorted(out, key=lambda x: -x["score"])
+
+
+def set_section(slug, pid, section):
+    slug = resolve_genre(slug)
+    ids = {x["id"] for x in starter_sections(slug)}
+    if section not in ids:
+        return {"ok": False, "error": "unknown section (ids: %s)" % ", ".join(sorted(ids))}
+    pack = load_pack(slug)
+    p = _find(pack, pid)
+    if p is None:
+        return {"ok": False, "error": "pattern not found"}
+    p["section"] = section
+    save_pack(slug, pack)
+    render_skill(slug)
+    return {"ok": True, "pattern": pid, "section": section}
 
 
 # ----------------------------------------------------------------------------- proposals
@@ -500,7 +585,7 @@ def _say_new(slug, variant, statement):
     return "In %s / %s: %s" % (slug, variant, statement)
 
 
-def propose(slug, variant, condition, action, statement, map_name, stance="for", tasks=(), note="", metric_backed=False):
+def propose(slug, variant, condition, action, statement, map_name, stance="for", tasks=(), note="", metric_backed=False, section=""):
     """Queue a lesson learned from a real map. Nothing is applied until the owner approves it."""
     slug = _slug(slug)
     init_genre(slug)
@@ -514,6 +599,8 @@ def propose(slug, variant, condition, action, statement, map_name, stance="for",
     deny = _deny_terms(slug) + [map_name.strip()]
     cand = {"id": pid, "variant": variant, "statement": statement.strip(), "condition": condition.strip(),
             "action": action.strip(), "tier": "hypothesis", "status": "active", "origin": "local"}
+    if section:
+        cand["section"] = section.strip()
     findings = validate_pattern(cand, deny)
     if findings:
         return {"ok": False, "error": "pattern failed the safety/format check", "findings": findings,
@@ -697,7 +784,7 @@ def export_pack(slug, out_dir):
     for p in pack["patterns"]:
         if p.get("status") == "superseded" or p.get("support", 0) < 1:
             continue
-        item = {k: p[k] for k in ("id", "variant", "statement", "condition", "action", "tier", "status") if k in p}
+        item = {k: p[k] for k in ("id", "variant", "statement", "condition", "action", "tier", "status", "section") if k in p}
         item["support"] = p.get("support", 0)
         items.append(item)
     out = {"schema": SCHEMA, "genre": slug, "pack_version": int(pack.get("revision", 0)),
@@ -1069,6 +1156,11 @@ def summary():
 
 # ----------------------------------------------------------------------------- CLI
 def _cli(argv=None):
+    for _st in (sys.stdout, sys.stderr):  # Windows pipes default to cp1252; patterns/docs may contain arrows or typographic dashes
+        try:
+            _st.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
     ap = argparse.ArgumentParser(prog="skills_lib.py", description=__doc__.split("\n")[1])
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("summary")
@@ -1096,7 +1188,9 @@ def _cli(argv=None):
     s.add_argument("--statement", required=True); s.add_argument("--map", required=True, dest="map_name")
     s.add_argument("--stance", default="for", choices=["for", "against"])
     s.add_argument("--task", action="append", default=[]); s.add_argument("--note", default="")
-    s.add_argument("--metric-backed", action="store_true")
+    s.add_argument("--metric-backed", action="store_true"); s.add_argument("--section", default="")
+    s = sub.add_parser("section"); s.add_argument("genre"); s.add_argument("pattern"); s.add_argument("section")
+    s = sub.add_parser("similar"); s.add_argument("genre"); s.add_argument("--threshold", type=float, default=0.5)
     a = ap.parse_args(argv)
     try:
         if a.cmd == "summary":
@@ -1137,13 +1231,17 @@ def _cli(argv=None):
         elif a.cmd == "proposals":
             r = list_proposals(a.genre)
         elif a.cmd == "patterns":
-            r = [{k: p.get(k) for k in ("id", "variant", "condition", "action", "statement", "tier", "status")}
+            r = [{k: p.get(k) for k in ("id", "variant", "condition", "action", "statement", "tier", "status", "section")}
                  for p in load_pack(_slug(a.genre))["patterns"]]
+        elif a.cmd == "similar":
+            r = similar(a.genre, a.threshold)
+        elif a.cmd == "section":
+            r = set_section(a.genre, a.pattern, a.section)
         elif a.cmd == "act":
             r = act(a.genre, a.proposal, a.action, a.statement, a.exclude)
         else:
             r = propose(a.genre, a.variant, a.condition, a.act_, a.statement, a.map_name, a.stance,
-                        a.task, a.note, a.metric_backed)
+                        a.task, a.note, a.metric_backed, a.section)
     except (ValueError, OSError) as e:
         r = {"ok": False, "error": str(e)}
     # Redact secret-looking strings before anything reaches stdout/logs (clear-text logging fix).

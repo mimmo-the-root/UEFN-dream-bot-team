@@ -6,13 +6,17 @@ Zero AI tokens. Reads the .verse files only; writes ONLY to --out (default <proj
   python verse_map.py check [--project DIR] [--out DIR]    which files changed since the map was built (hash)
   python verse_map.py symbol NAME [--out DIR]              where a symbol is defined (file:line), nothing else
   python verse_map.py role FILE "TEXT" [--out DIR]         set a file's one-line role (kept across rebuilds in roles.tsv)
-  python verse_map.py learn [--batch N] [--full] [--out DIR]  next N unread cards (default 12, signal-only view; --full = whole cards), never truncated
-  python verse_map.py learned [--all] [--out DIR]          mark the cards of the last batch as learned (--all: every card)
+  python verse_map.py learn [--cap N] [--full] [--cards-only]  next batch: brief card + COMPLETE source of each unread file (default 60k chars); ends with a receipt token
+  python verse_map.py learned TOKEN                        mark the batch as learned; refuses any token but the one printed at the END of the batch (--all: every file)
+  python verse_map.py docs [--project DIR]                 next project documents not read yet (complete) + names they mention that the code map does not know
+  python verse_map.py docpatch list | apply ID... | apply --all | revert STAMP   check/apply/undo the reverse-engineered corrections in map/doc-patches.json (exact text, backup)
+  python verse_map.py status [--project DIR]               what is learned and what is missing (also written to map/PROGRESS.md)
+  python verse_map.py docsdone TOKEN [--project DIR]       mark the documents of the last batch as read (needs the receipt token at the batch end)
 Facts only: role comes from the file's "# Summary:" header, everything else from the code. Anything the code cannot
 tell (level-placed device config and wiring) is NOT guessed here; it stays [I]/unknown for the coder's MCP tools.
 Output: INDEX.md (read first, small), WIRING.md, symbols.tsv, cards/<file>.md, meta.json.
 """
-import hashlib, json, os, re, sys, time
+import hashlib, json, os, re, shutil, sys, time
 
 VERSION = 3
 SKIP = {"Claude", ".git", "node_modules", "__pycache__"}
@@ -239,15 +243,27 @@ def cmd_check(project, outdir):
             print("  %s %s" % (tag, f))
 
 
-def learn_pending(outdir):
-    """(first_pass, [files not learned yet]) or None when there is no map."""
+DEPTH = "source"  # what a learning pass reads: the full source of each file (+ its brief card). "cards" = cards only (cheap mode)
+LEARN_CAP = 60000  # characters per batch (a single longer file is printed alone, complete)
+
+
+def _read_state(path):
+    try:
+        return json.load(open(path))
+    except (OSError, ValueError):
+        return {}
+
+
+def learn_pending(outdir, depth=DEPTH):
+    """(first_pass, [files not learned yet at this depth], total) or None when there is no map."""
     mp = os.path.join(outdir, "meta.json")
     if not os.path.isfile(mp):
         return None
     cur = json.load(open(mp))["files"]
-    lp = os.path.join(outdir, "learned.json")
-    seen = json.load(open(lp)).get("files", {}) if os.path.isfile(lp) else {}
-    return (not os.path.isfile(lp), [f for f, v in cur.items() if seen.get(f) != v["sha"]], len(cur))
+    st = _read_state(os.path.join(outdir, "learned.json"))
+    # a pass that only saw the cards does not count as having read the sources
+    seen = st.get("files", {}) if (st.get("depth", "cards") == "source" or depth == "cards") else {}
+    return (not st, [f for f, v in cur.items() if seen.get(f) != v["sha"]], len(cur))
 
 
 def _card_path(outdir, f):
@@ -269,48 +285,313 @@ def _brief(text):
     return "\n".join(keep)
 
 
-def cmd_learn(outdir, batch=12, full=False):
-    """Print the next batch of cards the learning step has not read (complete, never truncated); remember the batch."""
-    r = learn_pending(outdir)
+def _receipt(text):
+    return hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()[:6]
+
+
+def cmd_learn(project, outdir, cap=LEARN_CAP, full=False, cards_only=False):
+    """Print the next batch (brief card + complete source of each file) and a receipt token that only the COMPLETE output contains.
+    `learned TOKEN` is the only way to mark the batch: a truncated read cannot know the token."""
+    depth = "cards" if cards_only else DEPTH
+    r = learn_pending(outdir, depth)
     if r is None:
         print("no map yet: run build"); return
     first, todo, total = r
-    print("learning: %s, %d of %d cards to read; this batch: %d" % ("FIRST PASS (whole map)" if first else "incremental", len(todo), total, min(batch, len(todo))))
-    part = todo[:batch]
-    json.dump({"files": part}, open(os.path.join(outdir, "learn-batch.json"), "w"))
-    for f in part:
+    print("learning (%s): %s, %d of %d files to read" % ("full source" if depth == "source" else "cards only", "FIRST PASS (whole project)" if first else "incremental", len(todo), total))
+    out, part, used = [], [], 0
+    for f in todo:
         cp = _card_path(outdir, f)
-        text = open(cp, encoding="utf-8").read() if os.path.isfile(cp) else "# %s\n(no card)" % f
-        print("\n=== %s ===\n%s" % (f, text if full else _brief(text)))
+        card = open(cp, encoding="utf-8").read() if os.path.isfile(cp) else "# %s\n(no card)" % f
+        body = "=== %s ===\n%s\n" % (f, card if full else _brief(card))
+        if depth == "source":
+            try:
+                body += "--- source ---\n" + open(os.path.join(project, f), encoding="utf-8", errors="replace").read() + "\n--- end of %s ---\n" % f
+            except OSError:
+                body += "(source not readable)\n"
+        if part and used + len(body) > cap:
+            break
+        part.append(f); out.append(body); used += len(body)
+    text = "\n".join(out)
+    tok = _receipt(text)
+    print("this batch: %d file(s), %d characters\n" % (len(part), len(text)))
+    print(text)
+    json.dump({"files": part, "token": tok, "depth": depth}, open(os.path.join(outdir, "learn-batch.json"), "w"))
+    print("[END OF BATCH. Receipt token: %s. After queueing the proposals run `learned %s`; it refuses any other token, so a cut-off read cannot be marked.]" % (tok, tok))
     if len(todo) > len(part):
-        print("\n[%d more after this batch: queue proposals, run `learned`, then `learn` again]" % (len(todo) - len(part)))
-    elif part:
-        print("\n[last batch: queue proposals, then run `learned`]")
+        print("[%d more file(s) after this batch: `learned`, then `learn` again]" % (len(todo) - len(part)))
 
 
-def cmd_learned(outdir, all_cards=False):
-    """Mark as learned the cards of the last printed batch (or every card with --all)."""
+def cmd_learned(project, outdir, token="", all_cards=False):
+    """Mark the files of the last printed batch as learned; needs the batch's receipt token (or --all)."""
     mp = os.path.join(outdir, "meta.json")
     if not os.path.isfile(mp):
-        print("no map yet: run build"); return
+        print("no map yet: run build"); return 1
     cur = json.load(open(mp))["files"]
-    lp = os.path.join(outdir, "learned.json")
-    seen = json.load(open(lp)).get("files", {}) if os.path.isfile(lp) else {}
-    bp = os.path.join(outdir, "learn-batch.json")
-    batch = list(cur) if all_cards else (json.load(open(bp)).get("files", []) if os.path.isfile(bp) else [])
+    lp, bp = os.path.join(outdir, "learned.json"), os.path.join(outdir, "learn-batch.json")
+    st = _read_state(lp)
+    bt = _read_state(bp)
+    if not all_cards and (not bt or token != bt.get("token")):
+        print("REFUSED: pass the receipt token printed at the END of the batch (`learned <token>`). If you did not see it, the output was cut: run `learn` again and read it complete.")
+        return 1
+    depth = "source" if all_cards else bt.get("depth", DEPTH)
+    seen = st.get("files", {}) if st.get("depth", "cards") == depth else {}
+    batch = list(cur) if all_cards else bt.get("files", [])
     for f in batch:
         if f in cur:
             seen[f] = cur[f]["sha"]
-    json.dump({"at": time.strftime("%Y-%m-%d %H:%M"), "files": seen}, open(lp, "w"), indent=0)
+    json.dump({"at": time.strftime("%Y-%m-%d %H:%M"), "depth": depth, "files": seen}, open(lp, "w"), indent=0)
     if os.path.isfile(bp):
         os.remove(bp)
-    print("learned.json updated: %d card(s) marked, %d of %d learned in total" % (len(batch), len([f for f in cur if seen.get(f) == cur[f]["sha"]]), len(cur)))
+    print("learned.json updated: %d file(s) marked, %d of %d learned in total (%s)" % (len(batch), len([f for f in cur if seen.get(f) == cur[f]["sha"]]), len(cur), depth))
+    write_progress(project, outdir)
+    return 0
+
+
+DOC_SKIP = ("STATUS.md", "BUGS.md", "ROADMAP.md")  # task trackers: planner-docs owns them and they change every session
+DOCS_VERSION = 2  # bump to make every document be read again (v2: design decisions for the starter sections)
+STALE_RE = re.compile(r"\b(draft|bozza|proposed|proposal|planned|todo|to do|not implemented|non implementat\w*|nessun codice|no code|da fare|wip|in progress|in corso)\b", re.I)
+DOC_CAP = 40000  # characters per batch (a single longer doc is printed alone, complete)
+
+
+def project_docs(project):
+    """Documentation worth learning from: Claude/docs/*.md (not the trackers) and Claude/logs/PLAYTEST-*.md."""
+    out = []
+    for sub, pat in (("Claude/docs", lambda n: n.endswith(".md") and n not in DOC_SKIP), ("Claude/logs", lambda n: n.startswith("PLAYTEST") and n.endswith(".md"))):
+        base = os.path.join(project, *sub.split("/"))
+        for n in sorted(os.listdir(base)) if os.path.isdir(base) else []:
+            if pat(n) and os.path.isfile(os.path.join(base, n)):
+                out.append(sub + "/" + n)
+    return out
+
+
+def _doc_sha(project, rel):
+    return sha(open(os.path.join(project, rel), encoding="utf-8", errors="replace").read())
+
+
+def docs_pending(project, outdir):
+    lp = os.path.join(outdir, "docs-learned.json")
+    st = _read_state(lp)
+    seen = st.get("files", {}) if st.get("v", 1) == DOCS_VERSION else {}
+    return (not st, [r for r in project_docs(project) if seen.get(r) != _doc_sha(project, r)])
+
+
+def _known_names(outdir):
+    names = set()
+    sp = os.path.join(outdir, "symbols.tsv")
+    if os.path.isfile(sp):
+        for l in open(sp, encoding="utf-8"):
+            parts = l.rstrip("\n").split("\t")
+            names.update(re.findall(r"[A-Za-z_][\w]*", " ".join(parts[:3])))
+    mp = os.path.join(outdir, "meta.json")
+    if os.path.isfile(mp):
+        for f in json.load(open(mp))["files"]:
+            names.add(os.path.basename(f).lower())
+    return names
+
+
+def _drift(text, known):
+    """Possible drift: .verse files and `identifiers` the document mentions that the code map does not know (heuristic, facts to confirm)."""
+    miss = []
+    for f in re.findall(r"([\w\-]+\.verse)", text):
+        if f.lower() not in known and f not in miss:
+            miss.append(f)
+    for ident in re.findall(r"`([A-Za-z_][\w]{3,})`", text):
+        if (("_" in ident or (ident != ident.lower() and ident != ident.upper())) and ident not in known and ident not in miss):
+            miss.append(ident)
+    return miss
+
+
+def cmd_docs(project, outdir, cap=DOC_CAP):
+    """Next batch of project documents not read yet (complete, never truncated) + names they mention that the code map does not know."""
+    first, todo = docs_pending(project, outdir)
+    print("docs: %s, %d to read" % ("FIRST PASS (all documentation)" if first else "incremental", len(todo)))
+    known, used, part, out = _known_names(outdir), 0, [], []
+    for rel in todo:
+        text = open(os.path.join(project, rel), encoding="utf-8", errors="replace").read()
+        if part and used + len(text) > cap:
+            break
+        part.append(rel); used += len(text)
+        miss = _drift(text, known)
+        stale = sorted(set(m.group(0).lower() for m in STALE_RE.finditer(text)))
+        out.append("=== %s ===\n%s\n[possible drift vs code map: %s]\n[status words to verify against the code: %s]\n" % (rel, text, (", ".join(miss[:15]) + (" (+%d more)" % (len(miss) - 15) if len(miss) > 15 else "")) if miss else "none found", ", ".join(stale[:12]) if stale else "none"))
+    body = "\n".join(out)
+    tok = _receipt(body)
+    print(body)
+    os.makedirs(outdir, exist_ok=True)
+    json.dump({"files": part, "token": tok}, open(os.path.join(outdir, "docs-batch.json"), "w"))
+    if part:
+        print("[END OF BATCH. Receipt token: %s. After processing run `docsdone %s`; it refuses any other token.]" % (tok, tok))
+    if len(todo) > len(part):
+        print("[%d more document(s): `docsdone`, then `docs` again]" % (len(todo) - len(part)))
+
+
+def cmd_docsdone(project, outdir, token="", all_docs=False):
+    lp, bp = os.path.join(outdir, "docs-learned.json"), os.path.join(outdir, "docs-batch.json")
+    bt = _read_state(bp)
+    if not all_docs and (not bt or token != bt.get("token")):
+        print("REFUSED: pass the receipt token printed at the END of the batch (`docsdone <token>`). If you did not see it, the output was cut: run `docs` again and read it complete.")
+        return 1
+    st0 = _read_state(lp)
+    seen = st0.get("files", {}) if st0.get("v", 1) == DOCS_VERSION else {}
+    batch = project_docs(project) if all_docs else bt.get("files", [])
+    if not all_docs:
+        ps, rv = _patches(outdir), _read_state(os.path.join(outdir, PATCH_FILE)).get("reviewed", [])
+        reviewed = {str(r.get("file", "")).replace("\\", "/") for r in rv if str(r.get("note", "")).strip()}
+        undecided = [r for r in batch if not any(str(p.get("file", "")).replace("\\", "/") == r and p.get("status") == "applied" for p in ps) and r not in reviewed]
+        unapplied = [p.get("id", "?") for p in ps if str(p.get("file", "")).replace("\\", "/") in batch and p.get("status") != "applied"]
+        if unapplied:
+            print("REFUSED: correction(s) not applied yet: %s. Run `docpatch list`, fix invalid ones, then `docpatch apply --all`." % ", ".join(unapplied)); return 1
+        if undecided:
+            print("REFUSED: no decision recorded for: %s. For each document either write the corrections (doc-patches.json `patches`, then `docpatch apply --all`) or, when you compared it with the code and it is accurate, add `{\"file\": \"<path>\", \"note\": \"what you verified\"}` to `reviewed` in doc-patches.json. Documents are never left stale by skipping." % ", ".join(undecided)); return 1
+        if os.path.isfile(os.path.join(outdir, PATCH_FILE)):  # reviews are valid for this version of the document only
+            d = _read_state(os.path.join(outdir, PATCH_FILE)); d["reviewed"] = [r for r in rv if str(r.get("file", "")).replace("\\", "/") not in batch]
+            json.dump(d, open(os.path.join(outdir, PATCH_FILE), "w"), indent=1)
+    for rel in batch:
+        if os.path.isfile(os.path.join(project, rel)):
+            seen[rel] = _doc_sha(project, rel)
+    os.makedirs(outdir, exist_ok=True)
+    json.dump({"at": time.strftime("%Y-%m-%d %H:%M"), "v": DOCS_VERSION, "files": seen}, open(lp, "w"), indent=0)
+    if os.path.isfile(bp):
+        os.remove(bp)
+    print("docs-learned.json updated: %d document(s) marked, %d of %d read in total" % (len(batch), sum(1 for r in project_docs(project) if r in seen), len(project_docs(project))))
+    write_progress(project, outdir)
+    return 0
+
+
+PATCH_FILE = "doc-patches.json"
+
+
+def _patches(outdir):
+    return _read_state(os.path.join(outdir, PATCH_FILE)).get("patches", [])
+
+
+def _patch_state(project, p):
+    """pending | applied | invalid (find text missing or not unique, or file outside the documentation)."""
+    if p.get("status") == "applied":
+        return "applied"
+    rel = str(p.get("file", "")).replace("\\", "/")
+    if rel not in project_docs(project):
+        return "invalid: not a project document"
+    text = open(os.path.join(project, rel), encoding="utf-8", errors="replace").read()
+    n = text.count(p.get("find", "")) if p.get("find") else 0
+    return "pending" if n == 1 else "invalid: find text occurs %d times (needs exactly 1)" % n
+
+
+def cmd_docpatch(project, outdir, args):
+    """Reverse-engineered corrections to the documents: the coder writes them to doc-patches.json ({id, file, find, replace, reason, source});
+    this checks and applies them with exact text matching and a backup. Zero tokens, nothing is applied without the owner's go."""
+    sub = args[0] if args else "list"
+    pp = os.path.join(outdir, PATCH_FILE)
+    st = _read_state(pp)
+    ps = st.get("patches", [])
+    if sub == "list":
+        pend = 0
+        for p in ps:
+            state = _patch_state(project, p)
+            pend += state == "pending"
+            print("[%s] %s  %s  (%s)\n    reason: %s\n    source: %s" % (state, p.get("id"), p.get("file"), (p.get("find", "")[:60] + "...").replace("\n", " "), p.get("reason", ""), p.get("source", "")))
+        print("%d patch(es), %d ready to apply" % (len(ps), pend)); return 0
+    if sub == "apply":
+        want = [a for a in args[1:] if not a.startswith("--")]
+        done = 0
+        stamp = time.strftime("%Y%m%d-%H%M%S")
+        for p in ps:
+            if "--all" not in args and p.get("id") not in want:
+                continue
+            state = _patch_state(project, p)
+            if state != "pending":
+                print("skipped %s: %s" % (p.get("id"), state)); continue
+            rel = p["file"].replace("\\", "/")
+            full = os.path.join(project, rel)
+            text = open(full, encoding="utf-8", errors="replace").read()
+            bdst = os.path.join(project, "Claude", "logs", "doc-backup", stamp, *rel.split("/"))
+            os.makedirs(os.path.dirname(bdst), exist_ok=True)
+            shutil.copy2(full, bdst)
+            with open(full, "w", encoding="utf-8", newline="") as f:
+                f.write(text.replace(p["find"], p.get("replace", ""), 1))
+            p["status"] = "applied"; p["applied"] = stamp; done += 1
+            print("applied %s -> %s (backup in Claude/logs/doc-backup/%s)" % (p["id"], rel, stamp))
+        st["patches"] = ps
+        json.dump(st, open(pp, "w"), indent=1)
+        print("%d patch(es) applied" % done)
+        write_progress(project, outdir)
+        return 0
+    if sub == "revert":
+        r = cmd_docrevert(project, outdir, args[1] if len(args) > 1 else "")
+        write_progress(project, outdir)
+        return r
+    print("usage: docpatch list | apply ID... | apply --all | revert STAMP"); return 1
+
+
+def progress_lines(project, outdir):
+    """What is done and what is missing, from the state files only (zero tokens)."""
+    out = []
+    lr = learn_pending(outdir)
+    if lr is None:
+        return ["code: no map yet (it is built at session start when the project has more than 5 Verse files)"]
+    first, todo, total = lr
+    out.append("code: %d of %d Verse files learned from their complete source%s" % (total - len(todo), total, "" if not todo else " (%d left, about %d batch(es))" % (len(todo), max(1, len(todo) * 18000 // LEARN_CAP + 1))))
+    dfirst, dtodo = docs_pending(project, outdir)
+    nd = len(project_docs(project))
+    out.append("documents: %d of %d read%s" % (nd - len(dtodo), nd, "" if not dtodo else " (%d left)" % len(dtodo)))
+    ps = _patches(outdir)
+    states = [_patch_state(project, p) for p in ps]
+    out.append("document corrections: %d applied, %d ready to apply, %d invalid" % (states.count("applied"), states.count("pending"), sum(1 for x in states if x.startswith("invalid"))))
+    dev = os.path.join(outdir, "DEVICES.md")
+    if os.path.isfile(dev):
+        t = open(dev, encoding="utf-8", errors="replace").read()
+        out.append("devices: DEVICES.md of %s; wiring read: %s; settings read: %s" % (time.strftime("%Y-%m-%d", time.localtime(os.path.getmtime(dev))),
+                   "yes" if re.search(r"WIRING-READ:\s*yes", t, re.I) else "NO", "yes" if re.search(r"SETTINGS-READ:\s*yes", t, re.I) else "NO"))
+    else:
+        out.append("devices: never read from the level (DEVICES.md missing)")
+    return out
+
+
+def write_progress(project, outdir):
+    try:
+        lines = progress_lines(project, outdir)
+        open(os.path.join(outdir, "PROGRESS.md"), "w", encoding="utf-8").write(
+            "# Learning progress (generated, zero tokens; %s)\n\nWhat is done and what is missing. The next session start continues automatically.\n\n%s\n" % (
+                time.strftime("%Y-%m-%d %H:%M"), "\n".join("- " + l for l in lines)))
+    except Exception:
+        pass
+
+
+def cmd_docrevert(project, outdir, stamp):
+    bk = os.path.join(project, "Claude", "logs", "doc-backup", stamp)
+    if not os.path.isdir(bk):
+        print("no backup %s (see Claude/logs/doc-backup/)" % stamp); return 1
+    n = 0
+    for base, _, files in os.walk(bk):
+        for f in files:
+            src = os.path.join(base, f)
+            rel = os.path.relpath(src, bk).replace(os.sep, "/")
+            if rel in project_docs(project):
+                shutil.copyfile(src, os.path.join(project, *rel.split("/"))); n += 1
+    pp = os.path.join(outdir, PATCH_FILE)
+    st = _read_state(pp)
+    for p in st.get("patches", []):
+        if p.get("applied") == stamp:
+            p["status"] = "reverted"
+    json.dump(st, open(pp, "w"), indent=1)
+    print("%d document(s) restored from backup %s" % (n, stamp)); return 0
+
+
+def _utf8_out():
+    """Windows pipes default to cp1252: a document with an arrow or a typographic dash would crash `docs`/`learn`. Always print UTF-8."""
+    for st in (sys.stdout, sys.stderr):
+        try:
+            st.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
 
 
 def main():
+    _utf8_out()
     a = sys.argv[1:]
-    if not a or a[0] not in ("build", "check", "symbol", "role", "learn", "learned"):
+    if not a or a[0] not in ("build", "check", "symbol", "role", "learn", "learned", "docs", "docsdone", "docpatch", "status"):
         print(__doc__); return 0
+    tok = a[1] if len(a) > 1 and not a[1].startswith("--") else ""
     opt = lambda k, d: a[a.index(k) + 1] if k in a and a.index(k) + 1 < len(a) else d
     project = os.path.abspath(opt("--project", os.getcwd()))
     outdir = os.path.abspath(opt("--out", os.path.join(project, "Claude", "docs", "map")))
@@ -319,10 +600,19 @@ def main():
     elif a[0] == "check":
         cmd_check(project, outdir)
     elif a[0] == "learn":
-        n = opt("--batch", "12")
-        cmd_learn(outdir, int(n) if n.isdigit() else 12, "--full" in a)
+        n = opt("--cap", str(LEARN_CAP))
+        cmd_learn(project, outdir, int(n) if n.isdigit() else LEARN_CAP, "--full" in a, "--cards-only" in a)
+    elif a[0] == "status":
+        write_progress(project, outdir)
+        print("\n".join(progress_lines(project, outdir)))
+    elif a[0] == "docpatch":
+        return cmd_docpatch(project, outdir, a[1:])
+    elif a[0] == "docs":
+        cmd_docs(project, outdir)
+    elif a[0] == "docsdone":
+        return cmd_docsdone(project, outdir, tok, "--all" in a)
     elif a[0] == "learned":
-        cmd_learned(outdir, "--all" in a)
+        return cmd_learned(project, outdir, tok, "--all" in a)
     elif a[0] == "role":
         cmd_role(outdir, a[1], a[2]) if len(a) > 2 else print('usage: role FILE "TEXT"')
     else:

@@ -120,15 +120,15 @@ The routine end-of-session case, now anchored to task IDs instead of freeform re
    convergence and, only where something genuinely matches across variants, add it to
    `references/evidence-shared.md` — leaving it empty is a legitimate outcome, not a gap to force.
    Mention any promotion in this task's line in STATUS.md's Log (see step 5).
-4b. Learn from the map (every session, script decides what is new, no relevance judgement). If
+4b. Learn from the project (every session, scripts decide what is new, no relevance judgement). If
    `Claude/docs/map/meta.json` exists and `Claude/docs/.genre` is set (not `epic-template`), follow
-   `.claude/commands/learn-map.md` (same steps as `/learn-map`): `verse_map.py learn` prints the next
-   batch of unread cards complete (never cut its output), you queue generalized proposals with
-   `skills_lib.py propose` after checking `skills_lib.py patterns`, then `verse_map.py learned`, and repeat
-   until 0 cards remain. First time = whole map, afterwards only changed files. No minimum count: the owner
-   approves on the Skills page and maturity evolves from the owner's maps. Devices in the level are read
-   read-only through the MCP when reachable (see `mcp-tool-contracts`); otherwise say which were not
-   inspected. Say in the Log line how many proposals were queued.
+   `.claude/commands/learn-map.md` exactly (same as `/learn-map`): complete sources of new/changed Verse
+   files (`verse_map.py learn`), then the project documents compared with the code (`verse_map.py docs`),
+   then the devices of the level READ through `mcp__unreal-mcp__call_tool` (an old device map is only the
+   baseline). Never cut a batch's output: `learned`/`docsdone` need the receipt token at its end. Queue
+   generalized proposals with `skills_lib.py propose --section <id>` after `skills_lib.py patterns`; assign
+   any pattern whose `section` is null. Never edit documents by hand for this: write the corrections to `Claude/docs/map/doc-patches.json` (see learn-map step 6c); validated corrections are applied at once with `verse_map.py docpatch apply --all` (exact text, backup, `docpatch revert` to undo): no approval round. If the session stops early, unmarked work simply resumes at the next start (`Claude/docs/map/PROGRESS.md` says what is missing). Never interview the owner.
+   Say in the Log line how many proposals were queued.
 5. If the task just closed (Done) was building or reworking an in-game UI screen (store, shop,
    missions/quests, teleporter, rewards, inventory, HUD panel, or similar): automatically ingest
    into `~/.claude/skills/game-ui-designer/` — no need to ask the owner's permission for this

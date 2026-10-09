@@ -302,6 +302,11 @@ def genre_and_inbox(project):
                         res = {"ok": False, "error": str(e)}
                     if res.get("ok") and res.get("proposal"):
                         notes.append("official reference pack %s for '%s': queued for your approval (Skills page)" % (n, g))
+            try:  # update-my-profile overwrites the generated parts of SKILL.md/starter.md with the kit's empty ones: rebuild them from the learned pack (zero tokens)
+                if os.path.isfile(os.path.join(groot, g, "pack", "patterns.json")):
+                    skills_lib.render_skill(g)
+            except Exception:
+                pass
     except Exception:
         pass
     return notes
@@ -460,6 +465,10 @@ def _run(project, out):
         genre = open(gp, encoding="utf-8").read().strip() if os.path.isfile(gp) else ""
         lr = verse_map.learn_pending(mdir) if genre and genre != "epic-template" else None
         pend = len(lr[1]) if lr else 0
+        dp = verse_map.docs_pending(project, mdir) if lr else (True, [])
+        pend_docs = len(dp[1])
+        if os.path.isfile(os.path.join(mdir, "meta.json")):
+            verse_map.write_progress(project, mdir)
         marker = os.path.join(project, "Claude", "logs", ".post-update")
         if out["updated"] or out["added"]:
             # The agents loaded in THIS session are still the old ones: leave a marker, announce learning after the restart.
@@ -475,11 +484,14 @@ def _run(project, out):
                     pass
                 out["notes"].append("Kit v%s is active (post-update check done): Verse map %s%s."
                                     % (out.get("version") or "?", "current" if os.path.isfile(os.path.join(mdir, "meta.json")) else "not needed (5 Verse files or fewer)",
-                                       (", %d card(s) to learn" % pend) if pend else ", nothing to learn"))
-            if pend:
-                out["notes"].append("LEARN: %d Verse map card(s) not learned yet%s. Follow `.claude/commands/learn-map.md` (planner-docs step 4b): "
-                                    "`verse_map.py learn` in batches, queue proposals for the owner's approval, `verse_map.py learned`, repeat."
-                                    % (pend, " (first pass: whole map)" if lr[0] else ""))
+                                       (", %d file(s) and %d document(s) to learn" % (pend, pend_docs)) if (pend or pend_docs) else ", nothing to learn"))
+            if not genre and (has_map or os.path.isfile(os.path.join(mdir, "meta.json"))):
+                out["notes"].append("GENRE (do it now, never ask the owner): Claude/docs/.genre is empty and Epic's data may be missing (no island code, unpublished map or API error 403). Work the genre out YOURSELF from the project: read Claude/docs/map/INDEX.md (and SPEC/README if present), pick the closest slug in ~/.claude/skills/genre/fortnite-genres-official.json, write it as one line to Claude/docs/.genre, run `python Claude/hooks/skills_lib.py init <slug>`, then continue with the learning in `.claude/commands/learn-map.md`.")
+            if pend or pend_docs:
+                out["notes"].append("LEARN (start now, do not ask the owner first): %d Verse file(s) (complete source) and %d project document(s) not learned yet%s. Follow `.claude/commands/learn-map.md` (planner-docs step 4b): "
+                                    "If the session stops early, nothing is needed: unmarked work is read again at the next start (`Claude/docs/map/PROGRESS.md` lists what is missing). "
+                                    "code first (`verse_map.py learn`, complete sources), then documents (`verse_map.py docs`) compared with the code, then the devices in the level read through the MCP; queue proposals for the owner's approval, report discrepancies, never edit documents."
+                                    % (pend, pend_docs, " (first pass: whole map and all documentation)" if lr[0] else ""))
     except Exception:
         pass
     try:  # restore point at session start when the code changed and the newest point is older than 6 h (silent)
@@ -494,6 +506,21 @@ def _run(project, out):
         if msg:
             out["notes"].append(msg)
     return out
+
+
+def _log_run(project, r, emitted, announce):
+    """One line per session start in Claude/logs/kit-sync.log (last 60 kept): lets us see what the hook did when no message shows."""
+    try:
+        lp = os.path.join(project, "Claude", "logs", "kit-sync.log")
+        os.makedirs(os.path.dirname(lp), exist_ok=True)
+        line = "%s from=%s to=%s updated=%d added=%d settings=%d notes=%d emitted=%s announce=%s" % (
+            time.strftime("%Y-%m-%d %H:%M:%S"), r.get("from") or "?", r.get("version") or "?", len(r["updated"]), len(r["added"]),
+            len(r["settings"]), len(r["notes"]), emitted, announce)
+        old = open(lp, encoding="utf-8").read().splitlines()[-59:] if os.path.isfile(lp) else []
+        with open(lp, "w", encoding="utf-8") as f:
+            f.write("\n".join(old + [line]) + "\n")
+    except Exception:
+        pass
 
 
 def main():
@@ -534,11 +561,19 @@ def main():
             msgs.append("✅ KIT UPDATED %sto v%s: %s. Restart Claude Code (close and reopen) so the new files are read. "
                         "Old versions are saved in Claude/logs/kit-backup/." % (frm, r["version"] or "?", "; ".join(parts)))
     msgs += r["notes"]
+    announce = bool(changed) or any("post-update check done" in n for n in r["notes"])
+    _log_run(project, r, bool(msgs), announce)
     if msgs:
         text = " ".join(msgs)
+        ctx = "[kit] " + text
+        if announce:
+            # The UI may not show a hook's systemMessage: also ask the model to say it in its first reply.
+            ctx += (" ACTION (kit): in your FIRST reply tell the owner, in one short line, what the kit just did above"
+                    " (version, and that Claude Code must be closed and reopened once if it says so). Say it once only."
+                    " If a LEARN line is present, do not ask permission: after that line, run the learning at once"
+                    " (`.claude/commands/learn-map.md` steps); it only queues proposals, nothing changes without the owner's approval.")
         print(json.dumps({"systemMessage": text,
-                          "hookSpecificOutput": {"hookEventName": "SessionStart",
-                                                 "additionalContext": "[kit] " + text}}))
+                          "hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": ctx}}))
     return 0
 
 

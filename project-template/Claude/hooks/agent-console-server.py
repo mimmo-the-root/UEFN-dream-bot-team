@@ -120,7 +120,7 @@ def _read_island_code():
 
 
 def _http_get_json(url, timeout=10):
-    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": "UEFN-Claude-Kit/1.0"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
@@ -173,7 +173,7 @@ def _get_island_metrics():
             _metrics_mem_cache["at"] = now  # don't hammer the API again until TTL passes
             _metrics_mem_cache["body"] = stale
             return stale
-        return {"error": f"Fortnite API error {e.code}"}
+        return {"error": f"Fortnite API error {e.code}" + (" - Epic has no public data for this island yet (not published?). The kit works without it: the genre is taken from the code." if e.code in (401, 403, 404) else "")}
     except (urllib.error.URLError, TimeoutError, OSError) as e:
         stale = _load_json_file(METRICS_CACHE_FILE)
         if stale:
@@ -217,7 +217,7 @@ def _get_island_rankings():
             _rankings_mem_cache["at"] = now
             _rankings_mem_cache["body"] = stale
             return stale
-        return {"error": f"Fortnite API error {e.code}"}
+        return {"error": f"Fortnite API error {e.code}" + (" - Epic has no public data for this island yet (not published?). The kit works without it: the genre is taken from the code." if e.code in (401, 403, 404) else "")}
     except (urllib.error.URLError, TimeoutError, OSError) as e:
         stale = _load_json_file(RANKINGS_CACHE_FILE)
         if stale:

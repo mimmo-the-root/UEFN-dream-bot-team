@@ -1,0 +1,45 @@
+{
+ "schema": 1,
+ "sections": [
+  {
+   "id": "run-loop",
+   "title": "Run loop",
+   "questions": "What is one run; how does it start, end (win, death, timeout) and restart? What is shared between players?"
+  },
+  {
+   "id": "architecture",
+   "title": "Architecture",
+   "questions": "Which Verse files/classes own run state, transitions, player state, spawning, rewards? One owner per transition."
+  },
+  {
+   "id": "devices",
+   "title": "Devices in the level",
+   "questions": "Which spawners, trackers, modifiers and UI devices exist; which are global and which per player; who wires them? (read them via the MCP when live)"
+  },
+  {
+   "id": "progression",
+   "title": "Progression",
+   "questions": "What persists between runs and what resets; unlocks, currencies, difficulty scaling. Numbers only from the owner or his maps' data."
+  },
+  {
+   "id": "death-strategies",
+   "title": "Strategies around death and progress",
+   "questions": "Retry rules, paid retry or continue, rewards, boosts. Design strategies, learned as patterns with a variant."
+  },
+  {
+   "id": "persistence",
+   "title": "Persistence",
+   "questions": "What is stored per player; what happens when data is not loaded yet or the player left."
+  },
+  {
+   "id": "performance",
+   "title": "Performance",
+   "questions": "Item/NPC pools, listeners, per-frame work."
+  },
+  {
+   "id": "launch-checklist",
+   "title": "Launch checklist",
+   "questions": "First 10 minutes of a new player, a full run, a death, a restart, two players at once, a player leaving mid-run."
+  }
+ ]
+}

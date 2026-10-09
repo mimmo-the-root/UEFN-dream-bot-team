@@ -21,7 +21,7 @@ every time this file's contents change. A single referenced file can't diverge f
 
 ## Contract: verifying which project UEFN has open
 
-**Use:** `ValkyrieToolset.VerseToolset.ListFiles`
+**Use:** `ValkyrieToolset.VerseToolset.ListFiles`, called through `mcp__unreal-mcp__call_tool` (`toolset_name` = `ValkyrieToolset.VerseToolset`, `tool_name` = `ListFiles`): the dotted names in this file are values of those arguments, never separate tools to look for in the tool list
 
 **Don't use:** `AssetTools.find_assets` on `/Game` — it silently returns nothing useful for this
 kit's custom project content even when the correct project is open in UEFN. This is a
@@ -39,9 +39,17 @@ during initial analysis).
 
 ## Contract: detecting MCP mode (before reading or changing anything in the level)
 
+**How the tools are called:** in this kit the UEFN tools are reached through the single MCP tool `mcp__unreal-mcp__call_tool` (the name of the MCP server can differ per machine, look for a `call_tool`), with arguments like `{"toolset_name": "ValkyrieToolset.VerseToolset", "tool_name": "ListFiles", "arguments": {}}`. A tool list that shows only `...call_tool` is NOT `offline`: make the call through it. If the first call answers with a schema error, the tool exists: read the schema it returns and retry with the right arguments. Only when no such MCP tool exists, or the call fails with a connection error, is the mode `offline` (UEFN closed or the MCP not running): then say which of the two it was.
+
 **Modes:** `live` = the UEFN MCP answers (`ValkyrieToolset.VerseToolset.ListFiles` works and matches the project identity, see above). `offline` = no MCP tools, or the check fails.
 
 **Procedure:** run the project-identity check once per session. In `live` mode you may read devices and wiring in the level (read-only unless the task is a change). In `offline` mode work from the Verse map and the code only, and name in the report exactly which devices, settings and wiring were not inspected. Never skip the level silently and never guess device settings.
+
+## Contract: reading the devices placed in the level (read-only, only when the mode is `live`)
+
+**Tools seen working in this kit's logs** (names can change with UEFN updates; if one is missing, call `describe_toolset` on its toolset and use the closest read tool): `editor_toolset.toolsets.scene.SceneTools.find_actors` (which device actors of a class exist and where), `ValkyrieToolset.DeviceToolset.ListEventBindings` (wiring between devices), `ValkyrieToolset.DeviceToolset.GetDeviceProperties` / `ListDeviceProperties` (settings), `editor_toolset.toolsets.object.ObjectTools.get_properties`.
+
+**Procedure:** first reuse what is already written: if the project has `Claude/docs/DEPENDENCY-MAP*.md` or `Claude/docs/map/DEVICES.md`, learn from it and do not call the MCP again for the same facts. Otherwise read only the device classes that the Verse map cards reference (`@editable` types), one class at a time, and write the result compactly to `Claude/docs/map/DEVICES.md` (class, count, who wires it to whom, the few settings that matter). Counts per class are only the start: the wiring (`ListEventBindings`) and the key settings (`GetDeviceProperties`) are the information the next sessions need, so read them in the same pass (max 40 devices per pass, most-referenced first, list the rest). Never change anything in the level while learning. Facts only: a device nobody references in the sources you searched is "no reference found in <sources>", never "unused".
 
 ## Adding a new contract
 

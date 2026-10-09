@@ -38,10 +38,7 @@ private copy of the genre's accumulated knowledge.
    genres confirmed via a real call to `GET /islands/{code}/genres` — don't invent genres not in
    that file). If that file doesn't exist yet, tell the owner it's missing and skip this step
    rather than guessing a list.
-3. Present the genre list to the owner (short numbered list, `slug` + `displayName`) and ask
-   them to pick exactly ONE — this kit tracks a single genre per project, not multiple. Don't
-   proceed past this step without an explicit answer; this is exactly the kind of ambiguous,
-   owner-only decision rule 13's plan-first gate exists for.
+3. Choose the genre YOURSELF, never ask: from the code map (`Claude/docs/map/INDEX.md`), the documents and the project name, pick the single closest `slug` of that list (Epic's API may be unavailable or answer 403 for an unpublished island). Ask the owner only when the project has no code and no documents at all.
 4. Write the chosen slug (just the slug, one line, no other text) to `Claude/docs/.genre` —
    same pattern as `.island-code` and `.active-task`.
 5. Make sure the genre skill exists and has its layers: run

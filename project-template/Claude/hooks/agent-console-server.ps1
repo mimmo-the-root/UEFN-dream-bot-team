@@ -249,7 +249,7 @@ $RequestHandler = {
             if (Test-Path $State.MetricsCacheFile) {
                 return (Get-Content -Path $State.MetricsCacheFile -Raw -Encoding UTF8)
             }
-            $msg = if ($statusCode) { "Fortnite API error $statusCode" } else { "could not reach the Fortnite API" }
+            $msg = if ($statusCode) { ("Fortnite API error $statusCode" + $(if ($statusCode -in 401,403,404) { " - Epic has no public data for this island yet (not published?). The kit works without it: the genre is taken from the code." } else { "" })) } else { "could not reach the Fortnite API" }
             return (@{ error = $msg } | ConvertTo-Json -Compress)
         }
     }
@@ -312,7 +312,7 @@ $RequestHandler = {
             if (Test-Path $State.RankingsCacheFile) {
                 return (Get-Content -Path $State.RankingsCacheFile -Raw -Encoding UTF8)
             }
-            $msg = if ($statusCode) { "Fortnite API error $statusCode" } else { "could not reach the Fortnite API" }
+            $msg = if ($statusCode) { ("Fortnite API error $statusCode" + $(if ($statusCode -in 401,403,404) { " - Epic has no public data for this island yet (not published?). The kit works without it: the genre is taken from the code." } else { "" })) } else { "could not reach the Fortnite API" }
             return (@{ error = $msg } | ConvertTo-Json -Compress)
         }
     }

@@ -30,7 +30,7 @@ the maps the owner actually builds, one map at a time — no need to wait for 3 
 
 ## Starting a new project of this genre
 
-Read `references/starter.md` (structure and questions only, no pre-written rules), then the learned patterns below.
+Read `references/starter.md`: 8 sections generated from the owner's approved patterns (empty section = nothing learned yet, ask the owner). Then the learned patterns below.
 
 ## Known variants (prototype placeholders — rename or drop as soon as real maps show otherwise)
 
