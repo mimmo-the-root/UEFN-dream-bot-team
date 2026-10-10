@@ -210,8 +210,46 @@ def merge_claude_md(project, tpl):
     return done
 
 
-def verse_files_iter(verse_map, project):
-    return verse_map.verse_files(project)
+def uplugin_flag(project):
+    """Old maps: the .uplugin of the project lacks "EnableVerseAssetReflection": true, so UEFN never generates the assets digest and the Verse build fails
+    ("Expected /Asset dir with matching Verse path"). Add the flag (text insertion, BOM/CRLF/indent kept, backup next to the file). Idempotent."""
+    notes = []
+    cur = os.path.abspath(project)
+    for _ in range(4):  # the plugin file sits next to the Content folder: <Plugin>/<Name>.uplugin, project = <Plugin>/Content
+        try:
+            for n in os.listdir(cur):
+                if not n.endswith(".uplugin"):
+                    continue
+                p = os.path.join(cur, n)
+                raw = open(p, "rb").read()
+                text = raw.decode("utf-8-sig", errors="replace")
+                if '"CanContainVerse"' not in text:
+                    continue
+                m = re.search(r'"EnableVerseAssetReflection"\s*:\s*(true|false)', text)
+                if m:
+                    if m.group(1) == "false":
+                        notes.append("%s has EnableVerseAssetReflection=false: left as you set it (set it to true if the Verse build asks for the assets digest)." % n)
+                    return notes
+                lm = re.search(r'^([ \t]*)"CanContainContent"', text, re.M) or re.search(r'^([ \t]*)"[A-Za-z]+"\s*:', text, re.M)
+                nl = "\r\n" if "\r\n" in text else "\n"
+                ind = lm.group(1) if lm else "\t"
+                new = text[:lm.start()] + ind + '"EnableVerseAssetReflection": true,' + nl + text[lm.start():] if lm else text
+                if new == text:
+                    return notes
+                bak = p + ".bak-" + time.strftime("%Y%m%d")
+                if not os.path.exists(bak):
+                    shutil.copy2(p, bak)
+                with open(p, "wb") as f:
+                    f.write((b"\xef\xbb\xbf" if raw.startswith(b"\xef\xbb\xbf") else b"") + new.encode("utf-8"))
+                notes.append("%s: added \"EnableVerseAssetReflection\": true (old map; without it UEFN never generates the assets digest). Backup: %s. Restart UEFN so it reloads the plugin." % (n, os.path.basename(bak)))
+                return notes
+        except OSError:
+            pass
+        parent = os.path.dirname(cur)
+        if parent == cur:
+            break
+        cur = parent
+    return notes
 
 
 def genre_from_epic(project, skills_lib):
@@ -456,6 +494,10 @@ def _run(project, out):
     out["notes"] += neutralize_backups(project)
     out["notes"] += history_align(project)
     out["notes"] += genre_and_inbox(project)
+    try:
+        out["notes"] += uplugin_flag(project)
+    except Exception:
+        pass
     try:  # Verse map at session start: refresh an old map (also after a kit update), or bootstrap a missing one
         import verse_map
         mdir = os.path.join(project, "Claude", "docs", "map")
@@ -470,7 +512,7 @@ def _run(project, out):
         lr = verse_map.learn_pending(mdir) if genre and genre != "epic-template" else None
         pend = len(lr[1]) if lr else 0
         # a map made only of devices has no Verse code: it still learns from its documents and from the devices in the level
-        no_code = bool(genre) and genre != "epic-template" and lr is None and not any(True for _ in verse_files_iter(verse_map, project))
+        no_code = bool(genre) and genre != "epic-template" and lr is None
         dp = verse_map.docs_pending(project, mdir) if (lr or no_code) else (True, [])
         pend_docs = len(dp[1])
         dev_todo = no_code and verse_map.devices_pending(mdir)
@@ -495,11 +537,13 @@ def _run(project, out):
                                        (", %d file(s) and %d document(s) to learn" % (pend, pend_docs)) if (pend or pend_docs) else ", nothing to learn"))
             if not genre and (has_map or os.path.isfile(os.path.join(mdir, "meta.json"))):
                 out["notes"].append("GENRE (do it now, never ask the owner): Claude/docs/.genre is empty and Epic's data may be missing (no island code, unpublished map or API error 403). Work the genre out YOURSELF from the project: read Claude/docs/map/INDEX.md (and SPEC/README if present), pick the closest slug in ~/.claude/skills/genre/fortnite-genres-official.json, write it as one line to Claude/docs/.genre, run `python Claude/hooks/skills_lib.py init <slug>`, then continue with the learning in `.claude/commands/learn-map.md`.")
+            nverse = sum(1 for _ in verse_map.verse_files(project)) if no_code else 0
+            code_txt = "no Verse files" if not nverse else "only %d Verse file(s), too few for a map: READ THEM COMPLETELY yourself (Read tool) before the documents" % nverse
             if no_code and (pend_docs or dev_todo):
-                out["notes"].append("LEARN (start now, do not ask the owner first): this map has NO Verse code, only devices. Learn from %d project document(s) not read yet%s and from the devices in the level. "
+                out["notes"].append("LEARN (start now, do not ask the owner first): this map has no Verse code map (%s). Learn from %d project document(s) not read yet%s and from the devices in the level. "
                                     "Follow `.claude/commands/learn-map.md` steps 1, 2, 6 and 7 (skip 3-5): documents first (`verse_map.py docs`, compared with the level and the device map; apply corrections with `docpatch`, record a decision for every document), "
                                     "then read the wiring and settings of the devices through the MCP and write `Claude/docs/map/DEVICES.md` with the `WIRING-READ:`/`SETTINGS-READ:`/`ISLAND-CONFIG-READ:` lines (the island configuration too: max players, teams, rounds, time limit, spawn mode). Queue generalized patterns with `skills_lib.py propose --section` (devices, architecture, run-loop, ...), "
-                                    "never ask. If the session stops early, unmarked work restarts at the next session start (`Claude/docs/map/PROGRESS.md`)." % (pend_docs, " (first pass)" if dp[0] else ""))
+                                    "never ask. If the session stops early, unmarked work restarts at the next session start (`Claude/docs/map/PROGRESS.md`)." % (code_txt, pend_docs, " (first pass)" if dp[0] else ""))
             if (pend or pend_docs) and not no_code:
                 out["notes"].append("LEARN (start now, do not ask the owner first): %d Verse file(s) (complete source) and %d project document(s) not learned yet%s. Follow `.claude/commands/learn-map.md` (planner-docs step 4b): "
                                     "If the session stops early, nothing is needed: unmarked work is read again at the next start (`Claude/docs/map/PROGRESS.md` lists what is missing). "

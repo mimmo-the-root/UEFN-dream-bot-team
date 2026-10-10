@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.97.2 — Maps with few Verse files learn, no invented code findings, old maps get the Verse assets flag
+
+- **Maps with 1-5 Verse files learn too:** the device-only learning of 1.97.1 only started with zero Verse files, so a map with a few template files (for example 4 in `custom_verse`) got no learning at all. Now any project with a genre and no code map (5 Verse files or fewer) announces learning: the few Verse files are read completely, then the documents and the devices of the level; `PROGRESS.md` shows what is missing.
+
+- **No code, no code findings:** project-bootstrap and codebase-auditor no longer report logger, header, DemoDisplay, state-machine or other Verse findings on a map without Verse files (not even as "minor / not applicable"): a finding must point to something that exists. A device-only map is audited on devices, settings, wiring, performance and Outliner.
+
+- **Old maps get `EnableVerseAssetReflection` automatically:** at every session start (`kit_sync.py`, also reached by the section 14 self-update) the project's `.uplugin` is checked; when `"EnableVerseAssetReflection": true` is missing it is added (text insertion, BOM and line endings kept, backup `<name>.uplugin.bak-YYYYMMDD`), because without it UEFN never generates the assets digest and the Verse build fails. A value you set to `false` is left alone and reported.
+
 ## v1.97.1 — Every genre gets the 8 starter sections; the console stops with the session
 
 A genre without its own `references/starter-sections.json` (for example gun-game) used to get no sections, so patterns could not be assigned and no starter was generated. Now `skills_lib.py` falls back to 8 default sections in neutral wording (core loop, architecture, devices, progression, strategies around death/defeat, persistence, performance, launch checklist) and generates `references/starter.md` for every genre; a genre can still override them with its own file (roguelike does).

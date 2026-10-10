@@ -528,9 +528,9 @@ def progress_lines(project, outdir):
     out = []
     lr = learn_pending(outdir)
     if lr is None:
-        if any(True for _ in verse_files(project)):
-            return ["code: no map yet (it is built at session start when the project has more than 5 Verse files)"]
-        out.append("code: no Verse files (a map built only with devices): learning uses the documents and the devices of the level")
+        nv = sum(1 for _ in verse_files(project))
+        out.append("code: no Verse files (a map built only with devices): learning uses the documents and the devices of the level" if not nv else
+                   "code: %d Verse file(s), too few for a map (it is built above 5): read them directly, then the documents and the devices" % nv)
     else:
         first, todo, total = lr
         out.append("code: %d of %d Verse files learned from their complete source%s" % (total - len(todo), total, "" if not todo else " (%d left, about %d batch(es))" % (len(todo), max(1, len(todo) * 18000 // LEARN_CAP + 1))))

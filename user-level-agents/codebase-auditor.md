@@ -46,6 +46,9 @@ Don't critique what you don't yet understand. Before flagging anything:
 
 ## Step 2 — the audit itself
 
+**No code, no code findings.** If the project has no Verse files, everything about Verse code does not exist and must not be reported at all, not even as "minor" or "not applicable": no logger/`Print()`, header comment, `DemoDisplay`, state-machine, compile-error, TODO or deprecated-Verse-API finding, and no BUGS.md entry for them. A finding exists only if you can point to the thing that is wrong (a file, a device, a setting); the absence of code is never a finding. A device-only map is audited on its devices, settings, wiring, performance and Outliner only.
+
+
 Work through each category deliberately; don't stop at the first few obvious findings.
 
 - **Structural problems**: devices/files doing too much (a "manager" that also handles UI, timing,

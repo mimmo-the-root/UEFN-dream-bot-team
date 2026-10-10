@@ -154,12 +154,21 @@ try:
     p3 = os.path.join(d, "proj3"); os.makedirs(os.path.join(p3, "Claude", "docs"))
     open(os.path.join(p3, "Claude", "docs", ".genre"), "w").write("sports-racing")
     open(os.path.join(p3, "Claude", "docs", "SPEC.md"), "w").write("# Spec\nA race.\n")
-    r = kit_sync.run(p3); assert any("LEARN" in n and "NO Verse code" in n and "1 project document" in n for n in r["notes"]), r["notes"]
+    r = kit_sync.run(p3); assert any("LEARN" in n and "no Verse files" in n and "1 project document" in n for n in r["notes"]), r["notes"]
     assert "no Verse files" in open(os.path.join(p3, "Claude", "docs", "map", "PROGRESS.md")).read()
+    os.makedirs(os.path.join(p3, "src")); open(os.path.join(p3, "src", "U.verse"), "w").write("u := class:\n    Run() : void = {}\n")  # 1 Verse file: too few for a map, still learns
+    r = kit_sync.run(p3); assert any("LEARN" in n and "only 1 Verse file" in n for n in r["notes"]), r["notes"]
     open(os.path.join(p3, "Claude", "docs", "map", "DEVICES.md"), "w").write("WIRING-READ: yes\nSETTINGS-READ: yes\nISLAND-CONFIG-READ: yes\n")
     json.dump({"reviewed": [{"file": "Claude/docs/SPEC.md", "note": "ok"}]}, open(os.path.join(p3, "Claude", "docs", "map", "doc-patches.json"), "w"))
     run("docs", "--project", p3, "--out", os.path.join(p3, "Claude", "docs", "map")); run("docsdone", "--all", "--project", p3, "--out", os.path.join(p3, "Claude", "docs", "map"))
     r = kit_sync.run(p3); assert not any("LEARN" in n for n in r["notes"]), r["notes"]
+    # old map: the .uplugin next to Content lacks EnableVerseAssetReflection -> added once, with BOM/CRLF kept and a backup
+    pl = os.path.join(d, "plug"); os.makedirs(os.path.join(pl, "Content", "Claude", "docs"))
+    up = os.path.join(pl, "X.uplugin"); open(up, "wb").write(b'\xef\xbb\xbf{\r\n\t"FileVersion": 3,\r\n\t"CanContainContent": true,\r\n\t"CanContainVerse": true\r\n}')
+    r = kit_sync.run(os.path.join(pl, "Content")); assert any("EnableVerseAssetReflection" in n and "added" in n for n in r["notes"]), r["notes"]
+    raw = open(up, "rb").read(); assert raw.startswith(b"\xef\xbb\xbf") and b'"EnableVerseAssetReflection": true,\r\n\t"CanContainContent"' in raw and len(json.loads(raw.decode("utf-8-sig"))) == 4, raw
+    assert any(f.startswith("X.uplugin.bak-") for f in os.listdir(pl))
+    r = kit_sync.run(os.path.join(pl, "Content")); assert not any("EnableVerseAssetReflection" in n for n in r["notes"]), r["notes"]
     # post-update restart: a marker left by the update session triggers a one-time confirmation, then disappears
     mk = os.path.join(p2, "Claude", "logs", ".post-update"); os.makedirs(os.path.dirname(mk), exist_ok=True); open(mk, "w").write("9.9.9")
     r = kit_sync.run(p2); assert any("post-update check done" in n and "nothing to learn" in n for n in r["notes"]), r["notes"]

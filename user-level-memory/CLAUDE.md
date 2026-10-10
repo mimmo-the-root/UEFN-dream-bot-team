@@ -408,4 +408,5 @@ It backs up replaced files under `Claude/logs/kit-backup/`, adds missing hooks a
 Claude/docs or your permissions. Then tell the owner in one line: "Kit updated from vX to vY: restart the
 session so the new files are read." If the profile template folder does not exist, say so once and continue.
 Do not repeat the check when the versions already match.
+The same script also checks, at every session start, that the project's `.uplugin` has `"EnableVerseAssetReflection": true` (old maps lack it, so the assets digest is never generated) and adds it with a backup.
 <!-- KIT:END kit-self-update -->
