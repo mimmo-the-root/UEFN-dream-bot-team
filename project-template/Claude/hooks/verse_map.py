@@ -528,9 +528,12 @@ def progress_lines(project, outdir):
     out = []
     lr = learn_pending(outdir)
     if lr is None:
-        return ["code: no map yet (it is built at session start when the project has more than 5 Verse files)"]
-    first, todo, total = lr
-    out.append("code: %d of %d Verse files learned from their complete source%s" % (total - len(todo), total, "" if not todo else " (%d left, about %d batch(es))" % (len(todo), max(1, len(todo) * 18000 // LEARN_CAP + 1))))
+        if any(True for _ in verse_files(project)):
+            return ["code: no map yet (it is built at session start when the project has more than 5 Verse files)"]
+        out.append("code: no Verse files (a map built only with devices): learning uses the documents and the devices of the level")
+    else:
+        first, todo, total = lr
+        out.append("code: %d of %d Verse files learned from their complete source%s" % (total - len(todo), total, "" if not todo else " (%d left, about %d batch(es))" % (len(todo), max(1, len(todo) * 18000 // LEARN_CAP + 1))))
     dfirst, dtodo = docs_pending(project, outdir)
     nd = len(project_docs(project))
     out.append("documents: %d of %d read%s" % (nd - len(dtodo), nd, "" if not dtodo else " (%d left)" % len(dtodo)))
@@ -541,10 +544,19 @@ def progress_lines(project, outdir):
     if os.path.isfile(dev):
         t = open(dev, encoding="utf-8", errors="replace").read()
         out.append("devices: DEVICES.md of %s; wiring read: %s; settings read: %s" % (time.strftime("%Y-%m-%d", time.localtime(os.path.getmtime(dev))),
-                   "yes" if re.search(r"WIRING-READ:\s*yes", t, re.I) else "NO", "yes" if re.search(r"SETTINGS-READ:\s*yes", t, re.I) else "NO"))
+                   "yes" if re.search(r"WIRING-READ:\s*yes", t, re.I) else "NO", "yes" if re.search(r"SETTINGS-READ:\s*yes", t, re.I) else "NO") + "; island configuration read: %s" % ("yes" if re.search(r"ISLAND-CONFIG-READ:\s*yes", t, re.I) else "NO"))
     else:
         out.append("devices: never read from the level (DEVICES.md missing)")
     return out
+
+
+def devices_pending(outdir):
+    """True when the devices of the level were never read completely: DEVICES.md missing or without WIRING-READ: yes and SETTINGS-READ: yes."""
+    dev = os.path.join(outdir, "DEVICES.md")
+    if not os.path.isfile(dev):
+        return True
+    t = open(dev, encoding="utf-8", errors="replace").read()
+    return not all(re.search(k + r":\s*yes", t, re.I) for k in ("WIRING-READ", "SETTINGS-READ", "ISLAND-CONFIG-READ"))
 
 
 def write_progress(project, outdir):

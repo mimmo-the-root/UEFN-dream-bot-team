@@ -140,6 +140,18 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "_comment": "When the session ends (exit, /exit, logout) the Agent Console server of THIS project is stopped. Not on /clear or resume.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-shutdown.ps1\"",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

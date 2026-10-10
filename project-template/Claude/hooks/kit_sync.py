@@ -210,6 +210,10 @@ def merge_claude_md(project, tpl):
     return done
 
 
+def verse_files_iter(verse_map, project):
+    return verse_map.verse_files(project)
+
+
 def genre_from_epic(project, skills_lib):
     """No Claude/docs/.genre yet but the console already cached Epic's rankings for the island code: Epic
     reports the genre the island is ranked in. Use that slug (it is a fact from Epic, not a guess), check it
@@ -465,9 +469,13 @@ def _run(project, out):
         genre = open(gp, encoding="utf-8").read().strip() if os.path.isfile(gp) else ""
         lr = verse_map.learn_pending(mdir) if genre and genre != "epic-template" else None
         pend = len(lr[1]) if lr else 0
-        dp = verse_map.docs_pending(project, mdir) if lr else (True, [])
+        # a map made only of devices has no Verse code: it still learns from its documents and from the devices in the level
+        no_code = bool(genre) and genre != "epic-template" and lr is None and not any(True for _ in verse_files_iter(verse_map, project))
+        dp = verse_map.docs_pending(project, mdir) if (lr or no_code) else (True, [])
         pend_docs = len(dp[1])
-        if os.path.isfile(os.path.join(mdir, "meta.json")):
+        dev_todo = no_code and verse_map.devices_pending(mdir)
+        if os.path.isfile(os.path.join(mdir, "meta.json")) or no_code:
+            os.makedirs(mdir, exist_ok=True)
             verse_map.write_progress(project, mdir)
         marker = os.path.join(project, "Claude", "logs", ".post-update")
         if out["updated"] or out["added"]:
@@ -487,7 +495,12 @@ def _run(project, out):
                                        (", %d file(s) and %d document(s) to learn" % (pend, pend_docs)) if (pend or pend_docs) else ", nothing to learn"))
             if not genre and (has_map or os.path.isfile(os.path.join(mdir, "meta.json"))):
                 out["notes"].append("GENRE (do it now, never ask the owner): Claude/docs/.genre is empty and Epic's data may be missing (no island code, unpublished map or API error 403). Work the genre out YOURSELF from the project: read Claude/docs/map/INDEX.md (and SPEC/README if present), pick the closest slug in ~/.claude/skills/genre/fortnite-genres-official.json, write it as one line to Claude/docs/.genre, run `python Claude/hooks/skills_lib.py init <slug>`, then continue with the learning in `.claude/commands/learn-map.md`.")
-            if pend or pend_docs:
+            if no_code and (pend_docs or dev_todo):
+                out["notes"].append("LEARN (start now, do not ask the owner first): this map has NO Verse code, only devices. Learn from %d project document(s) not read yet%s and from the devices in the level. "
+                                    "Follow `.claude/commands/learn-map.md` steps 1, 2, 6 and 7 (skip 3-5): documents first (`verse_map.py docs`, compared with the level and the device map; apply corrections with `docpatch`, record a decision for every document), "
+                                    "then read the wiring and settings of the devices through the MCP and write `Claude/docs/map/DEVICES.md` with the `WIRING-READ:`/`SETTINGS-READ:`/`ISLAND-CONFIG-READ:` lines (the island configuration too: max players, teams, rounds, time limit, spawn mode). Queue generalized patterns with `skills_lib.py propose --section` (devices, architecture, run-loop, ...), "
+                                    "never ask. If the session stops early, unmarked work restarts at the next session start (`Claude/docs/map/PROGRESS.md`)." % (pend_docs, " (first pass)" if dp[0] else ""))
+            if (pend or pend_docs) and not no_code:
                 out["notes"].append("LEARN (start now, do not ask the owner first): %d Verse file(s) (complete source) and %d project document(s) not learned yet%s. Follow `.claude/commands/learn-map.md` (planner-docs step 4b): "
                                     "If the session stops early, nothing is needed: unmarked work is read again at the next start (`Claude/docs/map/PROGRESS.md` lists what is missing). "
                                     "code first (`verse_map.py learn`, complete sources), then documents (`verse_map.py docs`) compared with the code, then the devices in the level read through the MCP; queue proposals for the owner's approval, report discrepancies, never edit documents."

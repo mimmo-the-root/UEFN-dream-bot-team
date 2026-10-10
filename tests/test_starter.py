@@ -9,6 +9,11 @@ try:
     refs = os.path.join(d, "genre", "roguelike", "references"); os.makedirs(refs, exist_ok=True)
     shutil.copy(os.path.join(root, "user-level-skills", "genre", "roguelike", "references", "starter-sections.json"), refs)
     ok(len(S.starter_sections("roguelike")) == 8, "8 starter sections load")
+    S.init_genre("gun-game")  # a genre without its own sections file still gets the 8 default sections and a starter
+    ok([x["id"] for x in S.starter_sections("gun-game")] == [x["id"] for x in S.starter_sections("roguelike")], "genre without sections file gets the 8 defaults")
+    rg = S.propose("gun-game", map_name="Map G", section="death-strategies", variant="*", condition="a player is eliminated", action="respawn at once and keep the weapon tier", statement="Respawn keeps tier.")
+    ok(rg["ok"] and S.act("gun-game", rg["proposal"], "approve")["ok"], "gun-game pattern with a default section approved")
+    ok("respawn at once" in open(os.path.join(d, "genre", "gun-game", "references", "starter.md"), encoding="utf-8").read(), "gun-game starter.md generated")
     P = dict(variant="run-based-coop", condition="two players trigger the same exit at once", action="set a lock before the first suspend and release it on every exit",
              statement="Guard shared transitions with a lock set before the first suspend.")
     ok(not S.propose("roguelike", map_name="Map One", section="Bad Section!", **P)["ok"], "bad section id rejected")

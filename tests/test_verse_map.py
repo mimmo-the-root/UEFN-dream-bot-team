@@ -150,6 +150,16 @@ try:
     r = kit_sync.run(p2); assert any("LEARN" in n and "6 Verse file" in n and "first pass" in n for n in r["notes"]), r["notes"]
     run("learned", "--all", "--out", os.path.join(p2, "Claude", "docs", "map"))
     r = kit_sync.run(p2); assert not any("LEARN" in n for n in r["notes"]), r["notes"]
+    # a device-only map (no Verse files at all) still learns from its documents and its devices
+    p3 = os.path.join(d, "proj3"); os.makedirs(os.path.join(p3, "Claude", "docs"))
+    open(os.path.join(p3, "Claude", "docs", ".genre"), "w").write("sports-racing")
+    open(os.path.join(p3, "Claude", "docs", "SPEC.md"), "w").write("# Spec\nA race.\n")
+    r = kit_sync.run(p3); assert any("LEARN" in n and "NO Verse code" in n and "1 project document" in n for n in r["notes"]), r["notes"]
+    assert "no Verse files" in open(os.path.join(p3, "Claude", "docs", "map", "PROGRESS.md")).read()
+    open(os.path.join(p3, "Claude", "docs", "map", "DEVICES.md"), "w").write("WIRING-READ: yes\nSETTINGS-READ: yes\nISLAND-CONFIG-READ: yes\n")
+    json.dump({"reviewed": [{"file": "Claude/docs/SPEC.md", "note": "ok"}]}, open(os.path.join(p3, "Claude", "docs", "map", "doc-patches.json"), "w"))
+    run("docs", "--project", p3, "--out", os.path.join(p3, "Claude", "docs", "map")); run("docsdone", "--all", "--project", p3, "--out", os.path.join(p3, "Claude", "docs", "map"))
+    r = kit_sync.run(p3); assert not any("LEARN" in n for n in r["notes"]), r["notes"]
     # post-update restart: a marker left by the update session triggers a one-time confirmation, then disappears
     mk = os.path.join(p2, "Claude", "logs", ".post-update"); os.makedirs(os.path.dirname(mk), exist_ok=True); open(mk, "w").write("9.9.9")
     r = kit_sync.run(p2); assert any("post-update check done" in n and "nothing to learn" in n for n in r["notes"]), r["notes"]

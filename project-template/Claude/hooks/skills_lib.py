@@ -491,14 +491,26 @@ def render_skill(slug):
     render_starter(slug)
 
 
+DEFAULT_SECTIONS = [  # the 8 sections every genre starter has, in neutral words; a genre with its own references/starter-sections.json overrides them
+    {"id": "run-loop", "title": "Core loop", "questions": "What is one round/run/match; how does it start, end (win, loss, timeout) and restart? What is shared between players?"},
+    {"id": "architecture", "title": "Architecture", "questions": "Which Verse files/classes own game state, transitions, player state, spawning, rewards? One owner per transition."},
+    {"id": "devices", "title": "Devices in the level", "questions": "Which spawners, trackers, granters, barriers and UI devices exist; which are global and which per player; who wires them? (read them via the MCP when live)"},
+    {"id": "progression", "title": "Progression", "questions": "What persists between rounds/runs and what resets; unlocks, currencies, difficulty or tier scaling. Numbers only from the owner or his maps' data."},
+    {"id": "death-strategies", "title": "Strategies around death, defeat and progress", "questions": "Respawn/retry rules, paid retry or continue, rewards, boosts. Design strategies, learned as patterns with a variant."},
+    {"id": "persistence", "title": "Persistence", "questions": "What is stored per player; what happens when data is not loaded yet or the player left."},
+    {"id": "performance", "title": "Performance", "questions": "Item/NPC pools, listeners, per-frame work."},
+    {"id": "launch-checklist", "title": "Launch checklist", "questions": "First 10 minutes of a new player, a full round, a death/defeat, a restart, two players at once, a player leaving mid-round."},
+]
+
+
 def starter_sections(slug):
-    """Sections of the genre's starter (references/starter-sections.json): [{id, title, questions}]. [] when the genre has none."""
+    """Sections of the genre's starter (references/starter-sections.json): [{id, title, questions}]; the 8 default sections when the genre has none."""
     d = _read_json(os.path.join(gdir(slug), "references", "starter-sections.json"), None)
     out = []
     for x in (d or {}).get("sections", []) if isinstance(d, dict) else []:
         if isinstance(x, dict) and SECTION_RE.fullmatch(str(x.get("id", ""))) and x.get("title"):
             out.append({"id": x["id"], "title": str(x["title"]), "questions": str(x.get("questions", ""))})
-    return out
+    return out or [dict(x) for x in DEFAULT_SECTIONS]
 
 
 def render_starter(slug):

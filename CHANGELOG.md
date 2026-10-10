@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.97.1 — Every genre gets the 8 starter sections; the console stops with the session
+
+A genre without its own `references/starter-sections.json` (for example gun-game) used to get no sections, so patterns could not be assigned and no starter was generated. Now `skills_lib.py` falls back to 8 default sections in neutral wording (core loop, architecture, devices, progression, strategies around death/defeat, persistence, performance, launch checklist) and generates `references/starter.md` for every genre; a genre can still override them with its own file (roguelike does).
+
+- **Console stops with the session:** new `SessionEnd` hook (`agent-console-shutdown.ps1`): when you type `exit` (or `/exit`, logout) the Agent Console server of this project is stopped. It does not stop on `/clear` or resume, and it leaves alone a console serving another project. Existing projects receive the hook automatically at the next session start (restart once).
+
+- **Device-only maps learn too:** a map with no Verse files (native device wiring only) used to get no learning at all, because the whole pass hung on the Verse map. Now, with a genre set, the session start announces learning from the project documents and from the devices of the level (`DEVICES.md` with `WIRING-READ:`/`SETTINGS-READ:`), skipping the code steps; `PROGRESS.md` says "no Verse files" and what is missing.
+
+- **Island configuration is read and deduced, not asked:** new contract in `mcp-tool-contracts`: the learning/bootstrap pass reads the Island/Experience Settings, team settings and Player Spawner groups, and deduces max players, teams, rounds, time limit and the game shape (a cluster of spawners flagged island-start, hidden and unwired is a pre-lobby; capacity of game-start pads and vehicles versus max players is reported as a finding). Results go to `DEVICES.md` (`## Island configuration`, third flag `ISLAND-CONFIG-READ:`), nothing of this goes to the owner's "to confirm" list, and every deduction rule that worked is queued as a genre pattern for the next map.
+
 ## v1.97.0 — Skills learn from code, documents and devices; starter fed by the owner's maps
 
 Includes the unreleased 1.96.1 below. The learning pass now reads the COMPLETE Verse sources (first pass: every file; afterwards only changed files) in batches of 60k characters, each ending with a receipt token that `learned`/`docsdone` require, so a cut-off read can never be marked as done; devices are read from the level through the MCP (an old device map is only the baseline). New: the learning step also reads the project documentation (after the code) and reports where documents disagree with the code; `/learn-map devices` forces a device pass; UTF-8 output on Windows; the MCP mode is decided through `mcp__unreal-mcp__call_tool`.
