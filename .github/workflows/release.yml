@@ -1,0 +1,34 @@
+name: release
+# Every tag vX.Y.Z pushed by publish.cmd becomes a GitHub Release: tests first, then title and notes from CHANGELOG.md.
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tests, privacy scan, skill validator
+        run: python tests/run_all.py
+      - name: Tag matches KIT-VERSION
+        run: |
+          v=$(tr -d '[:space:]' < project-template/Claude/KIT-VERSION)
+          [ "v$v" = "${{ github.ref_name }}" ] || { echo "tag ${{ github.ref_name }} != KIT-VERSION v$v"; exit 1; }
+      - name: Create or update the Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          python tool/release_notes.py "$TAG" > /tmp/entry.md
+          head -n 1 /tmp/entry.md > /tmp/title.txt
+          tail -n +3 /tmp/entry.md > /tmp/notes.md
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "$(cat /tmp/title.txt)" --notes-file /tmp/notes.md --latest
+          else
+            gh release create "$TAG" --title "$(cat /tmp/title.txt)" --notes-file /tmp/notes.md --latest --verify-tag
+          fi

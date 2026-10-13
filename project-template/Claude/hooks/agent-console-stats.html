@@ -538,7 +538,7 @@ function showSetupNeeded(){
 loadData();
 setInterval(loadData, 5 * 60 * 1000); // API data is daily-granularity; a 5-min poll just picks up cache refreshes
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.97.2";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.98.7";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -589,5 +589,27 @@ setInterval(loadData, 5 * 60 * 1000); // API data is daily-granularity; a 5-min 
   }).catch(function(){});
 })();
 </script>
+<!-- skills-alert:begin -->
+<style>@keyframes sklblink{0%,100%{opacity:1}50%{opacity:.25}}a.skl-new{color:var(--amber,#ffb454)!important;font-weight:700;animation:sklblink 1.1s ease-in-out infinite}</style>
+<script>
+/* Same snippet in all 5 consoles: the SKILLS tab blinks while something waits for you there (lessons or pack updates to approve, or a genre/type to confirm). */
+(function(){
+  var link=document.querySelector('a[href="agent-console-skills.html"]');
+  if(!link||link.classList.contains("on"))return;
+  function check(){
+    Promise.all([
+      fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})
+    ]).then(function(a){
+      var n=(a[0]&&a[0].pending&&a[0].pending.length)||0, gp=!!(a[1]&&a[1].genre_state&&a[1].genre_state.status==="pending");
+      var on=n>0||gp;
+      link.classList.toggle("skl-new",on);
+      link.title=on?((gp?"genre/type to confirm":"")+(gp&&n?" · ":"")+(n?n+" waiting for you":"")):"";
+    });
+  }
+  check();setInterval(check,10000);
+})();
+</script>
+<!-- skills-alert:end -->
 </body>
 </html>

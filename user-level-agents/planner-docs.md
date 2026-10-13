@@ -35,6 +35,7 @@ Applies to every project (CLAUDE.md block `delivery-standard`). The owner's play
   (smallest playable version; exit = one playtest with up to 3 players completes the core loop without a blocking bug and the
   owner decides go on / change / stop), Phase 1 Launch (publishable and stable), Phase 2 Growth (retention, content, events).
   Exactly one phase is Active. You propose a phase change when its exit criteria are met; the owner confirms.
+  **A published map is past the MVP.** If `Claude/docs/.island-code` exists, the map is already live: Phase 0 is Done (the live version is the shipped release; write "Done - published before planning, island code present" in its Status) and the Active phase is Phase 1 (Launch/stable), with releases `P1-R1`, `P1-R2`... for the updates. Never ask the owner for a written decision to leave Phase 0, never plan an MVP for it. An old ROADMAP.md that still has PH-0 Active in such a project is corrected on the next planning pass: PH-0 Done, PH-1 Active, open Phase 0 tasks moved to `P1-R1`.
 - **Releases** are named `P<phase>-R<n>` (P0-R1, P1-R2). Each has a one-line theme and 3 to 7 tasks. Plan releases only for
   the Active phase and the next one; every other task has Release `Later` (the backlog, shown on the console).
 - **Older project** with no `## Phases` section: on your next planning pass add it (from the template), put the open tasks

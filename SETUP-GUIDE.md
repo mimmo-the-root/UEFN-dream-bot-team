@@ -386,7 +386,7 @@ never recomputed from the current folder's name. If the name written in `CLAUDE.
 
 `CLAUDE.md` stays at the root you launch `claude` from — `Content/`, per the above — because that's where Claude Code looks for it automatically at startup (alternatively it can also live at `.claude/CLAUDE.md`, but not inside `Claude/`).
 
-## 2. The twelve agents in your team
+## 2. The seventeen agents in your team
 
 Separating "who writes," "who verifies," and "who documents" is the recommended pattern for Claude Code agents, because each one works with a role narrowly scoped to its task and doesn't interfere with the others. This kit adds a fourth agent for the most delicate moment (a project's very first run, with no historical documentation yet), a fifth to evaluate release readiness, a sixth (optional) that owns the second-brain vault instead of the other agents writing to it themselves, a seventh (optional, and only useful if the sixth is configured) that parallelizes a large training sweep across the vault's one-writer bottleneck without breaking it, an eighth that owns marketing/growth instead of the owner having to know which of the eight `fortnite-*` skills to reach for, and — for reviewing coder's own output — three more that split "is this even clear enough to start" (`intent-gate`, before any code exists), "does this match the spec" (`intent-reviewer`), and "does this follow the mechanical rules" (`compliance-reviewer`) into three separate, narrower gates instead of one agent judging all three at once. See rule 13a in `~/.claude/CLAUDE.md` for why that split exists.
 

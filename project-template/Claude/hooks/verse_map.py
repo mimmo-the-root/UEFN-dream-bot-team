@@ -342,6 +342,8 @@ def cmd_learned(project, outdir, token="", all_cards=False):
     json.dump({"at": time.strftime("%Y-%m-%d %H:%M"), "depth": depth, "files": seen}, open(lp, "w"), indent=0)
     if os.path.isfile(bp):
         os.remove(bp)
+    if batch:
+        log_event(outdir, "CODE", "%d Verse file(s) read" % len(batch))
     print("learned.json updated: %d file(s) marked, %d of %d learned in total (%s)" % (len(batch), len([f for f in cur if seen.get(f) == cur[f]["sha"]]), len(cur), depth))
     write_progress(project, outdir)
     return 0
@@ -453,6 +455,8 @@ def cmd_docsdone(project, outdir, token="", all_docs=False):
     json.dump({"at": time.strftime("%Y-%m-%d %H:%M"), "v": DOCS_VERSION, "files": seen}, open(lp, "w"), indent=0)
     if os.path.isfile(bp):
         os.remove(bp)
+    if batch:
+        log_event(outdir, "DOC", "%d document(s) read: %s" % (len(batch), ", ".join(os.path.basename(x) for x in list(batch)[:4])))
     print("docs-learned.json updated: %d document(s) marked, %d of %d read in total" % (len(batch), sum(1 for r in project_docs(project) if r in seen), len(project_docs(project))))
     write_progress(project, outdir)
     return 0
@@ -510,6 +514,7 @@ def cmd_docpatch(project, outdir, args):
             with open(full, "w", encoding="utf-8", newline="") as f:
                 f.write(text.replace(p["find"], p.get("replace", ""), 1))
             p["status"] = "applied"; p["applied"] = stamp; done += 1
+            log_event(outdir, "DOC", "%s corrected: %s" % (rel, (p.get("reason") or "")[:100]))
             print("applied %s -> %s (backup in Claude/logs/doc-backup/%s)" % (p["id"], rel, stamp))
         st["patches"] = ps
         json.dump(st, open(pp, "w"), indent=1)
@@ -521,6 +526,83 @@ def cmd_docpatch(project, outdir, args):
         write_progress(project, outdir)
         return r
     print("usage: docpatch list | apply ID... | apply --all | revert STAMP"); return 1
+
+
+LOG_FILE = "learn-log.json"
+
+
+def log_event(outdir, kind, text):
+    """One line for the console's 'What it learned today' (kept on this computer, newest last, last 60)."""
+    try:
+        os.makedirs(outdir, exist_ok=True)
+        lp = os.path.join(outdir, LOG_FILE)
+        items = _read_state(lp).get("items", [])
+        items.append({"at": time.strftime("%Y-%m-%d %H:%M"), "kind": (kind or "NOTE").upper()[:12], "text": (text or "")[:200]})
+        json.dump({"items": items[-60:]}, open(lp, "w"), indent=0)
+    except Exception:
+        pass
+
+
+def _flag(text, key):
+    return bool(re.search(key + r":\s*yes", text, re.I))
+
+
+def _flag_line(text, key):
+    m = re.search(key + r":\s*(.+)", text, re.I)
+    return (m.group(1).strip() if m else "")
+
+
+def sync_device_log(outdir):
+    """Devices and island configuration are logged by themselves: when DEVICES.md gets a READ flag (or the island summary changes) a line is added once."""
+    try:
+        dev = os.path.join(outdir, "DEVICES.md")
+        if not os.path.isfile(dev):
+            return
+        t = open(dev, encoding="utf-8", errors="replace").read()
+        sp = os.path.join(outdir, "devices-logged.json")
+        seen = _read_state(sp)
+        now = {"wiring": _flag(t, "WIRING-READ"), "settings": _flag(t, "SETTINGS-READ"), "island": _flag(t, "ISLAND-CONFIG-READ"), "summary": _flag_line(t, "ISLAND-CONFIG-SUMMARY")}
+        if now["wiring"] and not seen.get("wiring"):
+            log_event(outdir, "DEVICES", "wiring of the placed devices read")
+        if now["settings"] and not seen.get("settings"):
+            log_event(outdir, "DEVICES", "settings of the placed devices read")
+        if (now["island"] and not seen.get("island")) or (now["summary"] and now["summary"] != seen.get("summary")):
+            log_event(outdir, "ISLAND", now["summary"] or "island configuration read")
+        if now != seen:
+            json.dump(now, open(sp, "w"))
+    except Exception:
+        pass
+
+
+def learning_status(project, outdir):
+    """Structured state of the learning for the console (state files only, zero tokens)."""
+    sync_device_log(outdir)
+    steps = []
+    lr = learn_pending(outdir)
+    if lr is None:
+        nv = sum(1 for _ in verse_files(project))
+        steps.append({"key": "code", "title": "Verse code", "detail": "no Verse files" if not nv else "%d Verse file(s), read directly" % nv, "pct": 100 if nv == 0 else 50, "state": "ok" if nv == 0 else "wa"})
+    else:
+        _, todo, total = lr
+        steps.append({"key": "code", "title": "Verse code", "detail": "%d / %d files read" % (total - len(todo), total), "pct": int(100 * (total - len(todo)) / max(total, 1)), "state": "ok" if not todo else "wa"})
+    _, dtodo = docs_pending(project, outdir)
+    nd = len(project_docs(project))
+    corr = sum(1 for p in _patches(outdir) if _patch_state(project, p) == "applied")
+    steps.append({"key": "docs", "title": "Documents", "detail": "%d / %d read%s" % (nd - len(dtodo), nd, (" - %d corrected" % corr) if corr else ""), "pct": int(100 * (nd - len(dtodo)) / nd) if nd else 100, "state": "ok" if not dtodo else "wa"})
+    dev = os.path.join(outdir, "DEVICES.md")
+    t = open(dev, encoding="utf-8", errors="replace").read() if os.path.isfile(dev) else ""
+    w, se, isl = _flag(t, "WIRING-READ"), _flag(t, "SETTINGS-READ"), _flag(t, "ISLAND-CONFIG-READ")
+    dn = (1 if t else 0) + w + se
+    steps.append({"key": "devices", "title": "Devices", "detail": ("wiring %s, settings %s" % ("read" if w else "not yet", "read" if se else "not yet")) if t else "never read from the level", "pct": int(100 * dn / 3), "state": "ok" if (w and se) else "wa"})
+    steps.append({"key": "island", "title": "Island configuration", "detail": _flag_line(t, "ISLAND-CONFIG-SUMMARY") or ("read" if isl else "not read yet"), "pct": 100 if isl else 0, "state": "ok" if isl else "wa"})
+    st = _read_state(os.path.join(outdir, "profile-learned.json"))
+    new = st.get("v", 0) < 1
+    stale = (not new) and profile_pending(outdir, project)
+    fu = "" if (new or stale) else profile_followup(outdir)
+    steps.append({"key": "blueprint", "title": "Map blueprint", "detail": "not written yet" if new else ("OUT OF DATE: code, documents or devices changed" if stale else ("written; unknown items still being read" if fu == "gaps" else ("written; general lessons still to propose" if fu == "lessons" else "written and current"))),
+                  "pct": 0 if new else (55 if stale else (85 if fu else 100)), "state": "ok" if (not new and not stale and not fu) else "wa"})
+    log = _read_state(os.path.join(outdir, LOG_FILE)).get("items", [])
+    return {"steps": steps, "blueprint_state": "none" if new else ("stale" if stale else "current"), "log": log[-12:][::-1]}
 
 
 def progress_lines(project, outdir):
@@ -540,6 +622,8 @@ def progress_lines(project, outdir):
     ps = _patches(outdir)
     states = [_patch_state(project, p) for p in ps]
     out.append("document corrections: %d applied, %d ready to apply, %d invalid" % (states.count("applied"), states.count("pending"), sum(1 for x in states if x.startswith("invalid"))))
+    bp_new = _read_state(os.path.join(outdir, "profile-learned.json")).get("v", 0) < 1
+    out.append("map blueprint (what a map of this genre is made of): %s" % ("NOT written yet" if bp_new else ("OUT OF DATE (code, documents or devices changed since it was written): update it" if profile_pending(outdir, project) else "written and current")))
     dev = os.path.join(outdir, "DEVICES.md")
     if os.path.isfile(dev):
         t = open(dev, encoding="utf-8", errors="replace").read()
@@ -548,6 +632,74 @@ def progress_lines(project, outdir):
     else:
         out.append("devices: never read from the level (DEVICES.md missing)")
     return out
+
+
+def profile_fingerprint(project, outdir):
+    """Short hash of what the blueprint is built from: Verse sources, project documents, device map."""
+    parts = []
+    try:
+        mp = os.path.join(outdir, "meta.json")
+        if os.path.isfile(mp):
+            parts += sorted("%s=%s" % (f, v["sha"]) for f, v in json.load(open(mp))["files"].items())
+        parts += ["%s=%s" % (r, _doc_sha(project, r)) for r in project_docs(project)]
+        dev = os.path.join(outdir, "DEVICES.md")
+        if os.path.isfile(dev):
+            parts.append("devices=" + sha(open(dev, encoding="utf-8", errors="replace").read()))
+    except (OSError, ValueError, KeyError):
+        pass
+    return sha("\n".join(parts))[:16]
+
+
+def profile_pending(outdir, project=None):
+    """True until the blueprint of this map was written to the genre skill (`skills_lib.py profile`), and again whenever the code,
+    the documents or the device map changed after it was written (the owner keeps developing: the blueprint follows)."""
+    st = _read_state(os.path.join(outdir, "profile-learned.json"))
+    if st.get("v", 0) < 1:
+        return True
+    return bool(project and st.get("fp") and st["fp"] != profile_fingerprint(project, outdir))
+
+
+def profile_followup(outdir):
+    """After the blueprint exists: 'gaps' while it lists unknown items that were not tried twice yet, then 'lessons' while the map produced no lesson
+    and the request was not made yet. '' when there is nothing to do. Each is announced once per try (kit_sync counts it)."""
+    st = _read_state(os.path.join(outdir, "profile-learned.json"))
+    if st.get("v", 0) < 1:
+        return ""
+    unk = 0
+    try:
+        unk = len((json.load(open(os.path.join(outdir, "profile.json"), encoding="utf-8-sig")) or {}).get("unknown") or [])
+    except (OSError, ValueError, AttributeError):
+        pass
+    if unk and st.get("gap_tries", 0) < 2:
+        return "gaps"
+    if not st.get("lessons", 0) and not st.get("lessons_asked"):
+        return "lessons"
+    return ""
+
+
+def profile_gaps(outdir):
+    """True while the blueprint lists unknown items that were not tried twice yet."""
+    st = _read_state(os.path.join(outdir, "profile-learned.json"))
+    if st.get("v", 0) < 1 or st.get("gap_tries", 0) >= 2:
+        return False
+    try:
+        return bool(len((json.load(open(os.path.join(outdir, "profile.json"), encoding="utf-8-sig")) or {}).get("unknown") or []))
+    except (OSError, ValueError, AttributeError):
+        return False
+
+
+def profile_lessons_due(outdir):
+    """True once, while the map has a blueprint, produced no lesson and the request was not made yet. Independent of the gaps."""
+    st = _read_state(os.path.join(outdir, "profile-learned.json"))
+    return st.get("v", 0) >= 1 and not st.get("lessons", 0) and not st.get("lessons_asked")
+
+
+def marker_update(outdir, **kw):
+    mp = os.path.join(outdir, "profile-learned.json")
+    st = _read_state(mp)
+    if st:
+        st.update(kw)
+        json.dump(st, open(mp, "w"))
 
 
 def devices_pending(outdir):
@@ -560,6 +712,7 @@ def devices_pending(outdir):
 
 
 def write_progress(project, outdir):
+    sync_device_log(outdir)
     try:
         lines = progress_lines(project, outdir)
         open(os.path.join(outdir, "PROGRESS.md"), "w", encoding="utf-8").write(
@@ -601,7 +754,7 @@ def _utf8_out():
 def main():
     _utf8_out()
     a = sys.argv[1:]
-    if not a or a[0] not in ("build", "check", "symbol", "role", "learn", "learned", "docs", "docsdone", "docpatch", "status"):
+    if not a or a[0] not in ("build", "check", "symbol", "role", "learn", "learned", "docs", "docsdone", "docpatch", "status", "log", "learning"):
         print(__doc__); return 0
     tok = a[1] if len(a) > 1 and not a[1].startswith("--") else ""
     opt = lambda k, d: a[a.index(k) + 1] if k in a and a.index(k) + 1 < len(a) else d
@@ -617,6 +770,10 @@ def main():
     elif a[0] == "status":
         write_progress(project, outdir)
         print("\n".join(progress_lines(project, outdir)))
+    elif a[0] == "log":
+        log_event(outdir, a[1] if len(a) > 1 else "NOTE", a[2] if len(a) > 2 else "")
+    elif a[0] == "learning":
+        print(json.dumps(learning_status(project, outdir), indent=1))
     elif a[0] == "docpatch":
         return cmd_docpatch(project, outdir, a[1:])
     elif a[0] == "docs":

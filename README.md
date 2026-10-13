@@ -1,7 +1,7 @@
 # UEFN Dream Bot Team
 
 A Claude Code multi-agent starter kit for building UEFN (Unreal Editor for Fortnite) experiences —
-twelve specialized subagents, each with one narrow job, instead of one general-purpose assistant
+seventeen specialized subagents, each with one narrow job, instead of one general-purpose assistant
 trying to do everything and stepping on its own toes.
 
 Built by someone juggling ~50 UEFN islands at once. Free, fully documented, works for one island or
@@ -19,11 +19,49 @@ compliance-reviewer → planner-docs):
 
 ![Agent Console](docs/images/agent-console.png)
 
+**The Skills page** — what the kit has learned across all your maps (top), and what it learned
+from the map you are working on (below): learning steps, the map blueprint, a log of what it
+read, the patterns of the genre and the lessons waiting for your approval. Sample data:
+
+![Skills page](docs/images/agent-console-skills.png)
+
 **The full pipeline** — every agent and every hand-off, end to end:
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.83)
+## What's new (v1.98)
+
+- **The kit learns from your maps by itself.** At the first session on a map it reads the Verse
+  code, compares your project documents with the code (and corrects the ones that are wrong), reads
+  the devices placed in the level, their wiring and settings, and the island configuration through
+  the UEFN MCP. It never interviews you, and if the session stops it resumes where it stopped.
+- **Map blueprint.** What it learned becomes a *blueprint* inside the genre skill: how a map of
+  this kind is built (layout with counts, game loop, devices and how they are wired, rules with the
+  numbers observed, build order). It follows your development: when code, documents or devices
+  change, the blueprint is marked out of date and rewritten at the next session. Items it could not
+  read are retried at the next starts (never invented), and every analysed map also queues 3 to 5
+  general lessons for your approval.
+- **You confirm genre and map type before anything is saved.** The genre is one of Epic's official
+  Discover genres; the map *type* is a free name (pillars, red-vs-blue, checkpoint-race...). The
+  kit only proposes them: you confirm or correct both on the Skills page, and until then nothing
+  touches your skills. Confirming saves the waiting blueprint and lessons by itself.
+- **IP variants.** A map that is the same base game dressed for an IP is a *type* of the same
+  genre: the kit reads the IP from your documents, proposes it as the type (the shared base is
+  `base`), and the blueprint of the variant records only what differs from the base.
+- **Skills page rebuilt**: the kit overview on top (waiting lessons, maps, genres and types,
+  confidence, privacy), the genre of this map below, **Approve all** for waiting lessons, and the
+  **SKILLS tab blinks** on every console page when something waits for you.
+- **Docs & Status page**: releases are listed in delivery order (P0-R1, P1-R1, P1-R2...).
+- **The console follows the kit**: after an update the console server restarts on the new version,
+  and it stops when you leave the session.
+- **Releases are published by GitHub.** `publish.cmd` runs the tests, commits, pushes and tags;
+  the workflow in `.github/workflows/release.yml` then creates the GitHub Release from the
+  changelog.
+
+Your map data stays private: blueprints and evidence live in a local layer of your own genre skill,
+names are hashed, and only generalized patterns can be shared, after a privacy check.
+
+## Earlier: v1.83
 
 - **Skills page — the kit learns from your maps** (`agent-console-skills.html`). Genre skills
   (survival, roguelike, …) used to stay empty until three maps had been studied. Now a genre skill
@@ -76,7 +114,7 @@ Full details for every version in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## What's in the box
 
-- **Twelve agents**, each doing one job: project setup, an independent ambiguity check before any
+- **Seventeen agents**, each doing one job: project setup, an independent ambiguity check before any
   code is written, the actual Verse coding with a mandatory compile-fix loop, two separate review
   gates (spec adherence, then mechanical rule conformance — never the same agent grading both),
   regression/bug hunting after every playtest, documentation that stays current, a go/no-go release
@@ -104,7 +142,7 @@ Full version history is in [`CHANGELOG.md`](CHANGELOG.md).
 ```
 project-template/       Files copied into each UEFN project's Content/ folder (hooks, docs
                          templates, the Agent Console, per-project CLAUDE.md)
-user-level-agents/       The 14 agent definitions, installed once into ~/.claude/agents/
+user-level-agents/       The 17 agent definitions, installed once into ~/.claude/agents/
 user-level-memory/       Base rules loaded in every session, installed into ~/.claude/CLAUDE.md
 user-level-skills/       Shared skills (uefn-lessons, mcp-tool-contracts, and others),
                          installed once into ~/.claude/skills/

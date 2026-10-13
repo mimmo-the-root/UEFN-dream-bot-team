@@ -458,6 +458,8 @@ def render_skill(slug):
               ("Contested", "evidence conflicts; show both options to the owner and ask", [p for p in pats if p["status"] == "contested"])]
     out = [BEGIN, "## Learned patterns (generated — do not edit by hand)",
            "",
+           "To plan or build a map of this genre read `references/starter.md` FIRST: its \"Map anatomy\" section lists what the owner's maps are made of (layout, game loop, devices, rules, scoring, build order).",
+           "",
            "These come from maps the owner actually built and approved. Patterns the owner has not approved are not listed. "
            "Match the confidence to how you use each one."]
     if not pats:
@@ -513,6 +515,206 @@ def starter_sections(slug):
     return out or [dict(x) for x in DEFAULT_SECTIONS]
 
 
+PROFILE_VERSION = 1
+
+
+def _pstr(x, n=300):
+    return redact(str(x or "").strip())[:n]
+
+
+def _plist(items, keys, nmax=40):
+    out = []
+    for it in (items if isinstance(items, list) else [])[:nmax]:
+        if isinstance(it, str):
+            it = {keys[0]: it}
+        if isinstance(it, dict):
+            row = {k: _pstr(it.get(k), 240) for k in keys}
+            if row[keys[0]]:
+                out.append(row)
+    return out
+
+
+def save_profile(slug, map_name, prof, project=None, map_key=None):
+    """The blueprint of one map: what a map of this genre is made of (layout, game loop, devices, rules, scoring, build order) with the numbers
+    observed in it. Private (local/profiles/, the map name is only hashed); the starter shows it as 'Map anatomy'. Replaces the previous
+    profile of the same map. `project` (optional) gets a marker so the kit knows the blueprint was written."""
+    slug = _slug(slug)
+    gate = genre_gate(project)
+    if gate:
+        return gate
+    init_genre(slug)
+    if not (map_name or "").strip() or not isinstance(prof, dict):
+        return {"ok": False, "error": "map_name and a JSON object are required"}
+    clean = {"concept": _pstr(prof.get("concept"), 500),
+             "layout": _plist(prof.get("layout"), ("element", "count", "note")),
+             "loop": [_pstr(x, 240) for x in (prof.get("loop") or [])[:20] if x],
+             "devices": _plist(prof.get("devices"), ("class", "count", "role", "settings", "wiring")),
+             "rules": _plist(prof.get("rules"), ("when", "then", "numbers")),
+             "verse": _plist(prof.get("verse"), ("component", "role", "api")),
+             "scoring": [_pstr(x, 240) for x in (prof.get("scoring") or [])[:15] if x],
+             "build_order": [_pstr(x, 240) for x in (prof.get("build_order") or [])[:25] if x],
+             "unknown": [_pstr(x, 240) for x in (prof.get("unknown") or [])[:15] if x]}
+    if not clean["concept"] or not (clean["layout"] or clean["devices"] or clean["loop"]):
+        return {"ok": False, "error": "a profile needs a concept and at least one of layout, devices or loop"}
+    mk = map_key or _map_key(map_name)
+    if project and not map_key:  # one project = one map: the name passed on the command line must never create a second blueprint
+        try:
+            mark = json.load(open(os.path.join(project, "Claude", "docs", "map", "profile-learned.json"), encoding="utf-8-sig"))
+            if isinstance(mark, dict) and mark.get("map_key") and _slug(mark.get("genre") or "") == slug:
+                mk = str(mark["map_key"])
+        except (OSError, ValueError):
+            pass
+    old = _read_json(os.path.join(ldir(slug), "profiles", mk + ".json"), None)
+    label = (old or {}).get("label") or "Map %d" % (len(_profiles(slug)) + 1)
+    var = _variant_name(prof.get("variant"))
+    if not var and project:
+        var = (_pread(project) or {}).get("variant", "")
+    if var:
+        clean["variant"] = var
+    clean.update({"label": label, "map_key": mk, "updated": _today(), "v": PROFILE_VERSION})
+    _write_json(os.path.join(ldir(slug), "profiles", mk + ".json"), clean)
+    render_starter(slug)
+    if project:
+        try:
+            mdir = os.path.join(project, "Claude", "docs", "map")
+            os.makedirs(mdir, exist_ok=True)
+            mpath = os.path.join(mdir, "profile-learned.json")
+            old = {}
+            try:
+                old = json.load(open(mpath, encoding="utf-8-sig"))
+                old = old if isinstance(old, dict) else {}
+            except (OSError, ValueError):
+                old = {}
+            try:
+                import verse_map
+                fp = verse_map.profile_fingerprint(project, mdir)
+            except Exception:
+                fp = ""
+            unk = len(clean.get("unknown") or [])
+            tries = old.get("gap_tries", 0) if unk >= old.get("unknown_n", unk) else 0  # progress on the unknowns gives them new tries
+            with open(mpath, "w", encoding="utf-8") as f:
+                json.dump({"v": PROFILE_VERSION, "at": _today(), "genre": slug, "map_key": mk, "fp": fp, "unknown_n": unk,
+                           "gap_tries": tries, "lessons": old.get("lessons", 0), "lessons_asked": old.get("lessons_asked", 0)}, f)
+            try:  # refresh PROGRESS.md so it does not keep saying the blueprint is missing
+                import verse_map
+                verse_map.write_progress(project, mdir)
+                verse_map.log_event(mdir, "BLUEPRINT", "map blueprint written (%d layout, %d devices, %d rules)" % (len(clean.get("layout", [])), len(clean.get("devices", [])), len(clean.get("rules", []))))
+            except Exception:
+                pass
+        except OSError:
+            pass
+    return {"ok": True, "label": label, "profiles": len(_profiles(slug))}
+
+
+def sync_profile_from_project(project):
+    """The project keeps a copy of its blueprint (Claude/docs/map/profile.json). If the genre skill of this user profile does not have it yet
+    (new PC, skills folder reset), put it back, so the knowledge always lives in the genre skill and not only in the project."""
+    mdir = os.path.join(project, "Claude", "docs", "map")
+    try:
+        mark = json.load(open(os.path.join(mdir, "profile-learned.json"), encoding="utf-8-sig"))
+        prof = json.load(open(os.path.join(mdir, "profile.json"), encoding="utf-8-sig"))
+    except (OSError, ValueError):
+        return ""
+    if not (isinstance(mark, dict) and isinstance(prof, dict) and mark.get("map_key") and mark.get("genre")):
+        return ""
+    g = _slug(mark["genre"])
+    if _isfile(os.path.join(ldir(g), "profiles", str(mark["map_key"]) + ".json")):
+        return ""
+    r = save_profile(g, "restored", prof, project=None, map_key=str(mark["map_key"]))
+    return "map blueprint restored into the genre skill '%s'" % g if r.get("ok") else ""
+
+
+def drop_profile(slug, label):
+    """Remove the blueprint(s) of a genre with this label (e.g. a duplicate 'Map 1'); remaining ones are renumbered Map 1, 2, ..."""
+    slug = _slug(slug)
+    d = os.path.join(ldir(slug), "profiles")
+    gone = 0
+    left = []
+    for fn in sorted(_listdir(d)) if _isdir(d) else []:
+        if fn.endswith(".json"):
+            p = _read_json(os.path.join(d, fn), None)
+            if isinstance(p, dict) and p.get("label") == label:
+                _remove_file(os.path.join(d, fn)); gone += 1
+            elif isinstance(p, dict):
+                left.append((p.get("updated", ""), fn, p))
+    for i, (_, fn, p) in enumerate(sorted(left), 1):
+        p["label"] = "Map %d" % i
+        _write_json(os.path.join(d, fn), p)
+    render_starter(slug)
+    return {"ok": gone > 0, "removed": gone, "left": len(left)} if gone else {"ok": False, "error": "no blueprint with that label"}
+
+
+def _profiles(slug):
+    d = os.path.join(ldir(slug), "profiles")
+    out = []
+    if _isdir(d):
+        for fn in sorted(_listdir(d)):
+            if fn.endswith(".json"):
+                p = _read_json(os.path.join(d, fn), None)
+                if isinstance(p, dict) and p.get("concept"):
+                    out.append(p)
+    return out
+
+
+def console_learning(project):
+    """Everything the console's 'This map' section shows (state files only). Used by both console servers."""
+    import verse_map
+    d = verse_map.learning_status(project, os.path.join(project, "Claude", "docs", "map"))
+    d["genre_state"] = genre_state(project)
+    d["blueprints"] = blueprints_for(d["genre_state"]["genre"]) if d["genre_state"].get("genre") else []
+    return d
+
+
+def blueprints_for(slug):
+    """Blueprints of the analysed maps of a genre, for the console (labels only, never map names)."""
+    try:
+        return [{k: v for k, v in p.items() if k != "map_key"} for p in _profiles(_slug(slug))]
+    except Exception:
+        return []
+
+
+def _anatomy_lines(slug):
+    """'Map anatomy' section of the starter, aggregated over the owner's analysed maps."""
+    profs = _profiles(slug)
+    if not profs:
+        return []
+    out = ["## Map anatomy: what a map of this genre is made of", "",
+           "Learned from %d analysed map(s) of the owner. Numbers are what was OBSERVED in each map (labels, not names): a value seen in several maps is a safe default, one seen in a single map is an example to adapt. To build a map of this genre, start here." % len(profs), ""]
+
+    def agg(title, getter):
+        rows = {}
+        for p in profs:
+            for it in getter(p):
+                k, text = it
+                rows.setdefault(_norm(k), {"name": k, "seen": []})["seen"].append((p["label"], text))
+        if rows:
+            out.append("### " + title)
+            for r in sorted(rows.values(), key=lambda r: -len(r["seen"])):
+                out.append("- **%s** (%d of %d map(s)): %s" % (r["name"], len(r["seen"]), len(profs), "; ".join("%s: %s" % (l, t) for l, t in r["seen"] if t) or "present"))
+            out.append("")
+
+    out += ["### Concept"] + ["- %s%s: %s" % (p["label"], (" (type: %s)" % p["variant"]) if p.get("variant") else "", p["concept"]) for p in profs] + [""]
+    agg("Layout (what is placed in the level)", lambda p: [(x["element"], " ".join(v for v in (str(x.get("count") or ""), x.get("note") or "") if v)) for x in p.get("layout", [])])
+    out += ["### Game loop of one match"]
+    for p in profs:
+        if p.get("loop"):
+            out.append("- %s: " % p["label"] + " -> ".join(p["loop"]))
+    out.append("")
+    agg("Devices to place and what each one does", lambda p: [(x["class"], "; ".join(v for v in ((("x" + str(x["count"])) if x.get("count") else ""), x.get("role"), x.get("settings") and "settings: " + x["settings"], x.get("wiring") and "wiring: " + x["wiring"]) if v)) for x in p.get("devices", [])])
+    agg("Verse components to write", lambda p: [(x["component"], "; ".join(v for v in (x.get("role"), x.get("api") and "api: " + x["api"]) if v)) for x in p.get("verse", [])])
+    agg("Game logic rules", lambda p: [(x["when"], "then %s%s" % (x["then"], (" [" + x["numbers"] + "]") if x.get("numbers") else "")) for x in p.get("rules", [])])
+    agg("Scoring and rewards", lambda p: [(x, "") for x in p.get("scoring", [])])
+    out += ["### Build order"]
+    for p in profs:
+        if p.get("build_order"):
+            out += ["- %s:" % p["label"]] + ["  %d. %s" % (i, x) for i, x in enumerate(p["build_order"], 1)]
+    out.append("")
+    unk = [(p["label"], x) for p in profs for x in p.get("unknown", [])]
+    if unk:
+        out += ["### Not known yet (not read or not decided)"] + ["- %s: %s" % u for u in unk] + [""]
+    return out
+
+
 def render_starter(slug):
     """Regenerate references/starter.md from the sections + the approved patterns tagged with each section.
     Zero tokens. Called on every render, so it follows the owner's maps: new patterns, tier changes, contested ones."""
@@ -533,6 +735,7 @@ def render_starter(slug):
            "Use when the owner starts a NEW project of this genre. Each section lists what the owner's maps taught (proven = rule, confirmed = default, "
            "hypothesis = suggestion, contested = ask) and the open questions. Nothing here comes from general knowledge: an empty section "
            "means nothing was learned yet, so ask the owner and write a DESIGN-<system>.md for it. No code before the owner approves the design.", ""]
+    out += _anatomy_lines(slug)
     known = {x["id"] for x in secs}
     for i, sec in enumerate(secs, 1):
         mine = [p for p in pats if p.get("section") == sec["id"]]
@@ -597,9 +800,211 @@ def _say_new(slug, variant, statement):
     return "In %s / %s: %s" % (slug, variant, statement)
 
 
+# ----------------------------------------------------------------------------- genre confirmation
+def _gproposal_path(project):
+    return os.path.join(project, "Claude", "docs", "map", "genre-proposal.json")
+
+
+def _pread(project):
+    path = _gproposal_path(project)
+    return _read_json(path, None, base=project) if _isfile(path, base=project) else None
+
+
+def _log(project, kind, text):
+    try:
+        import verse_map
+        verse_map.log_event(os.path.join(project, "Claude", "docs", "map"), kind, text)
+    except Exception:
+        pass
+
+
+def _pwrite(project, obj):
+    _write_json(_gproposal_path(project), obj, base=project)
+
+
+def _project_from_cwd():
+    d = os.path.abspath(os.getcwd())
+    for _ in range(6):
+        if os.path.isdir(os.path.join(d, "Claude", "docs")):
+            return d
+        d = os.path.dirname(d)
+    return ""
+
+
+def genre_gate(project=None):
+    """Error dict while the owner has not confirmed the genre the kit proposed for this project; None otherwise (also for projects without a proposal)."""
+    project = project or _project_from_cwd()
+    if not project:
+        return None
+    pr = _pread(project)
+    if isinstance(pr, dict) and pr.get("status") == "pending":
+        return {"ok": False, "error": "GENRE NOT CONFIRMED: the owner has not confirmed '%s' (type '%s') on the console yet. Nothing is written to the genre skills until then. Keep reading the project locally and try again at the next session." % (pr.get("genre"), pr.get("variant"))}
+    return None
+
+
+def _known_variants(slug=None):
+    out = {}
+    for s in _genres():
+        v = set()
+        for p in _profiles(s):
+            if p.get("variant"):
+                v.add(p["variant"])
+        try:
+            for p in load_pack(s)["patterns"]:
+                if p.get("variant") and p["variant"] != "*" and p.get("status") != "superseded":
+                    v.add(p["variant"])
+        except Exception:
+            pass
+        out[s] = sorted(v)
+    return out
+
+
+def _official_genres():
+    path = os.path.join(genre_root(), "fortnite-genres-official.json")
+    d = _read_json(path, {}) if _isfile(path) else {}
+    return [{"slug": g.get("slug"), "name": g.get("name") or g.get("slug")} for g in d.get("genres", []) if g.get("slug")]
+
+
+def propose_genre(project, slug, variant, why=""):
+    """The kit's own deduction of genre + map type. Written to the project only (genre-proposal.json and .genre); the genre skill is not touched until the owner confirms."""
+    slug = _slug(slug)
+    names = {g["slug"] for g in _official_genres()}
+    if names and slug not in names:
+        return {"ok": False, "error": "genre must be one slug of the official list (fortnite-genres-official.json)"}
+    variant = _variant_name(variant)
+    if not variant:
+        return {"ok": False, "error": "a map type (variant) is required, e.g. pillars, red-vs-blue"}
+    _write_text(os.path.join(project, "Claude", "docs", ".genre"), slug + "\n", base=project)
+    _pwrite(project, {"genre": slug, "variant": variant, "why": _pstr(why, 600), "status": "pending", "at": _today()})
+    _log(project, "GENRE", "%s / %s proposed (waiting for the owner)" % (slug, variant))
+    return {"ok": True, "status": "pending"}
+
+
+def _variant_name(v):
+    v = re.sub(r"[^a-z0-9]+", "-", (v or "").strip().lower()).strip("-")[:40]
+    return v
+
+
+def _marker_bump(project, key):
+    """Count a lesson queued from this project (profile-learned.json), so the kit knows the map already produced lessons."""
+    if not project:
+        return
+    try:
+        mpath = os.path.join(project, "Claude", "docs", "map", "profile-learned.json")
+        m = json.load(open(mpath, encoding="utf-8-sig"))
+        if isinstance(m, dict):
+            m[key] = int(m.get(key, 0)) + 1
+            json.dump(m, open(mpath, "w", encoding="utf-8"))
+    except (OSError, ValueError):
+        pass
+
+
+def _held_path(project):
+    return os.path.join(project, "Claude", "docs", "map", "lessons-held.json")
+
+
+def _hold_lesson(project, args):
+    try:
+        path = _held_path(project)
+        items = _read_json(path, [], base=project) if _isfile(path, base=project) else []
+        if not isinstance(items, list):
+            items = []
+        key = (args["variant"], args["condition"], args["action"])
+        if not any((i.get("variant"), i.get("condition"), i.get("action")) == key for i in items):
+            items.append(args)
+        _write_json(path, items[-50:], base=project)
+    except Exception:
+        pass
+
+
+def _flush_held(project, slug):
+    """After the owner confirmed genre and type: save the blueprint written while waiting and queue the lessons held back."""
+    out = {"blueprint": False, "lessons": 0}
+    mdir = os.path.join(project, "Claude", "docs", "map")
+    pj = os.path.join(mdir, "profile.json")
+    if os.path.isfile(pj):
+        try:
+            prof = json.load(open(pj, encoding="utf-8-sig"))
+            mark = {}
+            try:
+                mark = json.load(open(os.path.join(mdir, "profile-learned.json"), encoding="utf-8-sig"))
+            except (OSError, ValueError):
+                pass
+            if isinstance(prof, dict) and (mark.get("v", 0) < 1 or _slug(mark.get("genre") or slug) != slug or not mark.get("map_key")):
+                r = save_profile(slug, os.path.basename(os.path.abspath(project)) or "map", prof, project=project)
+                out["blueprint"] = bool(r.get("ok"))
+        except (OSError, ValueError):
+            pass
+    hp = _held_path(project)
+    if _isfile(hp, base=project):
+        try:
+            items = _read_json(hp, [], base=project) or []
+            keep = []
+            for i in items:
+                r = propose(slug, i["variant"], i["condition"], i["action"], i["statement"], i["map_name"], i.get("stance", "for"),
+                            i.get("tasks", ()), i.get("note", ""), i.get("metric_backed", False), i.get("section", ""))
+                if r.get("ok"):
+                    out["lessons"] += 1
+                else:
+                    keep.append(i)
+            _write_json(hp, keep, base=project)
+        except Exception:
+            pass
+    return out
+
+
+def confirm_genre(project, slug, variant):
+    """Owner decision from the console: genre and map type are right (or corrected). Only now the genre skill is created / retargeted."""
+    slug = _slug(slug)
+    names = {g["slug"] for g in _official_genres()}
+    if names and slug not in names:
+        return {"ok": False, "error": "genre must be one of the official genres"}
+    variant = _variant_name(variant)
+    if not variant:
+        return {"ok": False, "error": "a map type is required"}
+    gfile = os.path.join(project, "Claude", "docs", ".genre")
+    old = open(gfile, encoding="utf-8").read().strip().lower() if os.path.isfile(gfile) else ""
+    if old and old != slug and old != "epic-template" and _isdir(gdir(old)):
+        try:
+            retarget(old, slug)
+        except Exception:
+            pass
+    _write_text(gfile, slug + "\n", base=project)
+    init_genre(slug)
+    pr = _pread(project) or {}
+    pr.update({"genre": slug, "variant": variant, "status": "confirmed", "confirmed_at": _today()})
+    _pwrite(project, pr)
+    _log(project, "GENRE", "%s / %s confirmed by the owner" % (slug, variant))
+    saved = _flush_held(project, slug)
+    return {"ok": True, "genre": slug, "variant": variant, "saved": saved}
+
+
+def genre_state(project):
+    """What the console shows for this project's genre: proposal (pending/confirmed), lists to choose from."""
+    gfile = os.path.join(project, "Claude", "docs", ".genre")
+    genre = open(gfile, encoding="utf-8").read().strip().lower() if os.path.isfile(gfile) else ""
+    pr = _pread(project)
+    variant = (pr or {}).get("variant") or ""
+    if not variant and genre and genre != "epic-template":
+        for p in _profiles(genre):
+            if p.get("variant"):
+                variant = p["variant"]
+    return {"genre": genre, "variant": variant, "status": (pr or {}).get("status") or ("confirmed" if genre else "none"),
+            "why": (pr or {}).get("why", ""), "genres": _official_genres(), "known_variants": _known_variants()}
+
+
 def propose(slug, variant, condition, action, statement, map_name, stance="for", tasks=(), note="", metric_backed=False, section=""):
     """Queue a lesson learned from a real map. Nothing is applied until the owner approves it."""
     slug = _slug(slug)
+    gate = genre_gate()
+    if gate:
+        proj = _project_from_cwd()
+        if proj:  # the lesson is kept in the project and queued by itself when the owner confirms the genre
+            _hold_lesson(proj, {"slug": slug, "variant": variant, "condition": condition, "action": action, "statement": statement,
+                                "map_name": map_name, "stance": stance, "tasks": list(tasks), "note": note,
+                                "metric_backed": metric_backed, "section": section})
+            gate = dict(gate, held=True)
+        return gate
     init_genre(slug)
     if stance not in ("for", "against"):
         return {"ok": False, "error": "stance must be 'for' or 'against'"}
@@ -656,6 +1061,7 @@ def propose(slug, variant, condition, action, statement, map_name, stance="for",
     if _isfile(os.path.join(_inbox_dir(slug), prop["id"] + ".json")):
         return {"ok": True, "skipped": "already waiting for your approval", "proposal": prop["id"]}
     _save_proposal(slug, prop)
+    _marker_bump(_project_from_cwd(), "lessons")
     return {"ok": True, "proposal": prop["id"], "kind": kind}
 
 
@@ -1091,6 +1497,33 @@ def consult_from_path(file_path):
 
 
 # ----------------------------------------------------------------------------- summary (server)
+def retarget(old, new):
+    """The owner says the genre was guessed wrong: move the lessons still waiting for approval from the old genre skill to the right one.
+    Approved patterns are left where they are (reported). Nothing is deleted except the moved proposals."""
+    old, new = _slug(old), _slug(new)
+    if old == new:
+        return {"ok": False, "error": "same genre"}
+    init_genre(new)
+    moved, failed = 0, []
+    for p in list_proposals(old):
+        if p.get("kind") != "new_pattern":
+            failed.append(p.get("id"))
+            continue
+        c = p.get("pattern") or {}
+        r = propose(new, c.get("variant", "*"), c.get("condition", ""), c.get("action", ""), c.get("statement", ""), p.get("map_name", ""),
+                    stance=p.get("stance", "for"), tasks=p.get("tasks", ()), note=p.get("note", ""), metric_backed=bool(p.get("metric_backed")), section=c.get("section", ""))
+        if r.get("ok"):
+            try:
+                _remove_proposal_file(old, _proposal_path(old, p["id"]))
+            except Exception:
+                pass
+            moved += 1
+        else:
+            failed.append(p.get("id"))
+    kept = len([x for x in load_pack(old)["patterns"] if x.get("status") != "superseded"])
+    return {"ok": True, "moved": moved, "not_moved": failed, "approved_patterns_left_in_old_genre": kept}
+
+
 def resolve_genre(value):
     """Map a requested genre onto an EXISTING genre directory. The returned name is taken from the
     filesystem listing, never from the caller's string, so request data cannot steer a file path."""
@@ -1151,7 +1584,7 @@ def summary():
         genres.append({"slug": s, "maps": len(maps), "counts": c, "patterns": pats, "last_learned": ll,
                        "consulted": int(usage.get("total", 0)),
                        "pending": sum(1 for p in pending if p["genre"] == s),
-                       "variants": sorted({p["variant"] for p in pats})})
+                       "variants": sorted({p["variant"] for p in pats}), "blueprints": blueprints_for(s)})
         for k in ("proven", "confirmed", "hypothesis", "contested", "reference"):
             totals[k] += c[k]
         totals["patterns"] += len(pats)
@@ -1202,6 +1635,12 @@ def _cli(argv=None):
     s.add_argument("--task", action="append", default=[]); s.add_argument("--note", default="")
     s.add_argument("--metric-backed", action="store_true"); s.add_argument("--section", default="")
     s = sub.add_parser("section"); s.add_argument("genre"); s.add_argument("pattern"); s.add_argument("section")
+    s = sub.add_parser("retarget"); s.add_argument("old"); s.add_argument("new")
+    s = sub.add_parser("profile-drop"); s.add_argument("genre"); s.add_argument("label")
+    s = sub.add_parser("learning"); s.add_argument("--project", default=".")
+    s = sub.add_parser("propose-genre"); s.add_argument("genre"); s.add_argument("--variant", required=True); s.add_argument("--why", default=""); s.add_argument("--project", default=".")
+    s = sub.add_parser("confirm-genre"); s.add_argument("genre"); s.add_argument("--variant", required=True); s.add_argument("--project", default=".")
+    s = sub.add_parser("profile"); s.add_argument("genre"); s.add_argument("--map", required=True); s.add_argument("--file", required=True); s.add_argument("--project", default="")
     s = sub.add_parser("similar"); s.add_argument("genre"); s.add_argument("--threshold", type=float, default=0.5)
     a = ap.parse_args(argv)
     try:
@@ -1245,6 +1684,18 @@ def _cli(argv=None):
         elif a.cmd == "patterns":
             r = [{k: p.get(k) for k in ("id", "variant", "condition", "action", "statement", "tier", "status", "section")}
                  for p in load_pack(_slug(a.genre))["patterns"]]
+        elif a.cmd == "retarget":
+            r = retarget(a.old, a.new)
+        elif a.cmd == "profile-drop":
+            r = drop_profile(a.genre, a.label)
+        elif a.cmd == "learning":
+            r = console_learning(os.path.abspath(a.project))
+        elif a.cmd == "propose-genre":
+            r = propose_genre(os.path.abspath(a.project), a.genre, a.variant, a.why)
+        elif a.cmd == "confirm-genre":
+            r = confirm_genre(os.path.abspath(a.project), a.genre, a.variant)
+        elif a.cmd == "profile":
+            r = save_profile(a.genre, a.map, json.load(open(a.file, encoding="utf-8-sig")), a.project or None)
         elif a.cmd == "similar":
             r = similar(a.genre, a.threshold)
         elif a.cmd == "section":

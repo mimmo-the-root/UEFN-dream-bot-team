@@ -85,38 +85,74 @@ if (Test-Path $consolePath) {
     try { $thisProject = (Resolve-Path $projectDir).Path } catch {}
     $thisProject = $thisProject.TrimEnd('\', '/')
 
+    # Every decision is written to Claude\logs\console-start.log, so a console that does not restart can be diagnosed.
+    $startLog = Join-Path $projectDir "Claude\logs\console-start.log"
+    function Write-StartLog([string]$msg) {
+        try {
+            $dir = Split-Path $startLog -Parent
+            if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+            Add-Content -LiteralPath $startLog -Value ("{0} {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $msg)
+        } catch {}
+    }
+
     $alreadyCorrect = $false
     try {
         $resp = Invoke-WebRequest -Uri "http://127.0.0.1:$port/whoami" -TimeoutSec 2 -UseBasicParsing
         $who = $resp.Content | ConvertFrom-Json
         $servedProject = ([string]$who.project).TrimEnd('\', '/')
-        if ($servedProject -eq $thisProject) {
+        # A server started before a kit update runs OLD code (the pages would call endpoints it does not have):
+        # it only counts as correct when it was started from the same kit version that is on disk now.
+        $kitNow = ""
+        try { $kitNow = (Get-Content -LiteralPath (Join-Path $projectDir "Claude\KIT-VERSION") -Raw -ErrorAction Stop).Trim() } catch {}
+        $kitServer = ""
+        try { $kitServer = ([string]$who.kit_version).Trim() } catch {}
+        if ($servedProject -eq $thisProject -and ($kitNow -eq "" -or $kitServer -eq $kitNow)) {
             $alreadyCorrect = $true
         }
+        Write-StartLog ("whoami: project=[{0}] kit=[{1}] | this project=[{2}] kit on disk=[{3}] | server ok={4}" -f $servedProject, $kitServer, $thisProject, $kitNow, $alreadyCorrect)
     } catch {
+        Write-StartLog "whoami: no answer on port $port"
         # Nothing answered /whoami — either nothing's listening on 8765, or something is but it
         # isn't one of our servers (or is a stale/hung one). Either way, fall through to restart.
     }
 
     if (-not $alreadyCorrect) {
         try {
+            # The console server is a PowerShell HttpListener: Windows lists PID 4 (System) as the owner of the port, so the owner
+            # of the port cannot be used to find it. Find the server by its command line instead (the .ps1 or the .py of any project).
+            $servers = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'agent-console-server' -and $_.ProcessId -ne $PID })
+            foreach ($srv in $servers) {
+                Stop-Process -Id $srv.ProcessId -Force -ErrorAction SilentlyContinue
+                if (Get-Process -Id $srv.ProcessId -ErrorAction SilentlyContinue) { & taskkill.exe /F /PID $srv.ProcessId 2>&1 | Out-Null }
+                Write-StartLog ("stopped old server: pid={0} process={1}" -f $srv.ProcessId, $srv.Name)
+            }
+            if ($servers.Count -gt 0) { Start-Sleep -Milliseconds 600 }
+            if ($servers.Count -eq 0) { Write-StartLog "no console server process found by command line" }
+            # anything else still holding the port (older kits ran it differently): the previous port-owner rule
             $lines = netstat -ano | Select-String ":$port\s" | Select-String "LISTENING"
             foreach ($line in $lines) {
                 $procId = ($line -split '\s+')[-1]
-                if ($procId -match '^\d+$') {
+                if ($procId -match '^\d+$' -and $procId -ne "4" -and $procId -ne "0") {
                     $procName = (Get-Process -Id $procId -ErrorAction SilentlyContinue).ProcessName
-                    if ($procName -match 'powershell|pwsh|python') {
+                    if ($procName -match 'powershell|pwsh|python|^py$') {
                         Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+                        Write-StartLog ("stopped old server: pid={0} process={1}" -f $procId, $procName)
                         Start-Sleep -Milliseconds 400
+                    } else {
+                        Write-StartLog ("port $port is held by pid={0} process={1}: NOT stopped (not a console process)" -f $procId, $procName)
                     }
                 }
             }
-        } catch {}
+        } catch { Write-StartLog ("error while stopping the old server: " + $_.Exception.Message) }
 
         try {
             Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File `"$serverScript`"" -WindowStyle Hidden
         } catch {}
         Start-Sleep -Milliseconds 500  # give the fresh server a moment to bind before opening it
+        try {
+            $w2 = (Invoke-WebRequest -Uri "http://127.0.0.1:$port/whoami" -TimeoutSec 2 -UseBasicParsing).Content | ConvertFrom-Json
+            Write-StartLog ("started new server: kit=[{0}] project=[{1}]" -f $w2.kit_version, $w2.project)
+        } catch { Write-StartLog "started new server: not answering yet (500 ms)" }
     }
 
     try {

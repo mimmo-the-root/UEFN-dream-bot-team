@@ -1,5 +1,5 @@
-# Publishes the kit: checks, commit, push, tag and GitHub Release (title and notes come from CHANGELOG.md).
-# Run from this folder on your PC with git and (for the Release) gh logged in: `gh auth login`.
+# Publishes the kit: checks, commit, push, tag. The GitHub Release is created by GitHub itself (workflow release.yml, title and notes from CHANGELOG.md).
+# Run from this folder on your PC with git signed in to GitHub.
 # Before: raise project-template\Claude\KIT-VERSION, the 5 agent-console*.html versions, and add a "## vX.Y.Z - title" entry at the top of CHANGELOG.md.
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
@@ -39,13 +39,8 @@ Write-Host "[3/4] Pushing to GitHub (if nothing happens for a minute, look for a
 Run-Git push origin HEAD
 
 # 4. tag + Release
-Write-Host "[4/4] Tag $tag and GitHub Release..."
+Write-Host "[4/4] Tag $tag (GitHub creates the Release)..."
 Run-Git tag $tag
 Run-Git push origin $tag
-if (Get-Command gh -ErrorAction SilentlyContinue) {
-  gh release create $tag --title $title --notes-file $notesFile --latest
-  if ($LASTEXITCODE -ne 0) { Write-Host "Release not created: create it on GitHub with tag $tag (notes in $notesFile)." }
-} else {
-  Write-Host "gh not found: create the Release on GitHub with tag $tag. Title: $title. Notes: $notesFile"
-}
-Write-Host "Published $tag. Tests on GitHub: https://github.com/mimmo-the-root/UEFN-dream-bot-team/actions"
+# The GitHub Release is created by .github/workflows/release.yml when the tag arrives (tests, title and notes from CHANGELOG.md): no gh needed here.
+Write-Host "Published $tag. GitHub is now building the Release (about 1 minute): https://github.com/mimmo-the-root/UEFN-dream-bot-team/releases and the run:  https://github.com/mimmo-the-root/UEFN-dream-bot-team/actions"

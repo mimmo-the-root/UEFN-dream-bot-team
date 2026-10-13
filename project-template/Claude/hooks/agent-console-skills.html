@@ -64,8 +64,68 @@ textarea.edit{width:100%;font:inherit;font-size:12px;background:var(--panel2);co
     </div>
   </div>
 
+<style>
+:root{--purple:var(--violet,#b98bff)}
+.vs a{text-decoration:none}
+/* v1.98: kit overview + learning of THIS map (genre confirmation, blueprint, log, patterns). Same look as the other cards. */
+.ksec{display:flex;align-items:center;gap:10px;margin:22px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line-soft);}
+.ksec h2{margin:0;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);}
+.ksec span{color:var(--dim);font-size:11.5px;font-family:'Segoe UI',system-ui,sans-serif;}
+.ksec.map{border-bottom-color:var(--purple);}.ksec.map h2{color:var(--purple);}
+.khero{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+.khc{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;}
+.khc.warn{border-color:rgba(255,180,84,.5);}
+.khc .k{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+.khc .n{font-size:24px;font-weight:700;margin:4px 0;}.khc .n small{font-size:11px;font-weight:400;color:var(--dim);}
+.khc .s{font-size:10.5px;color:var(--dim);}
+.kstack{display:flex;height:6px;border-radius:3px;overflow:hidden;margin:6px 0;background:#182338;}.kstack i{display:block;height:100%;}
+.kspark{display:flex;align-items:flex-end;gap:3px;height:22px;margin:4px 0;}.kspark i{flex:1;background:var(--blue);border-radius:1px;min-height:2px;}
+.ktwo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.ktwo.wide{grid-template-columns:1.7fr 1fr;}
+@media(max-width:900px){.khero{grid-template-columns:1fr 1fr;}.ktwo,.ktwo.wide{grid-template-columns:1fr;}.ksteps{grid-template-columns:1fr 1fr!important;}}
+.kcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;}
+.klabel{font-size:11px;color:var(--dim);letter-spacing:1.3px;text-transform:uppercase;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.klabel .r{margin-left:auto;text-transform:none;letter-spacing:0;}
+.knew{background:var(--blue);color:#fff;border-radius:4px;padding:0 6px;font-size:9px;font-weight:700;font-family:system-ui;}
+.kpill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700;}
+.kp-a{background:rgba(255,180,84,.12);color:var(--amber);}.kp-g{background:rgba(57,255,136,.12);color:var(--green);}.kp-b{background:rgba(75,139,255,.15);color:var(--blue);}.kp-p{background:rgba(185,139,255,.15);color:var(--purple);}.kp-r{background:rgba(255,77,94,.12);color:var(--red);}.kp-d{background:rgba(90,112,136,.18);color:#8fa5c0;}
+.kchip{display:inline-block;border:1px solid var(--blue);color:var(--blue);border-radius:12px;padding:1px 9px;font-size:11px;}.kchip.v{border-color:var(--purple);color:var(--purple);}
+.ktable{width:100%;border-collapse:collapse;font-size:11.5px;}.ktable th{text-align:left;font-size:9.5px;color:var(--dim);text-transform:uppercase;padding:5px 6px;border-bottom:1px solid var(--line);}
+.ktable td{padding:6px;border-bottom:1px solid var(--line-soft);vertical-align:top;}.ktable tr:last-child td{border-bottom:none;}
+.kh4{font-size:10.5px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin:14px 0 6px;}.kh4:first-child{margin-top:0;}
+.kul{margin:0;padding-left:18px;line-height:1.7;font-size:12px;}
+.kunk{color:var(--amber);}
+.ksteps{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.kst{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:var(--panel2);}.kst b{display:block;font-size:11.5px;}.kst span{font-size:10.5px;color:var(--dim);}
+.kst.ok{border-color:rgba(57,255,136,.45);}.kst.wa{border-color:rgba(255,180,84,.5);}
+.kbar{height:5px;border-radius:3px;background:#182338;margin-top:7px;overflow:hidden;}.kbar i{display:block;height:100%;}.kst.ok .kbar i{background:var(--green);}.kst.wa .kbar i{background:var(--amber);}
+.kgp{border:1px solid var(--amber);background:rgba(255,180,84,.06);border-radius:10px;padding:14px 16px;margin-bottom:16px;}
+.kwhy{font-size:11.5px;color:var(--dim);line-height:1.6;margin-top:6px;}.kwhy b{color:var(--text);}
+.krow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+.kbtn{border:1px solid var(--line-soft);border-radius:6px;padding:4px 11px;font-size:11.5px;color:var(--text);background:var(--panel2);cursor:pointer;font-family:inherit;}
+.kbtn.ok{color:var(--green);border-color:rgba(57,255,136,.5);}.kbtn.no{color:var(--red);border-color:rgba(255,77,94,.4);}
+.kgp select,.kgp input{background:var(--panel2);color:var(--text);border:1px solid var(--line-soft);border-radius:6px;padding:4px 8px;font:inherit;font-size:11.5px;}
+.klog div{padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:12px;}.klog div:last-child{border:none;}.klog time{color:var(--dim);margin-right:10px;}
+.kk{font-size:9px;border-radius:3px;padding:0 5px;margin-right:6px;background:rgba(75,139,255,.15);color:var(--blue);}
+.kprop{border:1px solid var(--line-soft);border-radius:8px;padding:10px;margin-top:8px;background:var(--panel2);}
+.ktabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}.ktab{border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--dim);cursor:pointer;}.ktab.on{color:var(--text);border-color:var(--blue);}
+.kempty{color:var(--dim);font-style:italic;font-size:12px;}
+details.kproj{margin:26px 0 0;}details.kproj>summary{cursor:pointer;color:var(--dim);font-size:11px;letter-spacing:1.3px;text-transform:uppercase;padding:8px 0;border-top:1px solid var(--line-soft);}
+</style>
+<div id="kitwrap">
+ <div class="ksec"><h2>The kit</h2><span>everything the kit knows, across all your genres and maps</span></div>
+ <div id="kHero" class="khero"></div>
+ <div class="ktwo wide"><div id="kGenres"></div><div id="kSide"></div></div>
+ <div class="ksec map"><h2 id="kMapTitle">This map</h2><span>learning, blueprint and lessons of this map's genre only</span></div>
+ <div id="kGenreConf"></div>
+ <div id="kLearning"></div>
+ <div class="ktwo"><div id="kBlueprint"></div><div><div id="kLog"></div><div id="kPatterns"></div></div></div>
+ <div id="kWaiting"></div>
+</div>
+  <details class="kproj" id="classic"><summary>Classic view: edit wording, approve all, packs, details</summary>
   <div id="hero" class="hero"></div>
   <div id="body"></div>
+  </details>
 </div>
 <script>
 "use strict";
@@ -160,7 +220,8 @@ function render(d){
   h += '<div class="lab">Genre skills — what the kit has learned</div><div class="card"><table><tr><th>Genre</th><th>Maps</th><th>Patterns</th><th>Used by coder</th></tr>' +
     (d.genres.length ? d.genres.map(function(g){
       var n = g.patterns.length, c = g.counts, w = function(v){ return n ? (100 * v / n).toFixed(1) + "%" : "0%"; };
-      return '<tr class="pick' + (g.slug === SELECTED ? " sel" : "") + '" onclick="pickGenre(\'' + esc(g.slug) + '\')"><td>' + esc(g.slug) + '<div class="sub">' +
+      var tys = (g.variants || []).filter(function(v){ return v !== "*"; });
+      return '<tr class="pick' + (g.slug === SELECTED ? " sel" : "") + '" onclick="pickGenre(\'' + esc(g.slug) + '\')"><td>' + esc(g.slug) + (tys.length ? '<div class="sub">types: ' + esc(tys.join(", ")) + '</div>' : "") + '<div class="sub">' +
         (g.last_learned ? "updated " + esc(ago(g.last_learned)) : "no maps yet") + '</div></td><td>' + g.maps + '</td><td>' +
         (n ? '<div class="lad"><i style="width:' + w(c.proven) + ';background:var(--green)"></i><i style="width:' + w(c.confirmed) + ';background:var(--amber)"></i><i style="width:' + w(c.hypothesis) +
           ';background:#8fa5c0"></i><i style="width:' + w(c.reference||0) + ';background:var(--blue)"></i><i style="width:' + w(c.contested) + ';background:var(--red)"></i></div><div class="sub">' + c.proven + ' proven · ' + c.confirmed + ' confirmed · ' + c.hypothesis + ' hypothesis · ' + (c.reference ? c.reference + ' reference · ' : "") + c.contested + ' contested</div>'
@@ -168,6 +229,7 @@ function render(d){
     }).join("") : '<tr><td colspan="4" class="dim">No genre skills yet.</td></tr>') + '</table></div>';
   var sel = d.genres.filter(function(g){ return g.slug === SELECTED; })[0];
   if (sel){
+    h += blueprintCard(sel);
     h += patternsCard(sel);
   }
   h += '</div><div>';
@@ -246,6 +308,22 @@ function pgMatch(p, f){
   if (f === "relevant") return !untestedRef(p);
   return ptier(p) === f;
 }
+function blueprintCard(sel){
+  var bps = sel.blueprints || [];
+  var h = '<div class="lab">Map blueprints — how a map of this genre is built</div><div class="card" style="padding:12px">';
+  if (!bps.length) return h + '<div class="empty">No blueprint yet: the kit writes one by itself after reading the code, documents and devices of a map of this genre (see the Docs page).</div></div>';
+  h += bps.map(function(b){
+    var li = function(a){ return '<ul style="margin:2px 0 8px;padding-left:18px">' + a.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>'; };
+    return '<div class="prop"><div class="say"><b>' + esc(b.label) + '</b>' + (b.variant ? ' <span class="pill p-hyp">type: ' + esc(b.variant) + '</span>' : "") + ' <span class="sub">updated ' + esc(b.updated || "") + '</span><br>' + esc(b.concept) + '</div>' +
+      ((b.layout || []).length ? '<div class="sub">Layout</div>' + li(b.layout.map(function(x){ return x.element + ": " + [x.count, x.note].filter(Boolean).join(" · "); })) : "") +
+      ((b.loop || []).length ? '<div class="sub">Game loop</div>' + li(b.loop) : "") +
+      ((b.rules || []).length ? '<div class="sub">Rules</div>' + li(b.rules.map(function(x){ return x.when + ": " + x.then + (x.numbers ? " (" + x.numbers + ")" : ""); })) : "") +
+      ((b.build_order || []).length ? '<div class="sub">Build order</div>' + li(b.build_order) : "") +
+      ((b.unknown || []).length ? '<div class="sub">Not known yet</div>' + li(b.unknown) : "") + '</div>';
+  }).join("");
+  return h + '</div>';
+}
+
 function patternsCard(sel){
   var all = sel.patterns.slice().sort(function(x, y){
     return (TIER_ORDER[ptier(x)] - TIER_ORDER[ptier(y)]) || ((y.support || 0) - (x.support || 0));
@@ -294,7 +372,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.97.2";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.98.7";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -375,5 +453,128 @@ load(); setInterval(load, 4000);
   }).then(show);
 })();
 </script>
+<script>
+(function(){
+var SEL_TYPE = "all", SEL_MAP = 0, LD = null, SD = null, LAST = "";
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function ago(iso){if(!iso)return "—";var s=(Date.now()-Date.parse(iso))/1000;if(isNaN(s))return "—";if(s<90)return "just now";if(s<5400)return Math.round(s/60)+" min ago";if(s<129600)return Math.round(s/3600)+" h ago";return Math.round(s/86400)+" days ago";}
+function $(id){return document.getElementById(id);}
+function post(path,body){return fetch(path,{method:"POST",headers:{"Content-Type":"application/json","X-Skills-Action":"1"},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+function stack(c){var tot=(c.proven||0)+(c.confirmed||0)+(c.reference||0)+(c.hypothesis||0)+(c.contested||0)||1;
+ var seg=[["proven","var(--green)"],["confirmed","var(--amber)"],["reference","var(--blue)"],["hypothesis","#8fa5c0"],["contested","var(--red)"]];
+ return '<div class="kstack">'+seg.map(function(x){return c[x[0]]?'<i style="width:'+(100*c[x[0]]/tot).toFixed(1)+'%;background:'+x[1]+'"></i>':"";}).join("")+'</div>';}
+function counts(c){return (c.proven||0)+" proven · "+(c.confirmed||0)+" confirmed · "+(c.hypothesis||0)+" hypothesis"+(c.reference?" · "+c.reference+" reference":"")+" · "+(c.contested||0)+" contested";}
+function pill(t,cls){return '<span class="kpill '+cls+'">'+esc(t)+'</span>';}
+function tierPill(p){if(p.status==="contested")return pill("contested","kp-r");var m={proven:"kp-g",confirmed:"kp-a",hypothesis:"kp-d",reference:"kp-b"};return pill(p.tier,m[p.tier]||"kp-d");}
+
+function renderKit(){
+ if(!SD||SD.error){$("kHero").innerHTML='<div class="khc" style="grid-column:1/-1"><div class="k">Skills</div><div class="s">'+esc((SD&&SD.error)||"Could not read the genre skills.")+'</div></div>';return;}
+ var t=SD.totals,mx=Math.max.apply(null,SD.usage_week.concat([1]));
+ $("kHero").innerHTML=
+  '<div class="khc'+(SD.pending.length?" warn":"")+'"><div class="k">Waiting for you</div><div class="n">'+SD.pending_lessons+' <small>lesson'+(SD.pending_lessons===1?"":"s")+'</small></div><div class="s">'+(SD.pending_packs?"+ "+SD.pending_packs+" community pack update"+(SD.pending_packs===1?"":"s")+"<br>":"")+(SD.pending.length?"oldest waiting: "+esc(ago(SD.oldest_pending)):"nothing to review")+'</div></div>'+
+  '<div class="khc"><div class="k">Learning from</div><div class="n">'+t.maps+' <small>map'+(t.maps===1?"":"s")+' · '+SD.genres.length+' genre'+(SD.genres.length===1?"":"s")+' · '+SD.variants+' type'+(SD.variants===1?"":"s")+'</small></div><div class="s">'+(SD.last_learned?"last learned: "+esc(ago(SD.last_learned)):"nothing learned yet")+'</div></div>'+
+  '<div class="khc"><div class="k">Pattern confidence</div><div class="n">'+t.patterns+' <small>pattern'+(t.patterns===1?"":"s")+'</small></div>'+stack(t)+'<div class="s">'+esc(counts(t))+'</div></div>'+
+  '<div class="khc"><div class="k">Used by coder — last 7 days</div><div class="n">'+SD.usage_week_total+' <small>consultation'+(SD.usage_week_total===1?"":"s")+'</small></div><div class="kspark">'+SD.usage_week.map(function(v){return '<i style="height:'+Math.max(8,Math.round(100*v/mx))+'%"></i>';}).join("")+'</div><div class="s">'+(SD.privacy.checked?(SD.privacy.ok?'<span style="color:var(--green)">✓ privacy check passed</span>':'<span style="color:var(--red)">✗ privacy check FAILED</span>'):'privacy check not run yet')+' · '+SD.never_used+' genre'+(SD.never_used===1?"":"s")+' never used</div></div>';
+ var cur=(LD&&LD.genre_state&&LD.genre_state.genre)||"";
+ $("kGenres").innerHTML='<div class="kcard"><div class="klabel">Genre skills — what the kit has learned</div><table class="ktable"><tr><th>Genre</th><th>Maps</th><th>Patterns</th><th>Used by coder</th></tr>'+
+  SD.genres.map(function(g){var n=g.patterns.length;return '<tr'+(g.slug===cur?' style="background:rgba(185,139,255,.07)"':'')+'><td><b>'+esc(g.slug)+'</b>'+(g.variants.filter(function(v){return v!=="*";}).length?'<div style="font-size:10px;color:var(--dim)">types: '+esc(g.variants.filter(function(v){return v!=="*";}).join(", "))+'</div>':'')+'<div style="font-size:10px;color:var(--dim)">'+(g.last_learned?"updated "+esc(ago(g.last_learned)):"no maps yet")+'</div></td><td>'+g.maps+'</td><td>'+(n?stack(g.counts)+'<div style="font-size:10px;color:var(--dim)">'+esc(counts(g.counts))+'</div>':'<span style="color:var(--dim)">— nothing learned yet</span>')+'</td><td>'+(g.consulted?g.consulted+"×":"—")+'</td></tr>';}).join("")+'</table></div>';
+ var other=SD.pending.filter(function(p){return p.kind==="pack_update"||p.genre!==cur;});
+ $("kSide").innerHTML='<div class="kcard"><div class="klabel">Waiting in other genres / packs</div>'+(other.length?other.map(function(p){return '<div style="margin:4px 0;font-size:12px">'+pill(p.kind==="pack_update"?"community pack":(p.kind==="contradiction"?"contradiction":"lesson"),p.kind==="contradiction"?"kp-r":"kp-b")+' '+esc(p.genre)+' <a href="#classic" onclick="var d=document.getElementById(\'classic\');if(d)d.open=true;" style="color:var(--blue)">open in Skills →</a></div>';}).join(""):'<div class="kempty">nothing waiting outside this genre</div>')+'</div>'+
+  '<div class="kcard"><div class="klabel">What stays on your computer</div><div style="line-height:1.9;font-size:12px"><b>Evidence</b> — map names, task IDs, notes. <span style="color:var(--green)">Never leaves this computer.</span><br><b>Pack</b> — generalized patterns, no names. Shareable only after the privacy check.<br><b>Your decisions</b> — approvals and rejections; updates never overwrite them.<br><b>Blueprints</b> — map anatomy stays in your genre skill, names hashed.</div><div style="margin-top:10px;font-size:12px;color:'+(SD.privacy.checked&&SD.privacy.ok?"var(--green)":"var(--dim)")+'">'+(SD.privacy.checked?"Last privacy check: "+(SD.privacy.ok?"✓ passed":"✗ FAILED")+" ("+esc(ago(SD.privacy.ts))+")":"Privacy check not run yet")+'</div><div style="margin-top:8px"><button class="kbtn" id="kRunCheck">Run check</button></div></div>';
+ var rc=$("kRunCheck");if(rc)rc.onclick=function(){post("/skills-check",{}).then(function(){LAST="";load();});};
+}
+
+function renderMap(){
+ if(!LD||LD.error){$("kLearning").innerHTML='<div class="kcard"><div class="kempty">'+esc((LD&&LD.error)||"Learning state not available: the console server is older than this page. Close this session with exit and open a new one (the server restarts by itself).")+'</div></div>';return;}
+ var gs=LD.genre_state||{},genre=gs.genre,variant=gs.variant;
+ var gname=function(slug){var g=(gs.genres||[]).filter(function(x){return x.slug===slug;})[0];return g?g.name:slug;};
+ $("kMapTitle").textContent=genre?"This map: "+genre+(variant?" / "+variant:""):"This map";
+ var conf=$("kGenreConf");
+ if(gs.status==="pending"){
+  var gopts=(gs.genres||[]).map(function(g){return '<option value="'+esc(g.slug)+'"'+(g.slug===genre?" selected":"")+'>'+esc(g.name)+'</option>';}).join("");
+  conf.innerHTML='<div class="kgp"><div class="klabel" style="color:var(--amber);margin:0">Genre to confirm<span class="r">nothing is written to the skills until you confirm</span></div>'+
+   '<div style="font-size:15px;margin-top:6px">Proposed: <b>'+esc(gname(genre))+'</b> <span class="kchip">'+esc(genre)+'</span> <span class="kchip v">type: '+esc(variant)+'</span></div>'+
+   (gs.why?'<div class="kwhy"><b>Why:</b> '+esc(gs.why)+'</div>':'')+
+   '<div class="krow"><button class="kbtn ok" id="kYes">✓ Yes, it is right</button><span style="color:var(--dim)">or change:</span><select id="kGsel">'+gopts+'</select><select id="kTsel"></select><input id="kTnew" placeholder="name of the new type, e.g. capture-the-flag" style="display:none;width:260px"><button class="kbtn" id="kSave">Save change</button></div>'+
+   '<div class="kwhy">The type list shows the types already learned in this genre, the one the kit deduced from your map, and <b>+ New type</b> where you write any name. Meanwhile the kit keeps reading code, documents and devices of this project (local only); lessons and the blueprint wait for your answer.</div><div id="kConfErr" style="color:var(--red);font-size:11px"></div></div>';
+  var fill=function(){var g=$("kGsel").value,vs=(gs.known_variants&&gs.known_variants[g])||[],h="";
+   if(variant&&vs.indexOf(variant)<0)h+='<option value="'+esc(variant)+'">'+esc(variant)+' (proposed by the kit)</option>';
+   vs.forEach(function(v){h+='<option value="'+esc(v)+'"'+(v===variant?" selected":"")+'>'+esc(v)+' (already known)</option>';});
+   h+='<option value="__new">+ New type...</option>';$("kTsel").innerHTML=h;$("kTnew").style.display="none";};
+  fill();$("kGsel").onchange=function(){variant="";fill();};$("kTsel").onchange=function(){$("kTnew").style.display=$("kTsel").value==="__new"?"inline-block":"none";};
+  var go=function(){var v=$("kTsel").value==="__new"?$("kTnew").value:$("kTsel").value;post("/genre-confirm",{genre:$("kGsel").value,variant:v}).then(function(r){if(r.ok){LAST="";load();}else $("kConfErr").textContent=r.error||"could not save";}).catch(function(){$("kConfErr").textContent="Could not reach the local server";});};
+  $("kYes").onclick=go;$("kSave").onclick=go;
+ } else if(!genre){
+  conf.innerHTML='<div class="kcard"><div class="klabel">Genre</div><div class="kempty">No genre yet. The kit deduces it from the map at the next session start and asks you to confirm it here.</div></div>';
+ } else conf.innerHTML="";
+ $("kLearning").innerHTML='<div class="kcard"><div class="klabel">Learning<span class="r" style="color:var(--dim)">resumes by itself if the session stops'+(genre?' · genre: '+esc(genre)+(variant?" / "+esc(variant):"")+(gs.status==="pending"?" (to confirm)":""):"")+'</span></div><div class="ksteps">'+
+  LD.steps.map(function(s){return '<div class="kst '+s.state+'"><b>'+esc(s.title)+'</b><span>'+esc(s.detail)+'</span><div class="kbar"><i style="width:'+s.pct+'%"></i></div></div>';}).join("")+'</div></div>';
+ // blueprint
+ var bps=LD.blueprints||[],bp=bps[Math.min(SEL_MAP,Math.max(bps.length-1,0))];
+ var st=LD.blueprint_state,badge=st==="current"?pill("current","kp-g"):(st==="stale"?pill("needs update: code, documents or devices changed","kp-a"):pill("not written yet","kp-d"));
+ var h='<div class="kcard"><div class="klabel">Map blueprint<span class="r">'+badge+'</span></div>';
+ if(genre)h+='<div style="margin-bottom:8px"><span class="kchip">'+esc(genre)+'</span> '+(variant?'<span class="kchip v">type: '+esc(variant)+'</span>':'')+'</div>';
+ if(!bp)h+='<div class="kempty">The kit has not written the blueprint of this map yet: it does it on its own after reading code, documents and devices.</div>';
+ else{
+  if(bps.length>1)h+='<div class="ktabs">'+bps.map(function(b,i){return '<span class="ktab'+(i===SEL_MAP?" on":"")+'" data-m="'+i+'">'+esc(b.label)+(b.variant?" · "+esc(b.variant):"")+'</span>';}).join("")+'</div>';
+  h+='<p style="margin:0 0 10px;line-height:1.6"><b>Concept.</b> '+esc(bp.concept)+'</p>';
+  var list=function(t,a,f){return a&&a.length?'<div class="kh4">'+t+'</div>'+f(a):"";};
+  h+=list("Layout",bp.layout,function(a){return '<table class="ktable"><tr><th>Element</th><th>Count</th><th>Note</th></tr>'+a.map(function(x){return '<tr><td>'+esc(x.element)+'</td><td>'+esc(x.count)+'</td><td>'+esc(x.note)+'</td></tr>';}).join("")+'</table>';});
+  h+=list("Game loop",bp.loop,function(a){return '<ol class="kul">'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ol>';});
+  h+=list("Devices",bp.devices,function(a){return '<table class="ktable"><tr><th>Device</th><th>Count</th><th>Role / settings</th></tr>'+a.map(function(x){return '<tr><td>'+esc(x["class"])+'</td><td>'+esc(x.count)+'</td><td>'+esc([x.role,x.settings,x.wiring].filter(Boolean).join(" · "))+'</td></tr>';}).join("")+'</table>';});
+  h+=list("Rules (observed numbers)",bp.rules,function(a){return '<ul class="kul">'+a.map(function(x){return '<li>'+esc(x.when)+': '+esc(x.then)+(x.numbers?' <span style="color:var(--dim)">('+esc(x.numbers)+')</span>':'')+'</li>';}).join("")+'</ul>';});
+  h+=list("Verse components",bp.verse,function(a){return '<ul class="kul">'+a.map(function(x){return '<li><b>'+esc(x.component)+'</b>: '+esc(x.role)+'</li>';}).join("")+'</ul>';});
+  h+=list("Scoring",bp.scoring,function(a){return '<ul class="kul">'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>';});
+  h+=list("Build order",bp.build_order,function(a){return '<ol class="kul">'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ol>';});
+  h+=list("Not known yet",bp.unknown,function(a){return '<ul class="kul kunk">'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>';});
+ }
+ $("kBlueprint").innerHTML=h+'</div>';
+ Array.prototype.forEach.call(document.querySelectorAll("#kBlueprint .ktab"),function(e){e.onclick=function(){SEL_MAP=+e.getAttribute("data-m");renderMap();};});
+ // log
+ $("kLog").innerHTML='<div class="kcard"><div class="klabel">What it learned</div><div class="klog">'+(LD.log.length?LD.log.map(function(x){return '<div><time>'+esc((x.at||"").slice(5))+'</time><span class="kk">'+esc(x.kind)+'</span>'+esc(x.text)+'</div>';}).join(""):'<div class="kempty">nothing logged yet</div>')+'</div></div>';
+ // patterns of this genre
+ var g=(SD&&SD.genres||[]).filter(function(x){return x.slug===genre;})[0],pats=g?g.patterns:[];
+ var types=[];pats.forEach(function(p){if(p.variant!=="*"&&types.indexOf(p.variant)<0)types.push(p.variant);});
+ var shown=pats.filter(function(p){return SEL_TYPE==="all"||p.variant===SEL_TYPE||p.variant==="*";}).slice(0,8);
+ $("kPatterns").innerHTML='<div class="kcard"><div class="klabel">Patterns of this genre<span class="r" style="color:var(--dim)">'+pats.length+' pattern'+(pats.length===1?"":"s")+(types.length?" · types: "+esc(types.join(", ")):"")+'</span></div>'+
+  (types.length?'<div class="ktabs"><span class="ktab'+(SEL_TYPE==="all"?" on":"")+'" data-t="all">all</span>'+types.map(function(t){return '<span class="ktab'+(SEL_TYPE===t?" on":"")+'" data-t="'+esc(t)+'">'+esc(t)+'</span>';}).join("")+'</div>':"")+
+  (shown.length?shown.map(function(p){return '<div class="kprop"><div style="line-height:1.5">'+esc(p.statement)+'</div><div style="margin-top:6px">'+pill(p.variant==="*"?"all types":p.variant,"kp-p")+' '+tierPill(p)+' <span style="font-size:10.5px;color:var(--dim)">support: '+((p.support&&p.support.length)||0)+' map(s)</span></div></div>';}).join("")+'<div style="font-size:11px;color:var(--dim);margin-top:10px">showing '+shown.length+' of '+pats.length+' · <a href="#classic" onclick="var d=document.getElementById(\'classic\');if(d)d.open=true;" style="color:var(--blue)">see all in Skills →</a></div>':'<div class="kempty">no patterns in this genre yet</div>')+'</div>';
+ Array.prototype.forEach.call(document.querySelectorAll("#kPatterns .ktab"),function(e){e.onclick=function(){SEL_TYPE=e.getAttribute("data-t");renderMap();};});
+ // lessons waiting for this genre
+ var mine=(SD&&SD.pending||[]).filter(function(p){return p.genre===genre&&p.kind!=="pack_update";});
+ var bulkN=mine.filter(function(p){return p.kind!=="contradiction";}).length;
+ $("kWaiting").innerHTML=mine.length?'<div class="kcard"><div class="klabel">Lessons waiting — this genre<span class="r">'+(bulkN>1?'<button class="kbtn ok" id="kApproveAll">✓ Approve all '+bulkN+'</button>':'')+'</span></div>'+mine.map(function(p){return '<div class="kprop"><span class="kpill '+(p.kind==="contradiction"?"kp-r":"kp-b")+'">'+(p.kind==="contradiction"?"CONTRADICTION":"LESSON")+'</span> '+pill(p.variant==="*"?"all types":p.variant,"kp-p")+'<div style="margin:8px 0;line-height:1.5">'+esc(p.say||p.statement||"")+'</div><button class="kbtn ok" data-a="approve" data-p="'+esc(p.id)+'" data-g="'+esc(p.genre)+'">✓ '+(p.kind==="contradiction"?"Mark as Contested":"Approve")+'</button> <button class="kbtn no" data-a="reject" data-p="'+esc(p.id)+'" data-g="'+esc(p.genre)+'">✕ Reject</button> <a href="#classic" onclick="var d=document.getElementById(\'classic\');if(d)d.open=true;" style="color:var(--dim);font-size:11px;margin-left:6px">edit wording in Skills</a></div>';}).join("")+'</div>':"";
+ var aa=$("kApproveAll");if(aa)aa.onclick=function(){aa.disabled=true;aa.textContent="approving...";var list=mine.filter(function(p){return p.kind!=="contradiction";});
+  (function next(i){if(i>=list.length){LAST="";load();return;}post("/skills-act",{genre:list[i].genre,proposal:list[i].id,action:"approve",exclude:[]}).then(function(){next(i+1);}).catch(function(){next(i+1);});})(0);};
+ Array.prototype.forEach.call(document.querySelectorAll("#kWaiting .kbtn:not(#kApproveAll)"),function(e){e.onclick=function(){post("/skills-act",{genre:e.getAttribute("data-g"),proposal:e.getAttribute("data-p"),action:e.getAttribute("data-a"),exclude:[]}).then(function(){LAST="";load();});};});
+}
+function load(){
+ Promise.all([fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})]).then(function(a){var sig=JSON.stringify(a);if(sig===LAST)return;LAST=sig;SD=a[0];LD=a[1];renderKit();renderMap();});
+}
+load();setInterval(load,15000);
+})();
+</script>
+<!-- skills-alert:begin -->
+<style>@keyframes sklblink{0%,100%{opacity:1}50%{opacity:.25}}a.skl-new{color:var(--amber,#ffb454)!important;font-weight:700;animation:sklblink 1.1s ease-in-out infinite}</style>
+<script>
+/* Same snippet in all 5 consoles: the SKILLS tab blinks while something waits for you there (lessons or pack updates to approve, or a genre/type to confirm). */
+(function(){
+  var link=document.querySelector('a[href="agent-console-skills.html"]');
+  if(!link||link.classList.contains("on"))return;
+  function check(){
+    Promise.all([
+      fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})
+    ]).then(function(a){
+      var n=(a[0]&&a[0].pending&&a[0].pending.length)||0, gp=!!(a[1]&&a[1].genre_state&&a[1].genre_state.status==="pending");
+      var on=n>0||gp;
+      link.classList.toggle("skl-new",on);
+      link.title=on?((gp?"genre/type to confirm":"")+(gp&&n?" · ":"")+(n?n+" waiting for you":"")):"";
+    });
+  }
+  check();setInterval(check,10000);
+})();
+</script>
+<!-- skills-alert:end -->
 </body>
 </html>

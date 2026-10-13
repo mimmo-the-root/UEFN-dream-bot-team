@@ -109,6 +109,7 @@ Then, before writing code:
    `planner-docs`'s job when a task closes (see its own instructions), so the promotion rule (3
    maps + 1 repeated pattern) is checked in one consistent place, not scattered across every
    `coder` run.
+   When the task is to PLAN or BUILD a map, a mode or a core system of this genre (for example "build a pillars map"), also read `~/.claude/skills/genre/<slug>/references/starter.md`, first its "Map anatomy" section (what such a map is made of, its game loop, devices, rules, build order learned from the owner's maps): propose the layout, devices and rules from it, and say which parts come from the owner's maps and which are new.
 8. If the task involves building or reworking an in-game UI screen (store, shop, missions/quests,
    teleporter, rewards, inventory, HUD panel, or similar menu) read
    `~/.claude/skills/game-ui-designer/SKILL.md` first — it holds the owner's reusable "chunky

@@ -4,19 +4,19 @@
   "_last_verified": "2026-09-22",
   "_maintenance": "Not re-checked every session. Re-check only if a creator reports a missing genre, or periodically (every few weeks).",
   "genres": [
-    { "slug": "survival",            "displayName": "Survival",              "slugSource": "api" },
-    { "slug": "strategy",            "displayName": "Strategy",              "slugSource": "api" },
-    { "slug": "sports-racing",       "displayName": "Sports & Racing",       "slugSource": "api" },
-    { "slug": "simulation-tycoon",   "displayName": "Simulation & Tycoon",   "slugSource": "api" },
-    { "slug": "shooter",             "displayName": "Shooter",               "slugSource": "api" },
-    { "slug": "roleplaying-social",  "displayName": "Roleplaying & Social",  "slugSource": "api" },
-    { "slug": "roguelike",           "displayName": "Roguelike",             "slugSource": "api" },
-    { "slug": "party-mini-games",    "displayName": "Party & Mini Games",    "slugSource": "api" },
-    { "slug": "music-rhythm",        "displayName": "Music & Rhythm",        "slugSource": "api" },
-    { "slug": "horror",              "displayName": "Horror",                "slugSource": "api" },
-    { "slug": "adventure-rpg",       "displayName": "Adventure & RPG",       "slugSource": "docs-inferred" },
-    { "slug": "battle-royale",       "displayName": "Battle Royale",         "slugSource": "docs-inferred" },
-    { "slug": "deathrun-platformer", "displayName": "Deathrun & Platformer", "slugSource": "docs-inferred" }
+    { "slug": "survival",            "displayName": "Survival",              "slugSource": "api", "hint": "gather, craft, build and survive against the environment or enemies; persistent progress inside a session" },
+    { "slug": "strategy",            "displayName": "Strategy",              "slugSource": "api", "hint": "commanding units or resources, base building, tactics; not driven by aiming" },
+    { "slug": "sports-racing",       "displayName": "Sports & Racing",       "slugSource": "api", "hint": "races, checkpoints, vehicles, sports matches" },
+    { "slug": "simulation-tycoon",   "displayName": "Simulation & Tycoon",   "slugSource": "api", "hint": "economy, management, building up something over time" },
+    { "slug": "shooter",             "displayName": "Shooter",               "slugSource": "api", "hint": "gunplay is the core: team deathmatch, gun game, objective shooters" },
+    { "slug": "roleplaying-social",  "displayName": "Roleplaying & Social",  "slugSource": "api", "hint": "hangouts, roleplay, social spaces and activities" },
+    { "slug": "roguelike",           "displayName": "Roguelike",             "slugSource": "api", "hint": "runs that start over, random rooms or loot, permanent unlocks between runs" },
+    { "slug": "party-mini-games",    "displayName": "Party & Mini Games",    "slugSource": "api", "hint": "short rounds (a few minutes), 2-16 players, arenas or mini-games, elimination or score rounds, a lobby or pre-lobby, a winner each round; last-one-standing arenas such as pillars/platforms belong here" },
+    { "slug": "music-rhythm",        "displayName": "Music & Rhythm",        "slugSource": "api", "hint": "music or rhythm is the core mechanic" },
+    { "slug": "horror",              "displayName": "Horror",                "slugSource": "api", "hint": "fear, stalking enemies, dark atmosphere; escape or survive" },
+    { "slug": "adventure-rpg",       "displayName": "Adventure & RPG",       "slugSource": "docs-inferred", "hint": "story, quests, exploration, characters and progression" },
+    { "slug": "battle-royale",       "displayName": "Battle Royale",         "slugSource": "docs-inferred", "hint": "one large map, 50-100 players, loot and shrinking storm, one winner after a long match; NOT a small arena with short rounds" },
+    { "slug": "deathrun-platformer", "displayName": "Deathrun & Platformer", "slugSource": "docs-inferred", "hint": "obstacle courses, traps and platforming to reach the end" }
   ],
   "_slug_source_note": "10 entries have `slugSource: \"api\"` — the exact slug string was confirmed by a real GET /genres response. The 3 marked `slugSource: \"docs-inferred\"` complete the list from Epic's own documentation (display name confirmed there), but their `slug` value was inferred by following the same pattern as the 10 confirmed ones (lowercase, '&' removed, spaces to hyphens) — NOT itself confirmed via a real API response. Before relying on exact string matching against `genreSlug`/`genre` fields returned by the API (e.g. in /islands/{code}/rankings) for these 3, verify with a real capture rather than trusting the inferred slug blindly."
 }

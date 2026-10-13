@@ -25,15 +25,10 @@ try {
     } catch { exit 0 }   # nothing answers: nothing to stop
     if (-not $mine) { exit 0 }
 
-    $lines = netstat -ano | Select-String ":$port\s" | Select-String "LISTENING"
-    foreach ($line in $lines) {
-        $procId = ($line -split '\s+')[-1]
-        if ($procId -match '^\d+$') {
-            $procName = (Get-Process -Id $procId -ErrorAction SilentlyContinue).ProcessName
-            if ($procName -match 'powershell|pwsh|python') {
-                Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
-            }
-        }
+    # The server is a PowerShell HttpListener (port owner = PID 4 System): find it by its command line.
+    $servers = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'agent-console-server' -and $_.ProcessId -ne $PID })
+    foreach ($srv in $servers) {
+        Stop-Process -Id $srv.ProcessId -Force -ErrorAction SilentlyContinue
     }
 } catch {
     # Swallow everything - see the header comment above.

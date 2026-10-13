@@ -75,6 +75,11 @@ except Exception:  # pragma: no cover - missing/broken module must never take th
     skills_lib = None
 PROJECT_DIR = os.path.dirname(os.path.dirname(ROOT))
 SERVER_STARTED_AT = datetime.now(timezone.utc).isoformat()
+try:
+    with open(os.path.join(os.path.dirname(ROOT), "KIT-VERSION"), encoding="utf-8") as _kv:
+        KIT_VERSION_AT_START = _kv.read().strip()
+except OSError:
+    KIT_VERSION_AT_START = ""
 LOGS_DIR = os.path.join(os.path.dirname(ROOT), "logs")
 LOG_FILE = os.path.join(LOGS_DIR, "agent-console.jsonl")
 TOKENS_FILE = os.path.join(LOGS_DIR, "agent-console-tokens.json")
@@ -407,13 +412,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif self.path.startswith("/kit-status"):
             self._send_json_bytes(json.dumps(_kit_status()).encode("utf-8"))
         elif self.path.startswith("/whoami"):
-            self._send_json_bytes(json.dumps({"project": PROJECT_DIR, "started_at": SERVER_STARTED_AT}).encode("utf-8"))
+            self._send_json_bytes(json.dumps({"project": PROJECT_DIR, "started_at": SERVER_STARTED_AT, "kit_version": KIT_VERSION_AT_START}).encode("utf-8"))
         elif self.path.startswith("/island-metrics"):
             self._send_json_bytes(json.dumps(_get_island_metrics()).encode("utf-8"))
         elif self.path.startswith("/island-info"):
             self._send_json_bytes(json.dumps(_get_island_info()).encode("utf-8"))
         elif self.path.startswith("/island-rankings"):
             self._send_json_bytes(json.dumps(_get_island_rankings()).encode("utf-8"))
+        elif self.path.startswith("/learning-data"):
+            # State of the learning of THIS project (steps, blueprint state, log) + genre/type proposal. State files only.
+            try:
+                self._send_json_bytes(json.dumps(skills_lib.console_learning(PROJECT_DIR)).encode("utf-8"))
+            except Exception as e:
+                self._send_json_bytes(json.dumps({"error": "could not read the learning state: %s" % e}).encode("utf-8"))
         elif self.path.startswith("/skills-data"):
             # Real data only, computed from the local genre-skill files by skills_lib.summary().
             if skills_lib is None:
@@ -456,7 +467,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self):
         # Owner decisions on the Skills page: approve / edit / reject a lesson, run the privacy check.
-        if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check")):
+        if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check") or self.path.startswith("/genre-confirm")):
             return self._send_json_status(404, {"ok": False, "error": "unknown endpoint"})
         if not self._origin_ok():
             return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
@@ -465,7 +476,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if n > 65536:
                 return self._send_json_status(413, {"ok": False, "error": "body too large"})
             data = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
-            if self.path.startswith("/skills-check"):
+            if self.path.startswith("/genre-confirm"):
+                res = skills_lib.confirm_genre(PROJECT_DIR, data.get("genre"), data.get("variant"))
+            elif self.path.startswith("/skills-check"):
                 res = skills_lib.check(data.get("genre"))
             else:
                 res = skills_lib.act(data.get("genre"), data.get("proposal"), data.get("action"),

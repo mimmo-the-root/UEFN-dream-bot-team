@@ -38,7 +38,7 @@ private copy of the genre's accumulated knowledge.
    genres confirmed via a real call to `GET /islands/{code}/genres` — don't invent genres not in
    that file). If that file doesn't exist yet, tell the owner it's missing and skip this step
    rather than guessing a list.
-3. Choose the genre YOURSELF, never ask: from the code map (`Claude/docs/map/INDEX.md`), the documents and the project name, pick the single closest `slug` of that list (Epic's API may be unavailable or answer 403 for an unpublished island). Ask the owner only when the project has no code and no documents at all.
+3. Choose the genre YOURSELF, never ask: from the code map (`Claude/docs/map/INDEX.md`), the documents and the project name, pick the single closest `slug` of that list; use each genre's `hint` in that file and choose by the structure of the game (players, round length, lobby), never by a single word, and never invent a genre: a new mechanic is learned inside its genre (Epic's API may be unavailable or answer 403 for an unpublished island). Ask the owner only when the project has no code and no documents at all.
 4. Write the chosen slug (just the slug, one line, no other text) to `Claude/docs/.genre` —
    same pattern as `.island-code` and `.active-task`.
 5. Make sure the genre skill exists and has its layers: run
@@ -172,7 +172,7 @@ If the owner answers in the same conversation, use the answers to populate:
   (rule 13) satisfiable from the very first session instead of the owner having to open tasks one
   by one afterward. Also fill the `## Phases` table from the template (Phase 0 Active, exit criteria as in the
   template: one playtest with up to 3 players) and give the MVP tasks Release `P0-R1`; ideas that are not MVP go to
-  Release `Later` (backlog). Do not plan releases beyond Phase 0 and Phase 1.
+  Release `Later` (backlog). Do not plan releases beyond Phase 0 and Phase 1. EXCEPTION: if `Claude/docs/.island-code` exists the map is already published, so it is not an MVP: Phase 0 Done, Phase 1 Active, tasks in `P1-R1` with Priority High/Medium (never MVP), no owner decision needed to leave Phase 0.
 - `Claude/docs/STATUS.md`: first log entry with "Initial requirements gathered," and the "Current
   state" block filled in (In progress: empty; Planned next: the MVP task list just created;
   Recommended next step: typically "start T-001 with the coder agent" — name the actual first

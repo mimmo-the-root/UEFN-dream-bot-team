@@ -107,6 +107,8 @@ $infoCacheTtlSec = 3600     # 1 hour — island title/tags change rarely
 $rankingsCacheTtlSec = 300  # 5 minutes
 $projectDir = Split-Path -Parent (Split-Path -Parent $root)
 $serverStartedAt = (Get-Date).ToUniversalTime().ToString("o")
+$kitVersionAtStart = ""
+try { $kitVersionAtStart = (Get-Content -LiteralPath (Join-Path (Split-Path -Parent $root) "KIT-VERSION") -Raw -ErrorAction Stop).Trim() } catch {}
 $genreSkillsDir = Join-Path $env:USERPROFILE ".claude\skills\genre"
 $tagsKnownFile = Join-Path $genreSkillsDir "fortnite-tags-known.json"
 
@@ -146,6 +148,7 @@ $State = [hashtable]::Synchronized(@{
     RankingsCacheTtlSec = $rankingsCacheTtlSec
     ProjectDir          = $projectDir
     ServerStartedAt     = $serverStartedAt
+    KitVersion          = $kitVersionAtStart
     TagsKnownFile       = $tagsKnownFile
     # Fortnite API in-memory caches (shared, mutable — same role as the old $script:* variables)
     MetricsMemCache     = $null
@@ -411,7 +414,7 @@ $RequestHandler = {
             $response.ContentLength64 = $bytes.Length
             $response.OutputStream.Write($bytes, 0, $bytes.Length)
         } elseif ($request.Url.AbsolutePath -eq "/whoami") {
-            $json = (@{ project = $State.ProjectDir; started_at = $State.ServerStartedAt } | ConvertTo-Json -Compress)
+            $json = (@{ project = $State.ProjectDir; started_at = $State.ServerStartedAt; kit_version = $State.KitVersion } | ConvertTo-Json -Compress)
             $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
             $response.ContentType = "application/json"
             $response.ContentLength64 = $bytes.Length
@@ -452,7 +455,7 @@ $RequestHandler = {
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)
             }
-        } elseif ($request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check") {
+        } elseif ($request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm") {
             $sk = { param($Lib, $CliArgs)
                 foreach ($cand in @(@("py","-3"), @("python"), @("python3"))) {
                     $exe = Get-Command $cand[0] -ErrorAction SilentlyContinue
@@ -469,6 +472,8 @@ $RequestHandler = {
             $path = $request.Url.AbsolutePath
             if ($path -eq "/skills-data") {
                 $json = & $sk $State.SkillsLibPath @("summary")
+            } elseif ($path -eq "/learning-data") {
+                $json = & $sk $State.SkillsLibPath @("learning", "--project", $State.ProjectDir)
             } else {
                 $origin = $request.Headers["Origin"]
                 $own = "http://" + $request.Url.Authority
@@ -483,6 +488,8 @@ $RequestHandler = {
                         $g = [string]$d.genre
                         if ($path -eq "/skills-check") {
                             $a = @("check"); if ($g) { $a += $g }
+                        } elseif ($path -eq "/genre-confirm") {
+                            $a = @("confirm-genre", $g, "--variant", [string]$d.variant, "--project", $State.ProjectDir)
                         } else {
                             $a = @("act", $g, [string]$d.proposal, [string]$d.action)
                             if ($d.statement) { $a += @("--statement", [string]$d.statement) }

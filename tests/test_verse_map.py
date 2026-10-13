@@ -149,6 +149,8 @@ try:
     open(os.path.join(p2, "Claude", "docs", ".genre"), "w").write("roguelike")
     r = kit_sync.run(p2); assert any("LEARN" in n and "6 Verse file" in n and "first pass" in n for n in r["notes"]), r["notes"]
     run("learned", "--all", "--out", os.path.join(p2, "Claude", "docs", "map"))
+    r = kit_sync.run(p2); assert any("LEARN" in n and "MAP BLUEPRINT" in n for n in r["notes"]), r["notes"]  # code learned, blueprint still missing
+    json.dump({"v": 1}, open(os.path.join(p2, "Claude", "docs", "map", "profile-learned.json"), "w"))
     r = kit_sync.run(p2); assert not any("LEARN" in n for n in r["notes"]), r["notes"]
     # a device-only map (no Verse files at all) still learns from its documents and its devices
     p3 = os.path.join(d, "proj3"); os.makedirs(os.path.join(p3, "Claude", "docs"))
@@ -161,7 +163,19 @@ try:
     open(os.path.join(p3, "Claude", "docs", "map", "DEVICES.md"), "w").write("WIRING-READ: yes\nSETTINGS-READ: yes\nISLAND-CONFIG-READ: yes\n")
     json.dump({"reviewed": [{"file": "Claude/docs/SPEC.md", "note": "ok"}]}, open(os.path.join(p3, "Claude", "docs", "map", "doc-patches.json"), "w"))
     run("docs", "--project", p3, "--out", os.path.join(p3, "Claude", "docs", "map")); run("docsdone", "--all", "--project", p3, "--out", os.path.join(p3, "Claude", "docs", "map"))
+    json.dump({"v": 1}, open(os.path.join(p3, "Claude", "docs", "map", "profile-learned.json"), "w"))
     r = kit_sync.run(p3); assert not any("LEARN" in n for n in r["notes"]), r["notes"]
+    # the blueprint follows development: marker with fingerprint is stale once a document changes
+    m3 = os.path.join(p3, "Claude", "docs", "map")
+    import verse_map
+    json.dump({"v": 1, "fp": verse_map.profile_fingerprint(p3, m3)}, open(os.path.join(m3, "profile-learned.json"), "w"))
+    assert not verse_map.profile_pending(m3, p3)
+    open(os.path.join(p3, "Claude", "docs", "SPEC.md"), "a").write("\nNew rule: 3 laps.\n")
+    assert verse_map.profile_pending(m3, p3), "blueprint must be stale after a document change"
+    # no genre but the project has content (a Verse file or a real SPEC.md): the kit tells the coder to work the genre out, or to create a new one
+    p4 = os.path.join(d, "proj4"); os.makedirs(os.path.join(p4, "src")); os.makedirs(os.path.join(p4, "Claude", "docs"))
+    open(os.path.join(p4, "src", "P.verse"), "w").write("p := class:\n    Run() : void = {}\n")
+    r = kit_sync.run(p4); assert any(n.startswith("GENRE") and "propose-genre" in n and "hint" in n for n in r["notes"]), r["notes"]
     # old map: the .uplugin next to Content lacks EnableVerseAssetReflection -> added once, with BOM/CRLF kept and a backup
     pl = os.path.join(d, "plug"); os.makedirs(os.path.join(pl, "Content", "Claude", "docs"))
     up = os.path.join(pl, "X.uplugin"); open(up, "wb").write(b'\xef\xbb\xbf{\r\n\t"FileVersion": 3,\r\n\t"CanContainContent": true,\r\n\t"CanContainVerse": true\r\n}')

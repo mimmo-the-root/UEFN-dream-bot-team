@@ -303,7 +303,7 @@ def genre_and_inbox(project):
             slug = genre_from_epic(project, skills_lib)
             if slug:
                 notes.append("genre '%s' taken from Epic's ranking of this island and saved in Claude/docs/.genre (edit that file to change it)" % slug)
-        if slug and slug != "epic-template":
+        if slug and slug != "epic-template" and not skills_lib.genre_gate(project):
             try:
                 if not os.path.isfile(os.path.join(skills_lib.gdir(slug), "pack", "patterns.json")):
                     skills_lib.init_genre(slug)
@@ -498,6 +498,14 @@ def _run(project, out):
         out["notes"] += uplugin_flag(project)
     except Exception:
         pass
+    try:
+        sys.path.insert(0, os.path.join(project, "Claude", "hooks"))
+        import skills_lib as _sl
+        m = _sl.sync_profile_from_project(project)
+        if m:
+            out["notes"].append(m)
+    except Exception:
+        pass
     try:  # Verse map at session start: refresh an old map (also after a kit update), or bootstrap a missing one
         import verse_map
         mdir = os.path.join(project, "Claude", "docs", "map")
@@ -516,6 +524,7 @@ def _run(project, out):
         dp = verse_map.docs_pending(project, mdir) if (lr or no_code) else (True, [])
         pend_docs = len(dp[1])
         dev_todo = no_code and verse_map.devices_pending(mdir)
+        prof_todo = bool(genre) and genre != "epic-template" and (has_map or no_code) and verse_map.profile_pending(mdir, project)
         if os.path.isfile(os.path.join(mdir, "meta.json")) or no_code:
             os.makedirs(mdir, exist_ok=True)
             verse_map.write_progress(project, mdir)
@@ -535,19 +544,39 @@ def _run(project, out):
                 out["notes"].append("Kit v%s is active (post-update check done): Verse map %s%s."
                                     % (out.get("version") or "?", "current" if os.path.isfile(os.path.join(mdir, "meta.json")) else "not needed (5 Verse files or fewer)",
                                        (", %d file(s) and %d document(s) to learn" % (pend, pend_docs)) if (pend or pend_docs) else ", nothing to learn"))
-            if not genre and (has_map or os.path.isfile(os.path.join(mdir, "meta.json"))):
-                out["notes"].append("GENRE (do it now, never ask the owner): Claude/docs/.genre is empty and Epic's data may be missing (no island code, unpublished map or API error 403). Work the genre out YOURSELF from the project: read Claude/docs/map/INDEX.md (and SPEC/README if present), pick the closest slug in ~/.claude/skills/genre/fortnite-genres-official.json, write it as one line to Claude/docs/.genre, run `python Claude/hooks/skills_lib.py init <slug>`, then continue with the learning in `.claude/commands/learn-map.md`.")
+            spec = os.path.join(project, "Claude", "docs", "SPEC.md")
+            has_content = has_map or any(True for _ in verse_map.verse_files(project)) or (os.path.isfile(spec) and os.path.getsize(spec) > 1500)
+            if not genre and has_content:
+                out["notes"].append("GENRE (MANDATORY, do it now before answering the owner's first message, never ask): Claude/docs/.genre is empty (Epic's data may be missing: no island code, unpublished map or API error 403). Work the genre out YOURSELF from the project: its Verse files, SPEC.md and other documents, the devices in the level. Pick the closest slug in ~/.claude/skills/genre/fortnite-genres-official.json; "
+                                    "The genre is ALWAYS one slug of that list (it is Epic's own Discover category, never a new one, never a mechanic): choose by the STRUCTURE of the game, using each genre's `hint` in that file: players per match, round length, lobby, how a match ends, not by single words in the documents ('last one standing' or 'elimination' do not make a Battle Royale: Battle Royale is a large map with 50-100 players and a long match; short rounds in an arena with a lobby are Party & Mini Games). When the island configuration is readable (max players, rounds, time limit), use it. A new mechanic such as pillars is learned INSIDE its genre: the core loop and mechanics become patterns of that genre. If the owner corrects the genre or the type on the console, that is final; if he tells you in chat that it is wrong, run `python Claude/hooks/skills_lib.py confirm-genre <right> --variant <type> --project .` (moves the lessons still waiting for approval). Do NOT write .genre or create the genre skill yourself: run `python Claude/hooks/skills_lib.py propose-genre <slug> --variant <map-type> --why \"<the facts that decided it: players, rounds, lobby, key mechanic>\" --project .` (the map type is a short free name for what this map is, e.g. pillars, red-vs-blue, checkpoint-race; reuse a type already known in that genre when it fits). It writes only a PROPOSAL: the owner confirms genre and type on the console (Skills page), and until then nothing is written to the genre skills (`skills_lib.py` tells you GENRE NOT CONFIRMED: lessons are held and the blueprint stays in Claude/docs/map/profile.json; both are saved by themselves when the owner confirms on the console, nothing for you to retry). IP RULE: if the documents (INDEX/SPEC/README/design notes) say the map is a version of the same base game dressed for an IP or franchise, the map TYPE is that IP as a short kebab-case name (the same base game with a different IP = the same genre, a different type); a map with no IP, or the shared base itself, is type `base`. Take it from the documents, never ask the owner in chat; he confirms it on the console. The blueprint of an IP variant records only what DIFFERS from the base (custom devices, rules, numbers) and points to the base blueprint for the rest. Then learn the core loop and the basic mechanics of this map (learn-map.md: the Verse files, the documents including planned design, the devices) so the next session starts from it.")
+            if genre and genre != "epic-template" and (has_map or no_code or any(True for _ in verse_map.verse_files(project))):
+                try:
+                    import skills_lib as _sl2
+                    _gs = _sl2.genre_state(project)
+                    if _gs["status"] == "confirmed" and not _gs["variant"]:
+                        out["notes"].append("TYPE (MANDATORY, before answering the owner's first message, never ask in chat): the genre '%s' is set but this map has no TYPE yet (pillars, red-vs-blue, checkpoint-race...). Decide it from the code, documents and devices (a short free name; reuse a type known in the genre when it fits: `python Claude/hooks/skills_lib.py patterns %s` shows the variants used) and run `python Claude/hooks/skills_lib.py propose-genre %s --variant <type> --why \"<facts>\" --project .` : the owner confirms it on the console (Skills page) before anything is written to the skills. IP RULE: if the documents (INDEX/SPEC/README/design notes) say the map is a version of the same base game dressed for an IP or franchise, the map TYPE is that IP as a short kebab-case name (the same base game with a different IP = the same genre, a different type); a map with no IP, or the shared base itself, is type `base`. Take it from the documents, never ask the owner in chat; he confirms it on the console. The blueprint of an IP variant records only what DIFFERS from the base (custom devices, rules, numbers) and points to the base blueprint for the rest." % (genre, genre, genre))
+                except Exception:
+                    pass
+            if genre and genre != "epic-template" and (has_map or no_code) and not prof_todo:
+                gaps, lessons_due = verse_map.profile_gaps(mdir), verse_map.profile_lessons_due(mdir)
+                st0 = verse_map._read_state(os.path.join(mdir, "profile-learned.json"))
+                if gaps:
+                    verse_map.marker_update(mdir, gap_tries=st0.get("gap_tries", 0) + 1)
+                    out["notes"].append("BLUEPRINT GAPS (MANDATORY, before answering the owner's first message, never ask): the map blueprint (Claude/docs/map/profile.json) lists `unknown` items. Read exactly those through the UEFN MCP (GetDeviceProperties / ListEventBindings / find_actors, the island configuration) when UEFN is connected, write what you read into the matching fields, remove it from `unknown`, and save again with `python Claude/hooks/skills_lib.py profile %s --map \"<name>\" --file Claude/docs/map/profile.json --project .`. What you cannot read stays in `unknown` (never invent a number); if UEFN is not connected do nothing now. This is try %d of 2." % (genre, st0.get("gap_tries", 0) + 1))
+                if lessons_due:
+                    verse_map.marker_update(mdir, lessons_asked=1)
+                    out["notes"].append("LESSONS FROM THIS MAP (MANDATORY once, before answering the owner's first message, never ask): the blueprint of this map is written but no lesson was proposed from it. Queue 3 to 5 GENERAL lessons the blueprint teaches (how this kind of map is built: which devices drive the loop, how they are wired, which numbers worked), no map names or codes, one pattern each: `python Claude/hooks/skills_lib.py patterns %s` shows the wording already used (reuse it to add support), then `python Claude/hooks/skills_lib.py propose %s --variant <map type> --section <section> --condition \"...\" --action \"...\" --statement \"...\" --map \"<name>\"`. The owner approves them on the console. If nothing generalizes, propose none." % (genre, genre, genre))
             nverse = sum(1 for _ in verse_map.verse_files(project)) if no_code else 0
             code_txt = "no Verse files" if not nverse else "only %d Verse file(s), too few for a map: READ THEM COMPLETELY yourself (Read tool) before the documents" % nverse
-            if no_code and (pend_docs or dev_todo):
-                out["notes"].append("LEARN (start now, do not ask the owner first): this map has no Verse code map (%s). Learn from %d project document(s) not read yet%s and from the devices in the level. "
+            if no_code and (pend_docs or dev_todo or prof_todo):
+                out["notes"].append("LEARN (MANDATORY, before answering the owner's first message whatever it is; never ask, never offer it as optional, never skip it because the message was about something else): this map has no Verse code map (%s). Learn from %d project document(s) not read yet%s and from the devices in the level. "
                                     "Follow `.claude/commands/learn-map.md` steps 1, 2, 6 and 7 (skip 3-5): documents first (`verse_map.py docs`, compared with the level and the device map; apply corrections with `docpatch`, record a decision for every document), "
-                                    "then read the wiring and settings of the devices through the MCP and write `Claude/docs/map/DEVICES.md` with the `WIRING-READ:`/`SETTINGS-READ:`/`ISLAND-CONFIG-READ:` lines (the island configuration too: max players, teams, rounds, time limit, spawn mode). Queue generalized patterns with `skills_lib.py propose --section` (devices, architecture, run-loop, ...), "
+                                    "then read the wiring and settings of the devices through the MCP and write `Claude/docs/map/DEVICES.md` with the `WIRING-READ:`/`SETTINGS-READ:`/`ISLAND-CONFIG-READ:` lines (the island configuration too: max players, teams, rounds, time limit, spawn mode). Then write the MAP BLUEPRINT (learn-map step 8): what this map is made of, its game loop, devices, rules and build order, so the genre skill knows how to build such a map. Queue generalized patterns with `skills_lib.py propose --section` (devices, architecture, run-loop, ...), "
                                     "never ask. If the session stops early, unmarked work restarts at the next session start (`Claude/docs/map/PROGRESS.md`)." % (code_txt, pend_docs, " (first pass)" if dp[0] else ""))
-            if (pend or pend_docs) and not no_code:
-                out["notes"].append("LEARN (start now, do not ask the owner first): %d Verse file(s) (complete source) and %d project document(s) not learned yet%s. Follow `.claude/commands/learn-map.md` (planner-docs step 4b): "
+            if (pend or pend_docs or prof_todo) and not no_code:
+                out["notes"].append("LEARN (MANDATORY, before answering the owner's first message whatever it is; never ask, never offer it as optional, never skip it because the message was about something else): %d Verse file(s) (complete source) and %d project document(s) not learned yet%s. Follow `.claude/commands/learn-map.md` (planner-docs step 4b): "
                                     "If the session stops early, nothing is needed: unmarked work is read again at the next start (`Claude/docs/map/PROGRESS.md` lists what is missing). "
-                                    "code first (`verse_map.py learn`, complete sources), then documents (`verse_map.py docs`) compared with the code, then the devices in the level read through the MCP; queue proposals for the owner's approval, report discrepancies, never edit documents."
+                                    "code first (`verse_map.py learn`, complete sources), then documents (`verse_map.py docs`) compared with the code, then the devices in the level read through the MCP, then the MAP BLUEPRINT (learn-map step 8: what the map is made of, game loop, devices, rules, build order); queue proposals for the owner's approval, report discrepancies, never edit documents."
                                     % (pend, pend_docs, " (first pass: whole map and all documentation)" if lr[0] else ""))
     except Exception:
         pass
