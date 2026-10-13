@@ -26,6 +26,7 @@ if ! echo "$STDIN_PAYLOAD" | grep -qiE 'stopgame|stopsession|stop_session|stop_g
   exit 0
 fi
 
+export UEFN_KIT_NO_NUDGE=1   # the headless runs below must not be asked to learn the map
 LOG="Claude/logs/auto-postplaytest-$(date +%Y%m%d-%H%M%S).log"
 
 echo "=== qa-regression (started $(date)) ===" >> "$LOG"

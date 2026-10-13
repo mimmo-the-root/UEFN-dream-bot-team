@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.98.8 — Learning continues in long sessions, security fixes, the console tab opens once
+
+- **Learning continues in a session that stays open for hours.** The learning was only requested at the session start, so a map developed for a whole day kept an out-of-date blueprint until the next launch. New `Stop` hook (`learn-nudge`, no AI tokens when nothing changed): at the end of an answer it checks whether the Verse code, the documents or the device map changed since the kit last learned them and, at most every 30 minutes and twice for the same state, asks Claude to continue with the learning (only what changed is read), then back to your work. It is silent while the genre/type is not confirmed and in the headless post-playtest runs. Existing projects get the hook with the next kit update.
+- **Security: 15 CodeQL path-injection alerts.** They all started at the console's new genre-confirmation button (`/genre-confirm`): the genre sent by the browser reached the file helpers of `skills_lib.py`. `confirm_genre` and `propose_genre` now take the genre from the official list itself, not from the received string (same rule as `resolve_genre`), and refuse when the official list is missing.
+- **The console tab opens once, not at every launch.** The session start opens the browser only when it had to (re)start the console server; a server that is already right keeps the tab you have.
+
 ## v1.98.7 — Skills page rebuilt, genre and map type confirmed by you, IP variants, blueprint that follows your development
 
 - **The console shows all 17 agents.** It listed 15: `coder-prep` and `second-brain-scout` appeared only as temporary "clone" nodes. Now both are in the roster, hanging off the agent that dispatches them; `coder-prep` counts as coder work in the mini-flow and on the Flow page.

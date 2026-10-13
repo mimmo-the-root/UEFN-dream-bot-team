@@ -31,6 +31,7 @@ if (-not $isStopSession) {
 
 $logsDir = Join-Path $projectDir "Claude\logs"
 New-Item -ItemType Directory -Force -Path $logsDir | Out-Null
+$env:UEFN_KIT_NO_NUDGE = "1"   # the headless runs below must not be asked to learn the map
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $log = Join-Path $logsDir "auto-postplaytest-$timestamp.log"
 

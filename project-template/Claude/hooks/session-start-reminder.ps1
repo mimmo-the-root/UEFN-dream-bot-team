@@ -155,14 +155,19 @@ if (Test-Path $consolePath) {
         } catch { Write-StartLog "started new server: not answering yet (500 ms)" }
     }
 
-    try {
-        Start-Process "http://127.0.0.1:$port/"
-    } catch {}
+    # The browser tab is opened only when this start (re)started the server. A server that was already correct
+    # (another session of this project, or a quick relaunch) already has its tab: opening another one every time
+    # piled up console pages.
+    if (-not $alreadyCorrect) {
+        try {
+            Start-Process "http://127.0.0.1:$port/"
+        } catch {}
+    }
 
     $context = @"
 This project's real-time Agent Console has already been started (or, if it was previously
 serving a different project on this same port, restarted) automatically for THIS project, and
-opened in the owner's default browser - no action needed from you and don't ask permission. Just
+opened in the owner's default browser when it had to be (re)started - no action needed from you and don't ask permission. Just
 mention in your first reply that it's live at http://127.0.0.1:$port/ in case the owner closed
 the tab or wants to reopen it. Only touch the console server yourself (stop/restart it) if the
 owner reports a specific problem with it.

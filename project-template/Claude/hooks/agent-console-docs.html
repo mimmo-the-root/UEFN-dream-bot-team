@@ -711,7 +711,7 @@ function groupByRelease(rows){
     if (!groups[rel]) { groups[rel] = []; order.push(rel); }
     groups[rel].push(r);
   });
-  // v1.98.7: releases are shown in delivery order (P0-R1, P1-R1, P1-R2, P2-R1...), not in the order
+  // v1.98.8: releases are shown in delivery order (P0-R1, P1-R1, P1-R2, P2-R1...), not in the order
   // the rows happen to appear in the table; unnamed/other names keep first-seen order after them,
   // "Later" and "(no release set)" always last.
   const key = (name, i) => {
@@ -1184,7 +1184,7 @@ renderBugBacklog();
 pollLiveRail();
 setInterval(pollLiveRail, 2000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.98.7";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.98.8";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

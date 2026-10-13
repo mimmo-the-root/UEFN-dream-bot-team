@@ -79,10 +79,13 @@ fi
 # explicit owner preference (previously this only mentioned the URL). Best-effort: tries the
 # platform opener that's actually present (macOS `open`, Linux `xdg-open`), silently does nothing
 # if neither exists (e.g. a headless box) rather than failing the hook.
-if command -v open >/dev/null 2>&1; then
+# v1.98.8: only when this start (re)started the server; an already-correct server already has its tab.
+if [ "$already_correct" = false ]; then
+  if command -v open >/dev/null 2>&1; then
     open "http://127.0.0.1:$port/" >/dev/null 2>&1 || true
-elif command -v xdg-open >/dev/null 2>&1; then
+  elif command -v xdg-open >/dev/null 2>&1; then
     xdg-open "http://127.0.0.1:$port/" >/dev/null 2>&1 || true
+  fi
 fi
 
 context=$(cat <<EOF

@@ -69,3 +69,12 @@ and look at the branch before deleting it.
 Open a pull request and do **not** merge it. CodeQL runs on the PR; read the "Code scanning results"
 check. After the merge the scan runs on `main` and old alerts close by themselves (Security -> Code
 scanning shows `0 Open`).
+
+## 9. Every new endpoint is a new source (v1.98.8)
+
+The 1.98.x "confirm genre" button added `POST /genre-confirm`, and 15 alerts appeared at once in the file helpers
+(`_read_json`, `_write_json`, `render_starter`...). "Show paths" on any of them listed the same first steps:
+`data.get("genre")` in `agent-console-server.py` -> `confirm_genre(slug)` -> `_slug(slug)` (a regex: not a sanitizer for
+the scanner) -> `init_genre` -> the file helpers. Same fix as lesson 1: `_official_slug()` returns the slug **from the
+official list**, so the value reaching the paths is not request data. When you add an endpoint, route its text through a
+listing lookup before it goes anywhere near a path.

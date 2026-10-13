@@ -865,11 +865,20 @@ def _official_genres():
     return [{"slug": g.get("slug"), "name": g.get("name") or g.get("slug")} for g in d.get("genres", []) if g.get("slug")]
 
 
+def _official_slug(value):
+    """A genre slug taken from the OFFICIAL list itself, never from the caller's string (same idea as resolve_genre):
+    request data can then not steer a file path. None when the value is not on the list."""
+    if isinstance(value, str):
+        for g in _official_genres():
+            if g["slug"] == value:
+                return _slug(g["slug"])
+    return None
+
+
 def propose_genre(project, slug, variant, why=""):
     """The kit's own deduction of genre + map type. Written to the project only (genre-proposal.json and .genre); the genre skill is not touched until the owner confirms."""
-    slug = _slug(slug)
-    names = {g["slug"] for g in _official_genres()}
-    if names and slug not in names:
+    slug = _official_slug(slug)
+    if slug is None:
         return {"ok": False, "error": "genre must be one slug of the official list (fortnite-genres-official.json)"}
     variant = _variant_name(variant)
     if not variant:
@@ -955,9 +964,8 @@ def _flush_held(project, slug):
 
 def confirm_genre(project, slug, variant):
     """Owner decision from the console: genre and map type are right (or corrected). Only now the genre skill is created / retargeted."""
-    slug = _slug(slug)
-    names = {g["slug"] for g in _official_genres()}
-    if names and slug not in names:
+    slug = _official_slug(slug)
+    if slug is None:
         return {"ok": False, "error": "genre must be one of the official genres"}
     variant = _variant_name(variant)
     if not variant:
