@@ -2,9 +2,39 @@
   "title": "Dream Bot Team for UEFN: the manual",
   "intro": "A team of AI agents for your UEFN maps, a console to watch them work, and a kit that learns from every map you build. Start with the 15-minute quick start, or jump to the chapter you need.",
   "parts": [
-    {"title": "Part 1 · Start here", "chapters": ["welcome", "quick-start"]},
-    {"title": "Part 2 · Use it every day", "chapters": ["your-team", "the-console", "skills-and-lessons", "community"]},
-    {"title": "Part 3 · When something is wrong", "chapters": ["troubleshooting"]}
+    {
+      "title": "Part 1 \u00b7 Start here",
+      "chapters": [
+        "welcome",
+        "quick-start",
+        "install"
+      ]
+    },
+    {
+      "title": "Part 2 \u00b7 Use it every day",
+      "chapters": [
+        "your-team",
+        "daily-work",
+        "the-console",
+        "skills-and-lessons",
+        "skill-catalog",
+        "community"
+      ]
+    },
+    {
+      "title": "Part 3 \u00b7 When something is wrong",
+      "chapters": [
+        "troubleshooting",
+        "faq"
+      ]
+    },
+    {
+      "title": "Part 4 \u00b7 Reference",
+      "chapters": [
+        "glossary",
+        "about"
+      ]
+    }
   ],
   "summaries": {
     "welcome": "What the kit is, what it does for you, what it does not do.",
@@ -13,6 +43,12 @@
     "the-console": "The six pages of the local console, one by one.",
     "skills-and-lessons": "How the kit learns from your maps and what you approve.",
     "community": "Share a lesson, get everyone's: how it works and what stays private.",
-    "troubleshooting": "Updates, the doctor, and the most common problems."
+    "troubleshooting": "Updates, the doctor, and the most common problems.",
+    "install": "Everything the quick start leaves out: plugins, upgrades, updating a project safely.",
+    "daily-work": "Calling agents, the plan-first flow, the base rules and what runs after a playtest.",
+    "skill-catalog": "Every skill, what it does and when it is used.",
+    "faq": "Short answers to the questions people ask first.",
+    "glossary": "The words this manual uses.",
+    "about": "Who made the kit, how to follow along, the license."
   }
 }

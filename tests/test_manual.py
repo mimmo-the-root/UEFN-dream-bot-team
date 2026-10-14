@@ -28,9 +28,34 @@ for page in ("agent-console.html", "agent-console-stats.html", "agent-console-do
     m = re.search(r'href="/manual/([a-z-]+\.html)(#[^"]*)?" data-manual-help', t)
     ok(m is not None, "%s links to its manual chapter" % page)
     ok(m.group(1) in os.listdir(man) and (not m.group(2) or 'id="%s"' % m.group(2)[1:] in rd(os.path.join(man, m.group(1)))), "%s: the help link target exists" % page)
+    ok('class="kit-logo"' in t and 'rel="icon"' in t, "%s shows the logo and has a tab icon" % page)
     ok("github.com/mimmo-the-root/UEFN-dream-bot-team" in t and "MIT License" in t and "x.com/mimmo_the_root" in t, "%s carries the repo, MIT and author footer" % page)
 ps1 = rd(os.path.join(hooks, "agent-console-server.ps1"))
 ok("/manual" in ps1 and "manualDir" in ps1, "the PowerShell server routes /manual")
+
+# alignment: the manual must keep up with the kit (a new agent, skill or console page without a mention fails here)
+srcdir = os.path.join(root, "docs", "manual")
+md = lambda n: rd(os.path.join(srcdir, n + ".md"))
+agents = sorted(f[:-3] for f in os.listdir(os.path.join(root, "user-level-agents")) if f.endswith(".md"))
+team = md("your-team")
+ok(all("`%s`" % a in team or "**%s**" % a in team or a in team for a in agents), "every agent is described in Your team (%d agents)" % len(agents))
+ok(len(agents) == 17 and "17 agents" in md("quick-start") and "17 agents" in rd(os.path.join(srcdir, "manual.json")), "the manual says 17 agents, and there are %d" % len(agents))
+skills = sorted(d for d in os.listdir(os.path.join(root, "user-level-skills")) if os.path.isdir(os.path.join(root, "user-level-skills", d)))
+cat = md("skill-catalog") + md("skills-and-lessons")
+ok(all(sk in cat for sk in skills), "every user-level skill is in the Skills catalog")
+con = md("the-console")
+ok(all(("## " + n) in con for n in ("Console", "Stats", "Docs", "Flow", "Skills", "What's new")), "every console page has a section in The console")
+for f in sorted(os.listdir(srcdir)):
+    if f.endswith(".md"):
+        for img in re.findall(r"!\[[^\]]*\]\(([^)]+)\)", md(f[:-3])):
+            ok(os.path.isfile(os.path.join(srcdir, "images", img)), "%s: image %s exists" % (f, img))
+for f in os.listdir(os.path.join(srcdir, "images")):
+    ok(os.path.getsize(os.path.join(srcdir, "images", f)) < 400 * 1024, "images/%s stays under 400 KB (it ships to every project)" % f)
+
+pg = rd(os.path.join(root, ".github", "workflows", "pages.yml"))
+ok("deploy-pages" in pg and "build_manual.py --check" in pg and "Back to the console" in pg, "the GitHub Pages workflow checks the build and publishes the manual without the local-console link")
+sg = rd(os.path.join(root, "SETUP-GUIDE.md"))
+ok(len(sg.splitlines()) < 40 and "github.io/UEFN-dream-bot-team" in sg, "SETUP-GUIDE.md stays a short pointer to the manual")
 
 port = 18700 + os.getpid() % 200
 p = subprocess.Popen([sys.executable, os.path.join(hooks, "agent-console-server.py"), str(port)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -50,6 +75,7 @@ try:
     ok(s == 200 and "text/html" in ct and b"the manual" in body, "GET /manual/ serves the index")
     s, ct, _ = get("/manual/manual.css"); ok(s == 200 and "text/css" in ct, "GET /manual/manual.css serves the stylesheet")
     ok(get("/manual/your-team.html")[0] == 200, "GET a chapter works")
+    s, ct, body = get("/manual/shot-console.png"); ok(s == 200 and ct == "image/png" and body[:4] == b"\x89PNG", "GET a screenshot serves a PNG")
     ok(get("/manual/..%2Fagent-console-server.py")[0] == 404 and get("/manual/../agent-console-server.py")[0] in (404, 400), "path traversal is refused")
     ok(get("/manual/nothing.html")[0] == 404, "an unknown page is a 404")
 finally:

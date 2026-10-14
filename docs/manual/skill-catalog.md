@@ -1,0 +1,46 @@
+# Skills catalog
+
+Skills are small folders of knowledge that Claude reads only when the task needs them. Each has a short description (so Claude knows when it is relevant without loading it), a dense body, and a `references/` folder for detail that is loaded on demand. That keeps your sessions cheap. For the skills that learn from your own maps, read [Skills and lessons](ch:skills-and-lessons).
+
+## Building the map
+
+| Skill | What it gives you |
+|---|---|
+| `verse-patterns` | Reusable Verse idioms: state machines, multiplayer authority, central logging and timers, item pools, round progression. The coder reads the matching file before it writes a common pattern from scratch. |
+| `uefn-device-gotchas` | Quirks of individual device types: DemoDisplay sizing and orientation, Elimination Manager and Item Granter timing, Storm Controller and Player Spawner placement. |
+| `uefn-lessons` | Verse, UEFN and MCP mistakes seen across all your projects. Read before writing or debugging Verse, and extended when something non-obvious is found. |
+| `mcp-tool-contracts` | One table of "what I want to do through the MCP server" and "the exact tool that works for it". The coder, QA and bootstrap agents all use it instead of each describing the check in their own words. |
+| `performance-uefn-checklist` | The short checklist the bootstrap runs in its static review and QA uses when it watches frame rate. |
+| `brand-collections-uefn` | Recognises which official Fortnite collection (TMNT, LEGO, Fall Guys and others) a project is built on, and how to record markers for a new one. |
+| `game-ui-designer` | A style guide for in-game screens such as shops, missions or teleporters. Still a draft that grows as you add reference examples. |
+| `genre` | Your genre skills, filled from your real maps. See [Skills and lessons](ch:skills-and-lessons). |
+
+## Keeping token use down
+
+| Skill | What it gives you |
+|---|---|
+| `token-aware-coding` | Habits for any agent: targeted search instead of reading a whole file, precise file mentions, not re-reading what is already in context. |
+| `second-brain-query` | Rules for asking the second brain narrowly, so an answer stays short. |
+| `discover-retention` | The facts about the signals Discover uses (bounce rate, QPTR and others) plus a log of retention ideas tried and what happened. |
+
+## Growing the map
+
+These eight skills are about what happens once the map exists: being found, clicked, played longer and visited again. You do not need to know their names. Talk to **growth-manager** in plain words (*help me plan the launch*, *why is my CTR low*, *write a thumbnail for this map*) and it picks one skill or chains several in a sensible order. You can also name a skill yourself: *use the fortnite-thumbnail-pro skill for this*.
+
+| Skill | When it is used |
+|---|---|
+| `fortnite-analytics-coach` | You paste Creator Portal numbers (CTR, playtime, day 1 and day 7 retention, CCU) or ask for a performance read. It returns a prioritised plan. |
+| `fortnite-competitor-analyzer` | You ask what works in your genre. It studies top maps from public trackers and finds where you can stand out. |
+| `fortnite-marketing-launch` | You are about to launch, or want to push a live map. A pre-launch, launch and post-launch plan with a content calendar. |
+| `fortnite-retention-gamedesign` | Players leave too early. Design-level fixes for onboarding, the core loop, progression and pacing. |
+| `fortnite-social-trailer` | Trailer scripts, short-video hooks and captions built around a strong first second. |
+| `fortnite-thumbnail-pro` | Thumbnail concepts and generation prompts that respect Epic's rules (1920x1080, no clickbait). |
+| `fortnite-title-description` | The whole publishing package: title, description, genre, four tags and three how-to-play lines, with character counts checked, plus a community blog text. |
+| `fortnite-update-writer` | Patch notes, short Discord versions and announcements that make players want to come back. |
+| `fortnite-growth-lessons` | The shared record of what really worked or flopped in growth work. Read before the eight above, and extended when a real result is known. |
+
+> **Note** `growth-manager` does not touch Verse or devices and never writes `STATUS.md`, `ROADMAP.md` or `BUGS.md`.
+
+## Where they live
+
+User-level skills are installed in `~/.claude/skills/<name>/`. The kit does not delete skills you added yourself. A project can override any agent by putting an agent with the same name in its own `.claude/agents/` folder; the project's version wins, only there.

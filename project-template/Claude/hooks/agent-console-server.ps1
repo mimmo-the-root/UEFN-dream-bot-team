@@ -524,12 +524,12 @@ $RequestHandler = {
             $response.StatusCode = 302
             $response.Headers.Add("Location", "/manual/")
         } elseif ($request.Url.AbsolutePath.StartsWith("/manual/")) {
-            # only plain chapter names (a-z, 0-9, dash) with .html or .css, read from the manual folder: no path can climb out of it
+            # only plain chapter names (a-z, 0-9, dash) with .html, .css or .png, read from the manual folder: no path can climb out of it
             $mp = $request.Url.AbsolutePath
             if ($mp -eq "/manual/") { $mp = "/manual/index.html" }
-            if ($mp -cmatch '^/manual/([a-z0-9-]+\.(html|css))$' -and (Test-Path (Join-Path $State.ManualDir $Matches[1]))) {
+            if ($mp -cmatch '^/manual/([a-z0-9-]+\.(html|css|png))$' -and (Test-Path (Join-Path $State.ManualDir $Matches[1]))) {
                 $bytes = [System.IO.File]::ReadAllBytes((Join-Path $State.ManualDir $Matches[1]))
-                $response.ContentType = $(if ($Matches[2] -eq "css") { "text/css; charset=utf-8" } else { "text/html; charset=utf-8" })
+                $response.ContentType = $(if ($Matches[2] -eq "css") { "text/css; charset=utf-8" } elseif ($Matches[2] -eq "png") { "image/png" } else { "text/html; charset=utf-8" })
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)
             } else {

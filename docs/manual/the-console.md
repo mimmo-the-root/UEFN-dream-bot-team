@@ -17,6 +17,8 @@ The live view. Seventeen agents sit on a ring around the chief of staff, which i
 
 The long explanation of every animation is folded under **How to read this page**.
 
+![The Console page while a task runs (demo data)](shot-console.png)
+
 ## Stats
 
 Real numbers from Epic's public data about your island: plays, unique players, minutes played, minutes per player, favorites, recommends, peak players and day-1 and day-7 retention, over the last 7 days. Click a tile to see its chart.
@@ -30,6 +32,8 @@ The project's own documents, read from `Claude/docs/`: spec, status, roadmap, bu
 ## Flow
 
 The whole pipeline: every agent and every hand-off, end to end, as an assembly line. Use it to see which agent comes after which.
+
+![The Flow page (demo data)](shot-flow.png)
 
 ## Skills
 

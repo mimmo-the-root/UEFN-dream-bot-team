@@ -9,17 +9,18 @@ Output : project-template/Claude/hooks/manual/  (index.html, <slug>.html, manual
 No dependencies, no JavaScript, no external fonts or scripts: the pages work offline and from file://.
 Markdown subset: # title, ## / ### headings, paragraphs, - lists, 1. steps, > callouts
 (first word in bold = Note, Tip, Warning or Checkpoint), | tables, ``` code ```, `code`, **bold**,
-*italic*, [text](url), [text](ch:slug#anchor) for a link to another chapter, ![alt](file).
+*italic*, [text](url), [text](ch:slug#anchor) for a link to another chapter, ![alt](name.png) for a screenshot kept in docs/manual/images/.
 Raw HTML in the sources is escaped, never passed through.
 
     python tool/build_manual.py            build into the kit
     python tool/build_manual.py --check    exit 1 if the committed output is out of date
 """
-import html, json, os, re, shutil, sys, tempfile
+import base64, html, json, os, re, shutil, sys, tempfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SRC = os.path.join(ROOT, "docs", "manual")
 OUT = os.path.join(ROOT, "project-template", "Claude", "hooks", "manual")
+ICON = os.path.join(ROOT, "docs", "images", "icon-48.png")
 REPO = "https://github.com/mimmo-the-root/UEFN-dream-bot-team"
 X_URL = "https://x.com/mimmo_the_root"
 SLUG_RE = re.compile(r"[a-z0-9-]+")
@@ -186,7 +187,8 @@ def rail(cfg, titles, current, ver):
                 num += 1
                 out.append('<a class="rail-link%s" href="%s.html"><span class="rail-n">%02d</span>%s</a>' % (" on" if slug == current else "", slug, num, esc(titles[slug])))
         return "\n".join(out)
-    brand = '<div class="rail-brand">Dream Bot Team<small>Manual &middot; kit v%s</small></div>' % esc(ver)
+    icon = icon_b64()
+    brand = '<div class="rail-brand"><img src="data:image/png;base64,%s" alt="" width="26" height="26">Dream Bot Team<small>Manual &middot; kit v%s</small></div>' % (icon, esc(ver))
     return ('<nav class="rail rail-w" aria-label="Chapters">%s%s</nav>' % (brand, links("w")) +
             '<details class="rail rail-m"><summary>Chapters</summary>%s</details>' % links("m"))
 
@@ -197,10 +199,15 @@ FOOT = ('<footer class="foot">Dream Bot Team for UEFN &middot; <a href="%s" targ
         '<a href="../agent-console.html">Back to the console</a></footer>') % (REPO, REPO, X_URL)
 
 
+def icon_b64():
+    with open(ICON, "rb") as fh:
+        return base64.b64encode(fh.read()).decode()
+
+
 def page(cfg, titles, current, ver, inner_title, inner):
     return ('<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            '<title>%s &middot; Dream Bot Team Manual</title><link rel="stylesheet" href="manual.css"></head><body>'
-            '<div class="shell">%s<main class="page">%s%s</main></div></body></html>\n') % (esc(inner_title), rail(cfg, titles, current, ver), inner, FOOT)
+            '<title>%s &middot; Dream Bot Team Manual</title><link rel="icon" href="data:image/png;base64,%s"><link rel="stylesheet" href="manual.css"></head><body>'
+            '<div class="shell">%s<main class="page">%s%s</main></div></body></html>\n') % (esc(inner_title), icon_b64(), rail(cfg, titles, current, ver), inner, FOOT)
 
 
 def build(out_dir):
@@ -214,12 +221,16 @@ def build(out_dir):
         conv[slug] = (t, lede, body, heads)
         titles[slug] = t
     os.makedirs(out_dir, exist_ok=True)
-    keep = set(["index.html", "manual.css"] + [slug + ".html" for slug in order])
+    shots = sorted(f for f in os.listdir(os.path.join(SRC, "images"))) if os.path.isdir(os.path.join(SRC, "images")) else []
+    for f in shots:
+        if not re.fullmatch(r"[a-z0-9-]+\.png", f):
+            raise ValueError("images/%s: use lowercase letters, digits and dashes, and .png" % f)
+    keep = set(["index.html", "manual.css"] + [slug + ".html" for slug in order] + shots)
     for f in os.listdir(out_dir):  # a chapter that was removed or renamed must not linger; files that stay are simply overwritten below
-        if f.endswith((".html", ".css")) and f not in keep:
+        if f.endswith((".html", ".css", ".png")) and f not in keep:
             os.remove(os.path.join(out_dir, f))
     # home
-    home = ['<div class="crumb">Manual</div><h1>%s</h1><p class="lede">%s</p>' % (esc(cfg.get("title", "Manual")), esc(cfg.get("intro", "")))]
+    home = ['<img class="hero" src="logo.png" alt="Dream Bot Team: build, innovate, inspire" width="720" height="483"><div class="crumb">Manual</div><h1>%s</h1><p class="lede">%s</p>' % (esc(cfg.get("title", "Manual")), esc(cfg.get("intro", "")))]
     num = 0
     for part in cfg["parts"]:
         home.append('<h2>%s</h2><div class="toc">' % esc(part["title"]))
@@ -240,6 +251,8 @@ def build(out_dir):
         with open(os.path.join(out_dir, slug + ".html"), "w", encoding="utf-8", newline="\n") as f:
             f.write(page(cfg, titles, slug, ver, t, inner))
     shutil.copyfile(os.path.join(SRC, "manual.css"), os.path.join(out_dir, "manual.css"))
+    for f in shots:
+        shutil.copyfile(os.path.join(SRC, "images", f), os.path.join(out_dir, f))
     return order
 
 

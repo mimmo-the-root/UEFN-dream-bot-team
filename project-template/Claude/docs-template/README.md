@@ -6,8 +6,8 @@ copies these into the project's real `Claude/docs/` folder **once**, the first t
 set up — and only if `Claude/docs/` doesn't already exist.
 
 **This is what makes it safe to bulk-copy `project-template/`'s update-safe parts over an existing
-project to pick up a new kit version** (see SETUP-GUIDE.md's "Updating an existing project"
-section): `docs-template/` never holds a project's real progress, so overwriting it changes
+project to pick up a new kit version** (see the manual's chapter "Full installation",
+section "Updating a project"): `docs-template/` never holds a project's real progress, so overwriting it changes
 nothing that matters — the project's actual `Claude/docs/` (with its real SPEC/STATUS/ROADMAP/
 BUGS/RETENTION-NOTES/RELEASE-READINESS content) lives at a different path and a kit update never
 touches it.

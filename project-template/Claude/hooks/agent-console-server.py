@@ -68,7 +68,7 @@ FLOW_HTML_PATH = os.path.join(ROOT, "agent-console-flow.html")
 SKILLS_HTML_PATH = os.path.join(ROOT, "agent-console-skills.html")
 NEWS_HTML_PATH = os.path.join(ROOT, "agent-console-news.html")
 MANUAL_DIR = os.path.join(ROOT, "manual")  # the HTML manual (v1.100): /manual/ and /manual/<chapter>.html
-MANUAL_FILE_RE = re.compile(r"/manual/([a-z0-9-]+\.(?:html|css))")
+MANUAL_FILE_RE = re.compile(r"/manual/([a-z0-9-]+\.(?:html|css|png))")
 # Skill Harness (v1.81+): the Skills page reads/writes the genre skills under ~/.claude/skills/genre
 # through skills_lib.py (same folder). If the module is missing the rest of the console still works.
 try:
@@ -507,7 +507,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._send_json_status(400, {"ok": False, "error": str(e)})
 
     def _serve_manual(self):
-        # Only plain chapter names (a-z, 0-9, dash) with .html or .css, read from the manual folder: no path can climb out of it.
+        # Only plain chapter names (a-z, 0-9, dash) with .html, .css or .png, read from the manual folder: no path can climb out of it.
         path = self.path.split("?", 1)[0].split("#", 1)[0]
         if path == "/manual":
             self.send_response(302)
@@ -525,7 +525,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         with open(target, "rb") as f:
             body = f.read()
         self.send_response(200)
-        self.send_header("Content-Type", "text/css; charset=utf-8" if target.endswith(".css") else "text/html; charset=utf-8")
+        self.send_header("Content-Type", "text/css; charset=utf-8" if target.endswith(".css") else "image/png" if target.endswith(".png") else "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)

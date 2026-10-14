@@ -8,7 +8,7 @@ suggest deleting it, but don't do it without asking).
 
 **Safe to re-run**: every step here is written to be idempotent — running it again after a kit
 update (once the update-safe files from `project-template/` have been copied over, see
-SETUP-GUIDE.md's "Updating an existing project" section) does nothing destructive: step 3 only
+the manual's chapter "Full installation", section "Updating a project") does nothing destructive: step 3 only
 fills in `<AUTO_PROJECT_NAME>` if it's still the placeholder, step 3b only seeds `Claude/docs/` if
 it doesn't already exist. Never delete or overwrite an existing `Claude/docs/` or a `CLAUDE.md`
 that already has real content, here or anywhere else in this kit.

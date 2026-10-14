@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/logo.jpg" alt="Dream Bot Team: build, innovate, inspire" width="640"></p>
+
 # UEFN Dream Bot Team
 
 A Claude Code multi-agent starter kit for building UEFN (Unreal Editor for Fortnite) experiences —
@@ -6,6 +8,8 @@ trying to do everything and stepping on its own toes.
 
 Built by someone juggling ~50 UEFN islands at once. Free, fully documented, works for one island or
 fifty.
+
+**[Read the manual](https://mimmo-the-root.github.io/UEFN-dream-bot-team/)**: quick start, the team, the console, troubleshooting.
 
 ## Screenshots
 
@@ -142,9 +146,11 @@ Full details for every version in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Getting started
 
-Read [`SETUP-GUIDE.md`](SETUP-GUIDE.md) first — it covers both setup phases (once per machine, then
-once per project), explains what each agent does and why, and has a troubleshooting section for the
-Agent Console and the MCP connection. Setup is deliberately manual in a few places rather than a
+Read **[the manual](https://mimmo-the-root.github.io/UEFN-dream-bot-team/)** first. It has a
+15-minute quick start, the full setup (once per machine, then once per project), who does what in
+the team, the console page by page, and troubleshooting. The same manual is built into the kit:
+open `http://127.0.0.1:8765/manual/` while the console server runs. Its source is in
+[`docs/manual/`](docs/manual). Setup is deliberately manual in a few places rather than a
 one-click script, so you see exactly what's being installed.
 
 Full version history is in [`CHANGELOG.md`](CHANGELOG.md).
@@ -159,7 +165,8 @@ user-level-memory/       Base rules loaded in every session, installed into ~/.c
 user-level-skills/       Shared skills (uefn-lessons, mcp-tool-contracts, and others),
                          installed once into ~/.claude/skills/
 second-brain-template/   Optional Obsidian vault template for the second-brain integration
-SETUP-GUIDE.md           Full setup instructions and troubleshooting
+docs/manual/             The manual (Markdown sources, built into the kit and published on GitHub Pages)
+SETUP-GUIDE.md           Pointer to the manual
 CHANGELOG.md             Version history
 ```
 

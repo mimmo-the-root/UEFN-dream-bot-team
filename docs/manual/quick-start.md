@@ -2,7 +2,7 @@
 
 From nothing to a first working session. Do part A once per computer and part B once per project.
 
-This page is the short path. The repository keeps the long version, with every optional step, in [SETUP-GUIDE.md](https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/SETUP-GUIDE.md).
+This page is the short path. [Full installation](ch:install) has the long version, with every optional step.
 
 ## Part A: once per computer
 

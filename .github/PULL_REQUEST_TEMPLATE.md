@@ -17,4 +17,4 @@
 - [ ] `CHANGELOG.md` updated (for user-visible changes)
 - [ ] PowerShell and Python console servers kept in sync (if touched)
 - [ ] No private data committed (`local/` genre layer, keys, tokens, third-party screenshots)
-- [ ] Docs updated (`README.md` / `SETUP-GUIDE.md`) if behavior changed
+- [ ] Docs updated (`README.md` / `docs/manual/`) if behavior changed

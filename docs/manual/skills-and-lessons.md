@@ -43,3 +43,5 @@ Your map names, task ids, notes and evidence stay in a private layer called `loc
 ## Where to find it
 
 On the **Skills** page of the [console](ch:the-console). The SKILLS tab of every console page blinks while a lesson, a pack update or a genre confirmation waits for you.
+
+![The Skills page (demo data)](shot-skills.png)

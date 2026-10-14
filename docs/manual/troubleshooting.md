@@ -52,7 +52,7 @@ The UEFN server listens on `http://127.0.0.1:8000/mcp` by default. Go in this or
 
 ## There are two files called settings.json
 
-They are different and must never be merged by hand. `~/.claude/settings.json` is yours: Claude Code's own preferences. `<project>/.claude/settings.json` belongs to that project: the kit's hooks and permissions. Claude Code reads both and combines them.
+They are different and must never be merged by hand. `~/.claude/settings.json` is yours: Claude Code's own preferences. `<project>/.claude/settings.json` belongs to that project: the kit's hooks and permissions. Claude Code reads both and combines them. The full table is in [Full installation](ch:install#two-files-called-settings-json).
 
 ## The What's new page is empty
 

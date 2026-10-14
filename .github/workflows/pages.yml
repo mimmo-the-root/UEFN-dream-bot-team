@@ -1,0 +1,48 @@
+name: manual (GitHub Pages)
+# Publishes the HTML manual, the same files the kit ships in Claude/hooks/manual, at
+# https://<owner>.github.io/<repo>/ . One-time setting: Settings > Pages > Source: GitHub Actions.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/manual/**"
+      - "project-template/Claude/hooks/manual/**"
+      - "project-template/Claude/KIT-VERSION"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: The shipped manual must match its sources
+        run: python tool/build_manual.py --check
+      - name: Copy the site; drop the link that only works from the local console
+        run: |
+          mkdir _site
+          cp project-template/Claude/hooks/manual/* _site/
+          sed -i 's# *<a href="../agent-console.html">Back to the console</a>##' _site/*.html
+          if grep -l "agent-console.html" _site/*.html; then echo "a local-console link is left in the public copy"; exit 1; fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

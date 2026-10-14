@@ -17,6 +17,8 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .rail-w{position:sticky;top:0;align-self:start;height:100vh;overflow:auto}
 .rail-m{display:none}
 .rail-brand{font-family:var(--display);font-size:20px;font-weight:700;line-height:1.2;margin:0 6px 16px}
+.rail-brand img{vertical-align:middle;margin-right:8px;border-radius:6px}
+.hero{display:block;width:100%;max-width:560px;height:auto;margin:0 0 22px}
 .rail-brand small{display:block;font-family:var(--body);font-weight:400;font-size:12px;color:var(--mute);margin-top:4px}
 .rail-home,.rail-link{display:block;padding:6px 8px;border-radius:6px;color:var(--ink)}
 .rail-home:hover,.rail-link:hover{background:var(--blue-soft);text-decoration:none}

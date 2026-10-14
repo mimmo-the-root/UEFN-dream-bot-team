@@ -30,7 +30,7 @@ you browse yourself in Obsidian, and that the kit's agents read and write to whe
      `output/` too if anything looks off later — Explorer's view can be stale or misleading in
      ways a directory listing isn't.
 4. Note the vault's full absolute path — you'll need it for the kit-side setup step below (see
-   the main `SETUP-GUIDE.md`, Phase 1). The kit has no default vault location: you choose it
+   the manual, chapter "Full installation"). The kit has no default vault location: you choose it
    (for example `C:\path\to\your\vault`).
 5. **Optional but recommended**: install the community `obsidian-skills` Claude Code plugin
    marketplace (by kepano, an Obsidian team member) — a set of skills that teach Claude Code

@@ -1,7 +1,7 @@
 <!-- SEED FILE, not update-safe: this becomes the project's own live CLAUDE.md the first time
      Phase 2 setup runs (Project identity, Conventions get filled in below). A kit update must
-     NEVER re-copy this file over an existing project's CLAUDE.md — see SETUP-GUIDE.md's
-     "Updating an existing project" section for exactly what is and isn't safe to bulk-copy. -->
+     NEVER re-copy this file over an existing project's CLAUDE.md — see the manual's chapter "Full installation",
+     section "Updating a project", for exactly what is and isn't safe to bulk-copy. -->
 
 # <AUTO_PROJECT_NAME>
 
@@ -130,7 +130,7 @@ with the real assets and project:
   explicit "analyze this" request required.
 - **Agent Console (if `Claude/hooks/agent-console.html` exists in this project)**: this normally
   starts itself automatically via the `SessionStart` hook (`session-start-reminder.ps1`/`.sh`,
-  see `SETUP-GUIDE.md` section 5b) before your first reply — don't ask permission, it's already
+  see the manual, chapter "The console") before your first reply — don't ask permission, it's already
   handled. Use this fallback ONLY if that hook's context note didn't reach you (e.g. an older
   Claude Code build that doesn't support hook `additionalContext`): check whether a server is
   already correctly serving THIS project by requesting `http://127.0.0.1:8765/whoami` and

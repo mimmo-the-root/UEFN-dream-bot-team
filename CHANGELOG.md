@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.101.0 — The manual, complete
+
+- **Thirteen chapters.** New: Full installation (plugins, upgrades, updating a project safely), A working day (calling agents, plan-first, base rules, what runs after a playtest), Skills catalog, Questions and answers, Glossary, About. The long setup guide's useful content now lives here, kept up to date.
+- **Screenshots** of the Console, Flow and Skills pages (demo data) in the manual. The console servers now also serve the manual's `.png` files.
+- **Public copy on GitHub Pages:** `https://mimmo-the-root.github.io/UEFN-dream-bot-team/`. A workflow publishes it after every change to the manual (one-time: Settings, Pages, Source: GitHub Actions).
+- **`SETUP-GUIDE.md` is now a short pointer** to the manual; the old long guide stays in the history at v1.100.0. README and issue links point to the manual.
+- **The project logo** is on top of the README and the manual home, and every console page shows its emblem next to the title and as the browser tab icon (embedded in the page, works offline).
+- Tests keep the manual honest: every agent, every user-level skill and every console page must be described in it, every image and link must exist, and screenshots stay under 400 KB.
+
 ## v1.100.0 — The manual, part 1
 
 - **A manual that opens in your browser.** Seven chapters (what the kit is, quick start, your team and their models, the console page by page, skills and lessons, community, troubleshooting) at `http://127.0.0.1:8765/manual/` while the console server runs. Plain HTML, no scripts, works offline, light and dark. It is copied into every project by `/kit-update`.
