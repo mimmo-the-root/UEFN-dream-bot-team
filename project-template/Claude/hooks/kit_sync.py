@@ -349,6 +349,30 @@ def genre_and_inbox(project):
                     skills_lib.render_skill(g)
             except Exception:
                 pass
+            try:  # a map type written two ways (pillar / pillars) becomes one type, with its lessons and evidence
+                skills_lib.merge_variants(g, project)
+            except Exception:
+                pass
+        _revoked_ids = []
+        try:  # lessons the maintainer revoked leave your skills at the next update; the shipped community packs are offered as ONE proposal per genre
+            with open(os.path.join(project, "Claude", "community-revoked.json"), encoding="utf-8") as _f:
+                _rv = json.load(_f)
+            _revoked_ids = list(_rv.get("ids", []))
+            _r = skills_lib.apply_revoked(_revoked_ids)
+            if _r.get("removed"):
+                notes.append("community: %d revoked lesson(s) removed from your skills" % _r["removed"])
+        except Exception:
+            pass
+        try:
+            _c = skills_lib.import_community_dir(revoked_ids=_revoked_ids)
+            if _c.get("queued"):
+                notes.append("community: %d genre pack(s) of shared lessons waiting for your approval on the Skills page" % _c["queued"])
+        except Exception:
+            pass
+        try:  # is the map of this project published? Only lessons of published maps can be shared with the community (checked at most once a day)
+            skills_lib.sync_published(project)
+        except Exception:
+            pass
     except Exception:
         pass
     return notes

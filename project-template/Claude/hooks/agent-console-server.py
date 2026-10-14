@@ -66,6 +66,7 @@ STATS_HTML_PATH = os.path.join(ROOT, "agent-console-stats.html")
 DOCS_HTML_PATH = os.path.join(ROOT, "agent-console-docs.html")
 FLOW_HTML_PATH = os.path.join(ROOT, "agent-console-flow.html")
 SKILLS_HTML_PATH = os.path.join(ROOT, "agent-console-skills.html")
+NEWS_HTML_PATH = os.path.join(ROOT, "agent-console-news.html")
 # Skill Harness (v1.81+): the Skills page reads/writes the genre skills under ~/.claude/skills/genre
 # through skills_lib.py (same folder). If the module is missing the rest of the console still works.
 try:
@@ -102,6 +103,7 @@ DOC_FILES = {
     "release": "RELEASE-READINESS.md",
 }
 GENRE_FILE = os.path.join(DOCS_DIR, ".genre")
+COMMUNITY_SUMMARY_FILE = os.path.join(os.path.dirname(ROOT), "community", "community-summary.json")
 ISLAND_CODE_FILE = os.path.join(DOCS_DIR, ".island-code")
 METRICS_CACHE_FILE = os.path.join(LOGS_DIR, "fortnite-metrics-cache.json")
 INFO_CACHE_FILE = os.path.join(LOGS_DIR, "fortnite-island-info-cache.json")
@@ -425,6 +427,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self._send_json_bytes(json.dumps(skills_lib.console_learning(PROJECT_DIR)).encode("utf-8"))
             except Exception as e:
                 self._send_json_bytes(json.dumps({"error": "could not read the learning state: %s" % e}).encode("utf-8"))
+        elif self.path.startswith("/community-state"):
+            # The switch "Contribute to the community", what was shared, and whether this project's map is published.
+            try:
+                self._send_json_status(200, skills_lib.community_info(PROJECT_DIR) if skills_lib else {"error": "skills_lib.py not found"})   # no CORS header: other web pages cannot read it
+            except Exception as e:
+                self._send_json_bytes(json.dumps({"error": "could not read the community state: %s" % e}).encode("utf-8"))
+        elif self.path.startswith("/community-summary"):
+            # What's new page: summary of the last release (shipped with the kit); empty object when the file is not there yet.
+            self._send_json_bytes(_read_json_object(COMMUNITY_SUMMARY_FILE, "{}").encode("utf-8"))
         elif self.path.startswith("/skills-data"):
             # Real data only, computed from the local genre-skill files by skills_lib.summary().
             if skills_lib is None:
@@ -434,6 +445,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     self._send_json_bytes(json.dumps(skills_lib.summary()).encode("utf-8"))
                 except Exception as e:
                     self._send_json_bytes(json.dumps({"error": "could not read skills: %s" % e}).encode("utf-8"))
+        elif self.path.startswith("/news") or self.path.startswith("/agent-console-news.html"):
+            self._serve_html_file(NEWS_HTML_PATH)
         elif self.path.startswith("/skills") or self.path.startswith("/agent-console-skills.html"):
             self._serve_html_file(SKILLS_HTML_PATH)
         elif self.path.startswith("/stats") or self.path.startswith("/agent-console-stats.html"):
@@ -467,7 +480,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self):
         # Owner decisions on the Skills page: approve / edit / reject a lesson, run the privacy check.
-        if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check") or self.path.startswith("/genre-confirm")):
+        if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check") or self.path.startswith("/genre-confirm") or self.path.startswith("/community-act")):
             return self._send_json_status(404, {"ok": False, "error": "unknown endpoint"})
         if not self._origin_ok():
             return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
@@ -476,7 +489,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if n > 65536:
                 return self._send_json_status(413, {"ok": False, "error": "body too large"})
             data = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
-            if self.path.startswith("/genre-confirm"):
+            if self.path.startswith("/community-act"):
+                res = skills_lib.community_act(data)
+            elif self.path.startswith("/genre-confirm"):
                 res = skills_lib.confirm_genre(PROJECT_DIR, data.get("genre"), data.get("variant"))
             elif self.path.startswith("/skills-check"):
                 res = skills_lib.check(data.get("genre"))

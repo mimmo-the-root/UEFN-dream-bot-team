@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DREAM BOT TEAM AGENT CONSOLE FOR UEFN — What's new</title>
+<style>
+:root{--bg:#060810;--panel:#0d121c;--panel2:#0a0e17;--line:#1c2740;--line-soft:#223050;--text:#c9d6f0;--dim:#5a7088;--blue:#4b8bff;--green:#39ff88;--amber:#ffb454;--red:#ff4d5e;--violet:#b98bff}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Consolas,'Courier New',monospace}
+body{background-image:radial-gradient(ellipse at 50% -10%,rgba(75,139,255,.14),transparent 60%),repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px 50px}a{color:var(--blue)}
+.h{display:flex;justify-content:space-between;align-items:baseline;padding:14px 4px 12px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.t{color:var(--blue);font-weight:bold;font-size:12px}.t b{font-size:17px;letter-spacing:1px}.v{font-size:10px;color:var(--dim);margin-left:8px;font-weight:normal}
+.side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:12px;color:var(--dim)}
+.vs{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}.vs a{font-size:10px;text-transform:uppercase;padding:3px 10px;background:var(--panel2);color:var(--dim);text-decoration:none}.vs a.on{color:var(--text);background:#16203a}
+.ksec{display:flex;align-items:center;gap:10px;margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line-soft)}
+.ksec h2{margin:0;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--blue)}.ksec span{color:var(--dim);font-size:11.5px;font-family:'Segoe UI',system-ui,sans-serif}
+.ksec.c h2{color:var(--violet)}.ksec.t h2{color:var(--green)}
+.hero{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:14px 0 4px}@media(max-width:1000px){.hero{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr!important}.pod{grid-template-columns:1fr!important}}
+.hc{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.hc .k{font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase}.hc .n{font-size:28px;font-weight:bold;margin:5px 0 2px}.hc .n small{font-size:11px;color:var(--dim);font-weight:normal}.hc .s{font-size:10.5px;color:var(--dim)}
+.grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 16px}
+.rel h3{margin:4px 0 2px;font-size:17px}.rel .d{font-size:11px;color:var(--dim);margin-bottom:8px}
+.rel ul{margin:6px 0 10px;padding-left:18px;font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.75}
+.btn{display:inline-block;font:inherit;font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--text);margin:0 8px 6px 0;text-decoration:none;cursor:pointer}
+.btn.amber{color:var(--amber);border-color:rgba(255,180,84,.5)}
+table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;font-size:10px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;padding:7px 8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.p-new{background:rgba(75,139,255,.16);color:var(--blue)}.p-upd{background:rgba(57,255,136,.12);color:var(--green)}
+.sub{font-size:10.5px;color:var(--dim);font-family:'Segoe UI',system-ui,sans-serif}.h2h{font-family:'Segoe UI',system-ui,sans-serif;font-size:12.5px}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:1px 8px;font-size:10.5px;margin:0 4px 3px 0}.chip.me{border-color:rgba(57,255,136,.5);color:var(--green)}
+.pod{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:2px 0 12px}
+.pc{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}.pc.g{border-color:rgba(255,180,84,.55)}
+.pc .hd{font-size:14px;margin:4px 0}.pc .sc{font-size:22px;font-weight:bold;color:var(--green)}.pc .sc small{font-size:10px;color:var(--dim);font-weight:normal}
+.bar{height:5px;border-radius:3px;background:#182338;overflow:hidden;width:110px}.bar i{display:block;height:100%;background:var(--green)}
+.up{color:var(--green)}.dn{color:var(--red)}.dim{color:var(--dim)}
+.thx{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.7;padding:12px 18px!important}
+.lesson{padding:10px 0;border-bottom:1px solid var(--line-soft);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.5}.lesson:last-child{border:none}
+.lesson .m{font-family:Consolas,monospace;font-size:10.5px;color:var(--dim);margin-top:3px}
+.sw{display:inline-block;width:34px;height:18px;border-radius:10px;background:#182338;border:1px solid var(--line);position:relative;vertical-align:middle;margin-right:8px}.sw::after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--dim)}.sw.on{background:rgba(57,255,136,.25)}.sw.on::after{left:18px;background:var(--green)}
+.empty{color:var(--dim);font-size:12px;padding:14px 4px;line-height:1.6;font-family:'Segoe UI',system-ui,sans-serif}
+.note{font-size:11.5px;color:var(--amber);border:1px dashed rgba(255,180,84,.45);border-radius:8px;padding:8px 12px;margin:10px 0;font-family:'Segoe UI',system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="h"><div class="t">&gt; <b>DREAM BOT TEAM AGENT CONSOLE FOR UEFN</b><span class="v" id="kitVersion"></span></div>
+<div class="side"><div class="vs"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a><a href="agent-console-news.html" class="on">What's new</a></div><div># what changed in the last release, and who made it better</div></div></div>
+<div id="hero" class="hero"></div>
+<div class="ksec"><h2>Last release</h2><span>from the changelog</span></div>
+<div class="grid"><div id="rel" class="card rel"></div><div id="mine" class="card"></div></div>
+<div class="ksec t"><h2>Skills in this release</h2><span>new, and improved by the community</span></div>
+<div id="skills" class="card"></div>
+<div class="ksec c"><h2>Top contributors</h2><span>score = lessons confirmed by others, minus lessons refuted</span></div>
+<div id="top"></div>
+<div class="ksec t"><h2>Lessons that helped most</h2><span>confirmed by the most creators</span></div>
+<div id="helpful" class="card"></div>
+<div class="ksec"><h2>Thank you</h2><span>to everyone who shared a lesson</span></div>
+<div id="thanks" class="card thx"></div>
+</div>
+<script>document.getElementById("kitVersion").textContent = "v1.99.0";</script>
+<script>
+var REPO="mimmo-the-root/UEFN-dream-bot-team",KIT=document.getElementById("kitVersion").textContent;
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function $(id){return document.getElementById(id);}
+function j(u){return fetch(u,{cache:"no-store"}).then(function(r){return r.json();}).catch(function(){return null;});}
+function chips(a,me){return (a||[]).slice(0,3).map(function(h){return '<span class="chip'+(h.toLowerCase()===me?" me":"")+'">@'+esc(h)+'</span>';}).join("")+((a||[]).length>3?'<span class="chip">+'+((a||[]).length-3)+'</span>':"");}
+function render(S,C){
+ if(!S||!S.release){
+  $("hero").innerHTML="";
+  $("rel").innerHTML='<div class="empty">No release summary is shipped with this kit yet. It appears after the next kit update.</div><a class="btn amber" target="_blank" rel="noopener" href="https://github.com/'+REPO+'/issues/new/choose">Submit an issue &#8599;</a>';
+  $("mine").innerHTML=mineHtml(C,[]);$("skills").innerHTML='<div class="empty">Nothing to show yet.</div>';$("top").innerHTML="";$("helpful").innerHTML='<div class="empty">Nothing to show yet.</div>';
+  $("thanks").innerHTML=thanksTail();return;}
+ var n=S.counts||{},r=S.release;
+ $("hero").innerHTML=
+  '<div class="hc"><div class="k">Release</div><div class="n">'+esc(r.tag)+'</div><div class="s">published '+esc(r.date||"")+(r.tag!==KIT?" · you run "+esc(KIT):" · you are up to date")+'</div></div>'+
+  '<div class="hc"><div class="k">New skills</div><div class="n">'+(n.new_skills||0)+' <small>genres</small></div><div class="s">'+esc((S.skills||[]).filter(function(x){return x.status==="new";}).map(function(x){return x.genre;}).join(" · ")||"none")+'</div></div>'+
+  '<div class="hc"><div class="k">Skills improved</div><div class="n">'+(n.improved_skills||0)+' <small>genres</small></div><div class="s">+'+(n.added||0)+' lessons added</div></div>'+
+  '<div class="hc"><div class="k">Contributions</div><div class="n">'+(n.received||0)+' <small>received</small></div><div class="s">'+(n.confirmed||0)+' confirmed · '+(n.hypotheses||0)+' hypotheses · '+(n.archived||0)+' archived</div></div>'+
+  '<div class="hc"><div class="k">Contributors</div><div class="n">'+(n.contributors||0)+' <small>creators</small></div><div class="s">'+(n.new_contributors||0)+' new this release</div></div>';
+ $("rel").innerHTML='<h3>'+esc(r.title)+'</h3><div class="d">'+esc(r.date||"")+'</div><ul>'+(r.items||[]).map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+'</ul>'+
+  '<a class="btn" target="_blank" rel="noopener" href="https://github.com/'+REPO+'/blob/main/CHANGELOG.md">Full changelog</a><a class="btn" target="_blank" rel="noopener" href="https://github.com/'+REPO+'/releases/tag/'+encodeURIComponent(r.tag)+'">GitHub release</a><a class="btn amber" target="_blank" rel="noopener" href="https://github.com/'+REPO+'/issues/new/choose">Submit an issue &#8599;</a>';
+ $("mine").innerHTML=mineHtml(C,S.top||[]);
+ var sk=S.skills||[];
+ $("skills").innerHTML=sk.length?'<table><tr><th>Genre skill</th><th>What happened</th><th>Lessons</th><th>Made by</th><th>Highlight</th></tr>'+sk.map(function(x){return '<tr><td><b>'+esc(x.genre)+'</b></td><td><span class="pill '+(x.status==="new"?"p-new":"p-upd")+'">'+(x.status==="new"?"NEW":"IMPROVED")+'</span></td><td><b class="'+(x.status==="new"?"":"up")+'">'+(x.status==="new"?"":"+")+x.added+'</b> <span class="sub">'+esc(x.confirmed)+' confirmed<br>'+esc(x.hypotheses)+' hypotheses</span></td><td>'+chips(x.handles,"")+'</td><td class="h2h">'+esc(x.highlight||"")+'</td></tr>';}).join("")+'</table>':'<div class="empty">No skill changed in this release.</div>';
+ var top=S.top||[];
+ $("top").innerHTML=top.length?'<div class="pod">'+top.slice(0,3).map(function(t,i){return '<div class="pc'+(i===0?" g":"")+'"><div>'+["&#129351;","&#129352;","&#129353;"][i]+'</div><div class="hd">@'+esc(t.handle)+'</div><div class="sc">'+(t.score>0?"+":"")+esc(t.score)+' <small>score</small></div><div class="sub">'+esc(t.confirmed)+' confirmed · '+esc((t.genres||[]).join(", "))+'</div></div>';}).join("")+'</div>'+
+  (top.length>3?'<div class="card"><table><tr><th>#</th><th>Creator</th><th>Score</th><th>Lessons</th><th>Genres</th><th>This release</th></tr>'+top.slice(3).map(function(t,i){return '<tr><td>'+(i+4)+'</td><td>@'+esc(t.handle)+'</td><td><div class="bar"><i style="width:'+Math.max(2,Math.min(100,Math.round(100*t.score/Math.max(1,top[0].score))))+'%"></i></div><span class="sub">'+(t.score>0?"+":"")+esc(t.score)+'</span></td><td>'+esc(t.confirmed)+' confirmed</td><td class="sub">'+esc((t.genres||[]).join(", "))+'</td><td>'+(t["new"]?'<span class="dim">new</span>':'<span class="'+(t.delta>=0?"up":"dn")+'">'+(t.delta>=0?"&#9650; +":"&#9660; ")+esc(t.delta)+'</span>')+'</td></tr>';}).join("")+'</table></div>':""):'<div class="card"><div class="empty">No contributors yet. Be the first: switch on sharing in the Skills page.</div></div>';
+ var hp=S.helpful||[];
+ $("helpful").innerHTML=hp.length?hp.map(function(x){return '<div class="lesson">'+esc(x.text||"")+'<div class="m">'+esc(x.genre)+' · by '+(x.handles||[]).map(function(h){return "@"+esc(h);}).join(", ")+' · confirmed by '+esc(x.confirmations)+' creators</div></div>';}).join(""):'<div class="empty">No lesson has been confirmed by several creators yet.</div>';
+ var th=S.thanks||[];
+ $("thanks").innerHTML=(th.length?'Thank you <b>'+th.slice(0,12).map(function(h){return "@"+esc(h);}).join("</b>, <b>")+'</b>'+(th.length>12?' and '+(th.length-12)+' more':"")+'. Every lesson you share makes the next map faster to build for everyone.':'Thank you to everyone who will share a lesson.')+thanksTail();
+}
+function thanksTail(){return '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft)">Found a bug, a wrong lesson or an idea? <a target="_blank" rel="noopener" href="https://github.com/'+REPO+'/issues/new/choose" style="color:var(--amber)">Submit an issue on GitHub &#8599;</a> <span class="sub">· a wrong community lesson reported here can be revoked in the next release</span></div><span class="sub">Lessons are shared only with the creator\'s switch on, and only from a published map. Pending hypotheses are shown as "to verify" until others confirm them.</span>';}
+function mineHtml(C,top){
+ if(!C||C.error)return '<div class="empty">Community state not available: restart the console server to enable it.</div>';
+ var shared=(C.shared||[]).length;
+ return '<div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);margin:4px 0 8px">Your part in it</div>'+
+  '<div class="h2h" style="line-height:2"><span class="sw'+(C.share?" on":"")+'"></span>Contribute to the community <span class="dim">· '+(C.share?"on":"off")+'</span></div>'+
+  '<table><tr><td class="dim">Lessons you shared</td><td><b>'+shared+'</b></td></tr>'+
+  '<tr><td class="dim">Your map</td><td>'+(C.published===true?'<span class="up">published</span>':(C.published===false?'<span style="color:var(--amber)">not published</span>':'<span class="dim">unknown</span>'))+'</td></tr></table>'+
+  '<div class="note">Only lessons learned from a <b>published</b> map can be shared. Lessons from an unpublished map stay on this computer.</div>'+
+  '<a class="btn" href="agent-console-skills.html">Open the Skills page</a>';
+}
+Promise.all([j("/community-summary"),j("/community-state")]).then(function(a){render(a[0]&&a[0].release?a[0]:null,a[1]);});
+</script>
+</body>
+</html>

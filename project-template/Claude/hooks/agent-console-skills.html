@@ -58,7 +58,7 @@ textarea.edit{width:100%;font:inherit;font-size:12px;background:var(--panel2);co
   <div class="h">
     <div class="t">&gt; <b>DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="blink">_</span></b><span class="v" id="kitVersion"></span></div>
     <div class="side">
-      <div class="vs"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html" class="on">Skills</a></div>
+      <div class="vs"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html" class="on">Skills</a><a href="agent-console-news.html">What\'s new</a></div>
       <div># skill harness — what the kit has learned from your maps</div>
       <div id="conn">… reading genre skills from the local server</div>
     </div>
@@ -111,6 +111,12 @@ textarea.edit{width:100%;font:inherit;font-size:12px;background:var(--panel2);co
 .ktabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}.ktab{border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--dim);cursor:pointer;}.ktab.on{color:var(--text);border-color:var(--blue);}
 .kempty{color:var(--dim);font-style:italic;font-size:12px;}
 details.kproj{margin:26px 0 0;}details.kproj>summary{cursor:pointer;color:var(--dim);font-size:11px;letter-spacing:1.3px;text-transform:uppercase;padding:8px 0;border-top:1px solid var(--line-soft);}
+.ksub{font-size:10.5px;color:var(--dim)}
+.kcsw{display:inline-block;width:38px;height:20px;border-radius:11px;background:#182338;border:1px solid var(--line);position:relative;vertical-align:middle;margin-right:10px;cursor:pointer}
+.kcsw::after{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:var(--dim);transition:all .15s}
+.kcsw.on{background:rgba(57,255,136,.25);border-color:rgba(57,255,136,.6)}.kcsw.on::after{left:20px;background:var(--green)}
+.kcnote{font-size:12px;line-height:1.6;color:var(--amber);border:1px dashed rgba(255,180,84,.45);border-radius:8px;padding:9px 12px;margin:10px 0;font-family:'Segoe UI',system-ui,sans-serif}
+.kcpre{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:11px;white-space:pre-wrap;max-height:240px;overflow:auto;margin:8px 0}
 </style>
 <div id="kitwrap">
  <div class="ksec"><h2>The kit</h2><span>everything the kit knows, across all your genres and maps</span></div>
@@ -121,6 +127,8 @@ details.kproj{margin:26px 0 0;}details.kproj>summary{cursor:pointer;color:var(--
  <div id="kLearning"></div>
  <div class="ktwo"><div id="kBlueprint"></div><div><div id="kLog"></div><div id="kPatterns"></div></div></div>
  <div id="kWaiting"></div>
+ <div class="ksec"><h2>Community</h2><span>share what you learned, only from a published map</span></div>
+ <div id="kCommunity"></div>
 </div>
   <details class="kproj" id="classic"><summary>Classic view: edit wording, approve all, packs, details</summary>
   <div id="hero" class="hero"></div>
@@ -372,7 +380,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.98.8";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.99.0";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -548,8 +556,30 @@ function renderMap(){
   (function next(i){if(i>=list.length){LAST="";load();return;}post("/skills-act",{genre:list[i].genre,proposal:list[i].id,action:"approve",exclude:[]}).then(function(){next(i+1);}).catch(function(){next(i+1);});})(0);};
  Array.prototype.forEach.call(document.querySelectorAll("#kWaiting .kbtn:not(#kApproveAll)"),function(e){e.onclick=function(){post("/skills-act",{genre:e.getAttribute("data-g"),proposal:e.getAttribute("data-p"),action:e.getAttribute("data-a"),exclude:[]}).then(function(){LAST="";load();});};});
 }
+var CS=null,CEXP=null;
+function loadCommunity(){fetch("/community-state",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){CS=j;renderCommunity();}).catch(function(){CS={error:"The console server is older than this page. Restart it to enable sharing."};renderCommunity();});}
+function renderCommunity(){
+ var box=$("kCommunity");if(!box)return;
+ if(!CS||CS.error){box.innerHTML='<div class="kcard"><div class="kempty">'+esc((CS&&CS.error)||"Reading the community state…")+'</div></div>';return;}
+ var pubTxt=CS.published===true?'<span style="color:var(--green)">&#10003; the map of this project is published</span> <span class="ksub">('+esc(CS.published_reason||"")+')</span>':(CS.published===false?'<span style="color:var(--amber)">&#10007; the map of this project is not published</span> <span class="ksub">('+esc(CS.published_reason||"")+')</span>':'<span class="ksub">could not check whether the map is published (Epic not reachable); nothing changes until it can</span>');
+ var h='<div class="kcard"><div class="klabel">Share lessons with the community</div>'+
+  '<div style="margin:8px 0"><span id="kcSw" class="kcsw'+(CS.share?" on":"")+'" title="Switch"></span><b>Contribute to the community</b> <span class="ksub">'+(CS.share?"on":"off (default)")+'</span></div>'+
+  '<div class="kcnote"><b>Only lessons learned from a published map can be shared.</b> If the map is not published, your lessons stay on this computer. Nothing is sent by the kit: you press <i>Contribute</i> on one lesson, see the exact JSON, and finish on GitHub with your own account. Map names, code, devices and blueprints never leave.</div>'+
+  '<div style="font-size:12px;margin:6px 0">'+pubTxt+'</div>';
+ if(CS.share){
+  var rows=[];(SD&&SD.genres||[]).forEach(function(g){g.patterns.forEach(function(p){if(p.origin==="local"&&(p.support||0)>=1&&p.status!=="superseded")rows.push([g.slug,p]);});});
+  h+='<table class="ktable"><tr><th>Genre</th><th>Lesson</th><th>Section</th><th></th></tr>'+(rows.length?rows.slice(0,60).map(function(x){var g=x[0],p=x[1],done=(CS.shared||[]).indexOf(p.id)>=0;return '<tr><td>'+esc(g)+'</td><td>'+esc(p.statement)+'</td><td class="ksub">'+esc(p.section||"—")+'</td><td>'+(done?'<span style="color:var(--green)">shared</span>':'<button class="kbtn" data-g="'+esc(g)+'" data-id="'+esc(p.id)+'">Contribute</button>')+'</td></tr>';}).join(""):'<tr><td colspan="4" class="kempty">No approved lesson of yours yet.</td></tr>')+'</table>';
+  if(CEXP){h+='<div class="kcard" style="margin-top:12px"><div class="klabel">What would leave this computer</div>'+(CEXP.ok?'<div class="kcpre">'+esc(CEXP.json)+'</div><div class="ksub">'+esc(CEXP.note||"")+'</div><div style="margin-top:8px"><button class="kbtn" id="kcOpen">Open GitHub</button> <button class="kbtn" id="kcCancel">Cancel</button></div>':'<div style="color:var(--amber);font-size:12px">'+esc(CEXP.error||"Not shareable")+'</div><div style="margin-top:8px"><button class="kbtn" id="kcCancel">Close</button></div>')+'</div>';}
+ }
+ h+='</div>';box.innerHTML=h;
+ var sw=$("kcSw");if(sw)sw.onclick=function(){post("/community-act",{action:CS.share?"off":"on"}).then(function(){CEXP=null;loadCommunity();});};
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-id]"),function(b){b.onclick=function(){var g=b.getAttribute("data-g"),id=b.getAttribute("data-id");post("/community-act",{action:"export",genre:g,id:id}).then(function(r){CEXP=r;CEXP._g=g;CEXP._id=id;renderCommunity();});};});
+ var o=$("kcOpen");if(o)o.onclick=function(){window.open(CEXP.url,"_blank","noopener");post("/community-act",{action:"shared",genre:CEXP._g,id:CEXP._id}).then(function(){CEXP=null;loadCommunity();});};
+ var c=$("kcCancel");if(c)c.onclick=function(){CEXP=null;renderCommunity();};
+}
 function load(){
- Promise.all([fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})]).then(function(a){var sig=JSON.stringify(a);if(sig===LAST)return;LAST=sig;SD=a[0];LD=a[1];renderKit();renderMap();});
+ if(!CS)loadCommunity();
+ Promise.all([fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})]).then(function(a){var sig=JSON.stringify(a);if(sig===LAST)return;LAST=sig;SD=a[0];LD=a[1];renderKit();renderMap();renderCommunity();});
 }
 load();setInterval(load,15000);
 })();

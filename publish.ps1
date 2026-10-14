@@ -19,6 +19,10 @@ $notes = $m.Groups[2].Value.Trim()
 $notesFile = Join-Path $env:TEMP "kit-release-notes.md"
 Set-Content -Path $notesFile -Value $notes -Encoding UTF8
 
+# 1b. What's new page data: the summary of community lessons for this release (shipped with the kit, the page works offline)
+if ($hasPy) { py -3 tool/community_summary.py } else { python tool/community_summary.py }
+if ($LASTEXITCODE -ne 0) { throw "community_summary.py failed: nothing was published" }
+
 # 2. tests (tests, privacy scan, skill validator, token budget)
 if ($hasPy) { py -3 tests/run_all.py } else { python tests/run_all.py }
 if ($LASTEXITCODE -ne 0) { throw "Tests failed: nothing was published" }

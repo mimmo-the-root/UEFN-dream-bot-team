@@ -53,6 +53,11 @@ keep them from mixing together. Point it at a project and it handles:
    pulse between two agents when one hands off to another (e.g. `coder` invoking
    `second-brain-librarian`) — a live view into what the team is actually doing, not just its
    documentation output.
+9. **It learns from your maps by itself** (see section 3f): it reads your Verse code, your project
+   documents (and corrects the ones that disagree with the code) and the devices placed in the
+   level, writes what a map of your kind is made of into the genre skill, and keeps it up to date
+   while you develop — without ever interviewing you. You only confirm the genre and the map type,
+   and approve the lessons it proposes, on the Skills page of the console.
 
 Five agents divide the core work, each with a narrow role: **project-bootstrap** (one-time
 initial analysis or requirements gathering), **coder** (writes/fixes code), **qa-regression**
@@ -120,13 +125,14 @@ every project you want to use this kit on.
      — the two-gate compliance check `coder` invokes on itself before reporting any task done, see
      section 2. `codebase-auditor` is an independent, on-demand whole-codebase quality audit — see
      section 2.
-   - **Genre skills and the Skills page (v1.81+).** `skill-reflector` (in `user-level-agents/`) queues
-     lessons learned from your real maps; you approve them on the **Skills** page of the Agent
-     Console. The engine is `Claude/hooks/skills_lib.py` (installed with the project scaffold; needs
-     only Python 3). If you already have genre skills in `~/.claude/skills/genre/<slug>/`, run
+   - **Genre skills and the Skills page (v1.81+, learning since v1.97).** The genre skills
+     (`~/.claude/skills/genre/<slug>/`) are filled from your real maps: the kit reads each map at
+     the first message of a session and queues lessons; you approve, edit or reject them on the
+     **Skills** page of the Agent Console. The engine is `Claude/hooks/skills_lib.py` (installed with
+     the project scaffold; needs only Python 3). If you already have genre skills, run
      `python3 Claude/hooks/skills_lib.py init <slug>` once per genre: it adds the private `local/`
-     layer and the shareable `pack/` layer without deleting anything you have. Map names, task
-     IDs and notes never leave `local/`.
+     layer and the shareable `pack/` layer without deleting anything you have. Map names, task IDs
+     and notes never leave `local/`. See section 3f.
    - Copy `user-level-memory/CLAUDE.md` into `~/.claude/CLAUDE.md`. If that file already
      exists, paste this content at the end of it — don't overwrite what's already there.
    - **Upgrading from an older kit version: delete removed agent files, don't just copy new ones
@@ -264,6 +270,14 @@ project open in UEFN is the right one, and finally — only if everything checks
 leave it there (it doesn't get in the way) or ask Claude to delete it.
 
 ## Updating an existing project to a new kit version
+
+**The easy way (v1.84+).** With `~/.claude/kit-template/` installed (see "Automatic kit updates" below), every
+`claude` launch in a map updates the files that are old or missing, and tells you to open a new session.
+You can also do it on demand with `/kit-update`; `/kit-update --fetch` first downloads the latest GitHub
+release into your profile and then updates the project, and `/kit-doctor` checks the project's health
+(versions, hooks, backups). After an update open a **new session** (rules, agents and hooks are read at
+the start) and the console server restarts by itself on the new version. The manual copy described next
+still works and is what to do if you prefer to see every file.
 
 This is the answer to "can I just overwrite the project folder to update everything" — yes, for a
 clearly-defined subset, by construction: this kit keeps template/seed material physically separate
@@ -728,6 +742,58 @@ going through the agent, but you don't need to rely on it.
   happily chain several in one session (e.g. `fortnite-competitor-analyzer` →
   `fortnite-title-description` → `fortnite-thumbnail-pro` for a single launch push).
 
+## 3f. The kit learns from your maps (v1.97-v1.98)
+
+Genre skills used to stay empty until you wrote lessons by hand. Now every map you work on teaches them,
+and you do nothing but approve.
+
+**What it reads.** In this order, and only what changed since the last time: (1) the **Verse code**,
+complete sources, through a map of the project (`Claude/docs/map/`, built by a script with no AI tokens);
+(2) the **project documents** (SPEC, ROADMAP, notes...), compared with the code, and the ones that
+disagree are corrected (`doc-patches.json`, with a backup, never silently); (3) the **devices placed in the
+level**, their wiring and settings, and the **island configuration**, through the UEFN MCP (needs UEFN
+open with the MCP connected; otherwise it waits for the next time). It never asks you questions about
+the map.
+
+**When it runs.** At the **first message** of a session, before answering it (the session start hands
+Claude the instruction; a session you open and leave idle does not learn anything). In a session that
+stays open for hours, a `Stop` hook (`learn-nudge`) checks at the end of an answer, with no AI tokens,
+whether code, documents or devices changed and, at most every 30 minutes, asks Claude to continue the
+learning. If a session stops halfway nothing is lost: `Claude/docs/map/PROGRESS.md` lists what is
+missing and the next start continues. You can force it with `/learn-map` (and rebuild only the Verse map
+with `/verse-map`).
+
+**The map blueprint.** What it learned becomes a *blueprint* in the genre skill: layout with counts,
+game loop, devices and how they are wired, rules with the numbers observed, build order. It is marked
+**out of date** when code, documents or devices change, and rewritten at the next opportunity.
+Things it could not read are kept as `unknown`, read again at the next starts (two tries, never
+invented). Each analysed map also queues 3 to 5 general lessons for you.
+
+**You confirm the genre and the map type.** The genre is one of Epic's official Discover genres; the map
+*type* is a free name (pillars, red-vs-blue, checkpoint-race...). The kit only **proposes** them; until
+you confirm on the Skills page nothing is written to your skills, and lessons and blueprint wait. A map
+that is the same base game dressed for another IP is a *type* of the same genre: the kit reads the IP
+from your documents, the shared base is type `base`, and an IP blueprint records only what differs.
+
+**Where you see it.** Skills page of the console: the whole kit on top, "This map" below (learning steps,
+blueprint, what it learned, patterns, lessons waiting, **Approve all**). The **SKILLS** tab of every
+console page blinks when something waits for you. Your map data stays in the private `local/` layer; only
+generalized patterns can be shared, after a privacy check.
+
+## 3g. Sharing your lessons with the community (v1.99)
+
+Optional and off by default. On the **Skills** page, section **Community**, switch on "Contribute to the
+community". Next to each lesson you approved there is a **Contribute** button: it shows the exact JSON that would
+leave your computer (genre, map type, section and the three lines of the lesson, never map names, code, devices
+or blueprints), and **Open GitHub** opens a pull request page with the lesson filled in; rename the file to your
+GitHub handle and press *Propose new file*. **Only lessons learned from a published map can be shared**: the kit
+checks that the project has an island code and that Epic has public data for it, and a lesson from an unpublished
+map stays on your computer (the page says so). Lessons from the community arrive as proposals you approve, marked
+"to verify" until confirmed. The **What's new** page (next to Skills) shows the last release, the skills that
+improved, the top contributors and a "Submit an issue" link. Details: `docs/community-contributions.md`.
+
+---
+
 ## 4. How to invoke them during work
 
 Inside a Claude Code session opened inside the project's `Content/`:
@@ -842,13 +908,22 @@ left alone; otherwise — nothing running, or a stale server from a different pr
 to the same port — whatever's on port 8765 gets killed (only if it looks like one of this kit's
 own server processes, never an unrelated program) and a fresh one is started **in the
 background** (detached, so it doesn't block your session) for the current project. The hook then
-opens it in your default browser automatically, every session — no need to open the tab yourself
-or remember the URL. Claude also mentions the URL in its first reply, in case you closed the tab
+opens it in your default browser when it had to (re)start the server, so you get one tab and not a new one at every launch. Claude also mentions the URL in its first reply, in case you closed the tab
 or want to reopen it; there's nothing to say yes or no to, and nothing to remember to answer.
 This also fixes a real cross-project bug: since every project uses the same
 port, switching to a different UEFN project used to leave you looking at the *previous*
 project's stale console (it looked "already running" from the outside) — now the `/whoami` check
 catches that and replaces it automatically.
+
+**The server follows the kit and the session (v1.97+).** `/whoami` also reports the kit version: a server started
+before a kit update runs old code, so the session start replaces it (the server is found by its command line, because
+Windows lists PID 4 as the owner of the port). What the start decided is written to `Claude/logs/console-start.log`.
+When you leave with `exit` a `SessionEnd` hook stops this project's server.
+
+**The six pages.** The tabs at the top switch between them: **Console** (live agents, miniflow, MCP, tokens),
+**Stats**, **Docs** (STATUS/ROADMAP/BUGS from `Claude/docs`, roadmap grouped by release in delivery order P0-R1, P1-R1...),
+**Flow** (the five-stage pipeline) and **Skills** (what the kit learned, see section 3f) and **What's new** (last release and the community, see 3g). The SKILLS tab blinks when
+something waits for your approval.
 
 **To start it manually** instead (or if you'd rather run it yourself in its own terminal, which
 also works and is a bit more transparent about what's running):
@@ -1169,8 +1244,12 @@ Source: Epic's "Unreal MCP in Unreal Editor" documentation.
 
 Install once by hand as before, and also copy the whole `project-template/` folder into `~/.claude/kit-template/`
 (Windows: `%USERPROFILE%\.claude\kit-template\`). From then on, every time you start `claude` in a map, the kit checks that
-map's files against this copy and updates what is old or missing, then tells you to restart the session. To update all
-your maps after a new kit release: replace `~/.claude/kit-template/` with the new `project-template/` and open each map once.
+map's files against this copy and updates what is old or missing (backups in `Claude/logs/kit-backup`), merges any new
+hooks into `.claude/settings.json` without touching yours, and tells you to restart the session.
+
+To get a new release: `/kit-update --fetch` (downloads the latest release from GitHub into `~/.claude/kit-template/`, then
+updates the current map), or replace `~/.claude/kit-template/` by hand with the new `project-template/`. Then open each map once.
+The console banner "New kit version ready" appears when the profile has a newer version than the map you are in.
 
 ## 6. Scaling to many projects: a dashboard idea
 

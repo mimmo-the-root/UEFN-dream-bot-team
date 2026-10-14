@@ -1,0 +1,29 @@
+name: intake
+# Keeps the intake of community lessons and the reputation file up to date. Runs on main only (never on a fork PR), no secrets.
+on:
+  push:
+    branches: [main]
+    paths: ["contributions/**", "project-template/Claude/community-revoked.json"]
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Intake (states) and reputation
+        run: |
+          python tool/intake.py
+          python tool/reputation.py
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add contributions/INTAKE.json reputation.json
+          git diff --cached --quiet || { git commit -m "intake: update states and reputation"; git push; }

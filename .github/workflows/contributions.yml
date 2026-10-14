@@ -1,0 +1,56 @@
+name: contributions
+# Checks a community lesson PR. It runs on `pull_request_target` so that a PR can NOT edit the checks that judge it, and it is safe
+# because it never executes anything from the PR: the scripts come from the BASE commit (trusted/), the PR content is only read as
+# data (pr/), the token is read-only, there are no secrets and nothing is merged.
+on:
+  pull_request_target:
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trusted scripts (base)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          persist-credentials: false
+      - name: Pull request content (data only, never executed)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Only lesson files of the author (renames and deletions count)
+        env:
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          if [ "$AUTHOR" = "$OWNER" ]; then echo "owner pull request: path rule not applied"; exit 0; fi
+          git -C pr diff --no-renames --name-only -z "$BASE...$HEAD" | python trusted/tool/check_pr_paths.py "$AUTHOR"
+          if git -C pr ls-tree -r "$HEAD" -- contributions | grep -q '^120000'; then echo "symbolic links are not allowed"; exit 1; fi
+      - name: Schema and screening of every changed lesson
+        env:
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          if [ "$AUTHOR" = "$OWNER" ]; then exit 0; fi
+          cd pr
+          fail=0
+          while IFS= read -r -d '' f; do
+            [ -f "$f" ] && [ ! -L "$f" ] || continue
+            python ../trusted/tool/contrib_schema.py "$f" || fail=1
+            python ../trusted/tool/screen_contribution.py "$f" | tee -a "$GITHUB_STEP_SUMMARY" || fail=1
+          done < <(git diff --no-renames --name-only -z "$BASE...$HEAD")
+          exit $fail

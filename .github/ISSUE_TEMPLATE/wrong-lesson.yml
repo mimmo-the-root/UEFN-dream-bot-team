@@ -1,0 +1,29 @@
+name: Wrong community lesson
+description: A lesson shared by the community is wrong, unsafe or misleading (it can be revoked in the next release)
+title: "[Lesson]: "
+labels: ["community-lesson"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping to keep the shared skills correct. Do not paste map names, code, island codes, keys or tokens.
+  - type: input
+    id: genre
+    attributes:
+      label: Genre skill
+      placeholder: "survival"
+    validations:
+      required: true
+  - type: input
+    id: lesson
+    attributes:
+      label: The lesson (its id p-xxxxxxxxxxxx, or its exact text)
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What is wrong
+      description: What happened when you followed it, or why it is misleading or unsafe.
+    validations:
+      required: true

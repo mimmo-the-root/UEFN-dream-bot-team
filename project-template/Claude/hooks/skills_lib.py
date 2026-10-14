@@ -39,6 +39,8 @@ import json
 import os
 import re
 import sys
+import time
+import urllib.parse
 
 SCHEMA = 1
 TIERS = ("hypothesis", "confirmed", "proven", "reference")
@@ -49,6 +51,7 @@ VARIANT_RE = re.compile(r"^(\*|[a-z0-9][a-z0-9-]{0,40})$")
 MAX_STATEMENT, MAX_CONDITION, MAX_ACTION = 200, 140, 200
 MAX_PATTERNS_PER_PACK = 200
 BEGIN, END = "<!-- PATTERNS:BEGIN -->", "<!-- PATTERNS:END -->"
+INCOMING_TEXT = re.compile(r"^[\x20-\x7e\u2018\u2019\u201c\u201d\u2013\u2014\u2026\u00d7]*$")
 SECTION_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,30}$")
 
 
@@ -392,11 +395,22 @@ def _maps(slug):
     return _read_json(os.path.join(ldir(slug), "maps.json"), {})
 
 
-def _remember_map(slug, name):
+def _proj_hash(project):
+    """Short hash of a project folder: lets a map key be tied to its project without storing the path."""
+    return hashlib.sha1(os.path.realpath(project).encode("utf-8")).hexdigest()[:10] if project else ""
+
+
+def _remember_map(slug, name, ph=""):
+    """ph = _proj_hash of the project the map belongs to (kept with the map so its published state can be found)."""
     m = _maps(slug)
     k = _map_key(name)
     if k not in m:
         m[k] = {"name": name.strip(), "first_seen": _today()}
+        if ph:
+            m[k]["project"] = ph
+        _write_json(os.path.join(ldir(slug), "maps.json"), m)
+    elif ph and m[k].get("project") != ph:
+        m[k]["project"] = ph
         _write_json(os.path.join(ldir(slug), "maps.json"), m)
     return k
 
@@ -569,6 +583,7 @@ def save_profile(slug, map_name, prof, project=None, map_key=None):
     var = _variant_name(prof.get("variant"))
     if not var and project:
         var = (_pread(project) or {}).get("variant", "")
+    var = _canon_variant(slug, var) if var else var
     if var:
         clean["variant"] = var
     clean.update({"label": label, "map_key": mk, "updated": _today(), "v": PROFILE_VERSION})
@@ -880,7 +895,7 @@ def propose_genre(project, slug, variant, why=""):
     slug = _official_slug(slug)
     if slug is None:
         return {"ok": False, "error": "genre must be one slug of the official list (fortnite-genres-official.json)"}
-    variant = _variant_name(variant)
+    variant = _canon_variant(slug, variant)
     if not variant:
         return {"ok": False, "error": "a map type (variant) is required, e.g. pillars, red-vs-blue"}
     _write_text(os.path.join(project, "Claude", "docs", ".genre"), slug + "\n", base=project)
@@ -892,6 +907,152 @@ def propose_genre(project, slug, variant, why=""):
 def _variant_name(v):
     v = re.sub(r"[^a-z0-9]+", "-", (v or "").strip().lower()).strip("-")[:40]
     return v
+
+
+def _variant_stem(name):
+    """Spelling-independent key of a map type: 'pillar', 'pillars' and 'Pillars' are the same type."""
+    s = (name or "").replace("-", "")
+    if len(s) > 3:
+        if s.endswith("ies"):
+            s = s[:-3] + "y"
+        elif s.endswith(("ses", "xes", "zes", "ches", "shes")):
+            s = s[:-2]
+        elif s.endswith("s") and not s.endswith("ss"):
+            s = s[:-1]
+    return s
+
+
+def _variant_counts(slug, prefer=""):
+    cnt = {}
+
+    def add(v, w=1):
+        if v and v != "*":
+            cnt[v] = cnt.get(v, 0) + w
+    try:
+        for p in load_pack(slug)["patterns"]:
+            if p.get("status") != "superseded":
+                add(p.get("variant"))
+    except Exception:
+        pass
+    for p in _profiles(slug):
+        add(p.get("variant"), 2)   # the blueprint carries the type the owner confirmed
+    for p in list_proposals(slug):
+        add(p.get("variant"))
+    if prefer:
+        add(prefer, 100)           # the type confirmed for the project in hand wins
+    return cnt
+
+
+def _canon_variant(slug, v, prefer=""):
+    """A map type spelled like one that already exists in the genre (same stem) takes the existing spelling, so
+    'pillar' next to 'pillars' never becomes a second type. A new type keeps its own clean name."""
+    name = _variant_name(v)
+    if not name:
+        return name
+    cnt = _variant_counts(slug, prefer)
+    key = _variant_stem(name)
+    same = [x for x in cnt if _variant_stem(x) == key]
+    if not same:
+        return name
+    return sorted(same, key=lambda x: (-cnt[x], x != name, x))[0]
+
+
+def merge_variants(slug=None, project=None):
+    """Heal map types written two ways (pillar / pillars): the patterns, their support, the waiting lessons, the blueprints, the
+    evidence notes and the project's own proposal move to one spelling (the most used one, or the type confirmed for `project`).
+    Idempotent; changes nothing when every type is already unique."""
+    slugs = [resolve_genre(slug)] if slug else _genres()
+    done = []
+    for s in slugs:
+        prefer = ""
+        if project:
+            pr = _pread(project) or {}
+            if pr.get("genre") == s and pr.get("status") == "confirmed":
+                prefer = _variant_name(pr.get("variant"))
+        cnt = _variant_counts(s, prefer)
+        groups = {}
+        for v in cnt:
+            groups.setdefault(_variant_stem(v), []).append(v)
+        remap = {}
+        for g in groups.values():
+            if len(g) > 1:
+                canon = sorted(g, key=lambda x: (-cnt[x], x))[0]
+                remap.update({v: canon for v in g if v != canon})
+        if not remap:
+            continue
+        pack, sup, ov = load_pack(s), _support(s), _overlay(s)
+        idmap, kept, byid = {}, [], {}
+        for p in pack["patterns"]:
+            if p.get("variant") in remap:
+                old = p["id"]
+                p["variant"] = remap[p["variant"]]
+                p["id"] = pattern_id(p["variant"], p.get("condition"), p.get("action"))
+                idmap[old] = p["id"]
+            if p["id"] in byid:    # the same lesson was stored under both spellings: one pattern, evidence of both
+                continue
+            byid[p["id"]] = p
+            kept.append(p)
+        for old, new in idmap.items():
+            if old == new:
+                continue
+            a = sup.pop(old, None)
+            if a:
+                b = sup.setdefault(new, {"for": [], "against": []})
+                for k in ("for", "against"):
+                    b[k] = sorted(set(b.get(k, [])) | set(a.get(k, [])))
+                if a.get("metric_backed"):
+                    b["metric_backed"] = True
+        pack["patterns"] = kept
+        for p in kept:
+            if p["id"] in idmap.values():
+                recompute(p, sup)
+        ov["rejected"] = sorted({idmap.get(x, x) for x in ov.get("rejected", [])})
+        ov["rejected_support"] = sorted({"%s:%s" % (idmap.get(x.split(":")[0], x.split(":")[0]), x.split(":", 1)[1]) if ":" in x else x
+                                         for x in ov.get("rejected_support", [])})
+        for prop in list_proposals(s):
+            if prop.get("variant") not in remap:
+                continue
+            old_path = os.path.join(_inbox_dir(s), prop["id"] + ".json")
+            prop["variant"] = remap[prop["variant"]]
+            pat = prop.get("pattern") or {}
+            if pat:
+                pat["variant"] = prop["variant"]
+                pat["id"] = pattern_id(pat["variant"], pat.get("condition"), pat.get("action"))
+                prop["pattern_id"] = pat["id"]
+            prop["id"] = "pr-" + hashlib.sha1(("%s|%s|%s" % (prop.get("kind"), prop.get("pattern_id"), prop.get("map_key"))).encode()).hexdigest()[:10]
+            if not _isfile(os.path.join(_inbox_dir(s), prop["id"] + ".json")):
+                _save_proposal(s, prop)
+            if os.path.join(_inbox_dir(s), prop["id"] + ".json") != old_path and _isfile(old_path):
+                _remove_proposal_file(s, old_path)
+        pdir = os.path.join(ldir(s), "profiles")
+        for fn in (sorted(_listdir(pdir)) if _isdir(pdir) else []):
+            if fn.endswith(".json"):
+                pf = _read_json(os.path.join(pdir, fn), None)
+                if isinstance(pf, dict) and pf.get("variant") in remap:
+                    pf["variant"] = remap[pf["variant"]]
+                    _write_json(os.path.join(pdir, fn), pf)
+        edir = os.path.join(ldir(s), "evidence")
+        for v, canon in remap.items():
+            src, dst = os.path.join(edir, v + ".md"), os.path.join(edir, canon + ".md")
+            if _isfile(src):
+                try:
+                    with open(_inside(edir, src), encoding="utf-8") as f:
+                        _append_text(dst, "\n" + f.read())
+                    _remove_file(_inside(edir, src), base=edir)
+                except (OSError, ValueError):
+                    pass
+        _save_support(s, sup)
+        _write_json(os.path.join(ldir(s), "overlay.json"), ov)
+        save_pack(s, pack)
+        _ledger(s, "merge-variants", "-", ", ".join("%s -> %s" % (a, b) for a, b in sorted(remap.items())))
+        if project:
+            pr = _pread(project) or {}
+            if pr.get("genre") == s and pr.get("variant") in remap:
+                pr["variant"] = remap[pr["variant"]]
+                _pwrite(project, pr)
+        render_skill(s)
+        done.append({"genre": s, "merged": remap})
+    return {"ok": True, "merged": done}
 
 
 def _marker_bump(project, key):
@@ -967,7 +1128,7 @@ def confirm_genre(project, slug, variant):
     slug = _official_slug(slug)
     if slug is None:
         return {"ok": False, "error": "genre must be one of the official genres"}
-    variant = _variant_name(variant)
+    variant = _canon_variant(slug, variant)
     if not variant:
         return {"ok": False, "error": "a map type is required"}
     gfile = os.path.join(project, "Claude", "docs", ".genre")
@@ -1020,6 +1181,8 @@ def propose(slug, variant, condition, action, statement, map_name, stance="for",
         return {"ok": False, "error": "map_name is required (it stays on this computer)"}
     if not VARIANT_RE.fullmatch(variant or ""):
         return {"ok": False, "error": "variant must be a lowercase slug or '*'"}
+    if variant != "*":
+        variant = _canon_variant(slug, variant) or variant   # 'pillar' next to an existing 'pillars' is the same type
     pid = pattern_id(variant, condition, action)
     deny = _deny_terms(slug) + [map_name.strip()]
     cand = {"id": pid, "variant": variant, "statement": statement.strip(), "condition": condition.strip(),
@@ -1065,7 +1228,7 @@ def propose(slug, variant, condition, action, statement, map_name, stance="for",
             "kind": kind, "genre": slug, "variant": variant, "pattern_id": pid, "pattern": cand,
             "say": say, "map_name": map_name.strip(), "map_key": mk, "stance": stance,
             "tasks": [str(t) for t in tasks], "note": redact(note or ""), "metric_backed": bool(metric_backed),
-            "created": _now()}
+            "project": _proj_hash(_project_from_cwd()), "created": _now()}
     if _isfile(os.path.join(_inbox_dir(slug), prop["id"] + ".json")):
         return {"ok": True, "skipped": "already waiting for your approval", "proposal": prop["id"]}
     _save_proposal(slug, prop)
@@ -1168,12 +1331,12 @@ def act(slug, proposal_id, action, statement=None, exclude=()):
         pat = dict(prop["pattern"])
         pat.update({"origin": "local", "created": _today(), "support": 0, "against": 0})
         pack["patterns"].append(pat)
-        mk = _remember_map(slug, prop["map_name"])
+        mk = _remember_map(slug, prop["map_name"], prop.get("project", ""))
         _apply_support(slug, pack, sup, pid, mk, "for", prop.get("metric_backed", False))
         _evidence_note(slug, pat["variant"], prop["map_name"],
                        "New pattern approved: %s\n%s" % (pat["statement"], prop.get("note", "")))
     elif kind in ("support_added", "contradiction"):
-        mk = _remember_map(slug, prop["map_name"])
+        mk = _remember_map(slug, prop["map_name"], prop.get("project", ""))
         _apply_support(slug, pack, sup, pid, mk, prop["stance"], prop.get("metric_backed", False))
         _evidence_note(slug, prop["variant"], prop["map_name"], "%s evidence for pattern %s. %s" % (
             "Supporting" if prop["stance"] == "for" else "CONTRADICTING", pid, prop.get("note", "")))
@@ -1220,6 +1383,184 @@ def export_pack(slug, out_dir):
     return {"ok": True, "path": path, "patterns": len(items)}
 
 
+# ----------------------------------------------------------------------------- a map is shareable only when it is published
+ISLAND_API = "https://api.fortnite.com/ecosystem/v1/islands/"
+PUBLISHED_TTL_YES, PUBLISHED_TTL_NO = 24 * 3600, 3600
+
+
+def _fetch_island_public(code):
+    """True when Epic has public data for this island code (the map is published), False when it has none (401/403/404), None when unknown."""
+    import urllib.request
+    import urllib.error
+    try:
+        req = urllib.request.Request(ISLAND_API + urllib.parse.quote(code, safe="-"), headers={"Accept": "application/json", "User-Agent": "UEFN-Claude-Kit/1.0"})
+        with urllib.request.urlopen(req, timeout=5) as r:
+            return r.status == 200
+    except urllib.error.HTTPError as e:
+        return False if e.code in (401, 403, 404) else None
+    except Exception:
+        return None
+
+
+def island_published(project, fetch=None, force=False, now=None):
+    """{"published": True|False|None, "reason": ...} for the island code saved in the project (Claude/docs/.island-code).
+    The code itself is never stored or printed: only a short hash and the answer, cached in Claude/logs/island-published.json."""
+    now = time.time() if now is None else now
+    try:
+        with open(os.path.join(project, "Claude", "docs", ".island-code"), encoding="utf-8") as f:
+            code = f.read().strip()
+    except OSError:
+        code = ""
+    if not re.fullmatch(r"\d{4}-\d{4}-\d{4}", code):
+        return {"published": False, "reason": "no island code saved for this project"}
+    ch = hashlib.sha1(code.encode()).hexdigest()[:8]
+    cache = os.path.join(project, "Claude", "logs", "island-published.json")
+    try:
+        with open(cache, encoding="utf-8") as f:
+            c = json.load(f)
+    except (OSError, ValueError):
+        c = {}
+    if not force and c.get("code") == ch and c.get("published") in (True, False) and now - float(c.get("at", 0)) < (PUBLISHED_TTL_YES if c["published"] else PUBLISHED_TTL_NO):
+        return {"published": c["published"], "reason": "checked earlier"}
+    ans = (fetch or _fetch_island_public)(code)
+    if ans is None:
+        return {"published": c.get("published") if c.get("code") == ch else None, "reason": "could not reach Epic to check"}
+    try:
+        os.makedirs(os.path.dirname(cache), exist_ok=True)
+        with open(cache, "w", encoding="utf-8", newline="\n") as f:
+            json.dump({"code": ch, "published": bool(ans), "at": now}, f)
+    except OSError:
+        pass
+    return {"published": bool(ans), "reason": "Epic has public data for this island" if ans else "Epic has no public data for this island (not published yet)"}
+
+
+def sync_published(project, fetch=None, force=False, now=None):
+    """Mark the maps of this project (in every genre skill) as published or not, from island_published. Unknown answers change nothing."""
+    st = island_published(project, fetch, force, now)
+    if st["published"] is None:
+        return dict(st, marked=0)
+    ph, pl, marked = _proj_hash(project), "", 0
+    try:
+        with open(os.path.join(project, "Claude", "docs", "map", "profile-learned.json"), encoding="utf-8-sig") as f:
+            pl = str((json.load(f) or {}).get("map_key") or "")
+    except (OSError, ValueError, AttributeError):
+        pass
+    for g in _genres():
+        m, changed = _maps(g), False
+        for k, v in m.items():
+            if isinstance(v, dict) and ((ph and v.get("project") == ph) or (pl and k == pl)) and v.get("published") is not st["published"]:
+                v["published"] = st["published"]
+                changed = True
+                marked += 1
+        if changed:
+            _write_json(os.path.join(ldir(g), "maps.json"), m)
+    return dict(st, marked=marked)
+
+
+def lesson_published(slug, pattern_id):
+    """True when at least one map that supports this lesson is published. Lessons of unpublished maps stay on this computer."""
+    maps = _maps(slug)
+    keys = (_support(slug).get(pattern_id) or {}).get("for", [])
+    return any(isinstance(maps.get(k), dict) and maps[k].get("published") is True for k in keys)
+
+
+# ----------------------------------------------------------------------------- share lessons with the community (opt-in)
+COMMUNITY_REPO = "mimmo-the-root/UEFN-dream-bot-team"
+MAX_CONTRIB_URL = 3000
+CONTRIB_SECTIONS = ("run-loop", "architecture", "devices", "progression", "death-strategies", "persistence", "performance", "launch-checklist")
+
+
+def _community_file():
+    return os.path.join(skills_root(), "community-share.json")
+
+
+def community_state():
+    """The switch "Contribute to the community" (OFF by default) and which lessons were already shared. Lives next to the skills."""
+    d = _read_json(_community_file(), {})
+    shared = [x for x in (d.get("shared") or []) if isinstance(x, str) and re.fullmatch(r"p-[0-9a-f]{12}", x)]
+    return {"share": d.get("share") is True, "shared": shared[-2000:]}
+
+
+def set_community(share):
+    st = community_state()
+    st["share"] = bool(share)
+    _write_json(_community_file(), st)
+    return {"ok": True, "share": st["share"]}
+
+
+def _kit_version():
+    try:
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "KIT-VERSION"), encoding="utf-8") as f:
+            v = f.read().strip()
+        return v if re.fullmatch(r"\d{1,3}\.\d{1,3}\.\d{1,3}", v) else "0.0.0"
+    except OSError:
+        return "0.0.0"
+
+
+def community_info(project):
+    """State for the Skills / What's new pages: the switch, what was shared, and whether the map of this project is published."""
+    st = community_state()
+    try:
+        pub = sync_published(project)
+    except Exception:
+        pub = {"published": None, "reason": "could not check"}
+    st["published"] = pub.get("published")
+    st["published_reason"] = pub.get("reason", "")
+    return st
+
+
+def community_act(data):
+    """One entry point for the console servers (POST /community-act): {action: on|off|export|shared, genre, id}. Genre and id are looked up, never used as paths."""
+    act_ = (data or {}).get("action")
+    if act_ in ("on", "off"):
+        return set_community(act_ == "on")
+    if act_ == "export":
+        return contribution_export(data.get("genre"), data.get("id"))
+    if act_ == "shared":
+        return mark_shared(data.get("genre"), data.get("id"))
+    return {"ok": False, "error": "unknown action"}
+
+
+def contribution_export(slug, pattern_id):
+    """The exact JSON that would leave this computer for ONE approved lesson of the owner, plus the GitHub page that proposes it.
+    Refused while the switch is off, for a lesson that is not the owner's own and approved, or one that fails the privacy check."""
+    if not community_state()["share"]:
+        return {"ok": False, "error": "sharing with the community is switched off"}
+    slug = resolve_genre(slug)
+    if not isinstance(pattern_id, str) or not re.fullmatch(r"p-[0-9a-f]{12}", pattern_id):
+        return {"ok": False, "error": "unknown lesson"}
+    p = _find(load_pack(slug), pattern_id)
+    if not p or p.get("origin") != "local" or p.get("status") == "superseded" or int(p.get("support", 0)) < 1:
+        return {"ok": False, "error": "only a lesson of yours that you approved can be shared"}
+    if not lesson_published(slug, pattern_id):
+        return {"ok": False, "published": False, "error": "this lesson comes from a map that is not published: it stays on this computer until the map is published"}
+    if validate_pattern(p, _deny_terms(slug)):
+        return {"ok": False, "error": "the lesson does not pass the privacy check"}
+    if p.get("section") not in CONTRIB_SECTIONS:
+        return {"ok": False, "error": "give the lesson a section first"}
+    doc = {"schema_version": 1, "pattern_id": p["id"], "genre": slug, "variant": p["variant"], "section": p["section"],
+           "direction": "for" if int(p.get("support", 0)) >= int(p.get("against", 0)) else "against",
+           "statement": p["statement"], "condition": p["condition"], "action": p["action"], "kit_version": _kit_version()}
+    name = "contributions/%s/%s/<your-github-handle>.json" % (slug, p["id"])
+    value = json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1)
+    url = "https://github.com/%s/new/main?filename=%s&value=%s" % (COMMUNITY_REPO, urllib.parse.quote(name, safe="/"), urllib.parse.quote(value, safe=""))
+    if len(url) > MAX_CONTRIB_URL:
+        return {"ok": False, "error": "the lesson is too long to open on GitHub", "doc": doc}
+    return {"ok": True, "doc": doc, "json": value, "filename": name, "url": url,
+            "note": "On GitHub rename the file to your GitHub handle (for example ada.json), then press Propose new file."}
+
+
+def mark_shared(slug, pattern_id):
+    slug = resolve_genre(slug)
+    if not re.fullmatch(r"p-[0-9a-f]{12}", str(pattern_id)) or not _find(load_pack(slug), pattern_id):
+        return {"ok": False, "error": "unknown lesson"}
+    st = community_state()
+    if pattern_id not in st["shared"]:
+        st["shared"].append(pattern_id)
+        _write_json(_community_file(), st)
+    return {"ok": True, "shared": len(st["shared"])}
+
+
 def _norm_key(variant, condition):
     return _norm(variant) + "|" + _norm(condition)
 
@@ -1258,6 +1599,9 @@ def merge_pack(slug, pack_obj, source, official=False):
             clean["tier"] = "reference"
         clean["status"] = clean["status"] if clean["status"] in STATUSES else "active"
         fnd = validate_pattern(clean, deny)
+        for _f in ("statement", "condition", "action"):   # an incoming (community) pack is plain English: no newline, look-alike, combining, zero-width or bidi characters
+            if isinstance(clean.get(_f), str) and not INCOMING_TEXT.match(clean[_f]):
+                fnd.append((_f, "unusual_characters"))
         if fnd:
             rejected.append({"id": clean.get("id"), "findings": fnd})
             continue
@@ -1328,6 +1672,72 @@ def _apply_pack_update(slug, pack, sup, prop, exclude):
     src["_version"] = prop["version"]
     _write_json(os.path.join(ldir(slug), "merged.json"), m)
     return {"new": n_new, "known": n_known, "conflicts": n_conf}
+
+
+def apply_revoked(ids):
+    """Remove community lessons the maintainer revoked (community-revoked.json): from the pack (only origin "community", never your own lessons),
+    from waiting proposals and from waiting community packs. Returns {"removed": n}. Idempotent."""
+    ids = {i for i in (ids or []) if isinstance(i, str) and re.fullmatch(r"p-[0-9a-f]{12}", i)}
+    if not ids:
+        return {"removed": 0}
+    removed = 0
+    for g in _genres():
+        changed = False
+        pack = load_pack(g)
+        keep = [p for p in pack["patterns"] if not (p.get("id") in ids and p.get("origin") == "community" and int(p.get("support", 0)) < 1)]   # backed by your own map: stays
+        if len(keep) != len(pack["patterns"]):
+            gone = [p["id"] for p in pack["patterns"] if p not in keep]
+            pack["patterns"] = keep
+            save_pack(g, pack)
+            for pid in gone:
+                _ledger(g, "community_revoked", pid, "revoked by the maintainer")
+            removed += len(gone)
+            changed = True
+        d = _inbox_dir(g)
+        for fn in (sorted(_listdir(d)) if _isdir(d) else []):
+            if not fn.endswith(".json"):
+                continue
+            prop = _read_json(os.path.join(d, fn), None)
+            if not isinstance(prop, dict):
+                continue
+            if prop.get("kind") == "pack_update":
+                n0 = sum(len(prop.get(k, [])) for k in ("new", "known", "conflicts"))
+                for k in ("new", "known", "conflicts"):
+                    prop[k] = [x for x in prop.get(k, []) if x.get("id") not in ids]
+                if sum(len(prop.get(k, [])) for k in ("new", "known", "conflicts")) != n0:
+                    removed += n0 - sum(len(prop.get(k, [])) for k in ("new", "known", "conflicts"))
+                    _save_proposal(g, prop)
+        if changed:
+            try:
+                render_skill(g)
+            except Exception:
+                pass
+    return {"removed": removed}
+
+
+def import_community_dir(genre_dir_root=None, revoked_ids=()):
+    """Offer the community packs shipped with the kit (<genre>/community/*.json) as ONE proposal per genre; nothing changes until you approve.
+    The pack passes the same validation as any incoming pack (merge_pack); idempotent."""
+    root = genre_dir_root or genre_root()
+    out = {"queued": 0, "rejected": 0}
+    for g in (sorted(os.listdir(root)) if os.path.isdir(root) else []):
+        cd = os.path.join(root, g, "community")
+        for n in (sorted(os.listdir(cd)) if os.path.isdir(cd) else []):
+            if not (n.endswith(".json") and os.path.isfile(os.path.join(cd, n))):
+                continue
+            try:
+                with open(os.path.join(cd, n), encoding="utf-8") as f:
+                    obj = json.load(f)
+                if isinstance(obj, dict) and isinstance(obj.get("patterns"), list):
+                    obj["patterns"] = [x for x in obj["patterns"] if not (isinstance(x, dict) and x.get("id") in set(revoked_ids))]   # a revoked lesson is never offered again
+                r = merge_pack(_slug(g), obj, "community")
+            except Exception as e:
+                r = {"ok": False, "error": str(e)}
+            if r.get("ok") and r.get("proposal"):
+                out["queued"] += 1
+            elif not r.get("ok"):
+                out["rejected"] += 1
+    return out
 
 
 # ----------------------------------------------------------------------------- privacy check
@@ -1577,7 +1987,7 @@ def summary():
                 c[p["tier"]] += 1
             variants_seen.add(p["variant"])
             pats.append({k: p.get(k) for k in ("id", "variant", "statement", "condition", "action", "tier", "status",
-                                               "origin", "support", "against", "community_support", "conflicts_with")})
+                                               "origin", "support", "against", "community_support", "conflicts_with", "section")})
         led = _read_jsonl(os.path.join(ldir(s), "ledger.jsonl"))
         ll = led[-1]["ts"] if led else None
         if ll and (not last_learned or ll > last_learned):
@@ -1645,15 +2055,31 @@ def _cli(argv=None):
     s = sub.add_parser("section"); s.add_argument("genre"); s.add_argument("pattern"); s.add_argument("section")
     s = sub.add_parser("retarget"); s.add_argument("old"); s.add_argument("new")
     s = sub.add_parser("profile-drop"); s.add_argument("genre"); s.add_argument("label")
+    s = sub.add_parser("variants-merge"); s.add_argument("genre", nargs="?", default=""); s.add_argument("--project", default="")
     s = sub.add_parser("learning"); s.add_argument("--project", default=".")
     s = sub.add_parser("propose-genre"); s.add_argument("genre"); s.add_argument("--variant", required=True); s.add_argument("--why", default=""); s.add_argument("--project", default=".")
     s = sub.add_parser("confirm-genre"); s.add_argument("genre"); s.add_argument("--variant", required=True); s.add_argument("--project", default=".")
     s = sub.add_parser("profile"); s.add_argument("genre"); s.add_argument("--map", required=True); s.add_argument("--file", required=True); s.add_argument("--project", default="")
     s = sub.add_parser("similar"); s.add_argument("genre"); s.add_argument("--threshold", type=float, default=0.5)
+    s = sub.add_parser("community"); s.add_argument("what", choices=["state", "on", "off"]); s.add_argument("--project", default="")
+    s = sub.add_parser("mark-shared"); s.add_argument("genre"); s.add_argument("pattern")
+    s = sub.add_parser("community-import")
+    s = sub.add_parser("sync-published"); s.add_argument("--project", default="."); s.add_argument("--force", action="store_true")
+    s = sub.add_parser("contribute"); s.add_argument("genre"); s.add_argument("pattern")
     a = ap.parse_args(argv)
     try:
         if a.cmd == "summary":
             r = summary()
+        elif a.cmd == "community":
+            r = (community_info(os.path.abspath(a.project)) if a.project else community_state()) if a.what == "state" else set_community(a.what == "on")
+        elif a.cmd == "community-import":
+            r = import_community_dir()
+        elif a.cmd == "mark-shared":
+            r = mark_shared(a.genre, a.pattern)
+        elif a.cmd == "sync-published":
+            r = sync_published(os.path.abspath(a.project), force=a.force)
+        elif a.cmd == "contribute":
+            r = contribution_export(a.genre, a.pattern)
         elif a.cmd == "init":
             r = init_genre(a.genre)
         elif a.cmd == "render":
@@ -1694,6 +2120,8 @@ def _cli(argv=None):
                  for p in load_pack(_slug(a.genre))["patterns"]]
         elif a.cmd == "retarget":
             r = retarget(a.old, a.new)
+        elif a.cmd == "variants-merge":
+            r = merge_variants(a.genre or None, os.path.abspath(a.project) if a.project else None)
         elif a.cmd == "profile-drop":
             r = drop_profile(a.genre, a.label)
         elif a.cmd == "learning":

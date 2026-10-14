@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DREAM BOT TEAM AGENT CONSOLE FOR UEFN — What's new</title>
+<style>
+:root{--bg:#060810;--panel:#0d121c;--panel2:#0a0e17;--line:#1c2740;--line-soft:#223050;--text:#c9d6f0;--dim:#5a7088;--blue:#4b8bff;--green:#39ff88;--amber:#ffb454;--red:#ff4d5e;--violet:#b98bff}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Consolas,'Courier New',monospace}
+body{background-image:radial-gradient(ellipse at 50% -10%,rgba(75,139,255,.14),transparent 60%),repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px 50px}
+.h{display:flex;justify-content:space-between;align-items:baseline;padding:14px 4px 12px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.t{color:var(--blue);font-weight:bold;font-size:12px}.t b{font-size:17px;letter-spacing:1px}.v{font-size:10px;color:var(--dim);margin-left:8px;font-weight:normal}
+.side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:12px;color:var(--dim)}
+.vs{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}.vs a{font-size:10px;text-transform:uppercase;padding:3px 10px;background:var(--panel2);color:var(--dim);text-decoration:none}.vs a.on{color:var(--text);background:#16203a}.vs a.new::after{content:" ●";color:var(--green)}
+.mock{font-size:11px;color:var(--amber);border:1px dashed rgba(255,180,84,.4);border-radius:8px;padding:8px 12px;margin:12px 0}
+.ksec{display:flex;align-items:center;gap:10px;margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line-soft)}
+.ksec h2{margin:0;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--blue)}.ksec span{color:var(--dim);font-size:11.5px;font-family:'Segoe UI',system-ui,sans-serif}
+.ksec.c h2{color:var(--violet)}.ksec.t h2{color:var(--green)}
+.hero{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:14px 0 4px}
+.hc{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.hc .k{font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase}.hc .n{font-size:28px;font-weight:bold;margin:5px 0 2px}.hc .n small{font-size:11px;color:var(--dim);font-weight:normal}.hc .s{font-size:10.5px;color:var(--dim)}
+.grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 16px}
+.rel h3{margin:4px 0 2px;font-size:17px;color:var(--text)}.rel .d{font-size:11px;color:var(--dim);margin-bottom:8px}
+.rel ul{margin:6px 0 10px;padding-left:18px;font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.75}
+.rel li b{color:var(--green);font-family:Consolas,monospace;font-size:11px;margin-right:4px}
+.btn{display:inline-block;font:inherit;font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--text);margin-right:8px}
+table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;font-size:10px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;padding:7px 8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.p-new{background:rgba(75,139,255,.16);color:var(--blue)}.p-upd{background:rgba(57,255,136,.12);color:var(--green)}.p-hyp{background:rgba(255,180,84,.12);color:var(--amber)}
+.sub{font-size:10.5px;color:var(--dim);font-family:'Segoe UI',system-ui,sans-serif}
+.h2h{font-family:'Segoe UI',system-ui,sans-serif;font-size:12.5px}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:1px 8px;font-size:10.5px;color:var(--text);margin:0 4px 3px 0}
+.chip.me{border-color:rgba(57,255,136,.5);color:var(--green)}
+.pod{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:2px 0 12px}
+.pc{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+.pc.g{border-color:rgba(255,180,84,.55)}.pc .m{font-size:22px}.pc .hd{font-size:14px;margin:4px 0;color:var(--text)}.pc .sc{font-size:22px;font-weight:bold;color:var(--green)}.pc .sc small{font-size:10px;color:var(--dim);font-weight:normal}
+.bar{height:5px;border-radius:3px;background:#182338;overflow:hidden;width:110px}.bar i{display:block;height:100%;background:var(--green)}
+.up{color:var(--green)}.dn{color:var(--red)}.dim{color:var(--dim)}
+.thx{padding:12px 18px!important;font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.7;padding:6px 0}
+.lesson{padding:10px 0;border-bottom:1px solid var(--line-soft);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.5}.lesson:last-child{border:none}
+.lesson .m{font-family:Consolas,monospace;font-size:10.5px;color:var(--dim);margin-top:3px}
+.sw{display:inline-block;width:34px;height:18px;border-radius:10px;background:var(--green);position:relative;vertical-align:middle;margin-right:8px}.sw::after{content:"";position:absolute;right:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#06260f}
+</style></head><body><div class="wrap">
+<div class="h"><div class="t">&gt; <b>DREAM BOT TEAM AGENT CONSOLE FOR UEFN</b><span class="v">v1.99.0</span></div>
+<div class="side"><div class="vs"><a>Console</a><a>Stats</a><a>Docs</a><a>Flow</a><a>Skills</a><a class="on new">What's new</a></div><div># what changed in the last release, and who made it better</div></div></div>
+
+<div class="mock">MOCKUP — sample data and invented handles. Nothing here is real.</div>
+
+<div class="hero">
+ <div class="hc"><div class="k">Release</div><div class="n">v1.99.0</div><div class="s">published 14 Oct · you run v1.98.9</div></div>
+ <div class="hc"><div class="k">New skills</div><div class="n">2 <small>genres</small></div><div class="s">tycoon · horror</div></div>
+ <div class="hc"><div class="k">Skills improved</div><div class="n">5 <small>genres</small></div><div class="s">+31 lessons confirmed</div></div>
+ <div class="hc"><div class="k">Contributions</div><div class="n">47 <small>received</small></div><div class="s">31 confirmed · 11 hypotheses · 5 archived</div></div>
+ <div class="hc"><div class="k">Contributors</div><div class="n">14 <small>creators</small></div><div class="s">6 new this release</div></div>
+</div>
+
+<div class="ksec"><h2>Last release</h2><span>from the changelog</span></div>
+<div class="grid">
+ <div class="card rel">
+  <h3>v1.99.0 — The community pack</h3><div class="d">14 Oct 2026 · you run v1.98.9, update available</div>
+  <ul>
+   <li><b>NEW</b>Share a lesson with the community from the Skills page (switch + one button per lesson)</li>
+   <li><b>NEW</b>Two genre skills: Tycoon and Horror, built from community lessons</li>
+   <li><b>BETTER</b>Survival, Party mini-games, PvP arena, Deathrun, Obby: +31 confirmed lessons</li>
+   <li><b>FIX</b>One map type however it is spelled</li>
+  </ul>
+  <span class="btn">Full changelog</span><span class="btn">GitHub release</span><span class="btn">Update the kit</span><a class="btn" href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/issues/new/choose" style="color:var(--amber);border-color:rgba(255,180,84,.5);text-decoration:none">Submit an issue ↗</a>
+ </div>
+ <div class="card"><div class="k dim" style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;margin:4px 0 8px">Your part in it</div>
+  <div class="h2h" style="line-height:2"><span class="sw"></span>Contribute to the community <span class="dim">· on</span></div>
+  <table><tr><td class="dim">Lessons you shared</td><td><b>6</b> <span class="sub">(4 confirmed, 2 hypotheses)</span></td></tr>
+  <tr><td class="dim">Your score</td><td><b class="up">+38</b> <span class="sub">rank 5 of 14</span></td></tr>
+  <tr><td class="dim">Waiting for you</td><td><b class="up">3</b> <span class="sub">lessons approved but not shared yet</span> <span class="btn" style="margin:0 0 0 6px">Review</span></td></tr></table>
+ </div>
+</div>
+
+<div class="ksec t"><h2>Skills in this release</h2><span>new, and improved by the community</span></div>
+<div class="card"><table>
+<tr><th>Genre skill</th><th>What happened</th><th>Lessons</th><th>Made by</th><th>Highlight</th></tr>
+<tr><td><b>Tycoon</b></td><td><span class="pill p-new">NEW</span></td><td><b>12</b> <span class="sub">8 confirmed<br>4 hypotheses</span></td><td><span class="chip">@forge_nova</span><span class="chip">@kiwi_verse</span><span class="chip">+2</span></td><td class="h2h">Dropper + conveyor timing, upgrade price curves</td></tr>
+<tr><td><b>Horror</b></td><td><span class="pill p-new">NEW</span></td><td><b>9</b> <span class="sub">5 confirmed<br>4 hypotheses</span></td><td><span class="chip">@darkroom_dev</span><span class="chip">@mira_builds</span></td><td class="h2h">Light/audio triggers that keep tension without lag</td></tr>
+<tr><td><b>Survival</b> <span class="sub">· base + 2 IP types</span></td><td><span class="pill p-upd">IMPROVED</span></td><td><b class="up">+8</b> <span class="sub">6 confirmed</span></td><td><span class="chip me">@mimmo</span><span class="chip">@forge_nova</span><span class="chip">+2</span></td><td class="h2h">Accolade XP, portals and support devices</td></tr>
+<tr><td><b>Party mini-games</b></td><td><span class="pill p-upd">IMPROVED</span></td><td><b class="up">+7</b> <span class="sub">5 confirmed</span></td><td><span class="chip">@kiwi_verse</span><span class="chip">@ludo_lab</span><span class="chip">+1</span></td><td class="h2h">Round reset without respawn glitches</td></tr>
+<tr><td><b>PvP arena</b></td><td><span class="pill p-upd">IMPROVED</span></td><td><b class="up">+5</b> <span class="sub">3 confirmed<br>2 hypotheses</span></td><td><span class="chip">@sniper_ada</span></td><td class="h2h">Spawn protection and score caps</td></tr>
+</table></div>
+
+<div class="ksec c"><h2>Top contributors</h2><span>score = lessons confirmed by others, minus lessons refuted</span></div>
+<div class="pod">
+ <div class="pc g"><div class="m">🥇</div><div class="hd">@forge_nova</div><div class="sc">+112 <small>score</small></div><div class="sub">19 confirmed · Tycoon, Survival</div></div>
+ <div class="pc"><div class="m">🥈</div><div class="hd">@kiwi_verse</div><div class="sc">+87 <small>score</small></div><div class="sub">15 confirmed · Party, Tycoon</div></div>
+ <div class="pc"><div class="m">🥉</div><div class="hd">@darkroom_dev</div><div class="sc">+64 <small>score</small></div><div class="sub">11 confirmed · Horror</div></div>
+</div>
+<div class="card"><table>
+<tr><th>#</th><th>Creator</th><th>Score</th><th>Lessons</th><th>Genres</th><th>This release</th></tr>
+<tr><td>4</td><td>@mira_builds</td><td><div class="bar"><i style="width:52%"></i></div><span class="sub">+49</span></td><td>9 confirmed</td><td class="sub">Horror, Obby</td><td class="up">▲ +21</td></tr>
+<tr><td>5</td><td>@mimmo <span class="chip me">you</span></td><td><div class="bar"><i style="width:40%"></i></div><span class="sub">+38</span></td><td>4 confirmed</td><td class="sub">Survival</td><td class="up">▲ +14</td></tr>
+<tr><td>6</td><td>@ludo_lab</td><td><div class="bar"><i style="width:33%"></i></div><span class="sub">+31</span></td><td>6 confirmed</td><td class="sub">Party</td><td class="up">▲ +9</td></tr>
+<tr><td>7</td><td>@sniper_ada</td><td><div class="bar"><i style="width:22%"></i></div><span class="sub">+21</span></td><td>3 confirmed</td><td class="sub">PvP</td><td class="dim">new</td></tr>
+</table></div>
+
+<div class="ksec t"><h2>Lessons that helped most</h2><span>confirmed on the most maps</span></div>
+<div class="card">
+ <div class="lesson">Reset a round by re-enabling the spawner group and teleporting players, not by respawning them.<div class="m">Party mini-games · by @ludo_lab · confirmed on 6 maps</div></div>
+ <div class="lesson">Put the XP grant behind a tracker device so portals do not award it twice.<div class="m">Survival · by @mimmo · confirmed on 4 maps</div></div>
+ <div class="lesson">Cap dropper output per conveyor lane; above the cap the frame time climbs.<div class="m">Tycoon · by @forge_nova · confirmed on 4 maps</div></div>
+</div>
+
+<div class="ksec"><h2>Thank you</h2><span>to everyone who shared a lesson in this release</span></div>
+<div class="card thx">
+ Thank you <b>@forge_nova</b>, <b>@kiwi_verse</b>, <b>@darkroom_dev</b>, <b>@mira_builds</b>, <b>@mimmo</b>, <b>@ludo_lab</b>, <b>@sniper_ada</b> and the 7 creators who joined this month. Every lesson you share makes the next map faster to build for everyone.<br>
+ <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft)">Found a bug, a wrong lesson or an idea? <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/issues/new/choose" style="color:var(--amber)">Submit an issue on GitHub ↗</a> <span class="sub">· a wrong community lesson reported here can be revoked in the next release</span></div><span class="sub">Lessons are shared only with the creator's switch on. Pending hypotheses are shown as "to verify" until others confirm them.</span>
+</div>
+</div></body></html>

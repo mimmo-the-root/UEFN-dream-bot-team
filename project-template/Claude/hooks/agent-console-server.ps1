@@ -97,6 +97,7 @@ $statsHtmlPath = Join-Path $root "agent-console-stats.html"
 $docsHtmlPath = Join-Path $root "agent-console-docs.html"
 $flowHtmlPath = Join-Path $root "agent-console-flow.html"
 $skillsHtmlPath = Join-Path $root "agent-console-skills.html"
+$newsHtmlPath = Join-Path $root "agent-console-news.html"
 $skillsLibPath = Join-Path $root "skills_lib.py"
 $metricsCacheFile = Join-Path $logsDir "fortnite-metrics-cache.json"
 $infoCacheFile = Join-Path $logsDir "fortnite-island-info-cache.json"
@@ -138,6 +139,7 @@ $State = [hashtable]::Synchronized(@{
     DocsHtmlPath        = $docsHtmlPath
     FlowHtmlPath        = $flowHtmlPath
     SkillsHtmlPath      = $skillsHtmlPath
+    NewsHtmlPath        = $newsHtmlPath
     SkillsLibPath       = $skillsLibPath
     MetricsCacheFile    = $metricsCacheFile
     InfoCacheFile       = $infoCacheFile
@@ -455,7 +457,7 @@ $RequestHandler = {
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)
             }
-        } elseif ($request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm") {
+        } elseif ($request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm" -or $request.Url.AbsolutePath -eq "/community-state" -or $request.Url.AbsolutePath -eq "/community-act" -or $request.Url.AbsolutePath -eq "/community-summary") {
             $sk = { param($Lib, $CliArgs)
                 foreach ($cand in @(@("py","-3"), @("python"), @("python3"))) {
                     $exe = Get-Command $cand[0] -ErrorAction SilentlyContinue
@@ -474,6 +476,11 @@ $RequestHandler = {
                 $json = & $sk $State.SkillsLibPath @("summary")
             } elseif ($path -eq "/learning-data") {
                 $json = & $sk $State.SkillsLibPath @("learning", "--project", $State.ProjectDir)
+            } elseif ($path -eq "/community-state") {
+                $json = & $sk $State.SkillsLibPath @("community", "state", "--project", $State.ProjectDir)
+            } elseif ($path -eq "/community-summary") {
+                $sumFile = Join-Path (Split-Path (Split-Path $State.SkillsLibPath -Parent) -Parent) "community\community-summary.json"
+                if (Test-Path $sumFile) { $json = [System.IO.File]::ReadAllText($sumFile, [System.Text.Encoding]::UTF8) } else { $json = "{}" }
             } else {
                 $origin = $request.Headers["Origin"]
                 $own = "http://" + $request.Url.Authority
@@ -490,6 +497,12 @@ $RequestHandler = {
                             $a = @("check"); if ($g) { $a += $g }
                         } elseif ($path -eq "/genre-confirm") {
                             $a = @("confirm-genre", $g, "--variant", [string]$d.variant, "--project", $State.ProjectDir)
+                        } elseif ($path -eq "/community-act") {
+                            $ca = [string]$d.action
+                            if ($ca -eq "on" -or $ca -eq "off") { $a = @("community", $ca) }
+                            elseif ($ca -eq "export") { $a = @("contribute", $g, [string]$d.id) }
+                            elseif ($ca -eq "shared") { $a = @("mark-shared", $g, [string]$d.id) }
+                            else { throw "unknown action" }
                         } else {
                             $a = @("act", $g, [string]$d.proposal, [string]$d.action)
                             if ($d.statement) { $a += @("--statement", [string]$d.statement) }
@@ -504,6 +517,15 @@ $RequestHandler = {
             $response.ContentType = "application/json; charset=utf-8"
             $response.ContentLength64 = $bytes.Length
             $response.OutputStream.Write($bytes, 0, $bytes.Length)
+        } elseif ($request.Url.AbsolutePath -eq "/news" -or $request.Url.AbsolutePath -eq "/agent-console-news.html") {
+            if (-not (Test-Path $State.NewsHtmlPath)) {
+                $response.StatusCode = 404
+            } else {
+                $bytes = [System.IO.File]::ReadAllBytes($State.NewsHtmlPath)
+                $response.ContentType = "text/html; charset=utf-8"
+                $response.ContentLength64 = $bytes.Length
+                $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            }
         } elseif ($request.Url.AbsolutePath -eq "/skills" -or $request.Url.AbsolutePath -eq "/agent-console-skills.html") {
             if (-not (Test-Path $State.SkillsHtmlPath)) {
                 $response.StatusCode = 404

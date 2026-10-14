@@ -1,0 +1,36 @@
+name: curator
+# The curator agent: groups the intake, regenerates lessons from verified fields, asks an isolated classifier (no tools) about each one
+# and opens ONE promotion PR on a bot branch. It never merges: the owner validates. The only secret is the key of the classifier call
+# (optional: without it every lesson is marked "unchecked" in the report). Needs Settings > Actions > "Allow GitHub Actions to create pull requests".
+on:
+  schedule:
+    - cron: "43 6 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  curate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the promotion
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python tool/curator.py
+      - name: Open the promotion PR (never merged here)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain -- user-level-skills)" ]; then echo "nothing to promote"; exit 0; fi
+          branch="bot/promotion-$(date +%Y%m%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add user-level-skills
+          git commit -m "community: promotion proposal"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "Community lessons: promotion proposal" --body-file promotion-report.md
