@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The console &middot; Dream Bot Team Manual</title><link rel="stylesheet" href="manual.css"></head><body><div class="shell"><nav class="rail rail-w" aria-label="Chapters"><div class="rail-brand">Dream Bot Team<small>Manual &middot; kit v1.100.0</small></div><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link on" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></nav><details class="rail rail-m"><summary>Chapters</summary><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link on" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></details><main class="page"><div class="crumb"><a href="index.html">Manual</a> / Chapter 04</div><div class="chapter-num">04</div><h1>The console</h1><p class="lede">A local web page that shows what your team is doing, what the kit has learned, and what changed.</p>
+<p>The console runs on your own computer. It starts by itself when you open a session in a project, at <code>http://127.0.0.1:8765/</code>. Nothing in it is sent anywhere. Six pages share one menu at the top.</p>
+<div class="callout tip"><div class="callout-label">Tip</div><p>Open it as that web address, not as a file from your disk, and reload the page after a kit update.</p></div>
+<h2 id="console">Console</h2>
+<p>The live view. Seventeen agents sit on a ring around the chief of staff, which is your main Claude session. An agent lights up while it works, and a pulse travels from one to another on a hand-off. Around the ring you also see the Obsidian Vault, you, and the UEFN MCP server.</p>
+<ul><li><strong>Session running for</strong> and <strong>tokens this session</strong> at the top. The token count is an approximation, summed from the session transcript.</li><li>The <strong>five-stage rail</strong> follows the current task from intent-gate to planner-docs.</li><li>The <strong>activity log</strong> on the right lists what each agent started and finished.</li><li>A small light on each card: grey when idle, green while working, yellow while waiting for a helper, red when it has run suspiciously long.</li></ul>
+<p>The long explanation of every animation is folded under <strong>How to read this page</strong>.</p>
+<h2 id="stats">Stats</h2>
+<p>Real numbers from Epic&#x27;s public data about your island: plays, unique players, minutes played, minutes per player, favorites, recommends, peak players and day-1 and day-7 retention, over the last 7 days. Click a tile to see its chart.</p>
+<p>Epic usually shows numbers only after the map is published and has had visitors, so a new map shows one message instead of empty tiles. The page needs the island code saved in the project.</p>
+<h2 id="docs">Docs</h2>
+<p>The project&#x27;s own documents, read from <code>Claude/docs/</code>: spec, status, roadmap, bugs and release readiness. It is a read-only view of what the agents keep up to date.</p>
+<h2 id="flow">Flow</h2>
+<p>The whole pipeline: every agent and every hand-off, end to end, as an assembly line. Use it to see which agent comes after which.</p>
+<h2 id="skills">Skills</h2>
+<p>What the kit has learned, in three parts:</p>
+<ul><li><strong>The kit</strong>: everything it knows across all your genres and maps.</li><li><strong>This map</strong>: the genre and type of the map you are in, its blueprint, and the lessons waiting for your approval.</li><li><strong>Community</strong>: the switch to share lessons, covered in <a href="community.html">Community</a>.</li></ul>
+<p>The <strong>SKILLS</strong> tab blinks when something waits for you. More in <a href="skills-and-lessons.html">Skills and lessons</a>.</p>
+<h2 id="what-s-new">What&#x27;s new</h2>
+<p>The last release in plain words, the skills that improved, the top contributors, the thanks, and a link to submit an issue on GitHub. It also shows your own part: whether sharing is on, how many lessons you shared, and whether your map is published.</p>
+<h2 id="update-banner">Update banner</h2>
+<p>When your computer holds a newer kit version than the project you are in, the console says so. Run <code>/kit-update</code>, open a new session, and reload the page.</p>
+<nav class="pn"><a class="pn-prev" href="your-team.html"><small>Previous</small>Your team</a><a class="pn-next" href="skills-and-lessons.html"><small>Next</small>Skills and lessons</a></nav><footer class="foot">Dream Bot Team for UEFN &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> (free to use, copy and change, no warranty) &middot; by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games. <a href="../agent-console.html">Back to the console</a></footer></main></div></body></html>

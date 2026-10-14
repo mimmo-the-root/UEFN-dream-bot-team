@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Troubleshooting &middot; Dream Bot Team Manual</title><link rel="stylesheet" href="manual.css"></head><body><div class="shell"><nav class="rail rail-w" aria-label="Chapters"><div class="rail-brand">Dream Bot Team<small>Manual &middot; kit v1.100.0</small></div><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link on" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></nav><details class="rail rail-m"><summary>Chapters</summary><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link on" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></details><main class="page"><div class="crumb"><a href="index.html">Manual</a> / Chapter 07</div><div class="chapter-num">07</div><h1>Troubleshooting</h1><p class="lede">Updates, the doctor, and the problems people meet most.</p>
+<h2 id="keep-the-kit-up-to-date">Keep the kit up to date</h2>
+<p>Every time you start <code>claude</code> in a project, the kit compares that project&#x27;s files with the copy in <code>~/.claude/kit-template/</code> and updates what is old or missing. The previous version of a replaced file is saved in <code>Claude/logs/kit-backup/</code>. Your own data is never touched: <code>Claude/docs/</code>, <code>Claude/logs/</code> and your <code>CLAUDE.md</code> outside the kit blocks.</p>
+<ul><li><code>/kit-update</code> updates the current project now.</li><li><code>/kit-update --fetch</code> first downloads the latest release from GitHub into <code>~/.claude/kit-template/</code>, then updates the project.</li><li>After an update, <strong>open a new session</strong> (rules, agents and hooks are read at the start) and reload the console page.</li></ul>
+<h2 id="the-doctor">The doctor</h2>
+<p><code>/kit-doctor</code> checks the project&#x27;s health: versions, hooks, backups. It tells you in a few lines what is fine, what is wrong and what to do. <code>/kit-doctor --fix</code> repairs the common problems.</p>
+<h2 id="restore-points">Restore points</h2>
+<p><code>/restore-point</code> makes a snapshot of your Verse code and documents, shows what changed since, or undoes a change. Run it without arguments to see what changed. A restore always shows what would change before it does anything, and never deletes files.</p>
+<h2 id="the-console-shows-a-red-status">The console shows a red status</h2>
+<p>The page cannot reach its local server. In order:</p>
+<ol class="steps"><li>Open the console as <code>http://127.0.0.1:8765/</code>, not as a file from your disk.</li><li>Start the server by hand in a terminal opened in the project:</li></ol>
+<pre><code>powershell -ExecutionPolicy Bypass -File Claude\hooks\agent-console-server.ps1</code></pre>
+<p>or, on any system with Python 3:</p>
+<pre><code>python3 Claude/hooks/agent-console-server.py</code></pre>
+<ol class="steps"><li>Reload the page. If you just updated the kit while the server was running, restart it: it does not notice file changes by itself. Opening a new session does this for you.</li></ol>
+<h2 id="the-console-is-quiet-while-agents-work">The console is quiet while agents work</h2>
+<p>Nothing shows until an agent actually runs. If agents run and the page stays empty, check that the project&#x27;s <code>.claude/settings.json</code> still has the kit&#x27;s hooks, which <code>/kit-doctor</code> does for you. After a Claude Code update that renames its internal dispatch tool, the console goes quiet the same way until the hooks are updated by a kit update.</p>
+<h2 id="claude-loses-uefn">Claude loses UEFN</h2>
+<p>The UEFN server listens on <code>http://127.0.0.1:8000/mcp</code> by default. Go in this order:</p>
+<ol class="steps"><li><strong>Is anything listening on port 8000?</strong> In PowerShell: <code>Get-NetTCPConnection -LocalPort 8000 -State Listen</code>. No result means the server is off.</li><li><strong>Read the editor Output Log</strong> for the server start-up lines. A port conflict shows up there.</li><li><strong>It listens but does not answer?</strong> Run <code>npx @modelcontextprotocol/inspector</code> and connect to <code>http://127.0.0.1:8000/mcp</code> with the Streamable HTTP transport. If the tools are listed, the server is fine and the problem is on the Claude side: restart the session.</li><li><strong>Restart the server by hand</strong> from the editor console: <code>ModelContextProtocol.StartServer</code>, optionally with a port, such as <code>ModelContextProtocol.StartServer 8000</code>.</li></ol>
+<h2 id="there-are-two-files-called-settings-json">There are two files called settings.json</h2>
+<p>They are different and must never be merged by hand. <code>~/.claude/settings.json</code> is yours: Claude Code&#x27;s own preferences. <code>&lt;project&gt;/.claude/settings.json</code> belongs to that project: the kit&#x27;s hooks and permissions. Claude Code reads both and combines them.</p>
+<h2 id="the-what-s-new-page-is-empty">The What&#x27;s new page is empty</h2>
+<p>It shows the summary of the last release, shipped with the kit. After a release, run <code>/kit-update --fetch</code> and open a new session. Sections about contributors fill up only when lessons from other creators arrive.</p>
+<h2 id="my-map-shows-as-not-published">My map shows as &quot;not published&quot;</h2>
+<p>The page says why. The usual reasons: the project has no island code saved, Epic has no public data for it yet, or Epic could not be reached. See <a href="community.html">Community</a>.</p>
+<h2 id="something-is-wrong-with-a-community-lesson">Something is wrong with a community lesson</h2>
+<p>Use <strong>Submit an issue</strong> on the What&#x27;s new page. See <a href="community.html">Community</a>.</p>
+<h2 id="still-stuck">Still stuck?</h2>
+<p>Open an issue on the <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/issues/new/choose" target="_blank" rel="noopener">GitHub repo</a>, or ask on the creator&#x27;s <a href="https://discord.gg/WXF9UgzvRX" target="_blank" rel="noopener">Discord</a>. Tell us your kit version (shown at the top of every console page) and what <code>/kit-doctor</code> said.</p>
+<nav class="pn"><a class="pn-prev" href="community.html"><small>Previous</small>Community</a><span></span></nav><footer class="foot">Dream Bot Team for UEFN &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> (free to use, copy and change, no warranty) &middot; by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games. <a href="../agent-console.html">Back to the console</a></footer></main></div></body></html>

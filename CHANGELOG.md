@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.100.0 — The manual, part 1
+
+- **A manual that opens in your browser.** Seven chapters (what the kit is, quick start, your team and their models, the console page by page, skills and lessons, community, troubleshooting) at `http://127.0.0.1:8765/manual/` while the console server runs. Plain HTML, no scripts, works offline, light and dark. It is copied into every project by `/kit-update`.
+- **"Help for this page" on every console page** opens the matching chapter.
+- **Every console page now has a footer** with the GitHub repo, the MIT license note (free to use, copy and change, no warranty), the author's X profile and the Epic trademark notice.
+- The manual is built from `docs/manual/*.md` by `tool/build_manual.py`; `publish.cmd` rebuilds it and a new test fails if the shipped copy is out of date.
+- More chapters, screenshots and a public copy on GitHub Pages follow in 1.101.0.
+
 ## v1.99.2 — Cleaner console, honest reports
 
 - **Agent reports say what was checked.** `qa-regression`, `release-gate` and `codebase-auditor` now end every report with `Verified:` and `NOT verified:`, so a PASS is never mistaken for "it builds". The reviewers and the helper agents keep their reports under 250 words, because those reports land in the most expensive context.

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Your team &middot; Dream Bot Team Manual</title><link rel="stylesheet" href="manual.css"></head><body><div class="shell"><nav class="rail rail-w" aria-label="Chapters"><div class="rail-brand">Dream Bot Team<small>Manual &middot; kit v1.100.0</small></div><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link on" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></nav><details class="rail rail-m"><summary>Chapters</summary><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link on" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></details><main class="page"><div class="crumb"><a href="index.html">Manual</a> / Chapter 03</div><div class="chapter-num">03</div><h1>Your team</h1><p class="lede">Seventeen agents, each with one narrow job, so that the one who writes is never the one who approves.</p>
+<p>You do not need to remember all of them. In day-to-day work you talk to Claude, and it calls the right agent. You can also ask for one by name.</p>
+<h2 id="how-to-call-an-agent">How to call an agent</h2>
+<ul><li>In plain words: <em>use the coder agent to add the respawn checkpoint</em>.</li><li>By name, which guarantees the hand-off: <code>@&quot;coder (agent)&quot; add the respawn checkpoint</code>.</li><li>Or just describe the task. Claude can pick the agent from each one&#x27;s description.</li></ul>
+<h2 id="the-path-of-one-task">The path of one task</h2>
+<p>Every change follows the same five stages, shown live on the console:</p>
+<ol class="steps"><li><strong>planner-docs</strong> opens a task in the roadmap with its acceptance criteria.</li><li><strong>intent-gate</strong> checks that the task is concrete enough to build without guessing.</li><li><strong>coder</strong> writes the code and compiles it.</li><li><strong>intent-reviewer</strong> checks that the result matches the acceptance criteria, line by line.</li><li><strong>compliance-reviewer</strong> checks the kit&#x27;s mechanical rules: logging, naming, multiplayer authority and so on. Only then does <strong>planner-docs</strong> mark the task Done.</li></ol>
+<div class="callout note"><div class="callout-label">Note</div><p>The coder never closes its own task. Two independent reviewers must pass it first.</p></div>
+<h2 id="the-agents-and-their-models">The agents and their models</h2>
+<p>Cost matters. The kit puts the cheaper model on work that is mostly checking or bookkeeping, and the stronger one where judgment and code are needed.</p>
+<div class="tablewrap"><table><thead><tr><th>Agent</th><th>Model</th><th>What it does</th></tr></thead><tbody><tr><td>project-bootstrap</td><td>Sonnet</td><td>Use once, at the start of a project: maps existing code or asks the questions for a new one.</td></tr><tr><td>planner-docs</td><td>Haiku</td><td>Owns the roadmap and the status. Opens and closes tasks.</td></tr><tr><td>intent-gate</td><td>Haiku</td><td>Checks the task is clear before any code is written.</td></tr><tr><td>coder</td><td>Sonnet</td><td>Writes and fixes code, in a compile and fix loop.</td></tr><tr><td>coder-prep</td><td>Sonnet</td><td>Internal helper: writes one independent area of code in parallel.</td></tr><tr><td>intent-reviewer</td><td>Sonnet</td><td>First review gate: does it do what the task asked?</td></tr><tr><td>compliance-reviewer</td><td>Haiku</td><td>Second review gate: does it follow the kit&#x27;s rules?</td></tr><tr><td>qa-regression</td><td>Sonnet</td><td>Finds regressions and unseen bugs after changes and playtests.</td></tr><tr><td>release-gate</td><td>Sonnet</td><td>Go or no-go before a release, from the project&#x27;s own documents.</td></tr><tr><td>codebase-auditor</td><td>Sonnet</td><td>Independent audit of the whole codebase, on demand.</td></tr><tr><td>skill-reflector</td><td>Haiku</td><td>Proposes lessons for your genre after a real playtest.</td></tr><tr><td>growth-manager</td><td>Sonnet</td><td>Everything about getting the map found and played: titles, thumbnails, trailers, launch plans.</td></tr><tr><td>materials-expert</td><td>Sonnet</td><td>Audits and reuses materials in the project.</td></tr><tr><td>template-reader</td><td>Sonnet</td><td>Reads an Epic template, read only.</td></tr><tr><td>second-brain-librarian</td><td>Sonnet</td><td>Optional: keeps a shared Obsidian vault of reusable mechanics.</td></tr><tr><td>second-brain-trainer</td><td>Sonnet</td><td>Optional: a deliberate sweep of the project to fill that vault.</td></tr><tr><td>second-brain-scout</td><td>Haiku</td><td>Internal helper of the trainer: analyses one area, read only.</td></tr></tbody></table></div>
+<p>Haiku is the lighter, cheaper model; Sonnet is the stronger one. No agent uses Opus.</p>
+<div class="callout tip"><div class="callout-label">Tip</div><p>Agents that only check keep their reports short on purpose: their report lands in your main session, the most expensive place to spend words.</p></div>
+<h2 id="what-reports-tell-you">What reports tell you</h2>
+<p>The audit agents (<code>qa-regression</code>, <code>release-gate</code>, <code>codebase-auditor</code>) end every report with two lines: what they <strong>verified</strong> and what they did <strong>not</strong> verify. A pass is never silent about what it did not check.</p>
+<h2 id="overriding-an-agent-for-one-project">Overriding an agent for one project</h2>
+<p>Create an agent with the same name in that project&#x27;s <code>.claude/agents/</code> folder. It wins there and only there.</p>
+<nav class="pn"><a class="pn-prev" href="quick-start.html"><small>Previous</small>Quick start</a><a class="pn-next" href="the-console.html"><small>Next</small>The console</a></nav><footer class="foot">Dream Bot Team for UEFN &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> (free to use, copy and change, no warranty) &middot; by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games. <a href="../agent-console.html">Back to the console</a></footer></main></div></body></html>

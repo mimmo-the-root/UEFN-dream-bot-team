@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Skills and lessons &middot; Dream Bot Team Manual</title><link rel="stylesheet" href="manual.css"></head><body><div class="shell"><nav class="rail rail-w" aria-label="Chapters"><div class="rail-brand">Dream Bot Team<small>Manual &middot; kit v1.100.0</small></div><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link on" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></nav><details class="rail rail-m"><summary>Chapters</summary><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link on" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></details><main class="page"><div class="crumb"><a href="index.html">Manual</a> / Chapter 05</div><div class="chapter-num">05</div><h1>Skills and lessons</h1><p class="lede">Every map you work on teaches the kit something. You approve what it keeps.</p>
+<p>A <strong>genre skill</strong> is the kit&#x27;s memory about one kind of game: survival, party games, roguelike and so on, using Epic&#x27;s own Discover genres. It holds patterns that worked, and the coder reads them before writing code. Skills used to stay empty until you wrote lessons by hand. Now they fill from your real maps.</p>
+<h2 id="what-it-reads">What it reads</h2>
+<p>At the first message of a session, before answering it, the kit reads three things, and only what changed since last time:</p>
+<ol class="steps"><li>Your <strong>Verse code</strong>, through a map of the project built by a script with no AI cost.</li><li>Your <strong>project documents</strong>, compared with the code. Where they disagree, the kit corrects the document, with a backup, never silently.</li><li>The <strong>devices placed in the level</strong>, their wiring and settings, and the island configuration, through the UEFN connection. This needs UEFN open; otherwise it waits for next time.</li></ol>
+<p>It never interviews you about your map. If a session stops halfway, the next one continues where it stopped. You can force it with <code>/learn-map</code>, and rebuild only the Verse map with <code>/verse-map</code>.</p>
+<h2 id="you-confirm-the-genre-and-the-map-type">You confirm the genre and the map type</h2>
+<p>The kit only <strong>proposes</strong> the genre and the map type (a free name such as pillars, red-vs-blue or checkpoint-race). Until you confirm them on the Skills page, nothing is written to your skills. Confirming saves the waiting blueprint and lessons by itself.</p>
+<div class="callout note"><div class="callout-label">Note</div><p>A map that is the same base game dressed for another franchise is a type of the same genre. The kit reads the franchise from your documents; the shared base is type <code>base</code>.</p></div>
+<h2 id="the-blueprint">The blueprint</h2>
+<p>What it learned becomes a blueprint inside the genre skill: the layout with counts, the game loop, the devices and how they are wired, the rules with the numbers observed, and the build order. It is marked out of date when code, documents or devices change, and rewritten at the next opportunity. What it could not read stays marked <code>unknown</code> and is retried, never invented.</p>
+<h2 id="lessons-and-how-much-to-trust-them">Lessons and how much to trust them</h2>
+<p>Each analysed map also queues three to five general lessons. You approve, edit or reject them on the Skills page, or use <strong>Approve all</strong>. A lesson earns trust as more of your maps back it:</p>
+<div class="tablewrap"><table><thead><tr><th>Level</th><th>Meaning</th></tr></thead><tbody><tr><td>Hypothesis</td><td>One map. Only a suggestion; the coder is told it is unproven.</td></tr><tr><td>Confirmed</td><td>Two maps.</td></tr><tr><td>Proven</td><td>Three or more maps, or two plus a retention metric. A rule to follow.</td></tr><tr><td>Reference</td><td>Comes from an official source.</td></tr><tr><td>Contested</td><td>Something contradicts it.</td></tr></tbody></table></div>
+<h2 id="what-stays-on-your-computer">What stays on your computer</h2>
+<p>Your map names, task ids, notes and evidence stay in a private layer called <code>local/</code> and never leave. Only generalized patterns can be shared, after a privacy check, and only if you choose. See <a href="community.html">Community</a>.</p>
+<h2 id="where-to-find-it">Where to find it</h2>
+<p>On the <strong>Skills</strong> page of the <a href="the-console.html">console</a>. The SKILLS tab of every console page blinks while a lesson, a pack update or a genre confirmation waits for you.</p>
+<nav class="pn"><a class="pn-prev" href="the-console.html"><small>Previous</small>The console</a><a class="pn-next" href="community.html"><small>Next</small>Community</a></nav><footer class="foot">Dream Bot Team for UEFN &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> (free to use, copy and change, no warranty) &middot; by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games. <a href="../agent-console.html">Back to the console</a></footer></main></div></body></html>

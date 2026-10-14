@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quick start &middot; Dream Bot Team Manual</title><link rel="stylesheet" href="manual.css"></head><body><div class="shell"><nav class="rail rail-w" aria-label="Chapters"><div class="rail-brand">Dream Bot Team<small>Manual &middot; kit v1.100.0</small></div><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link on" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></nav><details class="rail rail-m"><summary>Chapters</summary><a class="rail-home" href="index.html">Manual home</a>
+<div class="rail-part">Part 1 · Start here</div>
+<a class="rail-link" href="welcome.html"><span class="rail-n">01</span>What this kit is</a>
+<a class="rail-link on" href="quick-start.html"><span class="rail-n">02</span>Quick start</a>
+<div class="rail-part">Part 2 · Use it every day</div>
+<a class="rail-link" href="your-team.html"><span class="rail-n">03</span>Your team</a>
+<a class="rail-link" href="the-console.html"><span class="rail-n">04</span>The console</a>
+<a class="rail-link" href="skills-and-lessons.html"><span class="rail-n">05</span>Skills and lessons</a>
+<a class="rail-link" href="community.html"><span class="rail-n">06</span>Community</a>
+<div class="rail-part">Part 3 · When something is wrong</div>
+<a class="rail-link" href="troubleshooting.html"><span class="rail-n">07</span>Troubleshooting</a></details><main class="page"><div class="crumb"><a href="index.html">Manual</a> / Chapter 02</div><div class="chapter-num">02</div><h1>Quick start</h1><p class="lede">From nothing to a first working session. Do part A once per computer and part B once per project.</p>
+<p>This page is the short path. The repository keeps the long version, with every optional step, in <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/SETUP-GUIDE.md" target="_blank" rel="noopener">SETUP-GUIDE.md</a>.</p>
+<h2 id="part-a-once-per-computer">Part A: once per computer</h2>
+<ol class="steps"><li><strong>Download the kit</strong> from the <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> (green Code button, then Download ZIP) and unzip it somewhere you will remember.</li><li><strong>Let UEFN talk to Claude.</strong> In the UEFN installation folder (on Windows usually <code>C:\Program Files\Epic Games\Fortnite</code>), create a file named <code>.mcp.json</code> with this content, then start UEFN.</li></ol>
+<pre><code>{
+  &quot;mcpServers&quot;: {
+    &quot;unreal-mcp&quot;: { &quot;type&quot;: &quot;http&quot;, &quot;url&quot;: &quot;http://127.0.0.1:8000/mcp&quot; }
+  }
+}</code></pre>
+<ol class="steps"><li><strong>Turn the server on</strong> in UEFN: Edit, Editor Preferences, Model Context Protocol, then switch on <em>Auto Start Server</em>.</li><li><strong>Install the agents and skills.</strong> Copy everything inside the kit&#x27;s <code>user-level-agents/</code> folder into <code>~/.claude/agents/</code> (on Windows <code>%USERPROFILE%\.claude\agents\</code>). Copy each folder inside <code>user-level-skills/</code> into <code>~/.claude/skills/</code>. Copy <code>user-level-memory/CLAUDE.md</code> to <code>~/.claude/CLAUDE.md</code>, or paste it at the end of yours if you already have one.</li><li><strong>Keep a copy for automatic updates.</strong> Copy the whole <code>project-template/</code> folder into <code>~/.claude/kit-template/</code>. From then on every new session updates the kit files of the project you are in.</li><li><strong>Register the UEFN server once</strong> by running this in a terminal:</li></ol>
+<pre><code>claude mcp add --transport http unreal-mcp --scope user http://127.0.0.1:8000/mcp</code></pre>
+<div class="callout checkpoint"><div class="callout-label">You should see</div><p><code>claude mcp list</code> shows <code>unreal-mcp</code> with scope user.</p></div>
+<h2 id="part-b-once-per-project">Part B: once per project</h2>
+<ol class="steps"><li>In UEFN, open <strong>Project Settings</strong> and enable <em>Python Editor Scripting</em> and <em>UEFN MCP Toolsets</em> for this project.</li><li>Copy the <strong>contents</strong> of the kit&#x27;s <code>project-template/</code> folder into the project&#x27;s <code>Content/</code> folder.</li><li>Open a terminal **inside that <code>Content/</code> folder** and start <code>claude</code>.</li><li>Tell it: <em>Read Claude/SETUP-INSTRUCTIONS.md and set up this project.</em> It checks the connection, asks what the project is, and sets up the rest.</li><li>On the first session, ask for <strong>project-bootstrap</strong>. With existing code it maps the project and writes a first spec and bug list. With an empty project it asks you questions instead of inventing anything.</li></ol>
+<div class="callout checkpoint"><div class="callout-label">You should see</div><p>Open <code>http://127.0.0.1:8765/</code> in your browser. The console is running, and it shows 17 agents, all idle.</p></div>
+<div class="callout tip"><div class="callout-label">Tip</div><p>Open the console as that web address, not as a file from your disk, or it cannot talk to the local server.</p></div>
+<h2 id="and-then">And then</h2>
+<p>Work as usual. Ask the coder agent for a feature, let the checks run, and ask the planner to update <code>STATUS.md</code> before you close. The next chapter, <a href="your-team.html">Your team</a>, says who does what.</p>
+<nav class="pn"><a class="pn-prev" href="welcome.html"><small>Previous</small>What this kit is</a><a class="pn-next" href="your-team.html"><small>Next</small>Your team</a></nav><footer class="foot">Dream Bot Team for UEFN &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> (free to use, copy and change, no warranty) &middot; by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games. <a href="../agent-console.html">Back to the console</a></footer></main></div></body></html>

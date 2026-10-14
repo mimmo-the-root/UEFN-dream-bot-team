@@ -67,6 +67,8 @@ DOCS_HTML_PATH = os.path.join(ROOT, "agent-console-docs.html")
 FLOW_HTML_PATH = os.path.join(ROOT, "agent-console-flow.html")
 SKILLS_HTML_PATH = os.path.join(ROOT, "agent-console-skills.html")
 NEWS_HTML_PATH = os.path.join(ROOT, "agent-console-news.html")
+MANUAL_DIR = os.path.join(ROOT, "manual")  # the HTML manual (v1.100): /manual/ and /manual/<chapter>.html
+MANUAL_FILE_RE = re.compile(r"/manual/([a-z0-9-]+\.(?:html|css))")
 # Skill Harness (v1.81+): the Skills page reads/writes the genre skills under ~/.claude/skills/genre
 # through skills_lib.py (same folder). If the module is missing the rest of the console still works.
 try:
@@ -445,6 +447,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     self._send_json_bytes(json.dumps(skills_lib.summary()).encode("utf-8"))
                 except Exception as e:
                     self._send_json_bytes(json.dumps({"error": "could not read skills: %s" % e}).encode("utf-8"))
+        elif self.path == "/manual" or self.path.startswith("/manual/") or self.path.startswith("/manual?"):
+            self._serve_manual()
         elif self.path.startswith("/news") or self.path.startswith("/agent-console-news.html"):
             self._serve_html_file(NEWS_HTML_PATH)
         elif self.path.startswith("/skills") or self.path.startswith("/agent-console-skills.html"):
@@ -501,6 +505,30 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._send_json_status(200, res)
         except (ValueError, KeyError, TypeError) as e:
             self._send_json_status(400, {"ok": False, "error": str(e)})
+
+    def _serve_manual(self):
+        # Only plain chapter names (a-z, 0-9, dash) with .html or .css, read from the manual folder: no path can climb out of it.
+        path = self.path.split("?", 1)[0].split("#", 1)[0]
+        if path == "/manual":
+            self.send_response(302)
+            self.send_header("Location", "/manual/")
+            self.end_headers()
+            return
+        if path == "/manual/":
+            path = "/manual/index.html"
+        m = MANUAL_FILE_RE.fullmatch(path)
+        target = os.path.join(MANUAL_DIR, m.group(1)) if m else ""
+        if not m or not os.path.isfile(target):
+            self.send_response(404)
+            self.end_headers()
+            return
+        with open(target, "rb") as f:
+            body = f.read()
+        self.send_response(200)
+        self.send_header("Content-Type", "text/css; charset=utf-8" if target.endswith(".css") else "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
     def _serve_html_file(self, file_path):
         # Shared by the main console and its Stats/Docs/Flow pages — both the short server routes

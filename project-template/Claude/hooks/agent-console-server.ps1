@@ -98,6 +98,7 @@ $docsHtmlPath = Join-Path $root "agent-console-docs.html"
 $flowHtmlPath = Join-Path $root "agent-console-flow.html"
 $skillsHtmlPath = Join-Path $root "agent-console-skills.html"
 $newsHtmlPath = Join-Path $root "agent-console-news.html"
+$manualDir = Join-Path $root "manual"
 $skillsLibPath = Join-Path $root "skills_lib.py"
 $metricsCacheFile = Join-Path $logsDir "fortnite-metrics-cache.json"
 $infoCacheFile = Join-Path $logsDir "fortnite-island-info-cache.json"
@@ -140,6 +141,7 @@ $State = [hashtable]::Synchronized(@{
     FlowHtmlPath        = $flowHtmlPath
     SkillsHtmlPath      = $skillsHtmlPath
     NewsHtmlPath        = $newsHtmlPath
+    ManualDir           = $manualDir
     SkillsLibPath       = $skillsLibPath
     MetricsCacheFile    = $metricsCacheFile
     InfoCacheFile       = $infoCacheFile
@@ -517,6 +519,22 @@ $RequestHandler = {
             $response.ContentType = "application/json; charset=utf-8"
             $response.ContentLength64 = $bytes.Length
             $response.OutputStream.Write($bytes, 0, $bytes.Length)
+        } elseif ($request.Url.AbsolutePath -eq "/manual") {
+            # the manual (v1.100): its pages use relative links, so the folder URL needs the trailing slash
+            $response.StatusCode = 302
+            $response.Headers.Add("Location", "/manual/")
+        } elseif ($request.Url.AbsolutePath.StartsWith("/manual/")) {
+            # only plain chapter names (a-z, 0-9, dash) with .html or .css, read from the manual folder: no path can climb out of it
+            $mp = $request.Url.AbsolutePath
+            if ($mp -eq "/manual/") { $mp = "/manual/index.html" }
+            if ($mp -cmatch '^/manual/([a-z0-9-]+\.(html|css))$' -and (Test-Path (Join-Path $State.ManualDir $Matches[1]))) {
+                $bytes = [System.IO.File]::ReadAllBytes((Join-Path $State.ManualDir $Matches[1]))
+                $response.ContentType = $(if ($Matches[2] -eq "css") { "text/css; charset=utf-8" } else { "text/html; charset=utf-8" })
+                $response.ContentLength64 = $bytes.Length
+                $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            } else {
+                $response.StatusCode = 404
+            }
         } elseif ($request.Url.AbsolutePath -eq "/news" -or $request.Url.AbsolutePath -eq "/agent-console-news.html") {
             if (-not (Test-Path $State.NewsHtmlPath)) {
                 $response.StatusCode = 404
