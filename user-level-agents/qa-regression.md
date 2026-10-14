@@ -45,3 +45,7 @@ Style: go straight to the results, no preamble or narration of what you're about
 ## Bug rows follow the BUGS.md format
 
 When you write a bug under "Newly reported", add a TABLE ROW with the same columns as the Backlog table (`Title | Where | Severity | Probable cause | Status`), Title starting with the next free id (`B-<3 digits>: short title`), Status `Open`. Never a prose bullet. A hook checks the format right after your edit; if it reports a problem, fix it.
+
+## Always state what you verified
+
+End every report with two short lines: `Verified:` (what you actually checked and how: a file you read, a command you ran, a log you opened) and `NOT verified:` (what you did not or could not check, and why). Never give a PASS or READY for something listed under NOT verified without saying so in the same line. A check that only confirmed a name or a signature exists is not a check that the code builds or runs: say which of the two you did. If you ran nothing, write "ran nothing".

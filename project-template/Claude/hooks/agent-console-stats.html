@@ -98,7 +98,7 @@
   <div class="termlines">
     <div class="line prompt">&gt; <span class="title-text">DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="blink">_</span></span><span id="kitVersion" style="font-size:10px;font-weight:normal;letter-spacing:.5px;color:var(--dim);margin-left:8px;vertical-align:middle;"></span></div>
     <div class="termlines-side">
-      <div class="view-switch"><a href="agent-console.html">Console</a><a href="agent-console-stats.html" class="on">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a><a href="agent-console-news.html">What\'s new</a></div>
+      <div class="view-switch"><a href="agent-console.html">Console</a><a href="agent-console-stats.html" class="on">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a><a href="agent-console-news.html">What&#39;s new</a></div>
       <div class="line comment"># Fortnite Ecosystem API — real data, last 7 days</div>
       <div class="line status" id="statusLine">… loading</div>
     </div>
@@ -232,6 +232,11 @@ function maxOf(series){
 function renderKpis(){
   const el = document.getElementById("kpis");
   el.innerHTML = "";
+  // nothing at all yet: one clear message instead of nine identical empty tiles
+  if (METRICS.every(m => !lastNonNull(padToSevenDayGrid(normalized[m.id] || [])))){
+    el.innerHTML = '<div class="tile" style="grid-column:1/-1;cursor:default;"><div class="lbl">No numbers from Epic yet</div><div class="novalue" style="font-size:12px;line-height:1.6;">Epic shows plays, players and retention a few days after a map is published and has had visitors. Check that this project has its island code (Console page), then come back.</div></div>';
+    return;
+  }
   METRICS.forEach(m => {
     const series = padToSevenDayGrid(normalized[m.id] || []);
     const last = lastNonNull(series);
@@ -289,10 +294,10 @@ function renderChart(){
 
   const peakIdx = raw.reduce((best, p, i) => (p.v !== null && (best === -1 || p.v > raw[best].v)) ? i : best, -1);
   let metaText = peakIdx >= 0
-    ? "picco: " + fmtValue(raw[peakIdx].v, def.fmt) + " (" + raw[peakIdx].t.toLocaleDateString(undefined,{weekday:"short",day:"numeric"}) + ")"
+    ? "peak: " + fmtValue(raw[peakIdx].v, def.fmt) + " (" + raw[peakIdx].t.toLocaleDateString(undefined,{weekday:"short",day:"numeric"}) + ")"
     : "";
   if (series.length < raw.length){
-    metaText += (metaText ? " — " : "") + (raw.length - series.length) + "/" + raw.length + " giorni senza dati sufficienti";
+    metaText += (metaText ? " — " : "") + (raw.length - series.length) + "/" + raw.length + " days without enough data";
   }
   document.getElementById("chartMeta").textContent = metaText;
 
@@ -538,7 +543,7 @@ function showSetupNeeded(){
 loadData();
 setInterval(loadData, 5 * 60 * 1000); // API data is daily-granularity; a 5-min poll just picks up cache refreshes
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.99.1";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.99.2";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

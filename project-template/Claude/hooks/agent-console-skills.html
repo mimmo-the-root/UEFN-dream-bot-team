@@ -58,7 +58,7 @@ textarea.edit{width:100%;font:inherit;font-size:12px;background:var(--panel2);co
   <div class="h">
     <div class="t">&gt; <b>DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="blink">_</span></b><span class="v" id="kitVersion"></span></div>
     <div class="side">
-      <div class="vs"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html" class="on">Skills</a><a href="agent-console-news.html">What\'s new</a></div>
+      <div class="vs"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html" class="on">Skills</a><a href="agent-console-news.html">What&#39;s new</a></div>
       <div># skill harness — what the kit has learned from your maps</div>
       <div id="conn">… reading genre skills from the local server</div>
     </div>
@@ -380,7 +380,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.99.1";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.99.2";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -476,7 +476,7 @@ function pill(t,cls){return '<span class="kpill '+cls+'">'+esc(t)+'</span>';}
 function tierPill(p){if(p.status==="contested")return pill("contested","kp-r");var m={proven:"kp-g",confirmed:"kp-a",hypothesis:"kp-d",reference:"kp-b"};return pill(p.tier,m[p.tier]||"kp-d");}
 
 function renderKit(){
- if(!SD||SD.error){$("kHero").innerHTML='<div class="khc" style="grid-column:1/-1"><div class="k">Skills</div><div class="s">'+esc((SD&&SD.error)||"Could not read the genre skills.")+'</div></div>';return;}
+ if(!SD||SD.error||!SD.totals){$("kHero").innerHTML='<div class="khc" style="grid-column:1/-1"><div class="k">Skills</div><div class="s">'+esc((SD&&SD.error)||"Could not read the genre skills.")+'</div></div>';return;}
  var t=SD.totals,mx=Math.max.apply(null,SD.usage_week.concat([1]));
  $("kHero").innerHTML=
   '<div class="khc'+(SD.pending.length?" warn":"")+'"><div class="k">Waiting for you</div><div class="n">'+SD.pending_lessons+' <small>lesson'+(SD.pending_lessons===1?"":"s")+'</small></div><div class="s">'+(SD.pending_packs?"+ "+SD.pending_packs+" community pack update"+(SD.pending_packs===1?"":"s")+"<br>":"")+(SD.pending.length?"oldest waiting: "+esc(ago(SD.oldest_pending)):"nothing to review")+'</div></div>'+

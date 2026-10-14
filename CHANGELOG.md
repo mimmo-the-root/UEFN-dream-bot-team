@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.99.2 — Cleaner console, honest reports
+
+- **Agent reports say what was checked.** `qa-regression`, `release-gate` and `codebase-auditor` now end every report with `Verified:` and `NOT verified:`, so a PASS is never mistaken for "it builds". The reviewers and the helper agents keep their reports under 250 words, because those reports land in the most expensive context.
+- **The agent ring no longer overlaps.** Twenty names now sit on an ellipse that fills the stage instead of a circle, the Obsidian Vault sits a little closer to the hub, cards shrink on a narrow window, and a name cut short shows in full on hover. Measured with an automatic overlap check: from 30 overlapping pairs at the worst moment to 3.
+- **The long help text under the ring is folded** in "How to read this page"; only the line about starting the local server stays visible.
+- **Stats shows one clear message** when Epic has no numbers yet, instead of nine identical empty tiles. The chart caption is in English (two Italian words slipped in).
+- **Fix: the "What's new" tab showed a stray backslash** (`What\'s new`) on the other five pages.
+- **What's new** now says why the map shows as "not published" (no island code, Epic has no data, or Epic not reachable).
+
 ## v1.99.1 — Test fixes for Windows and code scanning
 
 - **Tests no longer depend on the console or the file system.** Two tests failed on Windows (a console that cannot print an invisible character, and file names that ignore upper and lower case). The kit itself was not affected.

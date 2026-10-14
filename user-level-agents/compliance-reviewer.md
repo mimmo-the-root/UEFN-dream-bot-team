@@ -110,3 +110,7 @@ reason, e.g. `"5 consecutive REJECTED, escalated to owner"`).
 
 Style: go straight to the checklist and verdict, no preamble. Be specific and concrete — a finding
 without a file/line/device name isn't actionable.
+
+## Keep the report short
+
+Your report goes into the main session's context, the most expensive one: at most 250 words. Findings first, one line each (where, what, why). No recap of what you read and no narration.

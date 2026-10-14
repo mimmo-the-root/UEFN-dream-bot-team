@@ -136,7 +136,7 @@
   .orbit-wrap{background:linear-gradient(180deg,var(--panel),var(--panel2));
     border:1px solid var(--line);border-radius:12px;padding:14px;
     display:flex;flex-direction:column;justify-content:center;}
-  .orbit-stage{position:relative;width:100%;aspect-ratio:1/1;max-width:640px;margin:0 auto;}
+  .orbit-stage{position:relative;width:100%;aspect-ratio:7/6;max-width:820px;margin:0 auto;}
   .orbit-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:visible;}
   .orbit-svg .spoke{stroke:rgba(75,139,255,0.22);stroke-width:1.4;stroke-dasharray:3 6;}
   .orbit-svg .spoke.hot{stroke-dasharray:none;stroke-width:1.8;}
@@ -252,9 +252,9 @@
     border:2px solid #080c14;z-index:4;background:#4a5568;transition:background .2s, box-shadow .2s;}
   .hub-led.led-active{background:var(--green);box-shadow:0 0 8px rgba(57,255,136,.85);
     animation:ledPulse 1.4s ease-in-out infinite;}
-  .node-label{margin-top:6px;}
+  .node-label{margin-top:4px;}
   .node-name{font-size:11px;font-weight:bold;white-space:nowrap;letter-spacing:.4px;
-    overflow:hidden;text-overflow:ellipsis;max-width:100px;text-shadow:0 0 8px currentColor;}
+    overflow:hidden;text-overflow:ellipsis;max-width:88px;text-shadow:0 0 8px currentColor;}
   .node-name .node-count{font-size:8.5px;color:var(--dim);font-weight:normal;margin-left:3px;
     text-shadow:none;}
   .node-pill{margin-top:2px;font-size:8px;letter-spacing:1px;color:var(--dim);}
@@ -360,6 +360,9 @@
 
   footer{margin-top:14px;font-size:11px;color:var(--dim);line-height:1.6;padding:0 4px;}
   footer code{color:var(--cyan);}
+  footer details.howto{margin-top:8px;border-top:1px solid var(--line-soft);padding-top:8px;}
+  footer details.howto summary{cursor:pointer;color:var(--cyan);font-size:11px;letter-spacing:.5px;}
+  footer details.howto[open] summary{margin-bottom:8px;}
 </style>
 </head>
 <body>
@@ -367,7 +370,7 @@
   <div class="termlines">
     <div class="line prompt">&gt; <span class="title-text">DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="blink">_</span></span><span class="kit-version" id="kitVersion" title="This is the version baked into the HTML file this tab loaded. If you just replaced the file and this still shows the old number, hard-refresh this tab (Ctrl/Cmd+Shift+R) — a running tab doesn't notice a file changing on disk on its own."></span></div>
     <div class="termlines-side">
-      <div class="view-switch"><a href="agent-console.html" class="on">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a><a href="agent-console-news.html">What\'s new</a></div>
+      <div class="view-switch"><a href="agent-console.html" class="on">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a><a href="agent-console-news.html">What&#39;s new</a></div>
       <div class="line comment"># seventeen agents. one chief of staff. every change still waits on you.</div>
       <div class="line status" id="statusLine">… connecting to local server</div>
     </div>
@@ -449,6 +452,7 @@
     <code>powershell -ExecutionPolicy Bypass -File Claude\hooks\agent-console-server.ps1</code>
     (or <code>python3 Claude/hooks/agent-console-server.py</code>), then reload this page —
     make sure you opened it as <code>http://127.0.0.1:8765/</code>, not as a local file.
+    <details class="howto"><summary>How to read this page</summary>
     Nothing shows up until a subagent actually runs; existing history in
     <code>Claude/logs/agent-console.jsonl</code> is replayed on load. The token count is a
     best-effort approximation summed from the session transcript (not adjusted for prompt
@@ -476,6 +480,7 @@
     <code>coder</code> with a mini explosion on arrival — purely decorative text-matching on the
     description, not a guarantee every regression triggers one. If you just updated these files
     while the server was already running, restart it — it doesn't notice file changes on its own.
+    </details>
   </footer>
 </div>
 
@@ -484,7 +489,7 @@
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.99.1";
+const KIT_VERSION = "v1.99.2";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -569,7 +574,7 @@ function buildNode(a, index){
       '<span class="node-led led-idle" title="grey = idle, green = working, yellow = waiting on a delegated child, red = broken (running unusually long)"></span>' +
     '</div>' +
     '<div class="node-label">' +
-      '<div class="node-name">' + a.name + ((!a.special || a.showCount) ? '<span class="node-count">·0</span>' : "") + '</div>' +
+      '<div class="node-name" title="' + String(a.name).replace(/"/g,"&quot;") + '">' + a.name + ((!a.special || a.showCount) ? '<span class="node-count">·0</span>' : "") + '</div>' +
       '<div class="node-pill">' + (a.special ? (a.pillOff || "idle") : "idle") + '</div>' +
       (a.special ? "" : '<div class="node-concurrency" hidden></div>') +
     '</div>' +
@@ -598,7 +603,7 @@ svg.appendChild(vaultTrainerSpoke);
 
 // Faint dashed guide circle marking the single shared ring — purely a visual affordance so the
 // orbit reads intentionally instead of looking like nodes drifted off-course.
-const ringGuide = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+const ringGuide = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
 ringGuide.setAttribute("class", "ring-guide");
 ringGuide.setAttribute("fill", "none");
 svg.insertBefore(ringGuide, svg.firstChild); // behind the spokes/nodes
@@ -1275,21 +1280,22 @@ function layoutOrbit(ts){
   const rect = stage.getBoundingClientRect();
   const cx = rect.width / 2, cy = rect.height / 2;
   const halfDim = Math.min(rect.width, rect.height) / 2;
-  const radius = halfDim * 0.72;        // single shared ring — all ten nodes
+  const rx = Math.max(rect.width / 2 * 0.62, rect.width / 2 - 72), ry = Math.max(rect.height / 2 * 0.62, rect.height / 2 - 64);  // one shared ring, an ellipse that fills the stage so 20 names do not collide
+  const nodeScale = Math.min(1, Math.max(0.7, rect.width / 820));  // narrow stage: smaller cards instead of overlapping ones
   const offsetDeg = (ts / 1000) * ROTATE_DEG_PER_SEC;
   const positions = {};
 
-  ringGuide.setAttribute("cx", cx); ringGuide.setAttribute("cy", cy); ringGuide.setAttribute("r", radius);
+  ringGuide.setAttribute("cx", cx); ringGuide.setAttribute("cy", cy); ringGuide.setAttribute("rx", rx); ringGuide.setAttribute("ry", ry);
 
   ALL_NODES.forEach(a => {
     const node = nodeEls[a.id];
     if (!node) return;
-    const r = radius;
+    const k = a.id === "__obsidian_vault__" ? 0.68 : 1;  // the Vault sits between its two brains, a bit closer to the hub, so its name never covers theirs
     const baseAngle = parseFloat(node.dataset.angle) || 0;
     const angleRad = (baseAngle + offsetDeg - 90) * Math.PI / 180;
-    const x = cx + r * Math.cos(angleRad);
-    const y = cy + r * Math.sin(angleRad);
-    node.style.transform = `translate(${x}px, ${y}px)`;
+    const x = cx + rx * k * Math.cos(angleRad);
+    const y = cy + ry * k * Math.sin(angleRad);
+    node.style.transform = `translate(${x}px, ${y}px) scale(${nodeScale})`;
     positions[a.id] = {x, y};
   });
 

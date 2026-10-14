@@ -40,6 +40,8 @@ Run-Git add -A
 git -c core.pager=cat diff --cached --quiet
 if ($LASTEXITCODE -ne 0) { Write-Host "[2/4] Committing..."; Run-Git commit -m ($title -replace [char]0x2014, "-") }
 Write-Host "[3/4] Pushing to GitHub (if nothing happens for a minute, look for a GitHub sign-in window behind this one)..."
+# the intake bot commits INTAKE.json / reputation.json to main by itself: bring those in first (they never touch the files of a release)
+Run-Git pull --rebase origin main
 Run-Git push origin HEAD
 
 # 4. tag + Release

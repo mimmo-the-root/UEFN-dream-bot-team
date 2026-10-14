@@ -70,3 +70,7 @@ summary, e.g. `"2 ambiguous points"`).
 
 Style: go straight to the verdict, no preamble. Be specific — "unclear how X should behave when Y"
 beats "some parts feel vague."
+
+## Keep the report short
+
+Your report goes into the main session's context, the most expensive one: at most 250 words. Findings first, one line each (where, what, why). No recap of what you read and no narration.

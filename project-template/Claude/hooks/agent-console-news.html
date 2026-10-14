@@ -60,7 +60,7 @@ td{padding:9px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}t
 <div class="ksec"><h2>Thank you</h2><span>to everyone who shared a lesson</span></div>
 <div id="thanks" class="card thx"></div>
 </div>
-<script>document.getElementById("kitVersion").textContent = "v1.99.1";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.99.2";</script>
 <script>
 var REPO="mimmo-the-root/UEFN-dream-bot-team",KIT=document.getElementById("kitVersion").textContent;
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
@@ -100,7 +100,7 @@ function mineHtml(C,top){
  return '<div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);margin:4px 0 8px">Your part in it</div>'+
   '<div class="h2h" style="line-height:2"><span class="sw'+(C.share?" on":"")+'"></span>Contribute to the community <span class="dim">· '+(C.share?"on":"off")+'</span></div>'+
   '<table><tr><td class="dim">Lessons you shared</td><td><b>'+shared+'</b></td></tr>'+
-  '<tr><td class="dim">Your map</td><td>'+(C.published===true?'<span class="up">published</span>':(C.published===false?'<span style="color:var(--amber)">not published</span>':'<span class="dim">unknown</span>'))+'</td></tr></table>'+
+  '<tr><td class="dim">Your map</td><td>'+(C.published===true?'<span class="up">published</span>':(C.published===false?'<span style="color:var(--amber)">not published</span>':'<span class="dim">unknown</span>'))+(C.published_reason?'<div class="sub">'+esc(C.published_reason)+'</div>':'')+'</td></tr></table>'+
   '<div class="note">Only lessons learned from a <b>published</b> map can be shared. Lessons from an unpublished map stay on this computer.</div>'+
   '<a class="btn" href="agent-console-skills.html">Open the Skills page</a>';
 }

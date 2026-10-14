@@ -85,3 +85,7 @@ Be concrete and structured, so coder can apply your work without having to re-de
   noticed): call it out clearly, don't bury it in the summary.
 
 Style: go straight to the results, no preamble or narration of what you're about to do.
+
+## Keep the report short
+
+Your report goes into the main session's context, the most expensive one: at most 250 words. Findings first, one line each (where, what, why). No recap of what you read and no narration.

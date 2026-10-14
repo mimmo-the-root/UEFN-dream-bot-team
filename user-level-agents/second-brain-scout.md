@@ -36,3 +36,7 @@ found nothing worth reporting in this area, say so plainly — that's a valid, u
 failure.
 
 Style: go straight to the findings list, no preamble, no narration of your own process.
+
+## Keep the report short
+
+Your report goes into the main session's context, the most expensive one: at most 250 words. Findings first, one line each (where, what, why). No recap of what you read and no narration.
