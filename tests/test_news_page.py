@@ -9,8 +9,11 @@ for page in ("agent-console.html", "agent-console-stats.html", "agent-console-do
 news = rd("agent-console-news.html")
 ok('"/community-summary"' in news and '"/community-state"' in news, "the page reads the shipped summary and the local community state")
 ok("No release summary is shipped with this kit yet" in news, "empty state when there is no summary")
-ok("https://github.com/" in news and "issues/new/choose" in news, "the page links to submit an issue on GitHub")
+ok(re.search(r"https://github\.com/'\+REPO\+'/issues/new/choose", news) is not None, "the page links to submit an issue on GitHub")
 ok("Only lessons learned from a <b>published</b> map" in news, "the page carries the published-map note")
 ok(len(re.findall(r"\bfunction render\(", news)) == 1 and news.count("<script>") == 2, "one render function, no external script")
 ok("agent-console-news.html" in rd("agent-console-server.py") and "/news" in rd("agent-console-server.py"), "the Python server serves the page")
 ok("agent-console-news.html" in rd("agent-console-server.ps1") and "NewsHtmlPath" in rd("agent-console-server.ps1"), "the PowerShell server serves the page")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "project-template", "Claude", "hooks"))
+import kit_sync as _ks
+ok(all("Claude/" + n in _ks.MANAGED or any(("Claude/" + n).startswith(m) for m in _ks.MANAGED) for n in ("community/community-summary.json", "community-revoked.json")), "the kit update ships the release summary and the revoked list to the projects")

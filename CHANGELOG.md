@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.99.1 — Test fixes for Windows and code scanning
+
+- **Tests no longer depend on the console or the file system.** Two tests failed on Windows (a console that cannot print an invisible character, and file names that ignore upper and lower case). The kit itself was not affected.
+- **What's new page stayed empty after `/kit-update`.** The update did not copy the release summary and the list of revoked community lessons into the projects. Both are now part of the update.
+- **Code scanning alert closed.** A test checked a link with a pattern that CodeQL mistook for URL validation; the check is now a precise match.
+
 ## v1.99.0 — The community pack: share your lessons, see what changed
 
 - **Share lessons with the community (voluntary, off by default).** A switch on the Skills page (section Community) and a **Contribute** button on each lesson you approved. You see the exact JSON, then GitHub opens a pull request from your own account. Only lessons, never map names, code, devices or blueprints.
