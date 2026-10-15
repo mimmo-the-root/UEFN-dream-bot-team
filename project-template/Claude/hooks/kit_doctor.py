@@ -119,6 +119,31 @@ def check(project, fix=False):
                 add("PROBLEM", ".mcp.json may hold a token and is not in .gitignore. /kit-doctor --fix adds it.")
         else:
             add("OK", ".mcp.json is ignored by git.")
+
+    # 8. MCP map (one per computer): a note, never a problem
+    import time
+    mdir = os.environ.get("UEFN_KIT_MCP_DIR") or os.path.join(home, "skills", "mcp-tool-contracts", "references", "map")
+    latest = os.path.join(mdir, "latest.json")
+    lasterr = None
+    try:
+        lasterr = json.load(open(os.path.join(mdir, "auto.json"), encoding="utf-8")).get("last_error")
+    except (OSError, ValueError, AttributeError):
+        pass
+    if lasterr:
+        add("NOTE", "The automatic MCP map failed on %s: %s. Run /mcp-snapshot to see it." % (lasterr.get("when", "?"), lasterr.get("text", "")))
+    elif not os.path.isfile(latest):
+        add("NOTE", "No map of UEFN's MCP tools yet. The kit makes it by itself the first time a session starts with UEFN open (or run /mcp-snapshot).")
+    else:
+        stamp = os.path.getmtime(latest)
+        try:
+            stamp = max(stamp, json.load(open(os.path.join(mdir, "auto.json"), encoding="utf-8")).get("last_full", 0))
+        except (OSError, ValueError, AttributeError):
+            pass
+        age = (time.time() - stamp) / 86400.0
+        if age > 30:
+            add("NOTE", "The MCP map is %d days old: UEFN has not been open at a session start since. Open UEFN and start a session, or run /mcp-snapshot." % int(age))
+        else:
+            add("OK", "MCP map is recent (%d days)." % int(age))
     return out
 
 

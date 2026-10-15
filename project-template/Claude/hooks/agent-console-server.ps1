@@ -459,7 +459,7 @@ $RequestHandler = {
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)
             }
-        } elseif ($request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm" -or $request.Url.AbsolutePath -eq "/community-state" -or $request.Url.AbsolutePath -eq "/community-act" -or $request.Url.AbsolutePath -eq "/community-summary" -or $request.Url.AbsolutePath -eq "/agent-costs") {
+        } elseif ($request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm" -or $request.Url.AbsolutePath -eq "/community-state" -or $request.Url.AbsolutePath -eq "/community-act" -or $request.Url.AbsolutePath -eq "/community-summary" -or $request.Url.AbsolutePath -eq "/agent-costs" -or $request.Url.AbsolutePath -eq "/uefn-mcp-map") {
             $sk = { param($Lib, $CliArgs)
                 foreach ($cand in @(@("py","-3"), @("python"), @("python3"))) {
                     $exe = Get-Command $cand[0] -ErrorAction SilentlyContinue
@@ -478,6 +478,8 @@ $RequestHandler = {
                 $json = & $sk $State.SkillsLibPath @("summary")
             } elseif ($path -eq "/agent-costs") {
                 $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "agent_cost.py") @($State.ProjectDir, "--budget", "2")
+            } elseif ($path -eq "/uefn-mcp-map") {
+                $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "mcp_map.py") @("--summary")
             } elseif ($path -eq "/learning-data") {
                 $json = & $sk $State.SkillsLibPath @("learning", "--project", $State.ProjectDir)
             } elseif ($path -eq "/community-state") {

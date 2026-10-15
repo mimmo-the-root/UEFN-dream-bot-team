@@ -1,0 +1,6 @@
+{
+  "_comment": "SHA-256 of Epic's Verse UI Kit AGENTS.md versions this kit's verse-ui-kit skill was written against. Only the fingerprint is kept here; Epic's file itself is never copied into the kit (Fab EULA). A different fingerprint means Epic changed the guide: analyze it, then run ui_kit_check.py --accept.",
+  "reviewed": [
+    {"sha256": "ab11599d6d17f84d62a553cd2cfec60663026e5b41ecc54063ea8dc3b421c739", "date": "2026-10-15", "note": "first release, Fab download of 2026-10-15"}
+  ]
+}

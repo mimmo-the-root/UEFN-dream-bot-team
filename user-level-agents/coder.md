@@ -117,7 +117,11 @@ Then, before writing code:
    visually consistent across projects and sessions instead of each one re-deriving its own
    layout choices. If the project already has `Claude/docs/UI-STYLE-NOTES.md`, that project's own
    established choices (currency icons/colors, palette, corner-radius) win over the generic style
-   guide. After finishing the screen — whether it's a brand-new screen or an edit to an existing
+   guide. If the project has Epic's Verse UI Kit (`VerseUIKit/`), or the owner asks for it, read
+   `~/.claude/skills/verse-ui-kit/SKILL.md` too and run `/ui-kit-check` first: it covers how the
+   screen is built and wired (focus, gamepad, Back, shared events). The kit is optional: if it is
+   missing, build the screen without it (the skill explains how) and just mention that the free kit
+   on Fab can save time. After finishing the screen — whether it's a brand-new screen or an edit to an existing
    one — feed the skill back from what you actually just wrote, automatically, no screenshot
    required and no need to ask first:
    - Run `~/.claude/skills/game-ui-designer/SKILL.md`'s "Direct source-code analysis" step on the
@@ -198,6 +202,7 @@ you, one area at a time.
 
 When the project is connected to UEFN via MCP:
 - **New-machine check — server registered on the project but not on this machine**: if MCP tools seem unavailable, check `claude mcp list` before assuming the project isn't set up for MCP. Server registration lives in `~/.claude.json`, per machine — it does NOT travel with the project files (Git, cloud sync, a new computer). So it's expected and normal that a project whose `CLAUDE.md` "Project identity" is already filled in (not the `<AUTO_PROJECT_NAME>` placeholder) shows no MCP tools the first time you open it on a machine that never ran Phase 1/registration before. Don't treat this as "the project needs re-onboarding" — just run the same auto-find-and-register routine as initial setup: check port 8000 is listening (`netstat`/`lsof`), then, if `claude mcp list` doesn't show `unreal-mcp`, register it yourself with `claude mcp add --transport http unreal-mcp --scope user http://127.0.0.1:<port found>/mcp` — no need to ask the owner to redo project setup for this.
+- **MCP first**: UEFN's MCP is the engine and the kit maps all of it by itself. Before doing something through UEFN by hand, by script or by guesswork, search the map with `py -3 Claude/hooks/mcp_map.py --find <keywords>` (it lists tools, read or write, tested or not, what each does); a purpose-built tool beats a workaround. Never guess a tool name. A tool the contracts do not cover but the map shows as read-only is fine to use; anything that writes follows the contract rules and asks first.
 - **Mandatory safety check before any change**: UEFN's MCP server is a single instance per editor and always serves whichever project is currently open in UEFN, not necessarily the one in this folder. Follow the "verifying which project UEFN has open" contract in `~/.claude/skills/mcp-tool-contracts/SKILL.md` before writing or modifying anything via MCP — don't re-derive which tool to use from the tool names alone, that's exactly how the wrong one gets picked.
 - Use the available MCP tools to read/write Verse, place/configure devices, and compile.
 - Work in small, testable increments rather than large monolithic changes: compile after every increment (it's cheap and isolates the error while it's still small) — don't pile up unverified changes.

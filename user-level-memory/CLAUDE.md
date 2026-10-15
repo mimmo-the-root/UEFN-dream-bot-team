@@ -410,3 +410,9 @@ session so the new files are read." If the profile template folder does not exis
 Do not repeat the check when the versions already match.
 The same script also checks, at every session start, that the project's `.uplugin` has `"EnableVerseAssetReflection": true` (old maps lack it, so the assets digest is never generated) and adds it with a backup.
 <!-- KIT:END kit-self-update -->
+
+<!-- KIT:BEGIN no-delete -->
+## 15. If you cannot delete a file, park it in `_to_delete`
+
+Delete only what the task needs. When a delete is refused or impossible (protected or read-only folder, no permission, a tool without delete rights), do not work around it: move the file to `_to_delete/<yyyymmdd-hhmmss>/` at the root of the project (or the kit folder) and say in one line what was parked and why. The owner empties that folder. It applies to files replaced or removed during a kit update too. Never use `git clean` or bulk deletes on the owner's files.
+<!-- KIT:END no-delete -->

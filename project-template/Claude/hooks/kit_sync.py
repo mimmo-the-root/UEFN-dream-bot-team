@@ -15,7 +15,7 @@ all silent and safe when there is nothing to do:
    to incoming/done/. Nothing changes in your skill until you approve.
 4. Prints the hook JSON, including the "kit updated - restart the session" message when files changed.
 
-Never touches: Claude/docs, Claude/logs (except backups), your settings.json permissions, your CLAUDE.md
+Files that cannot be deleted are parked in _to_delete/. Never touches: Claude/docs, Claude/logs (except backups), your settings.json permissions, your CLAUDE.md
 outside KIT blocks. Best effort: any failure is swallowed so a session can always start.
 """
 import hashlib, contextlib, io
@@ -27,7 +27,7 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", "Claude/community/", "Claude/community-revoked.json", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md", ".claude/commands/verse-map.md", ".claude/commands/learn-map.md", ".claude/commands/verse-check.md", ".claude/commands/text-scan.md", ".claude/commands/handoff.md")
+MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", "Claude/community/", "Claude/community-revoked.json", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md", ".claude/commands/verse-map.md", ".claude/commands/learn-map.md", ".claude/commands/verse-check.md", ".claude/commands/text-scan.md", ".claude/commands/handoff.md", ".claude/commands/ui-kit-check.md", ".claude/commands/mcp-snapshot.md")
 CREATE_ONLY = ("Claude/docs-template/",)
 SKIP_PARTS = ("__pycache__",)
 FAILED = []
@@ -642,6 +642,13 @@ def main():
             r = run(project)
     except Exception:
         r = {"updated": [], "added": [], "settings": [], "claude_md": [], "notes": [], "version": ""}
+    try:  # the MCP map keeps itself current: a cheap check, the mapping runs in the background
+        import mcp_map
+        news = mcp_map.session_check(project)
+        if news:
+            r["notes"].append(news)
+    except Exception:  # noqa: BLE001
+        pass
     changed = r["updated"] or r["added"] or r["settings"] or r["claude_md"]
     msgs = []
     if changed:

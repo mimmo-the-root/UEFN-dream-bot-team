@@ -17,6 +17,7 @@
         "daily-work",
         "the-console",
         "skills-and-lessons",
+        "mcp-engine",
         "skill-catalog",
         "community"
       ]
@@ -49,6 +50,7 @@
     "skill-catalog": "Every skill, what it does and when it is used.",
     "faq": "Short answers to the questions people ask first.",
     "glossary": "The words this manual uses.",
-    "about": "Who made the kit, how to follow along, the license."
+    "about": "Who made the kit, how to follow along, the license.",
+    "mcp-engine": "Mapping everything UEFN's MCP offers, and noticing what Epic adds."
   }
 }

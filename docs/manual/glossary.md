@@ -36,7 +36,7 @@ One short, general thing learned from a map, with a trust level. You approve, ed
 A free name for the kind of map inside a genre, such as pillars or checkpoint-race.
 
 ## MCP
-Model Context Protocol, the way Claude talks to a running UEFN editor. The server listens on port 8000.
+Model Context Protocol, the way Claude talks to a running UEFN editor. The server listens on port 8000. See [The MCP engine](ch:mcp-engine).
 
 ## Plan first
 The rule that no code is written before a task with acceptance criteria is open in `ROADMAP.md`.

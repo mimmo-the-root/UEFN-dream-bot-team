@@ -59,6 +59,7 @@ A few rules live in `~/.claude/CLAUDE.md` and apply to every project without bei
 - **State machines** for phase-based logic.
 - **A header comment** in every Verse file with what it does, a date and a version, because there is no Git history inside the project.
 - **A DemoDisplay stand** for each custom Verse device, with its devices placed on it. Devices whose position matters for gameplay stay where they are.
+- **A file that cannot be deleted is parked, not forced:** when a file has to go (replaced in an update, obsolete, a test leftover) and the team is not allowed to delete it, it moves to a `_to_delete` folder at the project root, in a dated subfolder, and tells you. You empty that folder when you are sure. The same holds for the kit when it updates.
 - **Support devices outside the play area,** grouped on their stand, so players never see or reach them.
 
 ## After every playtest
@@ -85,7 +86,7 @@ If you leave a session running overnight with UEFN open, Claude Code can wait ou
 
 ## Commands that run without asking
 
-New projects come with a short list of pre-approved commands in `.claude/settings.json`: the kit's read-only checks (`verse_check`, `verse_map`, `text_scan`, `agent_cost`, run with `py -3`, `python` or `python3`) and the read-only Git commands `git status`, `git diff` and `git log`. Everything that writes, deletes or publishes still asks you. Projects made before 1.105.0 keep their own settings untouched: to get the same convenience, copy the `allow` list from the kit's `project-template/.claude/settings.json` into your project's file, or add the rules one by one with `/permissions`.
+New projects come with a short list of pre-approved commands in `.claude/settings.json`: the kit's read-only checks (`verse_check`, `verse_map`, `text_scan`, `agent_cost`, and `ui_kit_check` with `--check` or `--diff`, run with `py -3`, `python` or `python3`) and the read-only Git commands `git status`, `git diff` and `git log`. Everything that writes, deletes or publishes still asks you. Projects made before 1.105.0 keep their own settings untouched: to get the same convenience, copy the `allow` list from the kit's `project-template/.claude/settings.json` into your project's file, or add the rules one by one with `/permissions`.
 
 ## Many projects at once
 

@@ -1,0 +1,4 @@
+{
+  "_comment": "Tool names (last part, without the toolset) that the kit's skills and agents already document or use. The MCP map counts them to show how much of UEFN's MCP the kit really uses. Extend it when a contract or skill starts relying on another tool.",
+  "tools": ["GetDeviceProperties", "ListDeviceProperties", "ListEventBindings", "ListFiles", "find_assets", "find_actors", "get_properties", "GetWidgets", "ListVerseFields", "ListWidgetViewBindings", "get_referencers", "list_properties", "set_properties", "save_assets", "BuildAll", "AddVerseField", "DuplicateVerseField", "ReplaceWidgetWithTemplate"]
+}

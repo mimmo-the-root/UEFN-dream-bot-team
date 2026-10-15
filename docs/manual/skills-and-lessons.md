@@ -20,6 +20,16 @@ It never interviews you about your map. If a session stops halfway, the next one
 
 When a build ends with errors, the kit notes it in `Claude/logs/verse-errors.jsonl` (time, error codes, a short excerpt without file paths). If the same error shows up in two different builds, the coder tells you in one line what it was and what fixed it, and asks whether to add it to the Verse lessons. It writes the lesson only after you say yes.
 
+## Building screens with Epic's Verse UI Kit
+
+Epic's Verse UI Kit is a free Fab download with ready-made widgets (buttons, switches, sliders, tabs, toasts, dialogs, menus) and the Verse code that drives them. It comes in two parts: the kit itself, which goes into every project that uses it, and a separate download on the same Fab page, an `AGENTS.md` guide for AI assistants. The guide is kept once on your computer for all projects, in `.claude\skills\verse-ui-kit\references\epic\` inside your user folder, so you do not copy it into each project (`py -3 Claude/hooks/ui_kit_check.py --store <the downloaded file>` puts it there).
+
+`/ui-kit-check` tells you where you stand, in one line: **ok**, **package missing** (the kit is optional; the coder builds the screen without it and mentions that the free kit can save time), **guide missing** (download the `AGENTS.md` from the Fab page and store it once) or **guide changed** (Epic updated it). The coder runs it before any UI work and follows the `verse-ui-kit` skill, which holds the rules for focus, gamepad, Back and click wiring, plus short code snippets.
+
+The kit never contains Epic's guide: the Fab licence does not allow handing it on, so only a fingerprint of the version it was written against is kept. When Epic changes the guide, the kit tells you and offers to analyze what changed; nothing in the skill changes until you say yes. The snippets are marked "not compiled" until `/verse-check` has built them in a project with the kit.
+
+`/mcp-snapshot` maps every tool UEFN's MCP server offers and, on later runs, shows what is new. It needs UEFN open. See [The MCP engine](ch:mcp-engine).
+
 ## Checking publication texts
 
 `/text-scan` looks through the texts you are about to publish (island title, description, tags, update notes, social posts) for emoji, fake-bold letters, arrows and box symbols, and invisible characters such as zero-width spaces. It reads the folder `Claude/docs/publish/` by default, or the files you name. The title and description skill and the update writer save their texts there and run it. It works offline, only reports, and never edits your text. Normal accents, curly quotes and dashes are fine.

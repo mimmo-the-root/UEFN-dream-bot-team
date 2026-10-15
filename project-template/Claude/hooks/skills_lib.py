@@ -38,6 +38,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import sys
 import time
 import urllib.parse
@@ -166,7 +167,23 @@ def _listdir(path, base=None):
 
 
 def _remove_file(path, base=None):
-    os.remove(_inside(base or skills_root(), path))
+    """Delete the file. If the system refuses (read-only, protected, no permission), park it in <profile>/_to_delete/<timestamp>/ for the owner to empty."""
+    src = _inside(base or skills_root(), path)
+    try:
+        os.remove(src)
+        return
+    except PermissionError:
+        pass
+    except OSError:
+        if not os.path.exists(src):
+            raise
+    park = os.path.join(os.path.dirname(os.path.realpath(skills_root())), "_to_delete", time.strftime("%Y%m%d-%H%M%S"))
+    os.makedirs(park, exist_ok=True)
+    dst, n = os.path.join(park, os.path.basename(src)), 1
+    while os.path.exists(dst):
+        n += 1
+        dst = os.path.join(park, "%d-%s" % (n, os.path.basename(src)))
+    shutil.move(src, dst)
 
 
 def _isfile(path, base=None):

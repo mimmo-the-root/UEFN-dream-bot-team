@@ -254,6 +254,10 @@ A good pull request should answer:
 5. Are there breaking changes?
 6. Does documentation need to be updated?
 
+## When a file cannot be deleted: park it
+
+Scripts, hooks and agents delete only what they need to. If a delete is refused, they move the file to `_to_delete/<yyyymmdd-hhmmss>/` (already in `.gitignore`) and let the owner empty it. Never force a delete.
+
 ## Keep PRs Focused
 
 Prefer:

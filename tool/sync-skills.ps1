@@ -159,7 +159,13 @@ foreach ($item in $toPromote) {
         $dst = Join-Path $ProjectPath $item.Skill
 
         if (Test-Path $dst) {
-            Remove-Item -Path $dst -Recurse -Force
+            # Delete the old copy; if the system refuses, park it in _to_delete (the owner empties it).
+            try { Remove-Item -Path $dst -Recurse -Force -ErrorAction Stop }
+            catch {
+                $parkRoot = Join-Path (Split-Path $ProjectPath -Parent) ("_to_delete\" + (Get-Date -Format "yyyyMMdd-HHmmss"))
+                New-Item -ItemType Directory -Force -Path $parkRoot | Out-Null
+                Move-Item -Path $dst -Destination (Join-Path $parkRoot (Split-Path $dst -Leaf)) -Force
+            }
         }
         Copy-Item -Path $src -Destination $dst -Recurse -Force
 

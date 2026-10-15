@@ -1183,8 +1183,29 @@ renderRoadmapTaskList();
 renderBugBacklog();
 pollLiveRail();
 setInterval(pollLiveRail, 2000);
+
+// v1.106.0: the docs were cached for the whole page session, so STATUS/ROADMAP/BUGS written while the tab was open never showed.
+// Every 5 s the six docs are fetched again; only when one really changed are the cards redrawn (no flicker, no needless work).
+let docsRefreshing = false;
+async function refreshDocs(){
+  if (docsRefreshing || document.hidden) return;
+  docsRefreshing = true;
+  try{
+    const keys = Object.keys(DOC_TITLES);
+    const old = {}; keys.forEach(k => { old[k] = docCache[k] ? (docCache[k].exists + '|' + docCache[k].content) : null; });
+    keys.forEach(k => { delete docCache[k]; });
+    const fresh = await Promise.all(keys.map(k => fetchDoc(k)));
+    let changed = false;
+    keys.forEach((k, i) => { if (!fresh[i].error && old[k] !== (fresh[i].exists + '|' + fresh[i].content)) changed = true; });
+    if (!changed) return;
+    renderRecentPriorities(); markMissingDocs(); renderHero(); renderTimeline();
+    renderPhasesAndBacklog(); renderRoadmapTaskList(); renderBugBacklog();
+  } catch(e){ /* a failed refresh leaves the page as it was */ }
+  finally { docsRefreshing = false; }
+}
+setInterval(refreshDocs, 5000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.105.0";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.106.0";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

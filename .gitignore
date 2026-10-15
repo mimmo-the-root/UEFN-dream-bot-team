@@ -32,4 +32,10 @@ promotion-report.md
 verse-probe.log
 ext-hints.txt
 
+# Epic's Verse UI Kit guide: kept on the owner's computer only (Fab EULA)
+user-level-skills/verse-ui-kit/references/epic/
+_private/
+# MCP map: holds Epic's tool descriptions, private to the owner's computer
+user-level-skills/mcp-tool-contracts/references/map/
+
 _spike/

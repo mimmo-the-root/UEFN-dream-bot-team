@@ -43,10 +43,11 @@ The whole pipeline: every agent and every hand-off, end to end, as an assembly l
 
 ## Skills
 
-What the kit has learned, in three parts:
+What the kit has learned, in four parts:
 
 - **The kit**: everything it knows across all your genres and maps.
 - **This map**: the genre and type of the map you are in, its blueprint, and the lessons waiting for your approval.
+- **UEFN MCP**: how many of UEFN's tools the kit uses ("the kit uses 6 of 388"), what the safe tests found, and the latest news: tools added, removed or no longer working. It fills by itself, see [The MCP engine](ch:mcp-engine).
 - **Community**: the switch to share lessons, covered in [Community](ch:community).
 
 The **SKILLS** tab blinks when something waits for you. More in [Skills and lessons](ch:skills-and-lessons).

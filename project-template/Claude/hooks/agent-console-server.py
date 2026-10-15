@@ -438,6 +438,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif self.path.startswith("/community-summary"):
             # What's new page: summary of the last release (shipped with the kit); empty object when the file is not there yet.
             self._send_json_bytes(_read_json_object(COMMUNITY_SUMMARY_FILE, "{}").encode("utf-8"))
+        elif self.path.startswith("/uefn-mcp-map"):
+            # UEFN MCP map in numbers for the Skills page (mcp_map.py); reads saved files only, never an error status.
+            try:
+                import mcp_map
+                self._send_json_bytes(json.dumps(mcp_map.summary()).encode("utf-8"))
+            except Exception as e:
+                self._send_json_bytes(json.dumps({"available": False, "reason": "could not read the MCP map (%s)" % e.__class__.__name__}).encode("utf-8"))
         elif self.path.startswith("/agent-costs"):
             # Tokens per sub-agent for the Console's table; counts only (agent_cost.py). Never an error status: "available": false says why.
             try:

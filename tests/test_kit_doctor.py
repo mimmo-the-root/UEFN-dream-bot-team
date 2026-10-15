@@ -46,3 +46,14 @@ try:
     print("kit doctor tests OK")
 finally:
     shutil.rmtree(d, ignore_errors=True)
+
+# MCP map note (never a problem)
+import tempfile as _t, time as _time
+_m = _t.mkdtemp(); os.environ["UEFN_KIT_MCP_DIR"] = _m
+_res = kit_doctor.check(proj)
+assert [s for s, t in _res if "MCP" in t] == ["NOTE"], _res
+open(os.path.join(_m, "latest.json"), "w").write("{}")
+assert [s for s, t in kit_doctor.check(proj) if "MCP map" in t] == ["OK"]
+os.utime(os.path.join(_m, "latest.json"), (_time.time() - 40 * 86400,) * 2)
+assert [s for s, t in kit_doctor.check(proj) if "MCP map" in t] == ["NOTE"]
+print("PASS doctor notes a missing or old MCP map without calling it a problem")

@@ -19,6 +19,13 @@ exactly like "the wrong project is open in UEFN," sending debugging in the wrong
 the wording in all three files at once worked, but it relied on remembering to touch all three
 every time this file's contents change. A single referenced file can't diverge from itself.
 
+## Contract: use the whole MCP (map first)
+
+**Why:** the MCP is the engine and it grows fast, often without announcement. The kit maps it by itself (`Claude/hooks/mcp_map.py`, run at session start when UEFN is open) into one private catalog shared by all projects: `~/.claude/skills/mcp-tool-contracts/references/map/` (`MAP.md` overview, `NEWS.md` what is new, `tests.json` which safe tools were called and worked).
+**Use:** before any MCP work, `py -3 Claude/hooks/mcp_map.py --find <keywords>` (a few words about what you want to do). Prefer a purpose-built tool from the map over scripting around it. A read-only tool the contracts below do not cover is fine to use after `describe_toolset`; a writing tool follows the rules of the contract it belongs to and asks first.
+**Don't use:** a tool name from memory or guesswork; a map older than a UEFN update (run `py -3 Claude/hooks/mcp_map.py --now`, UEFN open). If the map is missing or says `not_reachable`, work from `describe_toolset` and say so.
+**Procedure:** when the session start brings "MCP news", tell the owner in two lines what is new and what it could do, and propose; when a new tool proves itself in real work, add a contract here and its name to `Claude/reference/mcp-known-tools.json`.
+
 ## Contract: verifying which project UEFN has open
 
 **Use:** `ValkyrieToolset.VerseToolset.ListFiles`, called through `mcp__unreal-mcp__call_tool` (`toolset_name` = `ValkyrieToolset.VerseToolset`, `tool_name` = `ListFiles`): the dotted names in this file are values of those arguments, never separate tools to look for in the tool list
@@ -56,6 +63,10 @@ during initial analysis).
 **Use:** the Island/Experience Settings device (class name contains `IslandSettings`, seen as "Experience Settings"), the team and inventory settings, and the Player Spawner devices, found with `find_actors` and read with `GetDeviceProperties` or `ObjectTools.get_properties`. Read them in the first learning/bootstrap pass, together with the device wiring.
 **Don't use:** the owner. Max players, teams, rounds, time limit, win condition, spawn mode, vehicles per player are FACTS in the level: never put them in a "to confirm" list. Never change a setting.
 **Procedure:** read the settings and group the Player Spawners by position cluster, `priorityGroup`, `useAsIslandStart`, `visibleInGame`, team and outgoing bindings. Deduce and write, each with its evidence and marked `[I]`: (1) max players and teams; (2) a cluster flagged island-start, hidden in game and with no bindings is a PRE-LOBBY (Epic's pregame-lobby pattern), a cluster whose spawn event drives vehicles, loadouts or a countdown is the GAME START; (3) compare capacity: game-start pads and vehicles per player versus max players, and report the gap as a finding, not as a question; (4) rounds, time limit and win condition from the settings. Write the result as `## Island configuration` in `Claude/docs/map/DEVICES.md` and as deduced facts in SPEC.md. When a deduction rule worked, queue it as a pattern in the genre skill (`skills_lib.py propose --section run-loop` or `devices`) so the next map starts from it.
+
+## Contract: UI, Verse files, sessions and other toolsets (read first, write only when asked)
+
+**Use:** `references/read-tools-proven.md` lists the read tools proven on a real run and which need a real object first. `references/ui-session-tools.md` lists the toolsets beyond the device reads above (widgets, Verse fields, bindings, Verse files and build, sessions, entities, assets). **Don't use:** a write tool for a task that is only a question; never guess a tool name, run `describe_toolset`. **Procedure:** for screens built with Epic's Verse UI Kit follow the `verse-ui-kit` skill.
 
 ## Adding a new contract
 

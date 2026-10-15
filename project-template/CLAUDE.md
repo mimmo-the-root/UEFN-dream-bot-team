@@ -190,3 +190,6 @@ with the real assets and project:
 <!-- KIT:BEGIN learning-first -->
 - **Learning announced at session start is not optional.** When the session-start context has a line starting with `LEARN` or `GENRE`, do that work FIRST, before answering the owner's first message, whatever it is (a status question, "ciao", a task): follow `.claude/commands/learn-map.md` to the end, without asking and without offering it ("if you want I can start it" is wrong). Then answer the message. The owner's request never replaces it; unfinished learning restarts at the next session start.
 <!-- KIT:END learning-first -->
+<!-- KIT:BEGIN no-delete -->
+- **If you cannot delete a file, park it in `_to_delete`.** Delete only what the task needs. When a delete is refused or impossible (protected or read-only folder, no permission, a tool without delete rights), do not work around it: move the file to `_to_delete/<yyyymmdd-hhmmss>/` at the root of the project folder (create it if needed, keep the relative path or the file name) and tell the owner in one line what was parked and why. The owner empties that folder. It applies to files replaced or obsolete after a kit update, test leftovers, renamed assets and old logs alike. Never use `git clean` or bulk deletes on the owner's files.
+<!-- KIT:END no-delete -->

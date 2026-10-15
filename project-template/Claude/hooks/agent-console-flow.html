@@ -166,6 +166,36 @@ header{display:flex;justify-content:space-between;align-items:flex-start;padding
 /* truck (inline svg, nose-forward, drawn above station icons) */
 .truck{transition:transform .85s cubic-bezier(.4,0,.2,1);}
 .truck rect,.truck circle,.truck path{filter:drop-shadow(0 0 4px rgba(0,0,0,.5));}
+/* v1.107 U-shaped flow board */
+.uholder{position:relative;width:100%;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:radial-gradient(1200px 600px at 50% 40%,#0c1530,var(--panel2));margin-bottom:12px;}
+.ustage{position:absolute;left:0;top:0;width:1200px;height:740px;transform-origin:0 0;}
+.ustage .abs{position:absolute;}
+.usvg{position:absolute;left:0;top:0;width:1200px;height:700px;overflow:visible;pointer-events:none;}
+.utok{position:absolute;display:grid;place-items:center;border-radius:12px;background:#0b1224;border:2px solid var(--c);color:#fff;transform:translate(-50%,-50%);z-index:3;transition:opacity .3s,box-shadow .3s;}
+.utok.mech{border-style:dashed;--c:#4a5568;background:#0a1020;}
+.utok.done{box-shadow:0 0 10px -2px var(--c);}
+.utok.active{animation:upulse 1.6s ease-out infinite;box-shadow:0 0 18px var(--c);background:#141c36;}
+.utok.queued,.utok.idle{opacity:.45;filter:grayscale(.5);}
+@keyframes upulse{0%{box-shadow:0 0 0 0 var(--c);}100%{box-shadow:0 0 0 14px transparent;}}
+.utok .bd{position:absolute;right:-7px;top:-7px;width:16px;height:16px;border-radius:50%;background:var(--green);color:#04110a;font:800 10px/16px system-ui;text-align:center;}
+.utok .tag{position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);background:var(--amber);color:#241400;font:800 10px 'Consolas','SF Mono',monospace;padding:2px 6px;border-radius:5px;white-space:nowrap;}
+.ucard{position:absolute;background:linear-gradient(180deg,#111a31,#0c1327);border:1px solid var(--line);border-radius:10px;padding:8px 10px;z-index:2;transition:opacity .3s;}
+.ucard.active{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber) inset,0 0 20px -6px var(--amber);}
+.ucard.done{border-color:#1d5a3b;}.ucard.queued,.ucard.idle{opacity:.6;}
+.ucard h4{margin:0;font:700 12px 'Consolas','SF Mono',monospace;display:flex;justify-content:space-between;align-items:center;gap:6px;}
+.uchip{font:700 9px 'Consolas','SF Mono',monospace;padding:2px 6px;border-radius:99px;border:1px solid currentColor;text-transform:uppercase;letter-spacing:.05em;}
+.uchip.done{color:var(--green);}.uchip.active{color:var(--amber);}.uchip.queued,.uchip.idle{color:var(--dim);}
+.uwho{color:var(--dim);font-size:11px;margin:1px 0 3px;}
+.ukv{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;}.ukv span{font-size:10px;color:var(--dim);}.ukv b{display:block;color:var(--text);font:700 13px 'Consolas','SF Mono',monospace;white-space:nowrap;}
+.ubars{display:grid;grid-template-columns:24px 1fr;gap:3px 6px;align-items:center;font:9px 'Consolas','SF Mono',monospace;color:var(--dim);}
+.ubar{height:6px;border-radius:4px;background:#17223d;overflow:hidden;}.ubar i{display:block;height:100%;transition:width .5s;}
+.upanel{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;}
+.uzone{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;position:absolute;left:40px;top:12px;width:1120px;}
+.uzone .zt{display:flex;justify-content:space-between;font:700 11px 'Consolas','SF Mono',monospace;}
+.uring{width:54px;height:54px;margin:0 auto;border-radius:50%;display:grid;place-items:center;}
+.uring div{width:44px;height:44px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font:800 12px 'Consolas','SF Mono',monospace;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.ubottom{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 </style>
 <style>
 .termlines-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
@@ -199,96 +229,47 @@ header{align-items:baseline;padding:14px 4px 12px;margin-bottom:16px;}
     </div></div>
   </header>
 
-  <div class="flowband" style="height:196px;">
-    <div style="position:absolute;inset:0;display:flex;">
-      <div style="flex:1.8;background:linear-gradient(180deg,rgba(108,123,255,.16),rgba(108,123,255,.03));border-right:2px solid var(--line);"></div>
-      <div style="flex:0.9;background:linear-gradient(180deg,rgba(57,255,136,.16),rgba(57,255,136,.03));border-right:2px solid var(--line);"></div>
-      <div style="flex:2.2;background:linear-gradient(180deg,rgba(255,92,209,.14),rgba(255,92,209,.03));border-right:2px solid var(--line);"></div>
-      <div style="flex:0.9;background:linear-gradient(180deg,rgba(75,216,255,.14),rgba(75,216,255,.03));"></div>
-    </div>
-    <div style="position:absolute;left:1.5%;top:6px;font-size:8px;letter-spacing:1px;color:var(--indigo);text-transform:uppercase;">intake</div>
-    <div style="position:absolute;left:32.5%;top:6px;font-size:8px;letter-spacing:1px;color:var(--green);text-transform:uppercase;">build</div>
-    <div style="position:absolute;left:48%;top:6px;font-size:8px;letter-spacing:1px;color:var(--magenta);text-transform:uppercase;">gate</div>
-    <div style="position:absolute;right:1.5%;top:6px;font-size:8px;letter-spacing:1px;color:var(--cyan);text-transform:uppercase;">ship</div>
-
-    <!-- hazard-stripe belt -->
-    <div style="position:absolute;left:20px;right:20px;top:140px;height:14px;border-radius:4px;
-      background:repeating-linear-gradient(45deg,#2a2410 0 10px,#171708 10px 20px);
-      background-size:28px 28px;animation:stripemove 1.1s linear infinite;box-shadow:0 0 0 1px var(--line);"></div>
-    <style>@keyframes stripemove{from{background-position:0 0;}to{background-position:28px 0;}}</style>
-
-    <svg viewBox="0 0 1320 196" style="position:absolute;inset:0;width:100%;height:100%;z-index:30;" preserveAspectRatio="none">
-      <defs><filter id="gA" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-      <g id="flow-truck" class="truck" transform="translate(20,132)" filter="url(#gA)">
-        <!-- nose-forward truck, cab leads on the right (direction of travel) -->
-        <rect x="0" y="6" width="20" height="12" rx="1.5" fill="#c9d6f0"/>
-        <rect x="20" y="0" width="12" height="18" rx="2" fill="var(--red)"/>
-        <rect x="27" y="3" width="6" height="6" rx="1" fill="#bfe8ff"/>
-        <circle cx="7" cy="19" r="3.2" fill="#0a0e17" stroke="#556" stroke-width="1"/>
-        <circle cx="25" cy="19" r="3.2" fill="#0a0e17" stroke="#556" stroke-width="1"/>
-      </g>
-    </svg>
-
-    <div style="position:absolute;left:10px;top:158px;">
-      <div class="hubchip" style="width:36px;height:36px;"><div class="hr"></div><div class="hr"></div><div class="hr"></div><div class="hc" style="font-size:13px;">🤖</div><div class="hl"></div></div>
-    </div>
-
-    <!-- ZONE INTAKE -->
-    <div style="position:absolute;left:60px;top:96px;display:flex;gap:7px;align-items:center;">
-      <div class="chip"><span class="ic">📥</span>task intake</div>
-      <div class="gatechip" style="border-color:var(--indigo);background:rgba(108,123,255,.12);"><div class="in" style="color:var(--indigo);">int.gate</div></div>
-      <div class="chip"><span class="ic">🧠</span>read context</div>
-      <div class="chip" style="font-size:8.5px;">skill<br>match</div>
-    </div>
-    <!-- ZONE BUILD: coder alone, factory icon + welding sparks -->
-    <div style="position:absolute;left:462px;top:70px;">
-      <div id="flow-build-machine" class="machine" style="left:0;top:0;">
-        <span class="spark" style="--dx:10px;--dy:-16px;"></span><span class="spark" style="--dx:-8px;--dy:-14px;"></span>
-        <span class="spark" style="--dx:6px;--dy:-18px;"></span><span class="spark" style="--dx:-4px;--dy:-20px;"></span>
-        <div class="body">🏭</div><div class="tag">factory</div>
+  <div class="uholder" id="uholder"><div class="ustage" id="ustage">
+    <div class="uzone" id="uzone"></div>
+    <div class="abs" id="uinner" style="left:0;top:36px;width:1200px;height:700px;"></div>
+    <div class="upanel" style="left:360px;top:120px;width:480px;height:156px;display:grid;grid-template-columns:225px 1fr;gap:14px;padding:10px 14px;">
+      <div>
+        <div class="tower-title">Control Tower <span id="towerStatus" style="font-size:9px;letter-spacing:0;text-transform:none;color:var(--dim);"></span></div>
+        <div class="hub-top">
+          <div class="hub-mini"><div class="hr"></div><div class="hr"></div><div class="hr"></div><div class="hc">🤖</div><div class="hl"></div></div>
+          <div><div style="font-weight:800;font-size:12px;">chief-of-staff</div><div style="font-size:9.5px;color:var(--dim);" id="towerSub">supervising the real pipeline · no active task</div></div>
+        </div>
+        <!-- Token gauge: real session total from /tokens (see pollTokensGauge); flat at idle, never a canned sweep. -->
+        <div class="tg-mini compact" data-gauge id="tokenGauge" style="margin-top:8px;">
+          <svg viewBox="0 0 96 54"><g>
+            <path class="tg-track" d="M8,52 A40,40 0 0 1 88,52"/>
+            <path class="tg-arc tg-green" d="M8,52 A40,40 0 0 1 55.9,13.1"/>
+            <path class="tg-arc tg-yellow" d="M55.9,13.1 A40,40 0 0 1 82.9,30.6"/>
+            <path class="tg-arc tg-red" d="M82.9,30.6 A40,40 0 0 1 88,52"/>
+            <line class="tg-needle" x1="48" y1="52" x2="48" y2="16"/>
+            <circle class="tg-hub" cx="48" cy="52" r="3.4"/>
+          </g></svg>
+          <div class="tg-info">
+            <div class="tg-readout" id="tgReadout">— tok</div>
+            <div class="tg-station" id="tgStation">no usage data yet</div>
+            <div class="tg-max">session total: <b id="tgMax">0K</b></div>
+          </div>
+        </div>
       </div>
+      <div><div class="tower-title">Gate outcomes</div><div id="gateOutcomesCard"><div style="font-size:10px;color:var(--dim);">No gate verdicts logged yet</div></div></div>
     </div>
-    <div style="position:absolute;left:454px;top:118px;">
-      <div class="chip" style="border-color:var(--green);box-shadow:0 0 10px rgba(57,255,136,.3);"><span class="ic">👨‍💻</span>coder</div>
+    <div class="upanel" style="left:360px;top:288px;width:480px;height:136px;">
+      <div class="tower-title">Pipeline pulse</div>
+      <div id="upulse" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;text-align:center;"></div>
     </div>
-    <!-- ZONE GATE: compliance pre-check, MCP place gate, qa-regression, intent-reviewer, compliance-reviewer -->
-    <div style="position:absolute;left:636px;top:96px;display:flex;gap:7px;align-items:center;">
-      <div class="chip"><span class="ic">🛡️</span>pre-check</div>
-      <div style="position:relative;">
-        <div class="gatechip"><div class="in">MCP<br>place</div></div>
-        <div class="machine flow-gate-machine" style="left:8px;top:-16px;"><div class="barrier"></div></div>
-      </div>
-      <div style="position:relative;">
-        <div class="chip"><span class="ic">🔍</span>qa-reg</div>
-        <div class="machine flow-gate-machine" style="left:14px;top:-10px;"><div class="hammer"></div></div>
-      </div>
-      <div class="gatechip" style="border-color:var(--yellow);background:rgba(255,189,46,.12);"><div class="in" style="color:var(--yellow);">int.rev</div></div>
-      <div class="gatechip" style="border-color:var(--lime);background:rgba(166,226,46,.12);"><div class="in" style="color:var(--lime);">compl.<br>rev</div></div>
-    </div>
-    <!-- ZONE SHIP: planner-docs, sealed-crate icon -->
-    <div style="position:absolute;right:16px;top:78px;display:flex;gap:8px;align-items:flex-end;">
-      <div id="flow-ship-machine" class="machine" style="position:relative;">
-        <span class="spark" style="--dx:8px;--dy:-14px;background:var(--green);box-shadow:0 0 6px rgba(57,255,136,.8);"></span>
-        <span class="spark" style="--dx:-7px;--dy:-12px;background:var(--green);box-shadow:0 0 6px rgba(57,255,136,.8);"></span>
-        <div class="body" style="font-size:20px;">📦<span style="font-size:13px;vertical-align:-2px;">✅</span></div>
-        <div class="tag">sealed &amp; shipped</div>
-      </div>
-      <div class="chip"><span class="ic">🗂️</span>planner-docs</div>
-    </div>
-    <div style="position:absolute;left:48%;bottom:6px;font-size:8px;color:var(--magenta);">🧑 halt → ask you</div>
+  </div></div>
+  <div style="font-size:10px;color:var(--dim);margin:-4px 0 12px;">
+    Every number here comes from the real log: <code>/log</code> (who is working), <code>/tokens</code>, <code>/active-task</code>,
+    <code>/agent-costs</code> (tokens per sub-agent) and the <code>verdict</code> / <code>model_tier</code> events. Steps without an agent
+    (intake, read context, skill match, pre-check, MCP place, sealed) have no events of their own: they show "done" only when a later station is working.
+    Bars: <b>tok</b> = share of all sub-agent tokens, <b>pass</b> = share of its verdicts that passed. A missing number is shown as "—", never invented.
   </div>
-
-  <div style="font-size:10px;color:var(--dim);margin:2px 0 12px;">
-    The pipeline band, truck, gauge and Control Tower below are wired to real agent state (polled
-    from <code>/log</code>, <code>/tokens</code> and <code>/active-task</code>, same as the main
-    console). The four cards below them (Decision log, Model tiers, Cost of asking, Gate outcomes)
-    are now ALSO wired to real data — <code>verdict</code> and <code>model_tier</code> events that
-    `intent-gate`/`intent-reviewer`/`compliance-reviewer`/`qa-regression`/`release-gate` and
-    `coder` append to the same <code>agent-console.jsonl</code> the pipeline reads (see
-    CHANGELOG.md v1.79.0). On a fresh project with no such events logged yet, each card shows an
-    honest empty state instead of a number — never a fabricated one.
-  </div>
-  <div class="grid4">
+  <div class="grid3">
     <div class="card"><div class="h">Decision log</div><div class="logline mono" id="decisionLogCard">
       <div style="color:var(--dim);">No decisions logged yet</div>
     </div></div>
@@ -298,47 +279,9 @@ header{align-items:baseline;padding:14px 4px 12px;margin-bottom:16px;}
     <div class="card"><div class="h">Cost of asking</div><div id="costOfAskingCard">
       <div style="font-size:10px;color:var(--dim);">No halts recorded yet — nothing has required your input</div>
     </div></div>
-    <div class="card"><div class="h">Gate outcomes</div><div id="gateOutcomesCard">
-      <div style="font-size:10px;color:var(--dim);">No gate verdicts logged yet</div>
-    </div></div>
   </div>
-
-  <div class="tower-title">Control Tower <span id="towerStatus" style="font-size:9px;letter-spacing:0;text-transform:none;color:var(--dim);"></span></div>
-  <div class="tower">
-    <div class="card tower-head hub-card">
-      <div class="hub-top">
-        <div class="hub-mini"><div class="hr"></div><div class="hr"></div><div class="hr"></div><div class="hc">🤖</div><div class="hl"></div></div>
-        <div><div style="font-weight:800;font-size:12px;">chief-of-staff</div><div style="font-size:9.5px;color:var(--dim);" id="towerSub">supervising the real pipeline · no active task</div></div>
-      </div>
-      <!-- Token-usage gauge: v1.78.0 — this used to sweep on a canned timer with random numbers
-           that had no relationship to anything real, while visually claiming to show live usage.
-           It now reads the SAME /tokens endpoint the main console's "Tokens this session" stat
-           uses (session-cumulative, not per-agent — see the CHANGELOG note on why there's no
-           per-agent token log in this kit yet) and only animates when a real agent is actually
-           active, scaled against the highest real total seen so far this page load. At true idle
-           (no active task) it sits flat at zero with no sweep at all — see refreshGauge() below. -->
-      <div class="tg-mini compact" data-gauge id="tokenGauge">
-        <svg viewBox="0 0 96 54"><g>
-          <path class="tg-track" d="M8,52 A40,40 0 0 1 88,52"/>
-          <path class="tg-arc tg-green" d="M8,52 A40,40 0 0 1 55.9,13.1"/>
-          <path class="tg-arc tg-yellow" d="M55.9,13.1 A40,40 0 0 1 82.9,30.6"/>
-          <path class="tg-arc tg-red" d="M82.9,30.6 A40,40 0 0 1 88,52"/>
-          <line class="tg-needle" x1="48" y1="52" x2="48" y2="16"/>
-          <circle class="tg-hub" cx="48" cy="52" r="3.4"/>
-        </g></svg>
-        <div class="tg-info">
-          <div class="tg-readout" id="tgReadout">— tok</div>
-          <div class="tg-station" id="tgStation">no usage data yet</div>
-          <div class="tg-max">session total: <b id="tgMax">0K</b></div>
-        </div>
-      </div>
-    </div>
-    <!-- Real 5-stage pipeline (v1.78.0) — same stages/order as agent-console.html's own
-         MINIFLOW_PIPELINE, the one place in this kit that already tracks "what's really running"
-         from the /log event stream. The old 9-row list included stations ("read-context",
-         "compliance pre-check", "MCP place") that don't correspond to any real agent or event in
-         this kit — they've been dropped rather than faked. -->
-    <div class="card tower-rows rows-card rows-scroll" id="flow-station-rows">
+  <div class="ubottom">
+    <div class="card rows-card rows-scroll" id="flow-station-rows">
       <div class="station-row" data-agent="intent-gate"><div class="name"><span>🧭</span><b>intent-gate</b></div><div class="desc">checks task ambiguity</div><div class="pill grey">idle</div></div>
       <div class="station-row" data-agent="coder"><div class="name"><span>👨‍💻</span><b>coder</b></div><div class="desc">implements features and fixes</div><div class="pill grey">idle</div></div>
       <div class="station-row" data-agent="intent-reviewer"><div class="name"><span>🎯</span><b>intent-reviewer</b></div><div class="desc">verifies output matches spec</div><div class="pill grey">idle</div></div>
@@ -352,7 +295,7 @@ header{align-items:baseline;padding:14px 4px 12px;margin-bottom:16px;}
   </div>
 </div>
 
-<script>document.getElementById('flowKitVersion').textContent = 'v1.105.0';</script>
+<script>document.getElementById('flowKitVersion').textContent = 'v1.106.0';</script>
 <script>
 // v1.78.0 — REAL state, replacing the old always-on decorative loop. Same source of truth the
 // main console (agent-console.html) uses: poll /log every second, replay start/stop events into
@@ -361,13 +304,10 @@ header{align-items:baseline;padding:14px 4px 12px;margin-bottom:16px;}
 // setInterval-driven animation loop runs independently of real data any more; every visual change
 // here is a direct reaction to a poll result. See CHANGELOG.md v1.78.0 for the full before/after.
 
-const truck = document.getElementById('flow-truck');
 const rowEls = Array.from(document.querySelectorAll('#flow-station-rows .station-row'));
 const decisionHistoryEl = document.getElementById('decisionHistory');
 const towerSub = document.getElementById('towerSub');
 const towerStatus = document.getElementById('towerStatus');
-const TRUCK_Y = 132;
-const TRUCK_IDLE_X = 20; // parked at the very start of the belt — see "idle" case below
 
 // Same 5-stage real pipeline as agent-console.html's MINIFLOW_PIPELINE, mapped to this page's
 // intake/build/gate/ship zones (zone x-coordinates match the band drawn above).
@@ -497,8 +437,173 @@ function renderBottomCards(entries){
   }
 }
 
-function setAllMachines(on){
-  document.querySelectorAll('.machine').forEach(m => m.classList.toggle('working', on));
+// ---- v1.107 U-shaped board: stations on a U track, one card + one icon per station ----
+const UZ = {intake:{n:'INTAKE',c:'#6c7bff'}, build:{n:'BUILD',c:'#39ff88'}, gate:{n:'GATE',c:'#ff5cd1'}, ship:{n:'SHIP',c:'#4bd8ff'}};
+const UC = {'intent-gate':'#6c7bff','coder':'#39ff88','qa-regression':'#4b8bff','intent-reviewer':'#ffbd2e','compliance-reviewer':'#a6e22e','planner-docs':'#2dd4bf'};
+const UST = [
+  {key:'intake', l:'task intake', z:'intake', ic:'📥'},
+  {key:'intent-gate', l:'int.gate', z:'intake', a:'intent-gate', ic:'🧭'},
+  {key:'read', l:'read context', z:'intake', ic:'🧠'},
+  {key:'skill', l:'skill match', z:'intake', ic:'🧩'},
+  {key:'coder', l:'coder', z:'build', a:'coder', ic:'👨‍💻'},
+  {key:'pre', l:'pre-check', z:'gate', ic:'🛡️'},
+  {key:'mcp', l:'MCP place', z:'gate', ic:'📍'},
+  {key:'qa', l:'qa-reg', z:'gate', a:'qa-regression', ic:'🔍'},
+  {key:'int', l:'int.rev', z:'gate', a:'intent-reviewer', ic:'🎯'},
+  {key:'comp', l:'compl.rev', z:'gate', a:'compliance-reviewer', ic:'🛡️'},
+  {key:'sealed', l:'sealed', z:'ship', ic:'📦'},
+  {key:'docs', l:'planner-docs', z:'ship', a:'planner-docs', ic:'📋'}
+];
+const UG = {L:70, R:1130, T:50, B:540}, ULEN = 2040, ULY = [100,210,320,430], UBX = k => 440 + k*128, URY = [330,130];
+const URAIL = 'M70,50 V500 Q70,540 110,540 H1090 Q1130,540 1130,500 V50';
+function upos(i){
+  if (i < 4) return {x:UG.L, y:ULY[i], d:ULY[i]-UG.T, side:'L'};
+  if (i < 10){ const k = i-4; return {x:UBX(k), y:UG.B, d:490+UBX(k)-UG.L, side:'B', k:k}; }
+  const k = i-10; return {x:UG.R, y:URY[k], d:490+1060+(UG.B-URY[k]), side:'R'};
+}
+function ucardPos(i, w, h, gap){
+  const p = upos(i);
+  if (p.side === 'L') return [p.x+34, p.y-h/2];
+  if (p.side === 'R') return [p.x-34-w, p.y-h/2];
+  return [p.x-w/2, p.k%2 === 0 ? p.y-gap-h : p.y+gap];
+}
+function uColor(s){ return s.a ? (UC[s.a] || '#4bd8ff') : UZ[s.z].c; }
+function fmtTok(n){ return n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n); }
+function fmtDur(ms){ const s = Math.max(0, Math.round(ms/1000)); return s >= 3600 ? Math.floor(s/3600)+'h '+Math.floor(s%3600/60)+'m' : s >= 60 ? Math.floor(s/60)+'m '+(s%60)+'s' : s+'s'; }
+const normAgent = a => a === 'coder-prep' ? 'coder' : a;
+
+// real data holders, filled by the polls above/below
+let costMap = {}, costsOk = false, costSum = 0, costRuns = 0;
+let lastStop = {};            // agent -> ms of its latest stop event
+let verd = {};                // agent -> {pass, total, last:{result, task}}
+let vTotals = {pass:0, reject:0, halt:0, total:0};
+let tierTop = null;           // {tier, pct}
+let uBuilt = false, uEls = [];
+
+function buildU(){
+  let h = '<svg class="usvg" viewBox="0 0 1200 700"><path d="'+URAIL+'" pathLength="'+ULEN+'" fill="none" stroke="#0a1022" stroke-width="20" stroke-linecap="round"/>';
+  [[0,4,'intake'],[4,5,'build'],[5,10,'gate'],[10,12,'ship']].forEach(function(c){
+    const d0 = c[0] ? (upos(c[0]-1).d + upos(c[0]).d)/2 : 0, d1 = c[1] < 12 ? (upos(c[1]-1).d + upos(c[1]).d)/2 : ULEN;
+    h += '<path d="'+URAIL+'" pathLength="'+ULEN+'" fill="none" stroke="'+UZ[c[2]].c+'" stroke-opacity=".35" stroke-width="20" stroke-dasharray="0 '+d0+' '+(d1-d0)+' '+ULEN+'"/>';
+  });
+  h += '<path id="uprog" d="'+URAIL+'" pathLength="'+ULEN+'" fill="none" stroke="#39ff88" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 '+ULEN+'"/></svg>';
+  UST.forEach(function(s, i){
+    const side = i < 4 || i > 9, w = side ? 230 : 190, hh = side ? 106 : 114, pp = ucardPos(i, w, hh, 32), c = uColor(s);
+    h += '<div class="ucard idle" data-i="'+i+'" style="left:'+pp[0]+'px;top:'+pp[1]+'px;width:'+w+'px;height:'+hh+'px;border-top:3px solid '+c+'">' +
+      '<h4><span><span style="color:'+c+'">'+String(i+1).padStart(2,'0')+'</span> '+s.l.toUpperCase()+'</span><span class="uchip idle">idle</span></h4>' +
+      '<div class="uwho">'+(s.a || 'step · no agent')+'</div><div class="ukv"></div>' +
+      '<div class="ubars"><span>tok</span><div class="ubar"><i class="bl" style="width:0;background:'+c+'"></i></div><span>pass</span><div class="ubar"><i class="br" style="width:0;background:'+c+'"></i></div></div></div>';
+  });
+  UST.forEach(function(s, i){
+    const p = upos(i), c = s.a ? uColor(s) : '#4a5568';
+    h += '<div class="utok '+(s.a ? '' : 'mech ')+'idle" data-i="'+i+'" style="--c:'+c+';left:'+p.x+'px;top:'+p.y+'px;width:40px;height:40px;font-size:21px">'+s.ic+'</div>';
+  });
+  document.getElementById('uinner').innerHTML = h;
+  document.getElementById('uzone').innerHTML = ['intake','build','gate','ship'].map(function(z){
+    return '<div><div class="zt" style="color:'+UZ[z].c+'"><span>'+UZ[z].n+'</span><span id="uz-'+z+'-n">0/0</span></div><div class="ubar" style="margin-top:5px"><i id="uz-'+z+'-b" style="width:0;background:'+UZ[z].c+'"></i></div></div>';
+  }).join('');
+  uEls = UST.map(function(s, i){
+    const card = document.querySelector('.ucard[data-i="'+i+'"]'), tok = document.querySelector('.utok[data-i="'+i+'"]');
+    return {card:card, tok:tok, chip:card.querySelector('.uchip'), kv:card.querySelector('.ukv'), bl:card.querySelector('.bl'), br:card.querySelector('.br')};
+  });
+  document.getElementById('upulse').innerHTML = [0,1,2,3,4,5].map(function(k){
+    return '<div><div class="uring" id="ur'+k+'"><div id="urv'+k+'">—</div></div><div id="url'+k+'" style="font:9px Consolas,monospace;color:var(--dim);margin-top:4px"></div></div>';
+  }).join('');
+  uBuilt = true; fitU();
+}
+function fitU(){
+  const hold = document.getElementById('uholder'), st = document.getElementById('ustage');
+  const k = Math.min(1, hold.clientWidth / 1200);
+  st.style.transform = 'scale('+k+')'; hold.style.height = (740*k)+'px';
+}
+window.addEventListener('resize', fitU);
+
+function computeStates(){
+  const top = active.length ? normAgent(active[active.length-1].agent) : null;
+  const ai = top ? UST.findIndex(s => s.a === top) : -1, now = Date.now();
+  return UST.map(function(s, i){
+    if (s.a && s.a === top) return 'active';
+    if (ai >= 0) return i < ai ? 'done' : 'queued';
+    if (s.a && lastStop[s.a] && now - lastStop[s.a] < 30*60000) return 'done';
+    return 'idle';
+  });
+}
+const CHIP_TXT = {active:'working', done:'done', queued:'waiting', idle:'idle'};
+function updateStages(){
+  if (!uBuilt) return;
+  const states = computeStates(), now = Date.now();
+  let maxD = 0; const zc = {intake:[0,0,0], build:[0,0,0], gate:[0,0,0], ship:[0,0,0]};
+  UST.forEach(function(s, i){
+    const st = states[i], e = uEls[i], c = s.a ? uColor(s) : '#4a5568';
+    e.card.className = 'ucard ' + st; e.chip.className = 'uchip ' + st; e.chip.textContent = CHIP_TXT[st];
+    e.tok.className = 'utok ' + (s.a ? '' : 'mech ') + st;
+    e.tok.innerHTML = s.ic + (st === 'done' ? '<span class="bd">✓</span>' : '') + (st === 'active' ? '<span class="tag">' + (mfTaskId || 'now') + ' ▶</span>' : '');
+    e.tok.style.width = e.tok.style.height = (st === 'active' ? 46 : 40) + 'px';
+    let vals = [], bl = 0, br = 0;
+    if (!s.a){ vals = s.key === 'intake' ? [['task', mfTaskId || '—']] : [['step', 'no agent']]; }
+    else {
+      const co = costMap[s.a], v = verd[s.a];
+      const tok = co ? fmtTok(co.total) : (costsOk ? '0' : '—');
+      if (st === 'active'){
+        const a = active.slice().reverse().find(x => normAgent(x.agent) === s.a);
+        vals = [['tok', tok], ['time', a ? fmtDur(now - a.startTs) : '—']];
+      } else {
+        vals = [['tok', tok], v && v.last ? ['last', v.last.result + (v.last.task ? ' ' + v.last.task : '')] : ['runs', co ? String(co.runs) : '—']];
+      }
+      if (co && costSum > 0) bl = Math.round(100 * co.total / costSum);
+      if (v && v.total > 0) br = Math.round(100 * v.pass / v.total);
+    }
+    e.kv.innerHTML = vals.map(x => '<span>' + esc(x[0]) + '<b' + (String(x[1]).length > 9 ? ' style="font-size:11px"' : '') + '>' + esc(x[1]) + '</b></span>').join('');
+    e.bl.style.width = bl + '%'; e.br.style.width = br + '%';
+    const z = zc[s.z]; z[2]++; if (st === 'done') z[0]++; if (st === 'active') z[1]++;
+    if (st === 'done' || st === 'active') maxD = Math.max(maxD, upos(i).d);
+  });
+  const prog = document.getElementById('uprog'); if (prog) prog.setAttribute('stroke-dasharray', maxD + ' ' + ULEN);
+  Object.keys(zc).forEach(function(z){
+    const a = zc[z]; document.getElementById('uz-'+z+'-n').textContent = a[0] + '/' + a[2];
+    document.getElementById('uz-'+z+'-b').style.width = Math.round(100 * (a[0] + 0.5*a[1]) / a[2]) + '%';
+  });
+  updatePulse();
+}
+function setRing(k, label, text, color, pct){
+  const r = document.getElementById('ur'+k); if (!r) return;
+  r.style.background = 'conic-gradient(' + color + ' ' + (pct*3.6) + 'deg,#17223d 0)';
+  document.getElementById('urv'+k).textContent = text; document.getElementById('url'+k).textContent = label;
+}
+function updatePulse(){
+  const vt = vTotals;
+  setRing(0, 'GATE PASS', vt.total ? Math.round(100*vt.pass/vt.total)+'%' : '—', '#39ff88', vt.total ? 100*vt.pass/vt.total : 0);
+  setRing(1, 'TOKENS', sessionMaxTokens ? fmtTok(sessionMaxTokens) : '—', '#ffb454', 100);
+  setRing(2, 'ASKED', String(vt.halt), '#ff5cd1', vt.total ? 100*vt.halt/vt.total : 0);
+  setRing(3, 'TOP TIER', tierTop ? tierTop.pct+'%' : '—', '#6c7bff', tierTop ? tierTop.pct : 0);
+  setRing(4, 'AGENT RUNS', costsOk ? String(costRuns) : '—', '#4bd8ff', costsOk && costRuns ? 100 : 0);
+  setRing(5, 'DECISIONS', String(vt.total), '#2dd4bf', vt.total ? 100 : 0);
+}
+function deriveAgentStats(entries){
+  lastStop = {}; verd = {}; vTotals = {pass:0, reject:0, halt:0, total:0}; const tc = {}; let tn = 0;
+  entries.forEach(function(e){
+    if (!e || typeof e.agent !== 'string') return;
+    const a = normAgent(e.agent);
+    if (e.event === 'stop'){ const t = Date.parse(e.ts); if (t) lastStop[a] = t; }
+    if (e.event === 'verdict' && e.result){
+      const v = verd[a] || (verd[a] = {pass:0, total:0, last:null});
+      v.total++; if (e.result === 'pass') v.pass++; v.last = {result:e.result, task:e.task || ''};
+      vTotals.total++; if (vTotals[e.result] != null) vTotals[e.result]++;
+    }
+    if (e.event === 'model_tier' && e.tier){ tc[e.tier] = (tc[e.tier] || 0) + 1; tn++; }
+  });
+  tierTop = null;
+  Object.keys(tc).forEach(function(t){ if (!tierTop || tc[t] > tc[tierTop.tier]) tierTop = {tier:t, pct:0}; });
+  if (tierTop) tierTop.pct = Math.round(100 * tc[tierTop.tier] / tn);
+}
+async function pollCosts(){
+  try{
+    const res = await fetch('/agent-costs', {cache:'no-store'}); const j = await res.json();
+    if (!j || !j.available){ costsOk = false; return; }
+    costsOk = true; costMap = {}; costSum = j.total || 0; costRuns = j.runs || 0;
+    (j.agents || []).forEach(function(a){ const n = normAgent(a.agent); const o = costMap[n] || (costMap[n] = {total:0, runs:0, calls:0}); o.total += a.total; o.runs += a.runs; o.calls += a.calls; });
+    updateStages();
+  } catch(e){ costsOk = false; }
 }
 
 function refreshStations(){
@@ -523,20 +628,15 @@ function refreshStations(){
     }
   });
 
-  // Truck + build/gate/ship machine sparks: real position, real on/off — parked at the start of
-  // the belt with every machine dark when nothing in the real pipeline is active (the "camioncino
-  // continua a muoversi in assenza di attività reali" complaint).
-  setAllMachines(false);
-  if (topAgent && ZONES[topAgent]){
-    truck.setAttribute('transform', 'translate(' + ZONES[topAgent].x + ',' + TRUCK_Y + ')');
-    ZONES[topAgent].machines.forEach(sel => document.querySelectorAll(sel).forEach(m => m.classList.add('working')));
+  // Real on/off for the U board: stations, icons, zone bars and pulse are all drawn from the same `active` stack.
+  if (topAgent){
     towerSub.textContent = "supervising the real pipeline · " + topAgent + " active" + (mfTaskId ? (" · " + mfTaskId) : "");
     towerStatus.textContent = "";
   } else {
-    truck.setAttribute('transform', 'translate(' + TRUCK_IDLE_X + ',' + TRUCK_Y + ')');
     towerSub.textContent = "supervising the real pipeline · no active task";
     towerStatus.textContent = "— idle";
   }
+  updateStages();
 }
 
 // Token-usage gauge: real session total from /tokens, scaled against the highest total seen so
@@ -623,6 +723,7 @@ function processEntries(entries){
   }
   lastCount = entries.length;
   pruneStaleActive();
+  deriveAgentStats(entries);
   refreshStations();
   renderBottomCards(entries);
 }
@@ -669,7 +770,10 @@ async function tick(){
 
 // Start parked/idle (no fake initial sweep), then poll every second — same cadence as the main
 // console's own /log polling.
+buildU();
 refreshStations();
+pollCosts();
+setInterval(pollCosts, 20000);
 tick();
 setInterval(tick, 1000);
 </script>

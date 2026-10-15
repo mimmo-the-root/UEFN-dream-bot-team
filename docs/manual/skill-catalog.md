@@ -13,6 +13,7 @@ Skills are small folders of knowledge that Claude reads only when the task needs
 | `performance-uefn-checklist` | The short checklist the bootstrap runs in its static review and QA uses when it watches frame rate. |
 | `brand-collections-uefn` | Recognises which official Fortnite collection (TMNT, LEGO, Fall Guys and others) a project is built on, and how to record markers for a new one. |
 | `game-ui-designer` | A style guide for in-game screens such as shops, missions or teleporters. Still a draft that grows as you add reference examples. |
+| `verse-ui-kit` | How to build and wire screens with Epic's free Verse UI Kit: focus, gamepad, Back, shared click events, and what to do when Epic updates its guide. Still a draft. |
 | `genre` | Your genre skills, filled from your real maps. See [Skills and lessons](ch:skills-and-lessons). |
 
 ## Keeping token use down

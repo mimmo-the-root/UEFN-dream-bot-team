@@ -127,6 +127,8 @@ details.kproj{margin:26px 0 0;}details.kproj>summary{cursor:pointer;color:var(--
  <div id="kLearning"></div>
  <div class="ktwo"><div id="kBlueprint"></div><div><div id="kLog"></div><div id="kPatterns"></div></div></div>
  <div id="kWaiting"></div>
+ <div class="ksec"><h2>UEFN MCP</h2><span>the engine under the kit: mapped and tested by itself, on this computer</span></div>
+ <div id="kMcp"></div>
  <div class="ksec"><h2>Community</h2><span>share what you learned, only from a published map</span></div>
  <div id="kCommunity"></div>
 </div>
@@ -380,7 +382,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.105.0";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.106.0";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -577,7 +579,21 @@ function renderCommunity(){
  var o=$("kcOpen");if(o)o.onclick=function(){window.open(CEXP.url,"_blank","noopener");post("/community-act",{action:"shared",genre:CEXP._g,id:CEXP._id}).then(function(){CEXP=null;loadCommunity();});};
  var c=$("kcCancel");if(c)c.onclick=function(){CEXP=null;renderCommunity();};
 }
+function loadMcp(){
+ fetch("/uefn-mcp-map",{cache:"no-store"}).then(function(r){return r.json();}).catch(function(){return {available:false,reason:"The console server is older than this page. Restart it to see the MCP map."};}).then(function(m){
+  var box=$("kMcp");if(!box)return;
+  if(!m.available){box.innerHTML='<div class="kcard"><div class="klabel">UEFN MCP</div><div class="kempty">'+esc(m.reason||"No map yet.")+'</div></div>';return;}
+  var n=m.news||{},h='<div class="kcard"><div class="klabel">UEFN MCP map<span class="r">'+esc(m.saved||"")+(m.uefn_version?" · UEFN "+esc(m.uefn_version):"")+'</span></div>'+
+   '<div style="font-size:15px;line-height:1.7"><b>The kit uses '+esc(m.kit_uses)+' of '+esc(m.count)+' tools ('+esc(m.kit_uses_pct)+'%)</b> <span class="ksub">in '+esc(m.toolsets)+' toolsets: '+esc(m.read)+' read, '+esc(m.write)+' write</span></div>'+
+   '<div class="ksub" style="margin-top:6px">'+(m.tests?'Tests: '+esc(m.tests.ok)+' safe tools answered, '+esc(m.tests.failed)+' failed ('+esc(m.tests.date)+'). Only read-only tools are ever called.':'Tests: not run yet.')+'</div>';
+  if(n.stopped_working&&n.stopped_working.length)h+='<div style="margin-top:8px;color:var(--red)">Stopped working: '+n.stopped_working.map(esc).join(", ")+'</div>';
+  if(n.date){h+='<div style="margin-top:10px"><b>Latest news ('+esc(n.date)+')</b>: '+(n.state==="first_snapshot"?'first map made.':esc(n.added_total)+' added, '+esc(n.removed_total)+' removed, '+esc(n.changed_total)+' changed.')+'</div>';
+   (n.added||[]).slice(0,8).forEach(function(a){h+='<div class="ksub">+ '+esc(a.tool)+' ('+esc(a.access)+') '+esc(a.does)+'</div>';});}
+  h+='<div class="ksub" style="margin-top:8px">Refreshed by itself at session start when UEFN is open. Agents search it before working through UEFN. <a href="/manual/mcp-engine.html" style="color:var(--cyan)">How it works</a></div></div>';
+  box.innerHTML=h;});
+}
 function load(){
+ loadMcp();
  if(!CS)loadCommunity();
  Promise.all([fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})]).then(function(a){var sig=JSON.stringify(a);if(sig===LAST)return;LAST=sig;SD=a[0];LD=a[1];renderKit();renderMap();renderCommunity();});
 }

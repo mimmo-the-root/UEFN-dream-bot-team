@@ -22,6 +22,11 @@ has collected rather than invented from scratch.
   to **coder** as usual; this skill only informs what the screen should look like and how its
   elements should be structured.
 
+## Building with Epic's Verse UI Kit
+This skill decides how a screen LOOKS. When the screen is built from Epic's free Verse UI Kit
+(`VerseUIKit/` in the project), `verse-ui-kit` decides how it is BUILT and wired (focus, gamepad,
+Back, events): read it too, and run `/ui-kit-check` first.
+
 ## Before designing any screen
 1. Read `references/style-guide.md` in full — it's the distilled rule set (panel anatomy,
    section/tab structure, item-card recipe, currency display, progress/reward patterns,
