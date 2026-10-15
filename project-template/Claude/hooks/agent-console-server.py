@@ -438,6 +438,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif self.path.startswith("/community-summary"):
             # What's new page: summary of the last release (shipped with the kit); empty object when the file is not there yet.
             self._send_json_bytes(_read_json_object(COMMUNITY_SUMMARY_FILE, "{}").encode("utf-8"))
+        elif self.path.startswith("/agent-costs"):
+            # Tokens per sub-agent for the Console's table; counts only (agent_cost.py). Never an error status: "available": false says why.
+            try:
+                import agent_cost
+                self._send_json_bytes(json.dumps(agent_cost.summary(PROJECT_DIR, 30, 4.0)).encode("utf-8"))
+            except Exception as e:
+                self._send_json_bytes(json.dumps({"available": False, "reason": "could not read the transcripts (%s)" % e.__class__.__name__}).encode("utf-8"))
         elif self.path.startswith("/skills-data"):
             # Real data only, computed from the local genre-skill files by skills_lib.summary().
             if skills_lib is None:

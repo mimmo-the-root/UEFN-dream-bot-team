@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.102.0"
+   "tag": "v1.103.0"
   },
   "state": {
    "genres": [],
@@ -24,12 +24,12 @@
  "release": {
   "date": "2026-10-15",
   "items": [
-   "Build errors are remembered. Every build that ends with errors is noted in `Claude/logs/verse-errors.jsonl` (error codes and a short excerpt, no paths). `verse_check.py --recurring` lists the errors seen in two or more builds; the coder then proposes a Verse lesson and writes it only after your yes.",
-   "`/text-scan`: offline check of publication texts (`Claude/docs/publish/` or the files you name) for emoji, fake-bold letters, arrows, box symbols and invisible characters. Reports line and column, never edits. The title and description skill and the update writer run it before handing over a final text.",
-   "Tests for both (recurring errors, paths stripped, normal typography left alone). The privacy scan now skips the git-ignored `_spike` folder."
+   "A new table on the Console page, \"Tokens per agent (last 30 days)\": for each agent, runs, calls, input, output, cache read, cache write, total and model. It comes from the transcripts Claude Code keeps for each helper agent; each model answer is counted once (the same answer is written on several lines with growing counts).",
+   "Honest by design: if the transcripts are not on this computer the table says \"not available\", never zero. Counts only, no prices. The main session stays in the tokens box above.",
+   "Read once and cached in `Claude/logs/agent-costs-cache.json`; later openings only read new runs. Works in both console servers."
   ],
-  "tag": "v1.103.0",
-  "title": "v1.103.0 \u2014 Lessons from build errors, publication text scan"
+  "tag": "v1.104.0",
+  "title": "v1.104.0 \u2014 Tokens per agent"
  },
  "schema": 1,
  "skills": [],

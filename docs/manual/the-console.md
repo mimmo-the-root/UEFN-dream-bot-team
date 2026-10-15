@@ -15,6 +15,8 @@ The live view. Seventeen agents sit on a ring around the chief of staff, which i
 - The **activity log** on the right lists what each agent started and finished.
 - A small light on each card: grey when idle, green while working, yellow while waiting for a helper, red when it has run suspiciously long.
 
+Below the cards, **Tokens per agent (last 30 days)** opens a table with, for each agent, how many times it ran and how many tokens it used (input, output, cache read, cache write, total) and on which model. It is read from the transcripts Claude Code keeps for each helper, so it shows only what exists on this computer: if nothing is found, it says "not available" instead of zero. It counts tokens, not money, because prices change, and it leaves out your main session, which the box above already shows. The first opening can take a few seconds while older runs are read.
+
 The long explanation of every animation is folded under **How to read this page**.
 
 ![The Console page while a task runs (demo data)](shot-console.png)

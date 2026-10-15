@@ -354,6 +354,15 @@
   .terminal .empty{color:var(--dim);font-style:italic;}
 
   .footerline{font-size:13px;color:var(--dim);padding:14px 4px 4px;}
+  details.agentcost{margin:12px 0 0;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:8px;padding:10px 14px;}
+  details.agentcost summary{cursor:pointer;font-size:10px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
+  details.agentcost[open] summary{margin-bottom:8px;}
+  .agentcost table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums;}
+  .agentcost th{text-align:right;color:var(--dim);font-weight:normal;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-bottom:1px solid var(--line);}
+  .agentcost td{text-align:right;padding:4px 8px;border-bottom:1px solid var(--line-soft);}
+  .agentcost th:first-child,.agentcost td:first-child{text-align:left;color:var(--text);}
+  .agentcost td.model{text-align:left;color:var(--dim);font-size:11px;}
+  .agentcost .note{font-size:11px;color:var(--dim);margin-top:8px;}
   .footerline .prompt{color:var(--blue);}
   .footerline .n{color:var(--text);}
   .footerline .approval{color:var(--amber);}
@@ -443,6 +452,11 @@
     </div>
   </div>
 
+  <details class="agentcost" id="agentCost">
+    <summary>Tokens per agent (last 30 days)</summary>
+    <div id="agentCostBody" class="note">Open to load.</div>
+  </details>
+
   <div class="footerline" id="footerLine">&gt; <span class="n">6</span> agents idle, every real change still goes through <span class="approval">you</span>.</div>
 
   <footer>
@@ -489,7 +503,7 @@
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.103.0";
+const KIT_VERSION = "v1.104.0";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -1554,6 +1568,34 @@ function tickTimers(){
   updateMiniflow(now);
   refreshLeds();
 }
+
+// Tokens per agent: counts from the sub-agent transcripts (/agent-costs). Loaded only while the panel is open;
+// "not available" is shown as such, never as zero.
+var costTimer = null;
+function costNote(box, text){ box.textContent = ""; var d = document.createElement("div"); d.className = "note"; d.textContent = text; box.appendChild(d); }
+async function loadAgentCosts(){
+  var box = document.getElementById("agentCostBody");
+  try{
+    var res = await fetch("/agent-costs", {cache:"no-store"});
+    var j = await res.json();
+    if (!j || !j.available){ costNote(box, "Not available: " + ((j && j.reason) || "no data")); return; }
+    if (!j.agents.length){ costNote(box, "No sub-agent runs found in the last " + j.days + " days."); return; }
+    var t = document.createElement("table");
+    var hr = t.insertRow();
+    ["Agent","Runs","Calls","Input","Output","Cache read","Cache write","Total","Model"].forEach(function(h, i){
+      var th = document.createElement("th"); th.textContent = h; if (i === 8) th.style.textAlign = "left"; hr.appendChild(th); });
+    j.agents.forEach(function(a){
+      var r = t.insertRow();
+      [a.agent, a.runs, a.calls, a.input, a.output, a.cache_read, a.cache_creation, a.total].forEach(function(v, i){
+        var td = r.insertCell(); td.textContent = i === 0 ? v : fmtNumber(v); });
+      var m = r.insertCell(); m.className = "model"; m.textContent = (a.models || []).join(", ");
+    });
+    box.textContent = ""; box.appendChild(t);
+    costNote(box, "Sub-agents only (the main session is in the box above); counts, not prices. " + j.runs + " runs, " + fmtNumber(j.total) + " tokens in total" + (j.complete ? "." : ". Still reading " + j.pending + " older files, this table fills in."));
+    if (!j.complete){ clearTimeout(costTimer); costTimer = setTimeout(function(){ if (document.getElementById("agentCost").open) loadAgentCosts(); }, 3000); }
+  } catch(e){ costNote(box, "Not available: the console server did not answer."); }
+}
+document.getElementById("agentCost").addEventListener("toggle", function(){ if (this.open) loadAgentCosts(); });
 
 async function pollTokens(){
   try{

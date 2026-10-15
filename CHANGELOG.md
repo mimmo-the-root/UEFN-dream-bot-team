@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.104.0 — Tokens per agent
+
+- **A new table on the Console page**, "Tokens per agent (last 30 days)": for each agent, runs, calls, input, output, cache read, cache write, total and model. It comes from the transcripts Claude Code keeps for each helper agent; each model answer is counted once (the same answer is written on several lines with growing counts).
+- **Honest by design:** if the transcripts are not on this computer the table says "not available", never zero. Counts only, no prices. The main session stays in the tokens box above.
+- Read once and cached in `Claude/logs/agent-costs-cache.json`; later openings only read new runs. Works in both console servers.
+
 ## v1.103.0 — Lessons from build errors, publication text scan
 
 - **Build errors are remembered.** Every build that ends with errors is noted in `Claude/logs/verse-errors.jsonl` (error codes and a short excerpt, no paths). `verse_check.py --recurring` lists the errors seen in two or more builds; the coder then proposes a Verse lesson and writes it only after your yes.
