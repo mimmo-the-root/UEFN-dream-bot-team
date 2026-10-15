@@ -27,3 +27,9 @@ user-level-skills/game-ui-designer/references/examples/**/*.jpg
 user-level-skills/game-ui-designer/references/examples/**/*.jpeg
 user-level-skills/game-ui-designer/references/examples/**/*.webp
 promotion-report.md
+
+# local probe output (Verse language server spike)
+verse-probe.log
+ext-hints.txt
+
+_spike/

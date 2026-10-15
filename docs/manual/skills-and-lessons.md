@@ -14,6 +14,10 @@ At the first message of a session, before answering it, the kit reads three thin
 
 It never interviews you about your map. If a session stops halfway, the next one continues where it stopped. You can force it with `/learn-map`, and rebuild only the Verse map with `/verse-map`.
 
+## Checking that the code builds
+
+`/verse-check` asks your open UEFN to build the whole Verse project, the same build as "Build Verse Code" in Visual Studio Code, and answers with one of three states: **clean** (built, no errors), **errors** (with the build log: file, line, message) or **not analyzed** (UEFN is not reachable, so nothing was checked). The coder runs it before calling a task Done and the release gate runs it before a verdict; "not analyzed" is never reported as "compiles". It changes nothing in your project.
+
 ## You confirm the genre and the map type
 
 The kit only **proposes** the genre and the map type (a free name such as pillars, red-vs-blue or checkpoint-race). Until you confirm them on the Skills page, nothing is written to your skills. Confirming saves the waiting blueprint and lessons by itself.

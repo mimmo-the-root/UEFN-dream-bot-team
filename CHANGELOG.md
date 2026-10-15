@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.102.0 — Verse build check
+
+- **`/verse-check`:** asks the open UEFN to build the whole Verse project (through UEFN's own Verse Workflow Server, the channel Visual Studio Code uses) and reports **clean**, **errors** (with the build log) or **not analyzed** when UEFN is not reachable. Never a guess: an odd or missing answer is "not analyzed", not "clean".
+- The **coder** confirms the build with it before calling a task Done; the **release gate** runs it before a verdict (errors block, not analyzed caps the verdict at "ready with reservations").
+- New manual section "Checking that the code builds". Tests use a fake server for the three states.
+
 ## v1.101.1 — Code scanning fix, screenshots for every page
 
 - **The console chapter now has a screenshot for every page** (Console, Stats, Docs, Flow, Skills, What's new), all with demo data and the new logo.

@@ -14,7 +14,7 @@ Add an allowed line with the marker `privacy-scan: allow` in a comment on that l
 import os, re, sys
 
 ROOT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-SKIP_DIRS = {".git", "__pycache__", "node_modules"}
+SKIP_DIRS = {".git", "__pycache__", "node_modules", "_spike"}  # _spike: git-ignored scratch
 BINARY_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".zip", ".pdf", ".woff", ".woff2"}
 ALLOW_MARK = "privacy-scan: allow"
 
