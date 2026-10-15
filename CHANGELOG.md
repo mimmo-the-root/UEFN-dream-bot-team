@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.103.0 — Lessons from build errors, publication text scan
+
+- **Build errors are remembered.** Every build that ends with errors is noted in `Claude/logs/verse-errors.jsonl` (error codes and a short excerpt, no paths). `verse_check.py --recurring` lists the errors seen in two or more builds; the coder then proposes a Verse lesson and writes it only after your yes.
+- **`/text-scan`:** offline check of publication texts (`Claude/docs/publish/` or the files you name) for emoji, fake-bold letters, arrows, box symbols and invisible characters. Reports line and column, never edits. The title and description skill and the update writer run it before handing over a final text.
+- Tests for both (recurring errors, paths stripped, normal typography left alone). The privacy scan now skips the git-ignored `_spike` folder.
+
 ## v1.102.0 — Verse build check
 
 - **`/verse-check`:** asks the open UEFN to build the whole Verse project (through UEFN's own Verse Workflow Server, the channel Visual Studio Code uses) and reports **clean**, **errors** (with the build log) or **not analyzed** when UEFN is not reachable. Never a guess: an odd or missing answer is "not analyzed", not "clean".

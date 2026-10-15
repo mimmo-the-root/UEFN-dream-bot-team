@@ -27,6 +27,8 @@ it fits; don't truncate it mid-word/sentence and hand it over anyway hoping it's
 Show the character count next to each field (e.g. "37/40") so the user can immediately see it
 fits.
 
+Save the finished package to `Claude/docs/publish/<name>.md` and run `py -3 Claude/hooks/text_scan.py` (`python` if `py` is missing). It lists emoji, fake-bold letters, box or arrow symbols and invisible characters, with line and column. Fix them (or tell the owner which you kept on purpose) before presenting the package as final.
+
 1. **Title — max 40 characters.**
    - Short and memorable, immediately communicates genre + unique element.
    - Use powerful, specific words only when relevant ("Insane", "Ultimate", "Chaos", "Pro",

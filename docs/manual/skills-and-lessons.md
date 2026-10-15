@@ -18,6 +18,12 @@ It never interviews you about your map. If a session stops halfway, the next one
 
 `/verse-check` asks your open UEFN to build the whole Verse project, the same build as "Build Verse Code" in Visual Studio Code, and answers with one of three states: **clean** (built, no errors), **errors** (with the build log: file, line, message) or **not analyzed** (UEFN is not reachable, so nothing was checked). The coder runs it before calling a task Done and the release gate runs it before a verdict; "not analyzed" is never reported as "compiles". It changes nothing in your project.
 
+When a build ends with errors, the kit notes it in `Claude/logs/verse-errors.jsonl` (time, error codes, a short excerpt without file paths). If the same error shows up in two different builds, the coder tells you in one line what it was and what fixed it, and asks whether to add it to the Verse lessons. It writes the lesson only after you say yes.
+
+## Checking publication texts
+
+`/text-scan` looks through the texts you are about to publish (island title, description, tags, update notes, social posts) for emoji, fake-bold letters, arrows and box symbols, and invisible characters such as zero-width spaces. It reads the folder `Claude/docs/publish/` by default, or the files you name. The title and description skill and the update writer save their texts there and run it. It works offline, only reports, and never edits your text. Normal accents, curly quotes and dashes are fine.
+
 ## You confirm the genre and the map type
 
 The kit only **proposes** the genre and the map type (a free name such as pillars, red-vs-blue or checkpoint-race). Until you confirm them on the Skills page, nothing is written to your skills. Confirming saves the waiting blueprint and lessons by itself.

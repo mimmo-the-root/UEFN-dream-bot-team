@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.101.1"
+   "tag": "v1.102.0"
   },
   "state": {
    "genres": [],
@@ -24,12 +24,12 @@
  "release": {
   "date": "2026-10-15",
   "items": [
-   "`/verse-check`: asks the open UEFN to build the whole Verse project (through UEFN's own Verse Workflow Server, the channel Visual Studio Code uses) and reports clean, errors (with the build log) or not analyzed when UEFN is not reachable. Never a guess: an odd or missing answer is \"not analyzed\", not \"clean\".",
-   "The coder confirms the build with it before calling a task Done; the release gate runs it before a verdict (errors block, not analyzed caps the verdict at \"ready with reservations\").",
-   "New manual section \"Checking that the code builds\". Tests use a fake server for the three states."
+   "Build errors are remembered. Every build that ends with errors is noted in `Claude/logs/verse-errors.jsonl` (error codes and a short excerpt, no paths). `verse_check.py --recurring` lists the errors seen in two or more builds; the coder then proposes a Verse lesson and writes it only after your yes.",
+   "`/text-scan`: offline check of publication texts (`Claude/docs/publish/` or the files you name) for emoji, fake-bold letters, arrows, box symbols and invisible characters. Reports line and column, never edits. The title and description skill and the update writer run it before handing over a final text.",
+   "Tests for both (recurring errors, paths stripped, normal typography left alone). The privacy scan now skips the git-ignored `_spike` folder."
   ],
-  "tag": "v1.102.0",
-  "title": "v1.102.0 \u2014 Verse build check"
+  "tag": "v1.103.0",
+  "title": "v1.103.0 \u2014 Lessons from build errors, publication text scan"
  },
  "schema": 1,
  "skills": [],

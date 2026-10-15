@@ -37,3 +37,20 @@ ok(vc.check(port=p, timeout=1)["state"] == "not_analyzed", "no answer in time ->
 s = socket.socket(); s.bind(("127.0.0.1", 0)); dead = s.getsockname()[1]; s.close()
 ok(vc.check(port=dead, timeout=2)["state"] == "not_analyzed", "UEFN closed -> not analyzed")
 ok(vc.main(["--port", str(dead)]) == 2, "exit code 2 when not analyzed")
+
+# --- lessons: errors are logged, recurring signatures are listed ---
+import tempfile
+msg1 = "MapCode.verse(12,5): Script error 3547: Unknown identifier `Foo`.\nPlaytime_manager.verse(3,1): Script warning 3100: unused\nSUCCESS? no"
+msg2 = "C:\\Proj\\Other.verse(40,9): Script error 3547: Unknown identifier `Bar`.\nOther.verse(2): error: weird thing 17 here"
+ok(vc.signatures(msg1) == ["E3547"], "error code extracted, warnings skipped")
+ok(vc.signatures("A.verse(1): error: odd 5") == vc.signatures("B.verse(99): error: odd 77"), "no code: same signature whatever the file and numbers")
+ok("<path>" in vc.excerpt(msg2) and "C:\\Proj" not in vc.excerpt(msg2), "paths are stripped from the excerpt")
+d = tempfile.mkdtemp(); lp = os.path.join(d, "Claude", "logs", "verse-errors.jsonl")
+vc.record({"errors": 1, "message": msg1}, lp)
+ok(vc.recurring(lp) == [], "one build is not recurring")
+vc.record({"errors": 2, "message": msg2}, lp)
+rec = vc.recurring(lp)
+ok(len(rec) == 1 and rec[0]["sig"] == "E3547" and rec[0]["builds"] == 2, "same code in two builds is recurring")
+ok(vc.recurring(os.path.join(d, "none.jsonl")) == [], "no log, nothing recurring")
+vc.record({"errors": 1, "message": msg1}, os.path.join("/proc", "nope", "x.jsonl"))
+ok(True, "an unwritable log never breaks the check")
