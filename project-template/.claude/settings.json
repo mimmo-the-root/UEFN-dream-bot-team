@@ -1,7 +1,29 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
-    "allow": [],
+    "allow": [
+      "Bash(py -3 Claude/hooks/verse_check.py *)",
+      "Bash(python Claude/hooks/verse_check.py *)",
+      "Bash(python3 Claude/hooks/verse_check.py *)",
+      "Bash(py -3 Claude/hooks/verse_map.py check *)",
+      "Bash(py -3 Claude/hooks/verse_map.py symbol *)",
+      "Bash(py -3 Claude/hooks/verse_map.py build *)",
+      "Bash(python Claude/hooks/verse_map.py check *)",
+      "Bash(python Claude/hooks/verse_map.py symbol *)",
+      "Bash(python Claude/hooks/verse_map.py build *)",
+      "Bash(python3 Claude/hooks/verse_map.py check *)",
+      "Bash(python3 Claude/hooks/verse_map.py symbol *)",
+      "Bash(python3 Claude/hooks/verse_map.py build *)",
+      "Bash(py -3 Claude/hooks/text_scan.py *)",
+      "Bash(python Claude/hooks/text_scan.py *)",
+      "Bash(python3 Claude/hooks/text_scan.py *)",
+      "Bash(py -3 Claude/hooks/agent_cost.py *)",
+      "Bash(python Claude/hooks/agent_cost.py *)",
+      "Bash(python3 Claude/hooks/agent_cost.py *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)"
+    ],
     "deny": []
   },
   "hooks": {

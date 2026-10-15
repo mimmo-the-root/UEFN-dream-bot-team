@@ -73,6 +73,20 @@ Any other MCP call exits at once and costs nothing.
 
 > **Tip** Once per project, run a playtest and check that a log appears in `Claude/logs/` only when you **stop** it. For the first weeks, read `BUGS.md` and the logs now and then, so you can correct a report that was wrong.
 
+## Long sessions and handing over
+
+A long session slows down and gets expensive because the conversation fills up. Three habits keep it healthy:
+
+- **`/handoff`** writes a short note, `Claude/docs/HANDOFF.md` (goal, what is done and verified, files touched, what failed, next steps). Then run `/clear` (or switch model with `/model`) and start the new session with "read Claude/docs/HANDOFF.md and continue". The new session reads a page, not the whole old conversation.
+- **`/compact` with instructions**, for example `/compact keep the plan, the failing builds and the files we changed; drop the exploration`. Without instructions the summary keeps whatever it guesses matters.
+- **`/rewind`** (or press Esc twice) goes back to an earlier point, in the code, the conversation or both. It only undoes edits Claude made with its own file tools: changes made through shell commands, by helper agents, or by you outside Claude Code are not undone. Your project's restore points (`/restore-point`) and Git cover those.
+
+If you leave a session running overnight with UEFN open, Claude Code can wait out "overloaded" errors instead of stopping. Set `CLAUDE_CODE_RETRY_WATCHDOG=1` (needs a recent Claude Code, 2.1.186 or later) and, to cap the wait, `CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS=1800000` (30 minutes; 2.1.295 or later). The computer and UEFN must stay awake and open, and an error about a spending limit still stops the run.
+
+## Commands that run without asking
+
+New projects come with a short list of pre-approved commands in `.claude/settings.json`: the kit's read-only checks (`verse_check`, `verse_map`, `text_scan`, `agent_cost`, run with `py -3`, `python` or `python3`) and the read-only Git commands `git status`, `git diff` and `git log`. Everything that writes, deletes or publishes still asks you. Projects made before 1.105.0 keep their own settings untouched: to get the same convenience, copy the `allow` list from the kit's `project-template/.claude/settings.json` into your project's file, or add the rules one by one with `/permissions`.
+
 ## Many projects at once
 
 Every project's `STATUS.md` has the same format, so a short script can scan all your project folders and build one table with the last update, the next step and the open issues. The kit does not ship it because it depends on how you lay out your disk.

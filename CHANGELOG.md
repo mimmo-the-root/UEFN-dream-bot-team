@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.105.0 — Fewer questions, easier handovers
+
+- **Safe commands are pre-approved in new projects:** the kit's read-only checks and `git status`, `git diff`, `git log` no longer ask every time. Anything that writes, deletes or publishes still asks. Existing projects keep their own permissions untouched (the manual says how to copy the list).
+- **`/handoff`:** writes `Claude/docs/HANDOFF.md` so a fresh session or another model can continue from a page instead of the whole conversation.
+- **Manual:** new sections "Long sessions and handing over" (handoff, `/compact` with instructions, what `/rewind` does and does not undo, unattended retry settings) and "Commands that run without asking". The Claude Code commands and settings quoted there were checked against the official documentation.
+- **Fix:** `/verse-check` and `/text-scan` (added in 1.102.0 and 1.103.0) are now delivered to existing projects by `/kit-update`; before, only new projects got them.
+
 ## v1.104.0 — Tokens per agent
 
 - **A new table on the Console page**, "Tokens per agent (last 30 days)": for each agent, runs, calls, input, output, cache read, cache write, total and model. It comes from the transcripts Claude Code keeps for each helper agent; each model answer is counted once (the same answer is written on several lines with growing counts).
