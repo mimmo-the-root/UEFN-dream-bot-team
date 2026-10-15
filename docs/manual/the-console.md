@@ -25,9 +25,13 @@ Real numbers from Epic's public data about your island: plays, unique players, m
 
 Epic usually shows numbers only after the map is published and has had visitors, so a new map shows one message instead of empty tiles. The page needs the island code saved in the project.
 
+![The Stats page (demo data)](shot-stats.png)
+
 ## Docs
 
 The project's own documents, read from `Claude/docs/`: spec, status, roadmap, bugs and release readiness. It is a read-only view of what the agents keep up to date.
+
+![The Docs page (demo data)](shot-docs.png)
 
 ## Flow
 
@@ -45,9 +49,13 @@ What the kit has learned, in three parts:
 
 The **SKILLS** tab blinks when something waits for you. More in [Skills and lessons](ch:skills-and-lessons).
 
+![The Skills page (demo data)](shot-skills.png)
+
 ## What's new
 
 The last release in plain words, the skills that improved, the top contributors, the thanks, and a link to submit an issue on GitHub. It also shows your own part: whether sharing is on, how many lessons you shared, and whether your map is published.
+
+![The What's new page (demo data)](shot-news.png)
 
 ## Update banner
 

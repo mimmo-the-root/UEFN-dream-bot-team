@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.100.0"
+   "tag": "v1.101.0"
   },
   "state": {
    "genres": [],
@@ -24,15 +24,12 @@
  "release": {
   "date": "2026-10-15",
   "items": [
-   "Thirteen chapters. New: Full installation (plugins, upgrades, updating a project safely), A working day (calling agents, plan-first, base rules, what runs after a playtest), Skills catalog, Questions and answers, Glossary, About. The long setup guide's useful content now lives here, kept up to date.",
-   "Screenshots of the Console, Flow and Skills pages (demo data) in the manual. The console servers now also serve the manual's `.png` files.",
-   "Public copy on GitHub Pages: `https://mimmo-the-root.github.io/UEFN-dream-bot-team/`. A workflow publishes it after every change to the manual (one-time: Settings, Pages, Source: GitHub Actions).",
-   "`SETUP-GUIDE.md` is now a short pointer to the manual; the old long guide stays in the history at v1.100.0. README and issue links point to the manual.",
-   "The project logo is on top of the README and the manual home, and every console page shows its emblem next to the title and as the browser tab icon (embedded in the page, works offline).",
-   "Tests keep the manual honest: every agent, every user-level skill and every console page must be described in it, every image and link must exist, and screenshots stay under 400 KB."
+   "The console chapter now has a screenshot for every page (Console, Stats, Docs, Flow, Skills, What's new), all with demo data and the new logo.",
+   "README images refreshed (console with the live mini-flow rail, header, Docs and Flow pages, all with demo data and the logo) and a short \"What's new\" for the manual.",
+   "Fix: the console's `/manual/` route now takes the file name from the folder listing instead of from the request, which closes the two CodeQL alerts \"Uncontrolled data used in path expression\" (same remedy as for the skills engine). Nothing changes for you; the route already refused anything but plain chapter names."
   ],
-  "tag": "v1.101.0",
-  "title": "v1.101.0 \u2014 The manual, complete"
+  "tag": "v1.101.1",
+  "title": "v1.101.1 \u2014 Code scanning fix, screenshots for every page"
  },
  "schema": 1,
  "skills": [],

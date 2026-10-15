@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.101.1 — Code scanning fix, screenshots for every page
+
+- **The console chapter now has a screenshot for every page** (Console, Stats, Docs, Flow, Skills, What's new), all with demo data and the new logo.
+- **README images refreshed** (console with the live mini-flow rail, header, Docs and Flow pages, all with demo data and the logo) and a short "What's new" for the manual.
+- **Fix:** the console's `/manual/` route now takes the file name from the folder listing instead of from the request, which closes the two CodeQL alerts "Uncontrolled data used in path expression" (same remedy as for the skills engine). Nothing changes for you; the route already refused anything but plain chapter names.
+
 ## v1.101.0 — The manual, complete
 
 - **Thirteen chapters.** New: Full installation (plugins, upgrades, updating a project safely), A working day (calling agents, plan-first, base rules, what runs after a playtest), Skills catalog, Questions and answers, Glossary, About. The long setup guide's useful content now lives here, kept up to date.

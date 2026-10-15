@@ -517,15 +517,22 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if path == "/manual/":
             path = "/manual/index.html"
         m = MANUAL_FILE_RE.fullmatch(path)
-        target = os.path.join(MANUAL_DIR, m.group(1)) if m else ""
-        if not m or not os.path.isfile(target):
+        # The file name used below comes from the folder listing, never from the request string, so request data cannot steer the path.
+        name = ""
+        if m:
+            for entry in os.listdir(MANUAL_DIR) if os.path.isdir(MANUAL_DIR) else ():
+                if entry == m.group(1):
+                    name = entry
+                    break
+        target = os.path.join(MANUAL_DIR, name) if name else ""
+        if not name or not os.path.isfile(target):
             self.send_response(404)
             self.end_headers()
             return
         with open(target, "rb") as f:
             body = f.read()
         self.send_response(200)
-        self.send_header("Content-Type", "text/css; charset=utf-8" if target.endswith(".css") else "image/png" if target.endswith(".png") else "text/html; charset=utf-8")
+        self.send_header("Content-Type", "text/css; charset=utf-8" if name.endswith(".css") else "image/png" if name.endswith(".png") else "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)

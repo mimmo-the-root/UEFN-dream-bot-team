@@ -19,7 +19,7 @@ compliance-reviewer → planner-docs):
 
 ![Agent Console header with the miniflow rail](docs/images/miniflow-rail.png)
 
-**The full Agent Console** — the header above, plus every agent's live status at a glance:
+**The full Agent Console** — the header above, plus every agent's live status at a glance (demo data):
 
 ![Agent Console](docs/images/agent-console.png)
 
@@ -29,9 +29,26 @@ read, the patterns of the genre and the lessons waiting for your approval. Sampl
 
 ![Skills page](docs/images/agent-console-skills.png)
 
+**The Docs page** — roadmap progress, bugs by severity, the task timeline and the owner actions, read from
+the project's own documents (demo data):
+
+![Docs page](docs/images/agent-console-docs-status.png)
+
+**The Flow page** — the whole pipeline as an assembly line (demo data):
+
+![Flow page](docs/images/agent-console-flow-of-flows.png)
+
 **The full pipeline** — every agent and every hand-off, end to end:
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
+
+## What's new (v1.100 - v1.101)
+
+- **A manual you can read in the browser:** 13 chapters (quick start, full installation, the team, the console
+  page by page, skills and lessons, community, troubleshooting, FAQ, glossary) with screenshots. Online at
+  [mimmo-the-root.github.io/UEFN-dream-bot-team](https://mimmo-the-root.github.io/UEFN-dream-bot-team/), and built
+  into the kit at `http://127.0.0.1:8765/manual/`.
+- **A "Help for this page" link and a footer on every console page** (repo, MIT license, author), and the project logo.
 
 ## What's new (v1.99)
 
