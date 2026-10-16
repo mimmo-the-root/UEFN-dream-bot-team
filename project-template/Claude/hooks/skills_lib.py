@@ -1526,7 +1526,7 @@ def community_info(project):
     return st
 
 
-def community_act(data):
+def community_act(data, project=None):
     """One entry point for the console servers (POST /community-act): {action: on|off|export|shared, genre, id}. Genre and id are looked up, never used as paths."""
     act_ = (data or {}).get("action")
     if act_ in ("on", "off"):
@@ -1535,7 +1535,39 @@ def community_act(data):
         return contribution_export(data.get("genre"), data.get("id"))
     if act_ == "shared":
         return mark_shared(data.get("genre"), data.get("id"))
+    if act_ == "export-recipes":
+        return recipes_export(project)
     return {"ok": False, "error": "unknown action"}
+
+
+def recipes_export(project):
+    """What would leave this computer for the UEFN MCP recipes you proved by real work: one count per recipe (worked, failed, a short
+    error with no paths), never arguments, paths or names. Refused while the switch is off."""
+    if not community_state()["share"]:
+        return {"ok": False, "error": "sharing with the community is switched off"}
+    try:
+        import recipes_status as RS
+        ledger = os.path.join(project or os.getcwd(), "Claude", "logs", "explore-ledger.jsonl")
+        ex = RS.export(RS.merge(RS.load_recipes(), RS.evidence_from_ledger(ledger)))
+    except Exception as e:
+        return {"ok": False, "error": "could not read the recipes evidence (%s)" % e.__class__.__name__}
+    rec = {}
+    for k, v in ex["recipes"].items():
+        why = redact(str(v.get("last_failure") or ""))[:80]
+        if "/" in why or "\\" in why or ":" in why:
+            why = ""
+        rec[k] = {"ok": int(v["ok"]), "failed": int(v["failed"]), "last_failure": why}
+    if not any(v["ok"] for v in rec.values()):
+        return {"ok": False, "error": "nothing proven yet: work through the lab module (calls that worked count) and come back"}
+    doc = {"schema_version": 1, "kind": "mcp-recipes-evidence", "kit_version": _kit_version(), "recipes": rec}
+    name = "contributions/mcp-recipes/<your-github-handle>.json"
+    value = json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1)
+    url = "https://github.com/%s/new/main?filename=%s&value=%s" % (COMMUNITY_REPO, urllib.parse.quote(name, safe="/"), urllib.parse.quote(value, safe=""))
+    note = "On GitHub rename the file to your GitHub handle (for example ada.json), then press Propose new file."
+    if len(url) > MAX_CONTRIB_URL:
+        url = "https://github.com/%s/new/main?filename=%s" % (COMMUNITY_REPO, urllib.parse.quote(name, safe="/"))
+        note = "Too long to prefill: copy the JSON above, paste it in the GitHub editor, rename the file to your GitHub handle, then press Propose new file."
+    return {"ok": True, "doc": doc, "json": value, "filename": name, "url": url, "note": note, "recipes_kind": True}
 
 
 def contribution_export(slug, pattern_id):

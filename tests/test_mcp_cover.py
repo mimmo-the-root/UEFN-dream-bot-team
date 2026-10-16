@@ -98,4 +98,16 @@ st = json.load(open(Q.STATE))
 ok(set(st["done"]) == set(Q.ORDER) and os.path.isfile(os.path.join(Q.DOCS, "QUEUE-REPORT.md")) and os.path.isfile(os.path.join(tmp, "queue-done.flag")), "queue: all four suites ran one after the other and the report was written")
 Q.run_queue(args, wait=False)
 ok(open(Q.LOG).read().count("skip coverage") == 1, "queue: a second start skips what already ran")
+# a suite that could not reach the MCP does not count as done and does not write the done flag
+Q.STATE = os.path.join(tmp, "qs2.json"); os.path.isfile(os.path.join(tmp, "queue-done.flag")) and os.remove(os.path.join(tmp, "queue-done.flag"))
+real_suites = dict(C.SUITES)
+C.SUITES["soak"] = lambda ns: {"suite": "soak", "crash": "URLError"}
+rc = Q.run_queue(args, wait=False)
+st2 = json.load(open(Q.STATE))
+ok(rc == 1 and "soak" not in st2["done"] and "soak" in st2.get("failed", {}) and not os.path.isfile(os.path.join(tmp, "queue-done.flag")), "queue: a crashed suite is not done, and no queue-done.flag is written")
+C.SUITES.update(real_suites)
+rc = Q.run_queue(args, wait=False)
+ok(rc == 0 and os.path.isfile(os.path.join(tmp, "queue-done.flag")), "queue: the failed suite runs again at the next start and then the flag is written")
+Q.mcp_up = lambda: False
+ok(Q.run_queue(args, wait=False) == 2, "queue: an unreachable MCP means nothing is run")
 print("mcp_cover ok")

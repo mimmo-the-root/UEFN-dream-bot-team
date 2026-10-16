@@ -127,6 +127,19 @@
         ]
       }
     ],
+    "PostToolUseFailure": [
+      {
+        "_comment": "Failed calls to the UEFN MCP dispatcher arrive as this event, not as PostToolUse. mcp_work_log.py notes them in the local ledger so a recipe that fails is counted as failed. Never blocks.",
+        "matcher": "mcp__unreal-mcp__call_tool",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/mcp_work_log.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "_comment": "The 'unreal-mcp' server exposes a single generic dispatcher tool (mcp__unreal-mcp__call_tool) for ALL of its toolset actions: the tool name alone can't distinguish 'stop the play-session' from any other call (start, query, etc). So the matcher fires on EVERY call_tool call, and the real filter (only session/game stop actions) lives inside the hook script, which reads the hook's JSON payload from stdin. On Windows without bash available, use after-playtest.ps1 (PowerShell, already set below); if you have bash/WSL/Git Bash you can use after-playtest.sh instead, updating 'command' below.",
@@ -141,6 +154,11 @@
           {
             "type": "command",
             "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-mcp.ps1\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/mcp_work_log.py\"",
             "timeout": 10
           }
         ]

@@ -34,13 +34,26 @@ the project's own documents (demo data):
 
 ![Docs page](docs/images/agent-console-docs-status.png)
 
-**The Flow page** — the whole pipeline as an assembly line (demo data):
+**The Flow page** — the pipeline as a U-shaped board: one card and one agent icon per station, tokens per agent, Control Tower and Pipeline pulse (demo data):
 
 ![Flow page](docs/images/agent-console-flow-of-flows.png)
 
 **The full pipeline** — every agent and every hand-off, end to end:
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
+
+## What's new (v1.102 - v1.107)
+
+- **The MCP, mapped, learned and proven (1.107).** The Console is now a small solar system: five planets around the chief of staff, the other agents as moons, token arcs, a detail card, pinned agents and switches to show or hide each part. 14 UEFN MCP skills and 5 MCP sub-agents ship in the kit; recipes are marked `tool-ok` or `proven`, and what you prove can be shared with the community (counts only). UEFN can be restarted after a crash if you opt in; a running editor is never closed.
+- **Flow page as a U-shaped board (1.106).** Twelve stations along a U, one card and one agent icon per station, zone progress bars, the Control Tower and a Pipeline pulse. Tokens, time and verdicts come from the real log and `/agent-costs`; a missing number is shown as a dash, never invented.
+- **Tokens per agent (1.104).** A table at the bottom of the Console, counted from the sub-agent transcripts: runs, calls, input, output and cache, per agent. Counts, not prices.
+- **The kit maps UEFN's MCP by itself (1.106).** All 388 tools in 30 toolsets are catalogued at session start (no AI tokens), safe tools are test-called, and the Skills page shows how much of the MCP the kit really uses. New chapter in the manual: "The MCP engine". An optional laboratory mode (`mcp_lab.py`, with its own safety checks) lets agents try every tool in a disposable project.
+- **Verse UI Kit skill (1.106).** `verse-ui-kit` teaches in-game screens with or without Epic's free kit; `/ui-kit-check` tells whether it is installed and whether Epic changed it. Epic's guide is never copied into this repo.
+- **Verse build check (1.102 - 1.103).** `/verse-check` asks the open UEFN to compile and reports clean, errors or not analysed; build errors are logged and recurring ones become lesson proposals. `/text-scan` finds emoji and invisible characters in publication text.
+- **Fewer questions, easier handovers (1.105).** Pre-approved read-only commands and `/handoff` for long sessions.
+- **Files are parked, not lost (1.106).** If a delete is refused, the file goes to `_to_delete` and you are told; the Docs page now follows the files by itself.
+
+Full list: [CHANGELOG.md](CHANGELOG.md).
 
 ## What's new (v1.100 - v1.101)
 
@@ -124,10 +137,10 @@ Design ideas for the Skills mechanics are adapted from
   roadmap-progress ring, a "Recent roadmap tasks" list (code — description, status, priority) and
   a "Recent bug backlog" list (severity, status, description) sorted so what's still open surfaces
   first, plus a click-to-open readable render of every doc.
-- **Flow of Flows console** (`agent-console-flow.html`) — an assembly-line-style pipeline
-  visualization of the same real agent activity (start/stop events, token usage, active task),
-  with a "Control Tower" token gauge that now correctly drops back to idle instead of sticking to
-  a stale agent after a crashed/killed session.
+- **Flow of Flows console** (`agent-console-flow.html`) — the pipeline as a U-shaped board of the same real
+  agent activity (start/stop events, token usage per agent, verdicts, active task): one card and one agent
+  icon per station, zone progress bars, a Control Tower token gauge that drops back to idle instead of
+  sticking to a stale agent, and a Pipeline pulse.
 - **Server concurrency fix** (`agent-console-server.ps1` / `.py`) — the local dashboard server no
   longer blocks every open tab for up to 10 seconds when a Fortnite API lookup is slow.
 - New shared skills: `game-ui-designer`, `genre` (roguelike/survival pattern evidence), and
@@ -147,7 +160,7 @@ Full details for every version in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## What's in the box
 
-- **Seventeen agents**, each doing one job: project setup, an independent ambiguity check before any
+- **Seventeen agents** (plus five MCP sub-agents the `coder` orchestrates), each doing one job: project setup, an independent ambiguity check before any
   code is written, the actual Verse coding with a mandatory compile-fix loop, two separate review
   gates (spec adherence, then mechanical rule conformance — never the same agent grading both),
   regression/bug hunting after every playtest, documentation that stays current, a go/no-go release

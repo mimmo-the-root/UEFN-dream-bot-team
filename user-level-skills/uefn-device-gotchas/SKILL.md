@@ -1,6 +1,8 @@
 ---
 name: uefn-device-gotchas
 description: High-frequency UEFN device quirks and edge cases (Elimination Manager, Item Granter timing, Storm Controller, Player Spawner multiplayer behavior, DemoDisplay sizing/placement rules) at high density. Read before configuring one of these devices to avoid rediscovering a known trap.
+last_reviewed: 2026-10-16
+sources: [original]
 ---
 
 # UEFN device gotchas

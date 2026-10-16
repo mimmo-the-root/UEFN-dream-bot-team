@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.107.0 — The MCP, mapped, learned and proven
+
+- **Console as a small solar system.** The chief of staff is the sun; five planets (BUILD, CONTROL, RELEASE, MEMORY, UEFN MCP) orbit it, and every other agent is a moon turning the other way, more slowly. The five MCP sub-agents are on the map (22 agents). Coloured arcs show the tokens of each group, a click opens a detail card, agents can be pinned, a `⏳` label marks a group with agents waiting, numbers show the chain of working agents, and a red line says when something needs you. Six round switches under the map show or hide each of these and are remembered.
+- **14 UEFN MCP skills and 5 MCP sub-agents** (`mcp-build`, `mcp-session`, `mcp-level`, `mcp-ui-assets`, `mcp-material-vfx`) ship in the kit, with references for ten areas (`mcp-tool-contracts/references/areas/`: 246 recipes, coverage 357 of 388 tools). The `coder` can hand UEFN work to them (one editor writer at a time).
+- **Recipes know how sure they are:** `unverified`, `tool-ok` (the tool answered once in the lab) or `proven` (the same kind of call worked in real work). A small hook (`mcp_work_log.py`, on success and on failure) notes real calls locally; `recipes_status.py --report` shows the count and the Skills page shows it as four rings, a bar per area and a weekly line.
+- **Share what you proved:** in the Skills tab, "Contribute to the community" now has a line for the UEFN MCP recipes you proved. It sends counts only, never arguments, paths or names, and you finish on GitHub yourself.
+- **UEFN restart after a crash (opt-in):** `uefn_session.py` tells what the editor is doing (`status`) and starts it again only after a crash (`recover`: no editor running, last run a crash, your opt-in, max 2 tries in 30 minutes). A running editor is never closed or killed. Tested live on a throw-away project.
+- **Known tools:** `mcp-known-tools.json` (388 tools: what the lab found for each) and `mcp_map.py --find` shows "ask the owner first" where it applies. `mcp_lessons.py` lists recurring MCP errors that the skills do not mention yet.
+- **Lab guard, second pass:** catalogue mounts accepted only as the source of create/duplicate/place, `extra-root` for imported models in the same throw-away project, and a token rule for long jobs.
+- **Fix:** a battery that could not reach the MCP is no longer counted as finished.
+- Manual: new sections in "The MCP engine" (how sure is a recipe, when UEFN closes or crashes, known traps of UEFN 42.20), new screenshots of the Console and the UEFN MCP card.
+
 ## v1.106.0 — Epic's Verse UI Kit
 
 - **New skill `verse-ui-kit`:** how to build and wire in-game screens with or without Epic's free Verse UI Kit (the kit is a teacher and a shortcut, never a requirement; a section covers building UI without it) (focus, gamepad and keyboard, Back, shared click events, public modules, the order compile, save, build), written in this kit's own words, with code snippets marked "not compiled" until `/verse-check` builds them. The coder and `game-ui-designer` point to it.

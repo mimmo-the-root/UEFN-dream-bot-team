@@ -42,6 +42,27 @@ These eight skills are about what happens once the map exists: being found, clic
 
 > **Note** `growth-manager` does not touch Verse or devices and never writes `STATUS.md`, `ROADMAP.md` or `BUGS.md`.
 
+## UEFN MCP skills
+
+Fourteen skills built from the 388 tools of Epic's MCP, tested in a lab project. Per-area detail, recipes (each with a `verified` or `unverified` status) and the coverage report live in the `mcp-tool-contracts` references.
+
+| Skill | What it gives you |
+|---|---|
+| `uefn-mcp-lab-guard` | How an agent tries MCP tools safely in the lab project: GUID path form, what the guard refuses and why, never work around a refusal. |
+| `uefn-validation-failure-diagnosis` | What to do when `StartSession` fails with `Validation failed` (for example a stray TargetPoint actor) and how to read the validation log. |
+| `uefn-create-use-remove-one-script` | Create, use and remove a test object in ONE script call, so a failure never leaves clutter in the level. |
+| `uefn-mcp-heavy-calls` | Cost limits for heavy MCP reads and writes: which calls are slow or large, and how to batch or filter them. |
+| `uefn-ui-widgets` | Widget Blueprints through the MCP: widget tree, text, Verse fields, MVVM bindings, animations. |
+| `uefn-assets-data` | Create, find, copy, move and delete assets and data tables through the MCP. |
+| `uefn-editor-logs` | Read only the NEW editor log lines after an action; log filters and the client-log limits. |
+| `uefn-level-devices` | Place and edit actors and devices, tags, folders, event bindings, entities and device properties. |
+| `uefn-verse-build` | Read, write, build and fix Verse through the MCP: the write, BuildAll, read errors, fix loop. |
+| `uefn-session-regression` | Play-in-editor smoke test: StartSession, StartGame readiness, log verdict, StopGame, StopSession. |
+| `uefn-scripting-batch` | Run five or more MCP calls in one server-side script, and the traps (no rollback, guard blind inside scripts). |
+| `uefn-materials` | Materials and material instances: create, parameters, parent, usage flags. |
+| `uefn-vfx-niagara` | Niagara systems and emitters: create, add and set modules, read and restore. |
+| `uefn-physics-mesh` | Static and skeletal meshes, physics assets and textures through the MCP, with the tools known to be refused or crash-prone. |
+
 ## Where they live
 
 User-level skills are installed in `~/.claude/skills/<name>/`. The kit does not delete skills you added yourself. A project can override any agent by putting an agent with the same name in its own `.claude/agents/` folder; the project's version wins, only there.

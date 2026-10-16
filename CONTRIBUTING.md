@@ -546,3 +546,11 @@ If you are new to the project:
 Welcome to the UEFN Dream Bot Team community.
 
 Build carefully. Review independently. Share what works.
+
+## Release checklist (small chores that must not be forgotten)
+
+1. `CHANGELOG.md`: a `## vX.Y.Z - title` entry at the top, same version as `KIT-VERSION` and the five console pages.
+2. `README.md`: a `## What's new (...)` section that names the release, and screenshots in `docs/images/` redone when a console page changed.
+3. Manual: `docs/manual/the-console.md` explains every page (what you see and why it is there); screenshots in `docs/manual/images/` redone for changed pages; then `python tool/build_manual.py`.
+4. Project status document (Projects doc `claude/uefn-dream-bot-team-status.md`) updated.
+5. `python tests/run_all.py` passes (`test_release_docs.py` checks items 1 to 3).

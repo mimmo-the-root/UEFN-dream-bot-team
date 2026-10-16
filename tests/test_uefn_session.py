@@ -1,0 +1,88 @@
+"""uefn_session: state decision, crash detection, attempt cap, opt-in and settings edit; offline, no real UEFN touched."""
+import os, sys, json, tempfile, importlib
+root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+sys.path.insert(0, os.path.join(root, "project-template", "Claude", "hooks"))
+ok = lambda c, m: (print(("PASS " if c else "FAIL ") + m), c or sys.exit(1))
+S = importlib.import_module("uefn_session")
+
+none = S.scan_log("")
+ok(none["state"] == "none" and not none["fatal"], "empty log: no project, no crash")
+opening = S.scan_log("LogValkyrie: Opening project 'C:/p/A.uefnproject'\n")
+ok(opening["state"] == "opening" and opening["path"] == "C:/p/A.uefnproject", "opening project detected")
+opened = S.scan_log("LogValkyrie: Opening project 'C:/p/A.uefnproject'\nLogValkyrie: Display: Successfully opened project 'C:/p/A.uefnproject'\n")
+ok(opened["state"] == "open", "opened project detected")
+failed = S.scan_log("LogValkyrie: Opening project 'C:/p/A.uefnproject'\nOpenProject_End - Begin (bSuccess=0, bCanceled=0)\n")
+ok(failed["state"] == "open_failed", "failed open detected")
+crashed = S.scan_log("LogValkyrie: Display: Successfully opened project 'C:/p/A.uefnproject'\n=== Critical error: ===\n")
+ok(crashed["fatal"] and crashed["state"] == "open", "fatal marker detected, project kept")
+
+c = lambda **k: S.classify(**dict(dict(editor_running=True, crash_dialog=False, log=opened), **k))
+ok(c(crash_dialog=True) == "crash_dialog", "crash dialog wins")
+ok(c(editor_running=False) == "not_running", "no process -> not_running")
+ok(c() == "project_open", "open project")
+ok(c(wanted_path="C:/p/B.uefnproject") == "other_project_open", "other project open")
+ok(c(log=none, hub_seen=True) == "hub" and c(log=none) == "starting", "hub vs starting")
+ok(S.is_crash(crash_dialog=False, log=crashed) and not S.is_crash(crash_dialog=False, log=opened), "crash evidence")
+
+ok(S.attempts_allowed([], 1000) and S.attempts_allowed([900], 1000), "under the cap: allowed")
+ok(not S.attempts_allowed([900, 950], 1000), "2 attempts in 30 min: stopped")
+ok(S.attempts_allowed([0, 50], 5000), "old attempts expire")
+
+t, old = S.ini_set("[A]\r\nx=1\r\n", S.SECTION, S.LOAD_KEY, "LastProject")
+ok(old is None and S.ini_get(t, S.SECTION, S.LOAD_KEY) == "LastProject" and "[A]\r\nx=1" in t, "ini_set adds section, keeps the rest")
+t2, old2 = S.ini_set(t, S.SECTION, S.LOAD_KEY, "HomeScreen")
+ok(old2 == "LastProject" and S.ini_get(t2, S.SECTION, S.LOAD_KEY) == "HomeScreen", "ini_set replaces value")
+
+# recover refusals (all pure, with a temp Claude folder; the editor and the launch are stubbed)
+tmp = tempfile.mkdtemp()
+S.LOGS, S.LEDGER = tmp, os.path.join(tmp, "ledger.jsonl")
+S.ATTEMPTS, S.MARKER = os.path.join(tmp, "att.json"), os.path.join(tmp, "LAB-PROJECT.txt")
+launched = []
+S.launch = lambda p: launched.append(p) or {"pid": 1}
+S.terminate = lambda pid: True
+state = dict(state="not_running", editor_pids=[], crash_reporter_pids=[], open_project="C:/p/A.uefnproject", last_run_crashed=True)
+S.status = lambda project=None, probe_ports=True: dict(state)
+os.environ.pop("UEFN_AUTO_RECOVER", None)
+r = S.recover(None, now=1000)
+ok(not r["recovered"] and "opt-in" in r["reason"] and not launched, "opt-in off: refused")
+open(S.MARKER, "w").write("auto-recover: yes\n")
+state["editor_pids"] = [123]
+r = S.recover(None, now=1000)
+ok(not r["recovered"] and "never closed" in r["reason"] and not launched, "a live editor is never touched")
+state["editor_pids"] = []; state["last_run_crashed"] = False
+ok(not S.recover(None, now=1000)["recovered"] and not launched, "no crash: refused")
+state["last_run_crashed"] = True
+ok(not S.recover("C:/p/B.uefnproject", now=1000)["recovered"] and not launched, "other project than the crashed one: refused")
+state["crash_reporter_pids"] = [9]
+ok(not S.recover(None, now=1000)["recovered"] and not launched, "orphan crash reporter without the flag: refused")
+r = S.recover(None, close_crash_reporter=True, now=1000)
+ok(r["recovered"] and launched == ["C:/p/A.uefnproject"], "crash + opt-in + flag: relaunched")
+state["crash_reporter_pids"] = []
+ok(S.recover(None, now=1100)["recovered"] and len(launched) == 2, "second attempt allowed")
+r = S.recover(None, now=1200)
+ok(not r["recovered"] and "attempts" in r["reason"] and len(launched) == 2, "third attempt in 30 min: stopped")
+ledger = [json.loads(l) for l in open(S.LEDGER, encoding="utf-8")]
+ok(len(ledger) >= 8 and all(x["tool"] == "uefn_session" for x in ledger), "every call is logged to the ledger")
+killed = S.scan_log("LogInit: Display: Engine is initialized\nOpenProject_End - Begin (bSuccess=1")
+closed = S.scan_log("LogInit: Display: Engine is initialized\nLogExit: Exiting.\nLog file closed, 10/16/26 08:00:00")
+ok(not killed["clean_exit"] and closed["clean_exit"], "clean-shutdown line detected")
+ok(S.is_crash(crash_dialog=False, log=killed, editor_running=False), "killed editor (no exit line, no process) counts as a crash")
+ok(not S.is_crash(crash_dialog=False, log=closed, editor_running=False), "a deliberate close is not a crash")
+ok(not S.is_crash(crash_dialog=False, log=killed, editor_running=True), "a running editor is never a crash")
+ok(not S.is_crash(crash_dialog=False, log=S.scan_log(""), editor_running=False), "no log, no crash")
+healthy = S.scan_log("LogInit: Display: Engine is initialized")
+closing = S.scan_log("LogInit: Display: Engine is initialized\nLogHttpListener: HttpListener stopping listening on Port 8000")
+fatal_log = S.scan_log("LogInit: Display: Engine is initialized\nFatal error!")
+ok(not S.crash_dialog_shown(editor_running=True, reporter=True, log=healthy), "reporter next to a healthy editor is the normal watchdog")
+ok(not S.crash_dialog_shown(editor_running=True, reporter=True, log=closing), "a closing editor (ports down, process alive) is not a crash")
+ok(S.classify(editor_running=True, crash_dialog=False, log=closing, hub_seen=True) == "closing", "state closing while the editor shuts down")
+ok(not S.crash_dialog_shown(editor_running=False, reporter=True, log=closed), "reporter still around after a clean close: not a crash")
+ok(S.crash_dialog_shown(editor_running=False, reporter=True, log=killed), "reporter left behind, editor gone, no exit line: crash dialog")
+ok(S.crash_dialog_shown(editor_running=True, reporter=True, log=fatal_log), "fatal marker with the reporter up: crash dialog")
+ok(not S.crash_dialog_shown(editor_running=False, reporter=False, log=killed), "no reporter: no dialog")
+seq = iter(["starting", "hub", "hub", "project_open"])
+w = S.wait_open(status_fn=lambda: {"state": next(seq)}, sleep=lambda x: None, clock=iter([0, 1, 6, 11, 16, 17]).__next__)
+ok(w["state"] == "project_open" and w["states_seen"] == ["starting", "hub", "project_open"], "wait_open follows starting -> hub -> project_open")
+w = S.wait_open(timeout=10, status_fn=lambda: {"state": "hub"}, sleep=lambda x: None, clock=iter([0, 1, 6, 11, 12]).__next__)
+ok(w["state"] == "hub" and w["seconds"] >= 10, "wait_open stops at the timeout and reports the last state")
+print("all ok")

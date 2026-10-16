@@ -382,7 +382,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.106.0";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.107.0";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -571,14 +571,24 @@ function renderCommunity(){
  if(CS.share){
   var rows=[];(SD&&SD.genres||[]).forEach(function(g){g.patterns.forEach(function(p){if(p.origin==="local"&&(p.support||0)>=1&&p.status!=="superseded")rows.push([g.slug,p]);});});
   h+='<table class="ktable"><tr><th>Genre</th><th>Lesson</th><th>Section</th><th></th></tr>'+(rows.length?rows.slice(0,60).map(function(x){var g=x[0],p=x[1],done=(CS.shared||[]).indexOf(p.id)>=0;return '<tr><td>'+esc(g)+'</td><td>'+esc(p.statement)+'</td><td class="ksub">'+esc(p.section||"—")+'</td><td>'+(done?'<span style="color:var(--green)">shared</span>':'<button class="kbtn" data-g="'+esc(g)+'" data-id="'+esc(p.id)+'">Contribute</button>')+'</td></tr>';}).join(""):'<tr><td colspan="4" class="kempty">No approved lesson of yours yet.</td></tr>')+'</table>';
+  h+='<div style="margin-top:12px"><b>UEFN MCP recipes you proved</b> <span class="ksub">counts only, no arguments or paths</span> <button class="kbtn" id="kcRec">Contribute</button></div>';
   if(CEXP){h+='<div class="kcard" style="margin-top:12px"><div class="klabel">What would leave this computer</div>'+(CEXP.ok?'<div class="kcpre">'+esc(CEXP.json)+'</div><div class="ksub">'+esc(CEXP.note||"")+'</div><div style="margin-top:8px"><button class="kbtn" id="kcOpen">Open GitHub</button> <button class="kbtn" id="kcCancel">Cancel</button></div>':'<div style="color:var(--amber);font-size:12px">'+esc(CEXP.error||"Not shareable")+'</div><div style="margin-top:8px"><button class="kbtn" id="kcCancel">Close</button></div>')+'</div>';}
  }
  h+='</div>';box.innerHTML=h;
  var sw=$("kcSw");if(sw)sw.onclick=function(){post("/community-act",{action:CS.share?"off":"on"}).then(function(){CEXP=null;loadCommunity();});};
  Array.prototype.forEach.call(box.querySelectorAll("button[data-id]"),function(b){b.onclick=function(){var g=b.getAttribute("data-g"),id=b.getAttribute("data-id");post("/community-act",{action:"export",genre:g,id:id}).then(function(r){CEXP=r;CEXP._g=g;CEXP._id=id;renderCommunity();});};});
- var o=$("kcOpen");if(o)o.onclick=function(){window.open(CEXP.url,"_blank","noopener");post("/community-act",{action:"shared",genre:CEXP._g,id:CEXP._id}).then(function(){CEXP=null;loadCommunity();});};
+ var rb=$("kcRec");if(rb)rb.onclick=function(){post("/community-act",{action:"export-recipes"}).then(function(r){CEXP=r;CEXP._rec=true;renderCommunity();});};
+ var o=$("kcOpen");if(o)o.onclick=function(){window.open(CEXP.url,"_blank","noopener");if(CEXP._rec){CEXP=null;renderCommunity();return;}post("/community-act",{action:"shared",genre:CEXP._g,id:CEXP._id}).then(function(){CEXP=null;loadCommunity();});};
  var c=$("kcCancel");if(c)c.onclick=function(){CEXP=null;renderCommunity();};
 }
+function ringSvg(n,pct,col){var C=163.4;return '<svg viewBox="0 0 64 64" width="70" height="70"><circle cx="32" cy="32" r="26" fill="none" stroke="#3a4350" stroke-width="5"/><circle cx="32" cy="32" r="26" fill="none" stroke="'+col+'" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+(C*Math.min(100,pct)/100).toFixed(1)+' '+C+'" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" style="fill:'+col+';font:700 17px system-ui">'+esc(n)+'</text></svg>';}
+function recipeRings(rc){var T=Math.max(1,rc.total),pc=function(x){return Math.round(100*x/T);},o='<div style="margin-top:12px"><b>UEFN MCP recipes</b> <span class="ksub">of '+esc(rc.total)+': proven by real work, tool answered, not verified</span></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">';
+ [[rc.proven,"proven","var(--green,#3ddc84)"],[rc.tool_ok,"tool-ok","var(--amber,#ffb454)"],[rc.unverified,"not verified","#9fb0c8"],[rc.failed||0,"failed","var(--red,#ff6b6b)"]].forEach(function(x){var p=pc(x[0]);o+='<div style="flex:1;min-width:110px;text-align:center;border:1px solid var(--line,#2a313c);border-radius:8px;padding:8px 4px">'+ringSvg(x[0],p,x[2])+'<div>'+x[1]+'<br><span class="ksub">'+p+'%</span></div></div>';});
+ o+='</div>';
+ var ar=(rc.areas||[]).filter(function(a){return a.area!=="other";}).slice(0,8);
+ if(ar.length){o+='<div style="margin-top:12px"><b>By area</b> <span class="ksub">green = proven, amber = tool answered</span></div>';ar.forEach(function(a){var g=Math.round(100*a.proven/Math.max(1,a.total)),t=Math.round(100*(a.proven+a.tool_ok)/Math.max(1,a.total));o+='<div style="display:flex;align-items:center;gap:10px;margin:5px 0"><span style="width:130px;font-size:12px">'+esc(a.area)+'</span><div style="flex:1;height:10px;border-radius:5px;background:#3a4350;overflow:hidden;display:flex"><i style="display:block;height:100%;width:'+g+'%;background:var(--green,#3ddc84)"></i><i style="display:block;height:100%;width:'+Math.max(0,t-g)+'%;background:var(--amber,#ffb454)"></i></div><span class="ksub" style="width:40px;text-align:right">'+g+'%</span></div>';});}
+ var hs=rc.history||[];if(hs.length>=2){var mx=Math.max.apply(null,hs.map(function(x){return x.proven;}).concat([1])),pts=hs.map(function(x,i){return (i*300/(hs.length-1)).toFixed(0)+','+(60-55*x.proven/mx).toFixed(0);}).join(' ');o+='<div class="ksub" style="margin-top:10px">Proven recipes, last '+hs.length+' weeks</div><svg viewBox="0 0 300 64" preserveAspectRatio="none" style="width:100%;height:56px"><polyline fill="none" stroke="#3ddc84" stroke-width="2" points="'+pts+'"/></svg>';}
+ return o;}
 function loadMcp(){
  fetch("/uefn-mcp-map",{cache:"no-store"}).then(function(r){return r.json();}).catch(function(){return {available:false,reason:"The console server is older than this page. Restart it to see the MCP map."};}).then(function(m){
   var box=$("kMcp");if(!box)return;
@@ -586,6 +596,7 @@ function loadMcp(){
   var n=m.news||{},h='<div class="kcard"><div class="klabel">UEFN MCP map<span class="r">'+esc(m.saved||"")+(m.uefn_version?" · UEFN "+esc(m.uefn_version):"")+'</span></div>'+
    '<div style="font-size:15px;line-height:1.7"><b>The kit uses '+esc(m.kit_uses)+' of '+esc(m.count)+' tools ('+esc(m.kit_uses_pct)+'%)</b> <span class="ksub">in '+esc(m.toolsets)+' toolsets: '+esc(m.read)+' read, '+esc(m.write)+' write</span></div>'+
    '<div class="ksub" style="margin-top:6px">'+(m.tests?'Tests: '+esc(m.tests.ok)+' safe tools answered, '+esc(m.tests.failed)+' failed ('+esc(m.tests.date)+'). Only read-only tools are ever called.':'Tests: not run yet.')+'</div>';
+  var rc=m.recipes;if(rc&&rc.total){h+=recipeRings(rc);}
   if(n.stopped_working&&n.stopped_working.length)h+='<div style="margin-top:8px;color:var(--red)">Stopped working: '+n.stopped_working.map(esc).join(", ")+'</div>';
   if(n.date){h+='<div style="margin-top:10px"><b>Latest news ('+esc(n.date)+')</b>: '+(n.state==="first_snapshot"?'first map made.':esc(n.added_total)+' added, '+esc(n.removed_total)+' removed, '+esc(n.changed_total)+' changed.')+'</div>';
    (n.added||[]).slice(0,8).forEach(function(a){h+='<div class="ksub">+ '+esc(a.tool)+' ('+esc(a.access)+') '+esc(a.does)+'</div>';});}

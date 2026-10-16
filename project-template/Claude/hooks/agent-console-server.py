@@ -508,7 +508,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return self._send_json_status(413, {"ok": False, "error": "body too large"})
             data = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
             if self.path.startswith("/community-act"):
-                res = skills_lib.community_act(data)
+                res = skills_lib.community_act(data, PROJECT_DIR)
             elif self.path.startswith("/genre-confirm"):
                 res = skills_lib.confirm_genre(PROJECT_DIR, data.get("genre"), data.get("variant"))
             elif self.path.startswith("/skills-check"):

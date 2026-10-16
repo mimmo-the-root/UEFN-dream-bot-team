@@ -1,0 +1,3659 @@
+{
+  "UMGToolSet.UMGToolSet/CreateWidgetBlueprint": {
+    "args": {
+      "folderPath": "{lab_mount}/UI_X",
+      "assetName": "WBP_X",
+      "parentClass": {
+        "refPath": "/Script/UMG.UserWidget"
+      }
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab (not /root_ai_lab)"
+    ],
+    "writes": true,
+    "cleanup": "AssetTools/delete {path: {widget_bp without .Name}}",
+    "status": "tool-ok"
+  },
+  "UMGToolSet.UMGToolSet/AddWidget": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      },
+      "widgetClass": {
+        "refPath": "/Script/UMG.Overlay"
+      },
+      "widgetDisplayName": "Root",
+      "parentWidget": null
+    },
+    "needs": [
+      "widget_bp"
+    ],
+    "writes": true,
+    "cleanup": "RemoveWidget or delete the blueprint; for child widgets pass parentWidget {refPath: '{widget_bp}:WidgetTree.Root'}; parent must be a panel",
+    "status": "tool-ok"
+  },
+  "UMGToolSet.UMGToolSet/ReplaceWidgetWithTemplate": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      },
+      "widgetToReplace": {
+        "refPath": "{widget_bp}:WidgetTree.{widget_name}"
+      },
+      "templateClass": {
+        "refPath": "/Game/Valkyrie/UMG/UEFN_TextBlock.UEFN_TextBlock_C"
+      }
+    },
+    "needs": [
+      "widget_bp",
+      "widget_name (an existing widget, e.g. an Image)"
+    ],
+    "writes": true,
+    "cleanup": "RemoveWidget {widgetBlueprint, widget}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.object.ObjectTools/set_properties": {
+    "args": {
+      "instance": {
+        "refPath": "{widget_bp}:WidgetTree.{widget_name}"
+      },
+      "values": "{\"text\": \"{text}\"}"
+    },
+    "needs": [
+      "widget_bp",
+      "widget_name is a UEFN_TextBlock_C",
+      "values is a JSON TEXT string, camelCase names"
+    ],
+    "writes": true,
+    "cleanup": "set the previous text again; read back with get_properties {instance, properties: ['text']}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.object.ObjectTools/get_properties": {
+    "args": {
+      "instance": "{widget_bp}:WidgetTree.{widget_name}",
+      "properties": [
+        "text"
+      ]
+    },
+    "needs": [
+      "widget_bp",
+      "widget_name"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "VerseFieldsToolset.VerseFieldsToolset/AddVerseField": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      },
+      "fieldName": "Op",
+      "spec": {
+        "type": "float",
+        "defaultValue": "0.5"
+      }
+    },
+    "needs": [
+      "widget_bp",
+      "spec.type in bool,int,float,string,message,color,color_alpha,texture,material,event",
+      "writeAccess only '' or '<public>'..."
+    ],
+    "writes": true,
+    "cleanup": "RemoveVerseField {widgetBlueprint, fieldName}",
+    "status": "tool-ok"
+  },
+  "VerseFieldsToolset.VerseFieldsToolset/BindWidgetPropertyToVerseField": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      },
+      "verseFieldName": "Op",
+      "targetWidget": {
+        "refPath": "{widget_bp}:WidgetTree.{widget_name}"
+      },
+      "widgetPropertyPath": "RenderOpacity"
+    },
+    "needs": [
+      "widget_bp",
+      "verse field Op exists",
+      "widget_name"
+    ],
+    "writes": true,
+    "cleanup": "MVVMToolset/RemoveWidgetViewBinding {widgetBlueprint, bindingId = returned GUID}",
+    "status": "tool-ok"
+  },
+  "MVVMToolset.MVVMToolset/ListWidgetViewBindings": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      }
+    },
+    "needs": [
+      "widget_bp"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "MVVMToolset.MVVMToolset/CreateViewBinding": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      },
+      "sourceContext": null,
+      "sourcePropertyPath": "{verse_field}",
+      "destinationContext": {
+        "refPath": "{widget_bp}:WidgetTree.{widget_name}"
+      },
+      "destinationPropertyPath": "Text",
+      "conversionName": ""
+    },
+    "needs": [
+      "widget_bp",
+      "verse_field",
+      "widget_name"
+    ],
+    "writes": true,
+    "cleanup": "RemoveWidgetViewBinding {widgetBlueprint, bindingId}",
+    "status": "tool-ok"
+  },
+  "MVVMToolset.MVVMToolset/SetBindingMode": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      },
+      "bindingId": "{binding_id}",
+      "mode": "TwoWay"
+    },
+    "needs": [
+      "widget_bp",
+      "binding_id from CreateViewBinding or ListWidgetViewBindings"
+    ],
+    "writes": true,
+    "cleanup": "SetBindingMode back to OneWayToDestination",
+    "status": "tool-ok"
+  },
+  "MVVMToolset.MVVMToolset/AddViewModelToWidget": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      },
+      "viewModelClass": {
+        "refPath": "/Script/SimpleVotingOptionRuntime.VotingOptionViewModel"
+      }
+    },
+    "needs": [
+      "widget_bp"
+    ],
+    "writes": true,
+    "cleanup": "none found; delete the blueprint",
+    "status": "tool-ok"
+  },
+  "WidgetAnimationToolset.WidgetAnimationToolset/CreateWidgetAnimation": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      },
+      "animationName": "FadeIn",
+      "lengthSeconds": 2.0
+    },
+    "needs": [
+      "widget_bp"
+    ],
+    "writes": true,
+    "cleanup": "RemoveWidgetAnimation {widgetBlueprint, animation: {refPath: '{widget_bp}:FadeIn'}}",
+    "status": "tool-ok"
+  },
+  "WidgetAnimationToolset.WidgetAnimationToolset/AddWidgetToAnimation": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      },
+      "animation": {
+        "refPath": "{widget_bp}:FadeIn"
+      },
+      "objectToBind": {
+        "refPath": "{widget_bp}:WidgetTree.{widget_name}"
+      }
+    },
+    "needs": [
+      "widget_bp",
+      "animation FadeIn",
+      "widget_name"
+    ],
+    "writes": true,
+    "cleanup": "RemoveWidgetBinding {animation, bindingGuid = returned bindingId}",
+    "status": "tool-ok"
+  },
+  "WidgetAnimationToolset.WidgetAnimationToolset/ListWidgetAnimations": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      }
+    },
+    "needs": [
+      "widget_bp"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "UMGToolSet.UMGToolSet/GetWidgets": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      }
+    },
+    "needs": [
+      "widget_bp"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "UMGToolSet.UMGToolSet/CompileWidgetBlueprint": {
+    "args": {
+      "widgetBlueprint": {
+        "refPath": "{widget_bp}"
+      }
+    },
+    "needs": [
+      "widget_bp"
+    ],
+    "writes": true,
+    "cleanup": "none; failure message lists the bad binding (fix via ObjectTools set_properties bCompile=false on the event)",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/create_folder": {
+    "args": {
+      "path": "{lab_mount}/Assets_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": true,
+    "cleanup": "AssetTools/delete {path: {lab_mount}/Assets_X} (removes folder and content)",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/find_assets": {
+    "args": {
+      "folder_path": "{lab_mount}/Assets_X",
+      "asset_type": {
+        "refPath": "/Script/Engine.DataTable"
+      },
+      "recursive": true
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab",
+      "always pass folder_path and/or name/asset_type; unfiltered call is ~120 MB"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/get_asset_class": {
+    "args": {
+      "asset_path": "{lab_mount}/Assets_X/DT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/get_asset_tags": {
+    "args": {
+      "asset_path": "{lab_mount}/Assets_X/DT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/update_metadata_tags": {
+    "args": {
+      "asset_path": "{lab_mount}/Assets_X/DT_X",
+      "set_tags": {
+        "MyTag": "v1"
+      }
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab",
+      "only set_tags works; passing remove_tags fails (see assets.md traps)"
+    ],
+    "writes": true,
+    "cleanup": "none known to remove a tag; delete the asset",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/get_metadata_tags": {
+    "args": {
+      "asset_path": "{lab_mount}/Assets_X/DT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/is_dirty": {
+    "args": {
+      "asset_path": "{lab_mount}/Assets_X/DT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/save_assets": {
+    "args": {
+      "asset_paths": [
+        "{lab_mount}/Assets_X/DT_X"
+      ]
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/duplicate": {
+    "args": {
+      "path": "{lab_mount}/Assets_X/DT_X",
+      "new_path": "{lab_mount}/Assets_X/DT_X_copy"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab",
+      "returns false if new_path exists"
+    ],
+    "writes": true,
+    "cleanup": "AssetTools/delete {path: new_path}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/move": {
+    "args": {
+      "path": "{lab_mount}/Assets_X/DT_X_copy",
+      "new_path": "{lab_mount}/Assets_X/DT_X_moved"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": true,
+    "cleanup": "delete",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/exists": {
+    "args": {
+      "path": "{lab_mount}/Assets_X/DT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/delete": {
+    "args": {
+      "path": "{lab_mount}/Assets_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/get_dependencies": {
+    "args": {
+      "asset_path": "{lab_mount}/Assets_X/DT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/get_referencers": {
+    "args": {
+      "asset_path": "{lab_mount}/Assets_X/DT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/load_asset": {
+    "args": {
+      "asset_path": "{lab_mount}/Assets_X/DT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/reload_asset": {
+    "args": {
+      "asset_path": "{lab_mount}/Assets_X/DT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.asset.AssetTools/list_folders": {
+    "args": {
+      "root_path": "{lab_mount}/Assets_X",
+      "recursive": false
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab",
+      "a big root with recursive=true is ~2 MB"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/search_row_structs": {
+    "args": {
+      "struct_name": "*Table*"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/create": {
+    "args": {
+      "folder_path": "{lab_mount}/Assets_X",
+      "asset_name": "DT_X",
+      "schema": {
+        "refPath": "/Script/GameplayTags.GameplayTagTableRow"
+      }
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab",
+      "folder exists (create_folder)"
+    ],
+    "writes": true,
+    "cleanup": "AssetTools/delete",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/get_schema": {
+    "args": {
+      "data_table": {
+        "refPath": "{dt}"
+      }
+    },
+    "needs": [
+      "dt = {lab_mount}/Assets_X/DT_X.DT_X"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/add_rows": {
+    "args": {
+      "data_table": {
+        "refPath": "{dt}"
+      },
+      "row_names": [
+        "RowA",
+        "RowB"
+      ]
+    },
+    "needs": [
+      "dt"
+    ],
+    "writes": true,
+    "cleanup": "remove_rows",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/set_rows": {
+    "args": {
+      "data_table": {
+        "refPath": "{dt}"
+      },
+      "values": "{\"RowA\": {\"devComment\": \"hello\"}}"
+    },
+    "needs": [
+      "dt",
+      "values is a JSON TEXT string {row:{column:value}}, column names camelCase as get_schema prints them",
+      "row must exist"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/get_rows": {
+    "args": {
+      "data_table": {
+        "refPath": "{dt}"
+      },
+      "row_names": [
+        "RowA"
+      ]
+    },
+    "needs": [
+      "dt"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/list_rows": {
+    "args": {
+      "data_table": {
+        "refPath": "{dt}"
+      }
+    },
+    "needs": [
+      "dt"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/rename_rows": {
+    "args": {
+      "data_table": {
+        "refPath": "{dt}"
+      },
+      "renames": {
+        "RowA": "RowAA"
+      }
+    },
+    "needs": [
+      "dt"
+    ],
+    "writes": true,
+    "cleanup": "rename back",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/remove_rows": {
+    "args": {
+      "data_table": {
+        "refPath": "{dt}"
+      },
+      "row_names": [
+        "RowB"
+      ]
+    },
+    "needs": [
+      "dt"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.data_table.DataTableTools/diff": {
+    "args": {
+      "old_asset_path": "{lab_mount}/Assets_X/DT_X",
+      "new_asset_path": "{lab_mount}/Assets_X/DT_X_copy"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.curve_table.CurveTableTools/create": {
+    "args": {
+      "folder_path": "{lab_mount}/Assets_X",
+      "asset_name": "CT_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": true,
+    "cleanup": "AssetTools/delete",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.curve_table.CurveTableTools/add_row": {
+    "args": {
+      "curve_table": {
+        "refPath": "{ct}"
+      },
+      "row_name": "Speed",
+      "default_value": 1.0
+    },
+    "needs": [
+      "ct = {lab_mount}/Assets_X/CT_X.CT_X"
+    ],
+    "writes": true,
+    "cleanup": "remove_row",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.curve_table.CurveTableTools/add_key": {
+    "args": {
+      "curve_table": {
+        "refPath": "{ct}"
+      },
+      "row_name": "Speed",
+      "key": {
+        "time": 5.0,
+        "value": 9.0
+      }
+    },
+    "needs": [
+      "ct"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.curve_table.CurveTableTools/set_keys": {
+    "args": {
+      "curve_table": {
+        "refPath": "{ct}"
+      },
+      "row_name": "Speed",
+      "keys": [
+        {
+          "time": 0,
+          "value": 0
+        },
+        {
+          "time": 1,
+          "value": 10
+        }
+      ]
+    },
+    "needs": [
+      "ct"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.curve_table.CurveTableTools/get_keys": {
+    "args": {
+      "curve_table": {
+        "refPath": "{ct}"
+      },
+      "row_name": "Speed"
+    },
+    "needs": [
+      "ct"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.curve_table.CurveTableTools/list_rows": {
+    "args": {
+      "curve_table": {
+        "refPath": "{ct}"
+      }
+    },
+    "needs": [
+      "ct",
+      "a new table already has a row named Curve"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.curve_table.CurveTableTools/rename_row": {
+    "args": {
+      "curve_table": {
+        "refPath": "{ct}"
+      },
+      "row_name": "Speed",
+      "new_row_name": "Velocity"
+    },
+    "needs": [
+      "ct"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.curve_table.CurveTableTools/remove_row": {
+    "args": {
+      "curve_table": {
+        "refPath": "{ct}"
+      },
+      "row_name": "Velocity"
+    },
+    "needs": [
+      "ct"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.curve_table.CurveTableTools/diff": {
+    "args": {
+      "old_asset_path": "{lab_mount}/Assets_X/CT_X",
+      "new_asset_path": "{lab_mount}/Assets_X/CT_X_copy"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "EditorToolset.LogsToolset/GetLogEntries": {
+    "args": {
+      "category": "",
+      "pattern": "",
+      "maxEntries": 1
+    },
+    "needs": [
+      "category MUST be \"\" (default LogsToolset fails)"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "note": "cursor step 1: tail(1)[0] = last line; do action; GetLogEntries {category:'',maxEntries:300}; new lines = after the LAST index of the cursor line; add pattern '^(?!.*LogModelContextProtocol)' to drop MCP noise | Verse Print of a running session: lines \"LogVerse: : <text>\" (pattern LABMARK found 3 ticks after 4 s) | Verse Print of a running session shows as \"LogVerse: : <text>\" (pattern LABMARK)",
+    "status": "tool-ok"
+  },
+  "EditorToolset.LogsToolset/GetLogEntries#filter_noise": {
+    "args": {
+      "category": "",
+      "maxEntries": 50,
+      "pattern": "^(?!.*LogModelContextProtocol)"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "EditorToolset.LogsToolset/GetLogCategories#warn": {
+    "args": {},
+    "needs": [
+      "answer ~125 KB: call once, cache"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "EditorToolset.LogsToolset/GetVerbosity": {
+    "args": {
+      "category": "LogTemp"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "EditorToolset.LogsToolset/SetVerbosity": {
+    "args": {
+      "category": "LogTemp",
+      "verbosity": "Log"
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "SetVerbosity {category:'LogTemp',verbosity:'Warning'} (original value)",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/ShowNotification": {
+    "args": {
+      "message": "T003 marker"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "note": "toast only, writes nothing to the log",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/GetCVarValue": {
+    "args": {
+      "name": "r.ScreenPercentage"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/SearchCVars": {
+    "args": {
+      "name": "r.ScreenPercentage"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/SetShowFlag": {
+    "args": {
+      "flagName": "Grid",
+      "bEnabled": false
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "SetShowFlag {flagName:'Grid',bEnabled:true}",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/SetViewportViewMode": {
+    "args": {
+      "viewMode": "VMI_Wireframe"
+    },
+    "needs": [
+      "enum names are VMI_* (Wireframe/Lit/Unlit...)"
+    ],
+    "writes": true,
+    "cleanup": "SetViewportViewMode {viewMode:'VMI_Lit'}",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/SetEditorMode": {
+    "args": {
+      "modeId": "EM_Landscape"
+    },
+    "needs": [
+      "ListEditorModes"
+    ],
+    "writes": true,
+    "cleanup": "SetEditorMode {modeId:'EM_Default'}",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/SetCameraTransform": {
+    "args": {
+      "transform": "{camera}"
+    },
+    "needs": [
+      "camera = returnValue of GetCameraTransform"
+    ],
+    "writes": true,
+    "cleanup": "re-send the saved transform",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/WorldPosToScreenCoords": {
+    "args": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/ScreenCoordsToWorld": {
+    "args": {
+      "coords": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/SetContentBrowserPath": {
+    "args": {
+      "path": "{lab_mount}/UI_T001"
+    },
+    "needs": [
+      "subfolder of the lab root (the root itself is refused by the lab guard)"
+    ],
+    "writes": true,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/SelectAssets": {
+    "args": {
+      "assetPaths": [
+        "{lab_mount}/UI_T001/WBP_T001"
+      ]
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/OpenEditorForAsset": {
+    "args": {
+      "assetPath": "{lab_mount}/UI_T001/WBP_T001"
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "none (asset stays open in GetOpenAssets)",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/CreateCollection": {
+    "args": {
+      "collectionName": "T003Coll",
+      "shareType": "Local"
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "DestroyCollection {collection:{name:'T003Coll',shareType:'Local'}}",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/AddAssetsToCollection": {
+    "args": {
+      "collection": {
+        "name": "T003Coll",
+        "shareType": "Local"
+      },
+      "assetPaths": [
+        "{lab_mount}/UI_T001/WBP_T001"
+      ]
+    },
+    "needs": [
+      "CreateCollection"
+    ],
+    "writes": true,
+    "cleanup": "RemoveAssetsFromCollection same args",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/CaptureViewport": {
+    "args": {},
+    "needs": [
+      "returns urn:toolresult image reference, not bytes"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.SessionToolset/GetClientLogEntries": {
+    "args": {
+      "pattern": ".",
+      "maxResults": 50,
+      "startLine": 0
+    },
+    "needs": [
+      "unknown: not produced by StartSession+StartGame with a live FortniteClient (T-015 C2, 3 sessions)"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "verified": false,
+    "note": "ALWAYS 'No client log was found; start a play-in-client session first.' in every state, any pattern/startLine, even with the real client running and writing FortniteGame.log. For Verse Print lines use LogsToolset/GetLogEntries {category:'',maxEntries:0,pattern:'<marker>'}: forwarded as 'LogVerse: : <text>' ~0.8-4 s after StartGame",
+    "status": "unverified"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/add_to_scene_from_class": {
+    "args": {
+      "actor_type": {
+        "refPath": "/Script/Engine.TargetPoint"
+      },
+      "name": "T_Point",
+      "xform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 200
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "needs": [
+      "class under /Script/; returns the actor refPath"
+    ],
+    "writes": true,
+    "cleanup": "SceneTools/remove_from_scene {actor}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/add_to_scene_from_asset": {
+    "args": {
+      "asset_path": "/Engine/BasicShapes/Cube",
+      "name": "T_Cube",
+      "xform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 200
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "SceneTools/remove_from_scene",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/find_actors": {
+    "args": {
+      "collision_channels": [],
+      "name": "T_"
+    },
+    "needs": [
+      "collision_channels is REQUIRED even when empty"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/set_actor_folder": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      },
+      "folder_path": "T/Points"
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "SceneTools/delete_folder",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/get_folders": {
+    "args": {},
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/get_actors_in_folder": {
+    "args": {
+      "folder_path": "T",
+      "recursive": true
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/rename_folder": {
+    "args": {
+      "old_path": "T/Points",
+      "new_path": "T/Spawns"
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "delete_folder",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/set_actor_hidden": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      },
+      "hidden": true
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "hidden false",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/is_actor_hidden": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/get_actor_asset_path": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/create_data_layer_asset": {
+    "args": {
+      "asset_path": "{lab_mount}/T_DL"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": true,
+    "cleanup": "AssetTools/delete {path:{lab_mount}/T_DL}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/add_actors_to_data_layer": {
+    "args": {
+      "actors": [
+        {
+          "refPath": "{actor}"
+        }
+      ],
+      "asset_path": "{lab_mount}/T_DL"
+    },
+    "needs": [
+      "create_data_layer_asset",
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "remove_actors_from_data_layer",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/get_actors_in_data_layer": {
+    "args": {
+      "asset_path": "{lab_mount}/T_DL"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/remove_actors_from_data_layer": {
+    "args": {
+      "actors": [
+        {
+          "refPath": "{actor}"
+        }
+      ],
+      "asset_path": "{lab_mount}/T_DL"
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/replace_actors_with_asset": {
+    "args": {
+      "actors": [
+        {
+          "refPath": "{actor}"
+        }
+      ],
+      "asset_path": "/Engine/BasicShapes/Sphere"
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "remove_from_scene",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/remove_from_scene": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/delete_folder": {
+    "args": {
+      "folder_path": "T/Tmp"
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "returns the count removed (0 = nothing removed, empty folders can linger)",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/save_actor": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/trace_world": {
+    "args": {
+      "start": {
+        "x": 0,
+        "y": 0,
+        "z": 1000
+      },
+      "end": {
+        "x": 0,
+        "y": 0,
+        "z": -1000
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/get_data_layers": {
+    "args": {},
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.scene.SceneTools/get_collision_channels": {
+    "args": {},
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/set_label": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      },
+      "label": "TargetPoint_Spawn"
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/get_label": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/add_tag": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      },
+      "tag": "t_tag"
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "remove_tag",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/remove_tag": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      },
+      "tag": "t_tag"
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/get_tags": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/has_tag": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      },
+      "tag": "t_tag"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/set_actor_transform": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      },
+      "xform": {
+        "location": {
+          "x": 100,
+          "y": 50,
+          "z": 200
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 90,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      "worldspace": true
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/get_actor_transform": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/look_at": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      },
+      "target": {
+        "x": 400,
+        "y": 0,
+        "z": 200
+      }
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/get_components": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/get_root_component": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/get_actor_bounds": {
+    "args": {
+      "actor": {
+        "refPath": "{actor}"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/add_component": {
+    "args": {
+      "owner": {
+        "refPath": "{actor}"
+      },
+      "component_type": {
+        "refPath": "/Script/Engine.PointLightComponent"
+      },
+      "name": "T_Light"
+    },
+    "needs": [
+      "actor created in the same Python process as the write (lab guard, see level-devices.md section 3)"
+    ],
+    "writes": true,
+    "cleanup": "ActorTools/remove_component",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/get_component_actor": {
+    "args": {
+      "component": {
+        "refPath": "{actor}.T_Light"
+      }
+    },
+    "needs": [
+      "add_component"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/get_parent_component": {
+    "args": {
+      "component": {
+        "refPath": "{actor}.T_Light"
+      }
+    },
+    "needs": [
+      "add_component"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/set_parent_component": {
+    "args": {
+      "component": {
+        "refPath": "{actor}.T_Light"
+      },
+      "parent": {
+        "refPath": "{actor}.SceneComp"
+      }
+    },
+    "needs": [
+      "add_component"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/remove_component": {
+    "args": {
+      "component": {
+        "refPath": "{actor}.T_Light"
+      }
+    },
+    "needs": [
+      "add_component"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.actor.ActorTools/diff": {
+    "args": {
+      "old_actor": {
+        "refPath": "{actor_a}"
+      },
+      "new_actor": {
+        "refPath": "{actor_b}"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/GetBindingOptions": {
+    "args": {
+      "devicePath": {
+        "refPath": "{device}"
+      }
+    },
+    "needs": [
+      "placed device actorPath from find_actors"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/ListEventBindings": {
+    "args": {
+      "devicePath": {
+        "refPath": "{device}"
+      }
+    },
+    "needs": [
+      "placed device actorPath from find_actors"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/ListDeviceAssets": {
+    "args": {
+      "nameFilter": "button"
+    },
+    "needs": [
+      "always give nameFilter"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/FindEntities": {
+    "args": {
+      "nameFilter": ""
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/ListComponentClasses": {
+    "args": {
+      "nameFilter": "mesh"
+    },
+    "needs": [
+      "always give nameFilter"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/ListEntityClasses": {
+    "args": {
+      "nameFilter": "entity"
+    },
+    "needs": [
+      "always give nameFilter (1508 classes unfiltered)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/WriteFile": {
+    "args": {
+      "path": "{lab_mount}/LabProbeTest.verse",
+      "content": "{verse_source}",
+      "bCreateIfMissing": true
+    },
+    "needs": [
+      "verse_source with header block + Log pattern",
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": true,
+    "cleanup": "VerseToolset/Delete {path, bRecursive:false}",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/BuildAll": {
+    "args": {},
+    "needs": [],
+    "writes": true,
+    "cleanup": "none; returns [] when clean, else [{severity,code,message,filePath,span(0-based)}]; 1-2.5 s",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/Replace": {
+    "args": {
+      "path": "{lab_mount}/LabProbeTest.verse",
+      "oldString": "{exact_unique_text}",
+      "newString": "{fix}"
+    },
+    "needs": [
+      "verse file",
+      "oldString occurring exactly once (or bReplaceAll true)"
+    ],
+    "writes": true,
+    "cleanup": "Replace back",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/ReadFile": {
+    "args": {
+      "path": "{lab_mount}/LabProbeTest.verse",
+      "span": {
+        "startLine": 17,
+        "startCharacter": 0,
+        "endLine": 19,
+        "endCharacter": 200
+      }
+    },
+    "needs": [
+      "verse file"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/ListFiles": {
+    "args": {
+      "path": "{lab_mount}",
+      "bRecursive": true
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/Grep": {
+    "args": {
+      "pattern": "{literal_text}",
+      "pathGlob": "**/*.verse"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none; regex /.../ is refused by the lab guard",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/CreateDirectory": {
+    "args": {
+      "path": "{lab_mount}/LabProbe"
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "Delete {path, bRecursive:true}",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/Copy": {
+    "args": {
+      "sourcePath": "{lab_mount}/LabProbe",
+      "destPath": "{lab_mount}/LabProbeDir2",
+      "bRecursive": true
+    },
+    "needs": [
+      "source directory or .verse file"
+    ],
+    "writes": true,
+    "cleanup": "Delete dest with bRecursive true; a copied file in the same package breaks the build (ambiguous definition)",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/Move": {
+    "args": {
+      "sourcePath": "{lab_mount}/A.verse",
+      "destPath": "{lab_mount}/B.verse"
+    },
+    "needs": [
+      "dest must not exist, parent must exist"
+    ],
+    "writes": true,
+    "cleanup": "Move back",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/Delete": {
+    "args": {
+      "path": "{lab_mount}/LabProbeTest.verse",
+      "bRecursive": false
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.programmatic.ProgrammaticToolset/execute_tool_script#verse_edit_build": {
+    "args": {
+      "script": "import json\ndef run():\n    p='{lab_mount}/LabProbeTest.verse'\n    execute_tool('ValkyrieToolset.VerseToolset.Replace', json.dumps({'path':p,'oldString':'{old}','newString':'{new}'}))\n    return execute_tool('ValkyrieToolset.VerseToolset.BuildAll','{}')['returnValue']"
+    },
+    "needs": [
+      "verse file"
+    ],
+    "writes": true,
+    "cleanup": "as Replace",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.SessionToolset/StartSession": {
+    "args": {},
+    "needs": [
+      "no actor of a disallowed /Script/Engine class in the level",
+      "ping a cheap read first"
+    ],
+    "writes": true,
+    "cleanup": "StopGame then StopSession in finally",
+    "note": "Completed after 67-87 s (11 s upload/validate, ~13 s beacon + launch of the real FortniteClient, ~65 s cook, then Connected). The MCP reply can be an unrelated/stale error text (seen: 'GetObjectProperties ... FortStaticMeshActor', 'No client log was found'): confirm with GetSessionStatus = Connected. 'Failed: Validation failed' -> GetLogEntries pattern UEFNValidation. FortniteClient processes stay alive after StopSession",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.SessionToolset/GetSessionStatus": {
+    "args": {},
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "note": "Disconnected | Connected | UpdatingContent (cook/upload ~65 s inside StartSession). Sequence: Disconnected -> Connected (beacon, ~13 s) -> UpdatingContent -> Connected (StartGame works now)",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.SessionToolset/GetGameState": {
+    "args": {},
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "note": "Unconnected | CanStart | Running. CanStart already appears at Connected-early and stays during UpdatingContent: it does NOT mean StartGame works",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.SessionToolset/StartGame": {
+    "args": {},
+    "needs": [
+      "GetSessionStatus = Connected AND the StartSession call has returned (content update finished); GetGameState = CanStart"
+    ],
+    "writes": true,
+    "cleanup": "StopGame",
+    "note": "Completed 0.27-0.4 s, GetGameState Running at once; server-side Verse begin ~0.8 s after. 'The Start Game command is not currently available.' while status is Connected-early (first ~8 s) or UpdatingContent (~65 s): GetGameState already says CanStart then, so poll GetSessionStatus, not GetGameState",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.SessionToolset/PushChanges": {
+    "args": {
+      "bVerseOnly": true
+    },
+    "needs": [
+      "session Connected",
+      "a real Verse change since last push"
+    ],
+    "writes": true,
+    "cleanup": "none",
+    "note": "7.9 s; else Refresh command is not currently available",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.SessionToolset/StopGame": {
+    "args": {},
+    "needs": [],
+    "writes": true,
+    "cleanup": "none",
+    "note": "Completed 1.3-1.5 s; server goes to PostGameEnd/PreGame",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.SessionToolset/StopSession": {
+    "args": {},
+    "needs": [],
+    "writes": true,
+    "cleanup": "none",
+    "note": "null, status Disconnected",
+    "status": "tool-ok"
+  },
+  "EditorToolset.LogsToolset/GetLogEntries#why_startsession_failed": {
+    "args": {
+      "category": "",
+      "maxEntries": 0,
+      "pattern": "UEFNValidation"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "note": "validation failure reason of StartSession/publish",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.programmatic.ProgrammaticToolset/get_execution_environment": {
+    "args": {},
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "note": "returns instructions, supported_modules (json,math,datetime,copy,re,time), language python",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.ValkyriePythonToolset/IsPythonEnabledInUEFN": {
+    "args": {},
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "note": "returnValue true on this lab",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.ValkyriePythonToolset/EnablePythonInUEFN": {
+    "args": {},
+    "needs": [],
+    "writes": true,
+    "cleanup": "none",
+    "note": "idempotent when already enabled: returnValue null",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.programmatic.ProgrammaticToolset/execute_tool_script#batch_reads": {
+    "args": {
+      "script": "import json, time\ndef ex(n,a): return execute_tool(n, json.dumps(a))[\"returnValue\"]\ndef run():\n    t0=time.time()\n    out={}\n    out[\"level\"]=ex(\"editor_toolset.toolsets.scene.SceneTools.get_current_level\",{})\n    out[\"cbpath\"]=ex(\"EditorToolset.EditorAppToolset.GetContentBrowserPath\",{})\n    out[\"widgets\"]=len(ex(\"UMGToolSet.UMGToolSet.ListWidgetBlueprints\",{\"folderPath\":\"{lab_mount}\"}))\n    out[\"gamestate\"]=ex(\"ValkyrieToolset.SessionToolset.GetGameState\",{})\n    out[\"status\"]=ex(\"ValkyrieToolset.SessionToolset.GetSessionStatus\",{})\n    out[\"verse_files\"]=ex(\"ValkyrieToolset.VerseToolset.ListFiles\",{\"path\":\"{lab_mount}\",\"bRecursive\":False})\n    out[\"vfields\"]=len(str(ex(\"VerseFieldsToolset.VerseFieldsToolset.GetSupportedVerseFieldTypes\",{})))\n    out[\"py\"]=ex(\"ValkyrieToolset.ValkyriePythonToolset.IsPythonEnabledInUEFN\",{})\n    out[\"secs\"]=time.time()-t0\n    return out"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "none",
+    "note": "8 tools in one call, 0.4 s per call (ledger row 820), 0.069 s inside the script; the return value is a JSON string of the dict",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.programmatic.ProgrammaticToolset/execute_tool_script#create_widget_chain": {
+    "args": {
+      "script": "import json\ndef ex(n,a): return execute_tool(n, json.dumps(a))[\"returnValue\"]\ndef run():\n    R=\"{lab_mount}\"\n    bp=ex(\"UMGToolSet.UMGToolSet.CreateWidgetBlueprint\",{\"folderPath\":R+\"/{folder}\",\"assetName\":\"{name}\",\"parentClass\":{\"refPath\":\"/Script/UMG.UserWidget\"}})\n    p=bp[\"refPath\"] if isinstance(bp,dict) else str(bp)\n    root=ex(\"UMGToolSet.UMGToolSet.AddWidget\",{\"widgetBlueprint\":p,\"widgetClass\":{\"refPath\":\"/Script/UMG.Overlay\"},\"widgetDisplayName\":\"Root\",\"parentWidget\":None})\n    ex(\"UMGToolSet.UMGToolSet.AddWidget\",{\"widgetBlueprint\":p,\"widgetClass\":{\"refPath\":\"/Script/UMG.StackBox\"},\"widgetDisplayName\":\"Stack\",\"parentWidget\":root[\"widget\"]})\n    c=ex(\"UMGToolSet.UMGToolSet.CompileWidgetBlueprint\",{\"widgetBlueprint\":p})\n    s=ex(\"editor_toolset.toolsets.asset.AssetTools.save_assets\",{\"asset_paths\":[R+\"/{folder}/{name}\"]})\n    e=ex(\"editor_toolset.toolsets.asset.AssetTools.exists\",{\"path\":R+\"/{folder}/{name}\"})\n    d=ex(\"editor_toolset.toolsets.asset.AssetTools.is_dirty\",{\"asset_path\":R+\"/{folder}/{name}\"})\n    return {\"compile\":c,\"saved\":s,\"exists\":e,\"dirty\":d,\"n\":len(ex(\"UMGToolSet.UMGToolSet.GetWidgets\",{\"widgetBlueprint\":p})[\"widgets\"])}"
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "AssetTools/delete {path: lab_mount/{folder}}",
+    "note": "verified (ledger row 866, 2.14 s): compile true, saved true, exists true, dirty false, 2 widgets; VerticalBox is refused (not permitted), the script aborts and keeps earlier writes (no rollback, ledger row ~848)",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material.MaterialTools/create_material": {
+    "args": {
+      "folder_path": "{lab_mount}/Mat_X",
+      "asset_name": "M_X"
+    },
+    "needs": [
+      "lab_mount = /09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab"
+    ],
+    "writes": true,
+    "cleanup": "AssetTools/delete {path: pkg path without .Name}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material.MaterialTools/add_expression": {
+    "args": {
+      "material_or_function": {
+        "refPath": "{material}"
+      },
+      "expression_class": {
+        "refPath": "/Script/Engine.MaterialExpressionScalarParameter"
+      },
+      "x": -400,
+      "y": 0
+    },
+    "needs": [
+      "material"
+    ],
+    "writes": true,
+    "cleanup": "delete_expression or delete the material; name it with ObjectTools/set_properties values as JSON text",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material.MaterialTools/connect_to_output": {
+    "args": {
+      "expression": {
+        "refPath": "{expression}"
+      },
+      "output_name": "",
+      "material_property": "MP_BaseColor"
+    },
+    "needs": [
+      "expression from add_expression"
+    ],
+    "writes": true,
+    "cleanup": "disconnect_from_output {material, material_property}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material.MaterialTools/get_property_input": {
+    "args": {
+      "material": {
+        "refPath": "{material}"
+      },
+      "material_property": "MP_BaseColor"
+    },
+    "needs": [
+      "material"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material.MaterialTools/recompile": {
+    "args": {
+      "material_or_function": {
+        "refPath": "{material}"
+      }
+    },
+    "needs": [
+      "material"
+    ],
+    "writes": true,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material.MaterialTools/get_statistics": {
+    "args": {
+      "material": {
+        "refPath": "{material_or_instance}"
+      }
+    },
+    "needs": [
+      "material_or_instance"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material.MaterialTools/connect_expressions": {
+    "args": {
+      "from_expression": {
+        "refPath": "{expr_a}"
+      },
+      "from_output_name": "",
+      "to_expression": {
+        "refPath": "{expr_multiply}"
+      },
+      "to_input_name": "A"
+    },
+    "needs": [
+      "two expressions in one material"
+    ],
+    "writes": true,
+    "cleanup": "disconnect_expressions {to_expression,to_input_name}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material.MaterialTools/diff_material": {
+    "args": {
+      "old_asset_path": "{material_pkg_a}",
+      "new_asset_path": "{material_pkg_b}"
+    },
+    "needs": [
+      "two package paths without .Name"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material_instance.MaterialInstanceTools/create": {
+    "args": {
+      "folder_path": "{lab_mount}/Mat_X",
+      "asset_name": "MI_X",
+      "parent": {
+        "refPath": "{material}"
+      }
+    },
+    "needs": [
+      "lab_mount",
+      "material"
+    ],
+    "writes": true,
+    "cleanup": "AssetTools/delete {path: pkg path without .Name}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material_instance.MaterialInstanceTools/list_parameters": {
+    "args": {
+      "material": {
+        "refPath": "{material_or_instance}"
+      }
+    },
+    "needs": [
+      "material_or_instance"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_scalar_parameter": {
+    "args": {
+      "instance": {
+        "refPath": "{material_instance}"
+      },
+      "name": "Rough",
+      "value": 0.9
+    },
+    "needs": [
+      "material_instance",
+      "scalar parameter name"
+    ],
+    "writes": true,
+    "cleanup": "clear_parameters {instance}; re-read returns float32 (0.8999999761581421)",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_vector_parameter": {
+    "args": {
+      "instance": {
+        "refPath": "{material_instance}"
+      },
+      "name": "TintColor",
+      "value": {
+        "r": 0.1,
+        "g": 0.8,
+        "b": 0.3,
+        "a": 1
+      }
+    },
+    "needs": [
+      "material_instance",
+      "vector parameter name"
+    ],
+    "writes": true,
+    "cleanup": "clear_parameters",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_static_switch_parameter": {
+    "args": {
+      "instance": {
+        "refPath": "{material_instance}"
+      },
+      "name": "UseX",
+      "value": true
+    },
+    "needs": [
+      "material_instance"
+    ],
+    "writes": true,
+    "cleanup": "clear_parameters",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_texture_parameter": {
+    "args": {
+      "instance": {
+        "refPath": "{material_instance}"
+      },
+      "name": "TexA",
+      "value": {
+        "refPath": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture"
+      }
+    },
+    "needs": [
+      "material_instance"
+    ],
+    "writes": true,
+    "cleanup": "clear_parameters",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_parent": {
+    "args": {
+      "instance": {
+        "refPath": "{material_instance}"
+      },
+      "parent": {
+        "refPath": "{other_material}"
+      }
+    },
+    "needs": [
+      "material_instance",
+      "other_material"
+    ],
+    "writes": true,
+    "cleanup": "set_parent back to the original parent",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material_instance.MaterialInstanceTools/clear_parameters": {
+    "args": {
+      "instance": {
+        "refPath": "{material_instance}"
+      }
+    },
+    "needs": [
+      "material_instance"
+    ],
+    "writes": true,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_scalar_parameter": {
+    "args": {
+      "instance": {
+        "refPath": "{material_instance}"
+      },
+      "name": "{param_name}"
+    },
+    "needs": [
+      "material_instance",
+      "param_name exists on the parent"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "verified": true,
+    "note": "returns float32 widened: set 0.9 reads 0.8999999761581421 (ledger ~892); compare with a tolerance",
+    "status": "tool-ok"
+  },
+  "recipe/apply_material_instance_to_actor (ONE script)": {
+    "args": {
+      "steps": [
+        "SceneTools/add_to_scene_from_asset {asset_path:'/Engine/BasicShapes/Cube', name:'{actor_name}', xform:{location,rotation,scale}} -> actor refPath",
+        "ObjectTools/set_properties {instance:{refPath:'{actor}.StaticMeshComponent0'}, values:'{\"overrideMaterials\":[{\"refPath\":\"{material_instance}\"}]}'} -> true",
+        "ObjectTools/get_properties {instance:{refPath:'{actor}.StaticMeshComponent0'}, properties:['overrideMaterials']} -> read back",
+        "ObjectTools/set_properties values:'{\"overrideMaterials\":[]}' -> reset",
+        "SceneTools/remove_from_scene {actor:{refPath:'{actor}'}} -> true"
+      ]
+    },
+    "needs": [
+      "material_instance",
+      "actor_name",
+      "apply+read+reset+remove MUST run in ONE script/process"
+    ],
+    "writes": true,
+    "cleanup": "reset overrideMaterials to [] then remove_from_scene, in the same script",
+    "verified": true,
+    "note": "ledger rows 985-989 ok. GUARD: scene-actor changes/removal from a LATER process are refused (rows 981/983/984: 'path outside ...root_ai_lab'); never leave the actor for another call",
+    "status": "unverified"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetSystemSummary": {
+    "args": {
+      "system": {
+        "refPath": "{niagara_system}"
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetSystemCompileState": {
+    "args": {
+      "system": {
+        "refPath": "{niagara_system}"
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetSystemDependencies": {
+    "args": {
+      "system": {
+        "refPath": "{niagara_system}"
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetStackIssues": {
+    "args": {
+      "system": {
+        "refPath": "{niagara_system}"
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetEmitterSummary": {
+    "args": {
+      "emitterRef": {
+        "system": {
+          "refPath": "{niagara_system}"
+        },
+        "emitterName": "{emitter_name}",
+        "scriptName": "",
+        "moduleName": "",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetEmitterTopology": {
+    "args": {
+      "emitterRef": {
+        "system": {
+          "refPath": "{niagara_system}"
+        },
+        "emitterName": "{emitter_name}",
+        "scriptName": "",
+        "moduleName": "",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetModuleInputValues": {
+    "args": {
+      "moduleRef": {
+        "system": {
+          "refPath": "{niagara_system}"
+        },
+        "emitterName": "{emitter_name}",
+        "scriptName": "EmitterUpdateScript",
+        "moduleName": "SpawnBurst_Instantaneous",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetStackInputData": {
+    "args": {
+      "stackInputRef": {
+        "system": {
+          "refPath": "{niagara_system}"
+        },
+        "emitterName": "{emitter_name}",
+        "scriptName": "EmitterUpdateScript",
+        "moduleName": "SpawnBurst_Instantaneous",
+        "rendererIndex": -1,
+        "inputNameStack": [
+          "Spawn Count"
+        ]
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetRendererData": {
+    "args": {
+      "rendererRef": {
+        "system": {
+          "refPath": "{niagara_system}"
+        },
+        "emitterName": "{emitter_name}",
+        "scriptName": "",
+        "moduleName": "",
+        "rendererIndex": 0,
+        "inputNameStack": []
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetRendererSchema": {
+    "args": {
+      "rendererClass": {
+        "refPath": "/Script/Niagara.NiagaraSpriteRendererProperties"
+      }
+    },
+    "needs": [
+      "a Niagara system refPath, e.g. /Niagara/DefaultAssets/Templates/Systems/SimpleExplosion.SimpleExplosion (find via AssetTools/find_assets asset_type /Script/Niagara.NiagaraSystem; READ ONLY: writes refused by guard)"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_Assets/FindNiagaraScripts": {
+    "args": {
+      "folderPath": "",
+      "name": "Initialize",
+      "usages": [
+        "Module"
+      ],
+      "visibilities": [],
+      "supportedUsages": [],
+      "bRecursive": true,
+      "bIncludeDeprecated": false
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_Info/UEnum_Info": {
+    "args": {
+      "enum": {
+        "refPath": "/Script/Niagara.ENiagaraScriptUsage"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_Assets/GetNiagaraScriptDigest": {
+    "args": {
+      "objectPath": "/Niagara/Modules/Emitter/SpawnBurst_Instantaneous.SpawnBurst_Instantaneous"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetDynamicInputSchemaFromAsset": {
+    "args": {
+      "dynamicInputAsset": {
+        "refPath": "/Niagara/DynamicInputs/Random/RandomInt.RandomInt"
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/GetAvailableDynamicInputs": {
+    "args": {
+      "type": {
+        "classStructOrEnum": {
+          "refPath": "/Script/Niagara.NiagaraInt32"
+        }
+      }
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.static_mesh.StaticMeshTools/get_bounds": {
+    "args": {
+      "mesh": {
+        "refPath": "{static_mesh}"
+      }
+    },
+    "needs": [
+      "static_mesh e.g. /Engine/BasicShapes/Cube.Cube; returns {min,max,isValid}"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.static_mesh.StaticMeshTools/get_lod_thresholds": {
+    "args": {
+      "mesh": {
+        "refPath": "{static_mesh}"
+      }
+    },
+    "needs": [
+      "static_mesh; returns a list of floats"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.static_mesh.StaticMeshTools/get_material_slots": {
+    "args": {
+      "mesh": {
+        "refPath": "{static_mesh}"
+      }
+    },
+    "needs": [
+      "static_mesh; returns slot names, e.g. [\"WorldGridMaterial\"]"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.static_mesh.StaticMeshTools/is_nanite_enabled": {
+    "args": {
+      "mesh": {
+        "refPath": "{static_mesh}"
+      }
+    },
+    "needs": [
+      "static_mesh"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bounds": {
+    "args": {
+      "mesh": {
+        "refPath": "{skeletal_mesh}"
+      }
+    },
+    "needs": [
+      "skeletal_mesh e.g. /AnimToTexture/Characters/Mannequin/Meshes/SKM_Mannequin.SKM_Mannequin"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bone_names": {
+    "args": {
+      "mesh": {
+        "refPath": "{skeletal_mesh}"
+      }
+    },
+    "needs": [
+      "skeletal_mesh"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_physics_asset": {
+    "args": {
+      "mesh": {
+        "refPath": "{skeletal_mesh_with_physics_asset}"
+      }
+    },
+    "needs": [
+      "a skeletal mesh that has a physics asset; otherwise error \"has no physics asset assigned\""
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_socket_transform": {
+    "args": {
+      "mesh": {
+        "refPath": "{skeletal_mesh_with_socket}"
+      },
+      "socket_name": "{socket}"
+    },
+    "needs": [
+      "socket name from get_socket_names"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "PhysicsToolsets.PhysicsAssetToolset/GetBodyNames": {
+    "args": {
+      "physicsAsset": {
+        "refPath": "{physics_asset}"
+      }
+    },
+    "needs": [
+      "physics_asset e.g. /FigureCosmetics/Props/Emote/YuzuCrank_Pita/SkeletalMesh/PA_YuzuCrank_Pita.PA_YuzuCrank_Pita"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "PhysicsToolsets.PhysicsAssetToolset/GetBodyShapes": {
+    "args": {
+      "physicsAsset": {
+        "refPath": "{physics_asset}"
+      },
+      "boneName": "{bone}"
+    },
+    "needs": [
+      "bone from GetBodyNames"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "PhysicsToolsets.PhysicsAssetToolset/GetConstraints": {
+    "args": {
+      "physicsAsset": {
+        "refPath": "{physics_asset}"
+      }
+    },
+    "needs": [
+      "physics_asset"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "PhysicsToolsets.PhysicsAssetToolset/GetBodyPhysicsMode": {
+    "args": {
+      "physicsAsset": {
+        "refPath": "{physics_asset}"
+      },
+      "boneName": "{bone}"
+    },
+    "needs": [
+      "bone from GetBodyNames; returns \"Default\""
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "PhysicsToolsets.PhysicsAssetToolset/GetBodyMassScale": {
+    "args": {
+      "physicsAsset": {
+        "refPath": "{physics_asset}"
+      },
+      "boneName": "{bone}"
+    },
+    "needs": [
+      "bone from GetBodyNames; returns a float"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.primitive.PrimitiveTools/add_cube": {
+    "args": {
+      "actor": {
+        "refPath": "{lab_actor}"
+      },
+      "name": "P_cube",
+      "dimensions": {
+        "x": 50,
+        "y": 50,
+        "z": 50
+      }
+    },
+    "needs": [
+      "lab_actor created in the SAME process (scene write guard)"
+    ],
+    "writes": true,
+    "cleanup": "SceneTools/remove_from_scene {actor} in the same script (removes its components)",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.primitive.PrimitiveTools/add_sphere": {
+    "args": {
+      "actor": {
+        "refPath": "{lab_actor}"
+      },
+      "name": "P_sphere",
+      "radius": 40
+    },
+    "needs": [
+      "lab_actor from the same process"
+    ],
+    "writes": true,
+    "cleanup": "remove_from_scene {actor}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.primitive.PrimitiveTools/add_cone": {
+    "args": {
+      "actor": {
+        "refPath": "{lab_actor}"
+      },
+      "name": "P_cone",
+      "radius": 30,
+      "height": 60
+    },
+    "needs": [
+      "lab_actor from the same process"
+    ],
+    "writes": true,
+    "cleanup": "remove_from_scene {actor}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.primitive.PrimitiveTools/add_cylinder": {
+    "args": {
+      "actor": {
+        "refPath": "{lab_actor}"
+      },
+      "name": "P_cyl",
+      "radius": 30,
+      "height": 60
+    },
+    "needs": [
+      "lab_actor from the same process"
+    ],
+    "writes": true,
+    "cleanup": "remove_from_scene {actor}",
+    "status": "tool-ok"
+  },
+  "editor_toolset.toolsets.texture.TextureTools/get_size": {
+    "args": {
+      "texture": {
+        "refPath": "{texture}"
+      }
+    },
+    "needs": [
+      "texture e.g. /ChaosClothAsset/Textures/WhiteSquareTexture.WhiteSquareTexture; returns {x,y}"
+    ],
+    "writes": false,
+    "cleanup": "none",
+    "status": "tool-ok"
+  },
+  "collision_set_and_revert (ObjectTools/set_properties on StaticMeshComponent0)": {
+    "args": {
+      "instance": {
+        "refPath": "{actor}.StaticMeshComponent0"
+      },
+      "values": "{\"bGenerateOverlapEvents\":true,\"bodyInstance\":{\"collisionEnabled\":\"QueryAndPhysics\",\"bEnableGravity\":false}}"
+    },
+    "needs": [
+      "lab actor from SceneTools/add_to_scene_from_asset in the same process",
+      "read first with ObjectTools/get_properties {instance, properties:[\"bGenerateOverlapEvents\",\"bodyInstance\"]} (returns JSON text)"
+    ],
+    "writes": true,
+    "cleanup": "set the ORIGINAL values back explicitly (reset_properties goes to the class default, not the original); then remove_from_scene",
+    "status": "unverified"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/CreateNiagaraSystem": {
+    "args": {
+      "assetName": "NS_T014",
+      "assetPath": "{lab_root}/Fx",
+      "templateSystem": {
+        "refPath": "/Niagara/DefaultAssets/Templates/Systems/MinimalLightweight.MinimalLightweight"
+      }
+    },
+    "needs": [
+      "lab guard widened 2026-10-16: /Niagara source allowed for create* when result lands in lab"
+    ],
+    "writes": true,
+    "cleanup": "AssetTools/delete {path:<lab>/Fx}; find_assets then returns []",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/AddEmitter": {
+    "args": {
+      "system": {
+        "refPath": "{ns}"
+      },
+      "templateEmitter": {
+        "refPath": "/Niagara/DefaultAssets/Templates/Emitters/SimpleSpriteBurst.SimpleSpriteBurst"
+      },
+      "emitterName": "EmitA"
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "RemoveEmitter",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/RemoveEmitter": {
+    "args": {
+      "emitterToRemove": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "",
+        "moduleName": "",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/AddModule": {
+    "args": {
+      "moduleLocationRef": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "EmitterUpdateScript",
+        "moduleName": "",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      },
+      "moduleAsset": {
+        "refPath": "/Niagara/Modules/Emitter/SpawnRate.SpawnRate"
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "RemoveModule {moduleName:SpawnRate}",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/RemoveModule": {
+    "args": {
+      "moduleToRemove": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "EmitterUpdateScript",
+        "moduleName": "SpawnRate",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/AddRenderer": {
+    "args": {
+      "newRendererLocation": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "",
+        "moduleName": "",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      },
+      "rendererClass": {
+        "refPath": "/Script/Niagara.NiagaraRibbonRendererProperties"
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "RemoveRenderer {rendererIndex returned}",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/RemoveRenderer": {
+    "args": {
+      "rendererToRemove": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "",
+        "moduleName": "",
+        "rendererIndex": 1,
+        "inputNameStack": []
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/AddSetParametersModule": {
+    "args": {
+      "moduleLocationRef": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "ParticleSpawnScript",
+        "moduleName": "",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      },
+      "parameters": [
+        {
+          "variable": {
+            "name": "Particles.T014A",
+            "type": {
+              "classStructOrEnum": {
+                "refPath": "/Script/Niagara.NiagaraFloat"
+              }
+            }
+          },
+          "defaultValue": {
+            "struct": {
+              "refPath": "/Script/Niagara.NiagaraFloat"
+            },
+            "value": {
+              "value": 1.0
+            }
+          }
+        }
+      ]
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "RemoveModule (name SetVariables_<guid> comes back in moduleName)",
+    "status": "unverified"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/AddSetParameterEntry": {
+    "args": {
+      "moduleRef": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "ParticleSpawnScript",
+        "moduleName": "{SetVariables_module}",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      },
+      "entry": {
+        "variable": {
+          "name": "Particles.T014B",
+          "type": {
+            "classStructOrEnum": {
+              "refPath": "/Script/Niagara.NiagaraFloat"
+            }
+          }
+        },
+        "defaultValue": {
+          "struct": {
+            "refPath": "/Script/Niagara.NiagaraFloat"
+          },
+          "value": {
+            "value": 2.0
+          }
+        }
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "RemoveSetParameterEntry",
+    "status": "unverified"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/RemoveSetParameterEntry": {
+    "args": {
+      "moduleRef": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "ParticleSpawnScript",
+        "moduleName": "{SetVariables_module}",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      },
+      "parameterName": "Particles.T014B"
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/AddUserVariables": {
+    "args": {
+      "system": {
+        "refPath": "{ns}"
+      },
+      "variablesToAdd": [
+        {
+          "name": "User.T014Float",
+          "description": "t014",
+          "type": {
+            "classStructOrEnum": {
+              "refPath": "/Script/Niagara.NiagaraFloat"
+            }
+          },
+          "defaultValue": {
+            "struct": {
+              "refPath": "/Script/Niagara.NiagaraFloat"
+            },
+            "value": {
+              "value": 2.5
+            }
+          }
+        }
+      ]
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "RemoveUserVariables {variablesToRemove:[{name,type}]}. Items are FLAT (name,description,type,defaultValue); a nested {variable:{...}} created a stray User.None",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/RemoveUserVariables": {
+    "args": {
+      "system": {
+        "refPath": "{ns}"
+      },
+      "variablesToRemove": [
+        {
+          "name": "User.T014Float",
+          "type": {
+            "classStructOrEnum": {
+              "refPath": "/Script/Niagara.NiagaraFloat"
+            }
+          }
+        }
+      ]
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/SetSystemData": {
+    "args": {
+      "system": {
+        "refPath": "{ns}"
+      },
+      "systemData": {
+        "propertyValues": "{\"TranslucencySortPriority\":3}"
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "set the original value (read from GetSystemData) back",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/SetEmitterData": {
+    "args": {
+      "emitter": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "",
+        "moduleName": "",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      },
+      "emitterData": {
+        "propertyValues": "{\"RandomSeed\":7}"
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "set the original value back",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/SetRendererData": {
+    "args": {
+      "renderer": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "",
+        "moduleName": "",
+        "rendererIndex": 0,
+        "inputNameStack": []
+      },
+      "rendererData": {
+        "propertyValues": "{\"MacroUVRadius\":2}"
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "set the original value back",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/SetStackInputData": {
+    "args": {
+      "stackInputRef": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "EmitterUpdateScript",
+        "moduleName": "SpawnBurst_Instantaneous",
+        "rendererIndex": -1,
+        "inputNameStack": [
+          "Spawn Count"
+        ]
+      },
+      "inputData": {
+        "struct": {
+          "refPath": "/Script/Niagara.NiagaraInt32"
+        },
+        "value": {
+          "value": 123
+        }
+      }
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "send back the value GetStackInputData returned first",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/SetModuleEnabled": {
+    "args": {
+      "moduleRef": {
+        "system": {
+          "refPath": "{ns}"
+        },
+        "emitterName": "EmitA",
+        "scriptName": "ParticleUpdateScript",
+        "moduleName": "ScaleColor",
+        "rendererIndex": -1,
+        "inputNameStack": []
+      },
+      "bEnabled": false
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)"
+    ],
+    "writes": true,
+    "cleanup": "bEnabled true; read with GetEmitterTopology modules[].enabled",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_System/ApplyStackIssueFix": {
+    "args": {
+      "system": {
+        "refPath": "{ns}"
+      },
+      "issueId": "{from GetStackIssues}",
+      "fixId": "{issues[].fixes[].fixId with style Fix}"
+    },
+    "needs": [
+      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)",
+      "an Error issue with a Fix: RemoveModule EmitterState on an emitter, wait ~9 s, GetStackIssues"
+    ],
+    "writes": true,
+    "cleanup": "fix re-adds the module; the call itself answers an error 'compile in flight' (fix still applied, verified by re-read)",
+    "status": "unverified"
+  },
+  "NiagaraToolsets.NiagaraToolset_Component/GetUserVariables": {
+    "args": {
+      "component": {
+        "refPath": "{niagara_component}"
+      }
+    },
+    "needs": [
+      "actor from SceneTools/add_to_scene_from_asset {asset_path:<lab NS>} in ONE script; component = <actor>.NiagaraComponent0; remove_from_scene in finally"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_Component/GetVariable": {
+    "args": {
+      "component": {
+        "refPath": "{niagara_component}"
+      },
+      "var": {
+        "name": "T014Float",
+        "type": {
+          "classStructOrEnum": {
+            "refPath": "/Script/Niagara.NiagaraFloat"
+          }
+        }
+      }
+    },
+    "needs": [
+      "same as GetUserVariables; name WITHOUT the User. prefix"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_Component/SetVariable": {
+    "args": {
+      "component": {
+        "refPath": "{niagara_component}"
+      },
+      "variable": {
+        "name": "T014Float",
+        "type": {
+          "classStructOrEnum": {
+            "refPath": "/Script/Niagara.NiagaraFloat"
+          }
+        },
+        "value": {
+          "struct": {
+            "refPath": "/Script/Niagara.NiagaraFloat"
+          },
+          "value": {
+            "value": 7.0
+          }
+        }
+      }
+    },
+    "needs": [
+      "same; 'type' is required for the value to apply (without it: returns null and nothing changes)"
+    ],
+    "writes": true,
+    "cleanup": "set the original value back, re-read equal",
+    "status": "tool-ok"
+  },
+  "NiagaraToolsets.NiagaraToolset_Component/SetSystem": {
+    "args": {
+      "niagaraComponent": {
+        "refPath": "{niagara_component}"
+      },
+      "system": {
+        "refPath": "{other_lab_ns}"
+      },
+      "bResetExistingOverrideParameters": true
+    },
+    "needs": [
+      "a second lab system; the same system gives 'New Niagara System is the same as the existing System.'"
+    ],
+    "writes": true,
+    "cleanup": "SetSystem back to the first system; verify with ObjectTools/get_properties {properties:[asset]}",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/PlaceDevice": {
+    "args": {
+      "assetPath": {
+        "refPath": "/Game/Playsets/PID_CP_Devices_Hover_Platform.PID_CP_Devices_Hover_Platform"
+      },
+      "transform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 300
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "needs": [
+      "catalog device whose assetPath starts with /Game, /Engine, /Niagara or /Script (only 2 of 383: Hover_Platform, SwordStone); /CreativeCoreDevices, /CR_Legacy, /CRD_*, /_Verse paths are refused by the guard"
+    ],
+    "writes": true,
+    "cleanup": "Scene/remove_from_scene {actor: returned refPath}",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/AddEventBinding": {
+    "args": {
+      "sourceDevicePath": {
+        "refPath": "{pad1}"
+      },
+      "sourceEvent": "On Player Spawned",
+      "targetDevicePath": {
+        "refPath": "{pad2}"
+      },
+      "targetFunction": "Enable"
+    },
+    "needs": [
+      "two placed classic devices; names from GetBindingOptions",
+      "the binding is listed by ListEventBindings on the TARGET device, not the source"
+    ],
+    "writes": true,
+    "cleanup": "RemoveEventBinding same 4 args (returns null)",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/RemoveEventBinding": {
+    "args": {
+      "sourceDevicePath": {
+        "refPath": "{pad1}"
+      },
+      "sourceEvent": "On Player Spawned",
+      "targetDevicePath": {
+        "refPath": "{pad2}"
+      },
+      "targetFunction": "Enable"
+    },
+    "needs": [
+      "binding exists"
+    ],
+    "writes": true,
+    "cleanup": "none",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/CreateEntity": {
+    "args": {
+      "entityClass": {
+        "refPath": "/Game/Athena/AI/NPCs/Base/InteropEntity/NPCInteropEntity.NPCInteropEntity_C"
+      },
+      "transform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 300
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "needs": [
+      "non-abstract entity class from search_subclasses {base_class:/Script/Entity.BaseEntity} that is under /Game (the only guard-accepted one)"
+    ],
+    "writes": true,
+    "cleanup": "EntityToolset/DeleteEntity {entity}",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/SetComponentProperty": {
+    "args": {
+      "component": {
+        "refPath": "{entity}.replication_component_0"
+      },
+      "propertyName": "NetCullDistance",
+      "value": "12000"
+    },
+    "needs": [
+      "component of an existing entity; value JSON string; read back with GetComponentProperty"
+    ],
+    "writes": true,
+    "cleanup": "set value back to '15000'",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/GetComponents": {
+    "args": {
+      "entity": {
+        "refPath": "{entity}"
+      }
+    },
+    "needs": [
+      "entity refPath from FindEntities"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/SetEntityTransform": {
+    "args": {
+      "entity": {
+        "refPath": "{entity}"
+      },
+      "transform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 300
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "needs": [
+      "entity"
+    ],
+    "writes": true,
+    "cleanup": "DeleteEntity",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/ListComponentProperties": {
+    "args": {
+      "component": {
+        "refPath": "{entity}.transform_component_0"
+      }
+    },
+    "needs": [
+      "component of an entity"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/DeleteEntity": {
+    "args": {
+      "entity": {
+        "refPath": "{entity}"
+      }
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "none; FindEntities then returns []",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/PlaceDevice#verse-class": {
+    "args": {
+      "assetPath": {
+        "refPath": "/<guid>/_Verse.root_ai_lab-<snake_case_class>"
+      },
+      "transform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 5200
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "needs": [
+      "a Verse file with a creative_device class, BuildAll [] first (class path from ListDeviceAssets nameFilter)"
+    ],
+    "writes": true,
+    "cleanup": "SceneTools/remove_from_scene {actor}",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/ListDeviceProperties#verse": {
+    "args": {
+      "device": {
+        "refPath": "{placed verse device}"
+      }
+    },
+    "needs": [
+      "placed Verse device"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "verified": true,
+    "note": "JSON text keyed by camelCase name (probeValue); classic BP devices: \"is not valid ScriptDevice for property Device\"; catalog VerseDevices.Devices_creative_device returns \"\"",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/GetDeviceProperties#verse": {
+    "args": {
+      "device": {
+        "refPath": "{placed verse device}"
+      },
+      "propertyNames": [
+        "ProbeValue"
+      ]
+    },
+    "needs": [
+      "placed Verse device"
+    ],
+    "writes": false,
+    "cleanup": "",
+    "verified": true,
+    "note": "names use the Verse field name (ProbeValue), returns JSON text {\"ProbeValue\": 3}",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/SetDeviceProperty#verse": {
+    "args": {
+      "device": {
+        "refPath": "{placed verse device}"
+      },
+      "propertyName": "ProbeValue",
+      "value": "7"
+    },
+    "needs": [
+      "placed Verse device"
+    ],
+    "writes": true,
+    "cleanup": "set the original value again (read back equal)",
+    "verified": true,
+    "note": "value is a JSON-encoded STRING: 7, true, \"\\\"text\\\"\"; field name = Verse name, not the camelCase of ListDeviceProperties",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.DeviceToolset/PlaceDevice#catalog": {
+    "args": {
+      "assetPath": {
+        "refPath": "/CreativeCoreDevices/SetupAssets/PID_Device_Button.PID_Device_Button"
+      },
+      "transform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 5400
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "SceneTools/remove_from_scene",
+    "verified": true,
+    "note": "also /CR_Legacy/Playsets/PID_CP_Devices_CreativeButton.*, /VerseDevices/_Verse/VNI/VerseDevices.Devices_creative_device (3 of 3 mounts ok)",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/AddComponent#entityframework": {
+    "args": {
+      "entity": {
+        "refPath": "{entity}"
+      },
+      "componentClass": {
+        "refPath": "/EntityFramework/_Verse/VNI/Entity.rarity_component"
+      }
+    },
+    "needs": [
+      "entity from CreateEntity (NPCInteropEntity_C)"
+    ],
+    "writes": true,
+    "cleanup": "RemoveComponent with the same componentClass",
+    "verified": true,
+    "note": "ok: tag_component, icon_component, rarity_component; text_display/mesh/decal/sphere_light: \"is not valid Class for property ComponentClass\". Returns {component{refPath}, componentName, componentClass}; component ref for ListComponentProperties is returned[\"component\"]",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/RemoveComponent#entityframework": {
+    "args": {
+      "entity": {
+        "refPath": "{entity}"
+      },
+      "componentClass": {
+        "refPath": "/EntityFramework/_Verse/VNI/Entity.tag_component"
+      }
+    },
+    "needs": [
+      "component of that class added in the same process"
+    ],
+    "writes": true,
+    "cleanup": "",
+    "verified": true,
+    "note": "for a class never added in this process the guard refuses (class path not in created set)",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/CreateEntity#simulation_entity": {
+    "args": {
+      "entityClass": {
+        "refPath": "/EntityFramework/_Verse/VNI/Entity.simulation_entity"
+      },
+      "transform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 5300
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "DeleteEntity fails \"Cannot delete the root entity\"; remove the EntityProxyActor with SceneTools/find_actors name <entity> then remove_from_scene",
+    "verified": true,
+    "note": "level_entity and Prefab_* are \"not valid Class\"; do NOT create simulation_entity unless needed",
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.EntityToolset/SetComponentProperty#replication": {
+    "args": {
+      "component": {
+        "refPath": "{entity}.replication_component_0"
+      },
+      "propertyName": "NetCullDistance",
+      "value": "12000"
+    },
+    "needs": [
+      "entity"
+    ],
+    "writes": true,
+    "cleanup": "set 15000 again; GetComponentProperty reads \"15000\"",
+    "verified": true,
+    "status": "tool-ok"
+  },
+  "ValkyrieToolset.VerseToolset/Grep#regex": {
+    "args": {
+      "pattern": "/(Bad|Good)Value/",
+      "pathGlob": "**/*.verse"
+    },
+    "needs": [],
+    "writes": false,
+    "cleanup": "",
+    "verified": true,
+    "note": "regex only when wrapped in slashes; unwrapped patterns are literal; (?i), \\s, ^, alternation work; digest files (/Fortnite.com ...) are matched too: narrow the glob; a slash-wrapped pattern without any regex metacharacter (/BadValue/) is refused by the guard as a path",
+    "status": "tool-ok"
+  },
+  "EditorToolset.EditorAppToolset/SelectOutlinerFolders#empty": {
+    "args": {
+      "folderPaths": []
+    },
+    "needs": [],
+    "writes": true,
+    "cleanup": "",
+    "verified": true,
+    "note": "only [] returns; any folder (also \"/\" and an existing folder) -> \"Folder(s) not found in any outliner\" because no scene Outliner panel is open in the editor",
+    "status": "tool-ok"
+  },
+  "recipe/read_component_assets_of_a_skeletal_mesh_actor": {
+    "args": {
+      "steps": [
+        "ActorTools/get_components {actor} -> [<actor>.SkeletalMeshComponent0]",
+        "ObjectTools/list_properties {instance:comp} -> JSON schema of all properties",
+        "ObjectTools/get_properties {instance:comp, properties:['skeletalMeshAsset']} ONE property per call or one list of valid names (a single unknown name fails the whole call: 'the following properties could not be read: ...')",
+        "animation: properties ['animationData'] -> {animToPlay, bSavedLooping, bSavedPlaying, savedPosition, savedPlayRate} (animToPlay is NOT a top-level property); also animationMode, animClass, globalAnimRateScale, bPauseAnims, overrideMaterials"
+      ]
+    },
+    "writes": false,
+    "cleanup": "none",
+    "verified": true,
+    "status": "unverified"
+  },
+  "recipe/animate_owner_actor_with_script_and_restore": {
+    "args": {
+      "steps": [
+        "read orig = ActorTools/get_actor_transform",
+        "loop ActorTools/set_actor_transform {actor, xform:{location,rotation,scale}} 8 steps with time.sleep(0.15) in the Python process (writes on owner actors in the level are allowed by the guard; rotation of 360 deg reads as 0)",
+        "finally: set_actor_transform with orig (full xform) and re-read equal",
+        "ObjectTools/set_properties {instance:comp, values:'{\"globalAnimRateScale\":2.0}'} then back to 1.0; '{\"bPauseAnims\":true}' then false: ok, re-read equal"
+      ]
+    },
+    "writes": true,
+    "cleanup": "restore orig transform and properties explicitly",
+    "verified": true,
+    "status": "unverified"
+  },
+  "recipe/apply_lab_mi_to_owner_skeletal_actor": {
+    "args": {
+      "steps": [
+        "MaterialInstanceTools/create {folder_path:'<lab>/Drone_T015', asset_name:'MI_X', parent:{refPath:'/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial'}} ok",
+        "ObjectTools/set_properties {instance:'<actor>.SkeletalMeshComponent0', values:'{\"overrideMaterials\":[{\"refPath\":MI},{\"refPath\":MI}]}'} -> true, re-read shows both",
+        "revert: values '{\"overrideMaterials\":[]}' (original was [])",
+        "AssetTools/delete {path:'<lab>/Drone_T015'} -> true"
+      ]
+    },
+    "writes": true,
+    "cleanup": "overrideMaterials [] + delete folder",
+    "verified": true,
+    "status": "unverified"
+  },
+  "recipe/describe_project_skeletal_mesh_outside_lab": {
+    "args": {
+      "steps": [
+        "SkeletalMeshTools get_bounds/get_lod_count/get_material_slots/get_skeleton/get_bone_names/get_bone_parent/get_bone_children/get_socket_names/get_morph_target_names/get_vertex_count{mesh,lod_index}/get_section_count work on a project asset under a non-lab mount (/<guid>/mech-drone/textures/Drone.Drone: 28 bones, 6308 vertices, 2 sections, slots Fire+Robot, 0 sockets, no physics asset)",
+        "AnimSequence via ObjectTools/get_properties: sequenceLength, rateScale, numberOfSampledKeys (4.667 s, 141 keys); MI parameters: scalarParameterValues, vectorParameterValues, parent"
+      ]
+    },
+    "writes": false,
+    "cleanup": "none",
+    "verified": true,
+    "status": "unverified"
+  },
+  "MaterialInstanceTools/set_parent#drone_skeletal_fix": {
+    "args": {
+      "instance": {
+        "refPath": "<MI>"
+      },
+      "parent": {
+        "refPath": "<lab material with bUsedWithSkeletalMesh=true>"
+      }
+    },
+    "needs": [
+      "material used on a SkeletalMesh needs ObjectTools/set_properties {bUsedWithSkeletalMesh:true} (key with b prefix; usedWithSkeletalMesh fails) else log 'missing usage flag SkeletalMesh! Default Material will be used'",
+      "FBX Interchange phong parent leaves texture params empty and all *MapWeight 0"
+    ],
+    "writes": true,
+    "cleanup": "set_parent back to /InterchangeAssets/Materials/FBXLegacyPhongSurfaceMaterial.FBXLegacyPhongSurfaceMaterial",
+    "status": "unverified"
+  },
+  "recipe/duplicate_project_skeletal_mesh_into_lab": {
+    "args": {
+      "steps": [
+        "AssetTools/duplicate {path:'/<guid>/mech-drone/textures/Drone.Drone', new_path:'<lab>/Meshes/Drone'} -> true (needs `extra-root: /mech-drone` in LAB-PROJECT.txt); same for Drone_Skeleton, Drone_Anim",
+        "the copy of the mesh still points at the ORIGINAL skeleton (get_skeleton -> mech-drone/.../Drone_Skeleton); material slots keep the original MIs",
+        "clean up: AssetTools/delete {path:'<lab>/Meshes'} -> true"
+      ]
+    },
+    "writes": true,
+    "cleanup": "delete folder",
+    "verified": true,
+    "status": "unverified"
+  },
+  "recipe/skeletal_mesh_sockets_add_rename_transform_remove": {
+    "args": {
+      "steps": [
+        "SkeletalMeshTools/add_socket {mesh, socket_name, bone_name} -> {refPath: '<mesh>:SkeletalMeshSocket_0'}",
+        "set_socket_transform {mesh, socket_name, transform:{location,rotation,scale}} -> null; get_socket_transform re-reads equal; set back the saved original transform -> equal",
+        "rename_socket {mesh, old_name, new_name} -> true; remove_socket {mesh, socket_name} -> true; get_socket_names -> []"
+      ]
+    },
+    "writes": true,
+    "cleanup": "remove_socket",
+    "verified": true,
+    "status": "unverified"
+  },
+  "recipe/skeletal_mesh_set_material_and_revert": {
+    "args": {
+      "steps": [
+        "get_material {mesh, slot_name:'Robot'} -> orig refPath",
+        "set_material {mesh, slot_name, material:{refPath:'/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial'}} -> true; get_material equal",
+        "set_material with orig -> true; re-read equal"
+      ]
+    },
+    "writes": true,
+    "cleanup": "revert",
+    "verified": true,
+    "status": "unverified"
+  },
+  "recipe/physics_asset_create_from_skeletal_mesh": {
+    "args": {
+      "steps": [
+        "PhysicsAssetToolset/CreateFromMesh {meshPath:'<lab>/Meshes/Drone', bAssignToMesh:false} -> {refPath:'<lab>/Meshes/Drone_PhysicsAsset.Drone_PhysicsAsset'}. meshPath must be the PACKAGE path WITHOUT '.Drone': with '<pkg>.Drone' the editor fails 'Failed to create package at <pkg>.Drone_PhysicsAsset'",
+        "28 bones -> 25 bodies (one capsule each, shapeName 'None'), 0 constraints",
+        "SkeletalMeshTools/assign_physics_asset {mesh, physics_asset} -> true; get_physics_asset equals"
+      ]
+    },
+    "writes": true,
+    "cleanup": "delete folder",
+    "verified": true,
+    "status": "unverified"
+  },
+  "recipe/physics_asset_body_mass_mode_shapes_constraints": {
+    "args": {
+      "steps": [
+        "SetBodyMassScale {physicsAsset, boneName, massScale:2.5} -> null; GetBodyMassScale 2.5; set back 1 -> equal",
+        "SetBodyPhysicsMode {physicsAsset, boneName, mode:'Kinematic'|'Default'|'Simulated'} -> null; re-read; revert",
+        "SetSphere {physicsAsset,boneName,shapeName,center,radius} / SetBox {...,center,rotation,extentX,extentY,extentZ} / SetCapsule {...,center,rotation,radius,length} -> null; GetBodyShapes lists them; RemoveShape {physicsAsset,boneName,shapeName} -> null",
+        "AddConstraint {physicsAsset,bone1Name(child),bone2Name(parent)} -> null (defaults Free/45); SetConstraintLimits {physicsAsset, info:{bone1Name,bone2Name,swing1Motion,swing1LimitDegrees,swing2Motion,swing2LimitDegrees,twistMotion,twistLimitDegrees}} all 8 fields required; RemoveConstraint {physicsAsset,bone1Name,bone2Name}",
+        "RemoveBody {physicsAsset,boneName} (24 left) / AddBody {physicsAsset,boneName} (25, empty body: add a shape with SetSphere)"
+      ]
+    },
+    "writes": true,
+    "cleanup": "delete asset",
+    "verified": true,
+    "status": "unverified"
+  }
+}

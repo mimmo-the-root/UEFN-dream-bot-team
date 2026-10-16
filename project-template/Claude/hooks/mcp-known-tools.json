@@ -1,0 +1,1651 @@
+{
+"count": 388,
+"generated": "2026-10-16",
+"legend": "s: ok=answered ok in the lab, recipe=has a recipe, refused=lab guard said no, rejected=the editor said no, no_answer, never=not tried; c=1: ask the owner before calling",
+"summary": {
+"no_answer": 1,
+"ok": 357,
+"recipe": 2,
+"refused": 7,
+"rejected": 21
+},
+"tools": {
+"EditorToolset.EditorAppToolset/AddAssetsToCollection": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/CaptureAssetImage": {
+"a": "editor-logs",
+"s": "rejected",
+"why": "Asset not found: /Script/YokeHopUnkindUI.YokeHopUnkindUI"
+},
+"EditorToolset.EditorAppToolset/CaptureEditorImage": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/CaptureViewport": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/CreateCollection": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/DestroyCollection": {
+"a": "editor-logs",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/FocusOnActors": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetActiveEditorModes": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetAssetThumbnails": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetCVarValue": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetCameraTransform": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetCollectionAssets": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetContentBrowserPath": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetOpenAssets": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetSelectedActors": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetSelectedAssets": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetSelectedOutlinerFolders": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetShowFlag": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/GetVisibleActors": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/ListCollections": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/ListEditorModes": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/ListShowFlags": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/OpenEditorForAsset": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/RemoveAssetsFromCollection": {
+"a": "editor-logs",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/ScreenCoordsToWorld": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SearchCVars": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SelectActors": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SelectAssets": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SelectOutlinerFolders": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SetCVarValue": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SetCameraTransform": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SetContentBrowserPath": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SetEditorMode": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SetShowFlag": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/SetViewportViewMode": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/ShowNotification": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.EditorAppToolset/WorldPosToScreenCoords": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.LogsToolset/GetLogCategories": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.LogsToolset/GetLogEntries": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.LogsToolset/GetVerbosity": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset.LogsToolset/SetVerbosity": {
+"a": "editor-logs",
+"s": "ok"
+},
+"GameplayTagsToolset.GameplayTagsToolset/FindReferencersByTag": {
+"a": "assets",
+"s": "rejected",
+"why": "Gameplay tag 'Cover_502' does not exist."
+},
+"GameplayTagsToolset.GameplayTagsToolset/GetTagInfo": {
+"a": "assets",
+"s": "rejected",
+"why": "Gameplay tag 'Cover_503' does not exist."
+},
+"GameplayTagsToolset.GameplayTagsToolset/ListTags": {
+"a": "assets",
+"s": "ok"
+},
+"GameplayTagsToolset.GameplayTagsToolset/ListTagsInSource": {
+"a": "assets",
+"s": "rejected",
+"why": "Tag source '/Script/YokeHopUnkindUI' does not exist."
+},
+"MVVMToolset.MVVMToolset/AddViewModelProperty": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "/Script/Engine.Blueprint"
+},
+"MVVMToolset.MVVMToolset/AddViewModelToWidget": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/CreateViewBinding": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/CreateViewEventBinding": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/FixupMVVMData": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/GetWidgetViewConfig": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/ListBindableWidgetProperties": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/ListConversionFunctions": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/ListViewModels": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/ListWidgetViewBindings": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/ListWidgetViewEvents": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/ListWidgetViewModels": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/RemoveWidgetViewBinding": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/SetBindingMode": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"MVVMToolset.MVVMToolset/SetWidgetViewConfig": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_Assets/FindNiagaraScripts": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_Assets/GetAssetDiscoveryInfo": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_Assets/GetNiagaraScriptDigest": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_Component/GetUserVariables": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_Component/GetVariable": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_Component/SetSystem": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_Component/SetVariable": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_Info/UEnum_Info": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/AddEmitter": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/AddModule": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/AddRenderer": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/AddSetParameterEntry": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/AddSetParametersModule": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/AddUserVariables": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/ApplyStackIssueFix": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets.NiagaraToolset_System/CreateNiagaraSystem": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetAvailableDynamicInputs": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetDataInterfaceSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetDynamicInputChain": {
+"a": "vfx-niagara",
+"s": "rejected",
+"why": "NiagaraExt_StackItemReference"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetDynamicInputSchema": {
+"a": "vfx-niagara",
+"s": "no_answer",
+"why": "NiagaraExt_StackItemReference"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetDynamicInputSchemaFromAsset": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetEmitterData": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetEmitterInputValues": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetEmitterSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetEmitterSummary": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetEmitterTopology": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetModuleInputValues": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetModuleSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetModuleSchemaFromAsset": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetModuleTopology": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetRendererData": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetRendererSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetScriptStackInputValues": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetScriptStackTopology": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetStackInputData": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetStackInputSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetStackInputTopology": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetStackIssues": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetSystemCompileState": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetSystemData": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetSystemDependencies": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetSystemSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetSystemSummary": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/GetUserVariables": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/RemoveEmitter": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/RemoveModule": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/RemoveRenderer": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/RemoveSetParameterEntry": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/RemoveUserVariables": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/SetEmitterData": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/SetModuleEnabled": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/SetRendererData": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/SetStackInputData": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets.NiagaraToolset_System/SetSystemData": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/AddBody": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/AddConstraint": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/CreateFromMesh": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/GetBodyMassScale": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/GetBodyNames": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/GetBodyPhysicsMode": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/GetBodyShapes": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/GetConstraints": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/RemoveBody": {
+"a": "physics-mesh",
+"c": 1,
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/RemoveConstraint": {
+"a": "physics-mesh",
+"c": 1,
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/RemoveShape": {
+"a": "physics-mesh",
+"c": 1,
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/SetBodyMassScale": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/SetBodyPhysicsMode": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/SetBox": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/SetCapsule": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/SetConstraintLimits": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"PhysicsToolsets.PhysicsAssetToolset/SetSphere": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/AddUIComponent": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "/Script/UMGEditor.WidgetBlueprint"
+},
+"UMGToolSet.UMGToolSet/AddWidget": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/CompileWidgetBlueprint": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/CreateWidgetBlueprint": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/GetNamedSlots": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/GetWidgetClassInfo": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/GetWidgetDescription": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/GetWidgetTreeDepth": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/GetWidgets": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/ListWidgetBlueprints": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/ListWidgetClasses": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/MoveUIComponent": {
+"a": "ui-widgets",
+"c": 1,
+"s": "rejected",
+"why": "/Script/UMGEditor.WidgetBlueprint"
+},
+"UMGToolSet.UMGToolSet/MoveWidget": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/RemoveUIComponent": {
+"a": "ui-widgets",
+"c": 1,
+"s": "rejected",
+"why": "/Script/UMGEditor.WidgetBlueprint"
+},
+"UMGToolSet.UMGToolSet/RemoveWidget": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/RenameWidget": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/ReplaceWidgetWithChild": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/ReplaceWidgetWithNamedSlot": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/ReplaceWidgetWithTemplate": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/SetNamedSlotContent": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet.UMGToolSet/WrapWidgets": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"ValkyrieToolset.DeviceToolset/AddEventBinding": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.DeviceToolset/GetBindingOptions": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.DeviceToolset/GetDeviceProperties": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.DeviceToolset/ListDeviceAssets": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.DeviceToolset/ListDeviceProperties": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.DeviceToolset/ListEventBindings": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.DeviceToolset/PlaceDevice": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.DeviceToolset/RemoveEventBinding": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"ValkyrieToolset.DeviceToolset/SetDeviceProperty": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/AddComponent": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/CreateEntity": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/DeleteEntity": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/FindEntities": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/GetComponentProperty": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/GetComponents": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/GetEntityTransform": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/ListComponentClasses": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/ListComponentProperties": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/ListEntityClasses": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/RemoveComponent": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/SetComponentProperty": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.EntityToolset/SetEntityTransform": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset.SessionToolset/GetClientLogEntries": {
+"a": "session-regression",
+"s": "recipe"
+},
+"ValkyrieToolset.SessionToolset/GetGameState": {
+"a": "session-regression",
+"s": "ok"
+},
+"ValkyrieToolset.SessionToolset/GetSessionStatus": {
+"a": "session-regression",
+"s": "ok"
+},
+"ValkyrieToolset.SessionToolset/PushChanges": {
+"a": "session-regression",
+"c": 1,
+"s": "ok"
+},
+"ValkyrieToolset.SessionToolset/StartGame": {
+"a": "session-regression",
+"s": "ok"
+},
+"ValkyrieToolset.SessionToolset/StartSession": {
+"a": "session-regression",
+"s": "ok"
+},
+"ValkyrieToolset.SessionToolset/StopGame": {
+"a": "session-regression",
+"c": 1,
+"s": "ok"
+},
+"ValkyrieToolset.SessionToolset/StopSession": {
+"a": "session-regression",
+"c": 1,
+"s": "ok"
+},
+"ValkyrieToolset.ValkyriePythonToolset/EnablePythonInUEFN": {
+"a": "scripting-batch",
+"s": "ok"
+},
+"ValkyrieToolset.ValkyriePythonToolset/IsPythonEnabledInUEFN": {
+"a": "scripting-batch",
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/BuildAll": {
+"a": "verse-build",
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/Copy": {
+"a": "verse-build",
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/CreateDirectory": {
+"a": "verse-build",
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/Delete": {
+"a": "verse-build",
+"c": 1,
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/Grep": {
+"a": "verse-build",
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/ListFiles": {
+"a": "verse-build",
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/Move": {
+"a": "verse-build",
+"c": 1,
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/ReadFile": {
+"a": "verse-build",
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/Replace": {
+"a": "verse-build",
+"c": 1,
+"s": "ok"
+},
+"ValkyrieToolset.VerseToolset/WriteFile": {
+"a": "verse-build",
+"s": "ok"
+},
+"VerseFieldsToolset.VerseFieldsToolset/AddVerseField": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"VerseFieldsToolset.VerseFieldsToolset/BindWidgetPropertyToVerseField": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"VerseFieldsToolset.VerseFieldsToolset/DuplicateVerseField": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"VerseFieldsToolset.VerseFieldsToolset/EditVerseField": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"VerseFieldsToolset.VerseFieldsToolset/GetSupportedVerseFieldTypes": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"VerseFieldsToolset.VerseFieldsToolset/ListVerseFields": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"VerseFieldsToolset.VerseFieldsToolset/RemoveVerseField": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/AddWidgetToAnimation": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/CreateWidgetAnimation": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/FindWidgetAnimation": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/GetWidgetAnimationBindings": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/ListWidgetAnimations": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/RemoveWidgetAnimation": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/RemoveWidgetBinding": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/RenameWidgetAnimation": {
+"a": "ui-widgets",
+"c": 1,
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/SetWidgetAnimationDisplayLabel": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"WidgetAnimationToolset.WidgetAnimationToolset/SetWidgetAnimationLength": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/add_component": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/add_tag": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/diff": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/get_actor_bounds": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/get_actor_transform": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/get_component_actor": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/get_components": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/get_label": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/get_parent_component": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/get_root_component": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/get_tags": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/has_tag": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/look_at": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/remove_component": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/remove_tag": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/set_actor_transform": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/set_label": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.actor.ActorTools/set_parent_component": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/create_folder": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/delete": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/duplicate": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/exists": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/find_assets": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/get_asset_class": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/get_asset_tags": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/get_dependencies": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/get_metadata_tags": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/get_referencers": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/is_dirty": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/list_folders": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/load_asset": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/move": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/reload_asset": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/save_assets": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.asset.AssetTools/update_metadata_tags": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/add_key": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/add_row": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/create": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/diff": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/get_keys": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/import_file": {
+"a": "assets",
+"s": "rejected",
+"why": "Source file not found: /Script/YokeHopUnkindUI"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/list_rows": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/remove_row": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/rename_row": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.curve_table.CurveTableTools/set_keys": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/add_rows": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/create": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/diff": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/get_rows": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/get_schema": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/import_file": {
+"a": "assets",
+"s": "rejected",
+"why": "Source file not found: /Script/YokeHopUnkindUI"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/list_rows": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/remove_rows": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/rename_rows": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/search_row_structs": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.data_table.DataTableTools/set_rows": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/add_expression": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/connect_expressions": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/connect_to_output": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/create_function": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/create_material": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/create_parameter_collection": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/delete_expression": {
+"a": "materials",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/delete_parameter_group": {
+"a": "materials",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/delete_unused_expressions": {
+"a": "materials",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/diff_function": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/diff_material": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/disconnect_expressions": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/disconnect_from_output": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/get_expression_input_names": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/get_expression_inputs": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/get_expression_output_names": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/get_expressions": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/get_property_input": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/get_referencing_materials": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/get_statistics": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/layout_expressions": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/list_expression_classes": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/list_parameter_groups": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/recompile": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material.MaterialTools/rename_parameter_group": {
+"a": "materials",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/clear_parameters": {
+"a": "materials",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/create": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/diff": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_scalar_parameter": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_static_switch_parameter": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_texture_parameter": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_vector_parameter": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/list_parameters": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_parameter_override": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_parent": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_scalar_parameter": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_static_switch_parameter": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_texture_parameter": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_vector_parameter": {
+"a": "materials",
+"s": "ok"
+},
+"editor_toolset.toolsets.object.ObjectTools/get_class": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.object.ObjectTools/get_properties": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.object.ObjectTools/list_properties": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.object.ObjectTools/reset_properties": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.object.ObjectTools/search_subclasses": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.object.ObjectTools/set_properties": {
+"a": "assets",
+"s": "ok"
+},
+"editor_toolset.toolsets.primitive.PrimitiveTools/add_cone": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.primitive.PrimitiveTools/add_cube": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.primitive.PrimitiveTools/add_cylinder": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.primitive.PrimitiveTools/add_sphere": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.programmatic.ProgrammaticToolset/execute_tool_script": {
+"a": "scripting-batch",
+"s": "ok"
+},
+"editor_toolset.toolsets.programmatic.ProgrammaticToolset/get_execution_environment": {
+"a": "scripting-batch",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/add_actors_to_data_layer": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/add_to_scene_from_asset": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/add_to_scene_from_class": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/create_data_layer_asset": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/create_level": {
+"a": "level-devices",
+"s": "rejected",
+"why": "Failed to create level ''."
+},
+"editor_toolset.toolsets.scene.SceneTools/delete_folder": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/diff": {
+"a": "level-devices",
+"s": "rejected",
+"why": "Could not load scene asset:"
+},
+"editor_toolset.toolsets.scene.SceneTools/find_actors": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/get_actor_asset_path": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/get_actors_in_data_layer": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/get_actors_in_folder": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/get_collision_channels": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/get_current_level": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/get_data_layers": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/get_folders": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/is_actor_hidden": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/load_actors": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/load_level": {
+"a": "level-devices",
+"s": "rejected",
+"why": "Cannot load '': level does not exist."
+},
+"editor_toolset.toolsets.scene.SceneTools/remove_actors_from_data_layer": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/remove_from_scene": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/rename_folder": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/replace_actors_with_asset": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/replace_actors_with_class": {
+"a": "level-devices",
+"c": 1,
+"s": "rejected",
+"why": "/Script/CoreUObject.Class"
+},
+"editor_toolset.toolsets.scene.SceneTools/save_actor": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/set_actor_folder": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/set_actor_hidden": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/trace_world": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.scene.SceneTools/unload_actors": {
+"a": "level-devices",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/add_socket": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/assign_physics_asset": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bone_children": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bone_names": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bone_parent": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bounds": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_lod_count": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_material": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_material_slots": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_morph_target_names": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_physics_asset": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_section_count": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_skeleton": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_socket_bone": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_socket_names": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_socket_transform": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_vertex_count": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/import_file": {
+"a": "physics-mesh",
+"s": "rejected",
+"why": "Source file not found: /Script/YokeHopUnkindUI"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/remove_socket": {
+"a": "physics-mesh",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/rename_socket": {
+"a": "physics-mesh",
+"c": 1,
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/set_material": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/set_socket_transform": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/generate_convex_collisions": {
+"a": "physics-mesh",
+"s": "refused",
+"why": "/Script/Engine.StaticMesh"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/generate_lods": {
+"a": "physics-mesh",
+"s": "refused",
+"why": "/Script/Engine.StaticMesh"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_bounds": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_lod_count": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_lod_thresholds": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_material": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_material_slots": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_triangle_count": {
+"a": "physics-mesh",
+"s": "rejected",
+"why": "/Script/Engine.StaticMesh"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_vertex_count": {
+"a": "physics-mesh",
+"s": "rejected",
+"why": "/Script/Engine.StaticMesh"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/import_file": {
+"a": "physics-mesh",
+"s": "rejected",
+"why": "Source file not found: /Script/YokeHopUnkindUI"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/is_nanite_enabled": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/remove_collisions": {
+"a": "physics-mesh",
+"c": 1,
+"s": "refused",
+"why": "/Script/Engine.StaticMesh"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/remove_lods": {
+"a": "physics-mesh",
+"c": 1,
+"s": "refused",
+"why": "/Script/Engine.StaticMesh"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/set_lod_thresholds": {
+"a": "physics-mesh",
+"s": "refused",
+"why": "/Script/Engine.StaticMesh"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/set_material": {
+"a": "physics-mesh",
+"s": "rejected",
+"why": "/Script/Engine.MaterialInterface; /Script/Engine.StaticMesh"
+},
+"editor_toolset.toolsets.static_mesh.StaticMeshTools/set_nanite_enabled": {
+"a": "physics-mesh",
+"s": "refused",
+"why": "/Script/Engine.StaticMesh"
+},
+"editor_toolset.toolsets.texture.TextureTools/export_png": {
+"a": "physics-mesh",
+"s": "refused",
+"why": "/Script/Engine.Texture2D"
+},
+"editor_toolset.toolsets.texture.TextureTools/get_size": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"editor_toolset.toolsets.texture.TextureTools/import_file": {
+"a": "physics-mesh",
+"s": "rejected",
+"why": "TextureFactory does not support \".\" files. Allowed: ['bmp', 'dds', 'exr', 'hdr', 'ies', 'j"
+},
+"editor_toolset.toolsets.texture.TextureTools/read_texture": {
+"a": "physics-mesh",
+"s": "ok"
+}
+}
+}

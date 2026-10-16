@@ -1,6 +1,8 @@
 ---
 name: uefn-lessons
 description: Shared cross-project knowledge base of recurring Verse/UEFN gotchas, MCP quirks, and coding mistakes, accumulated across every project set up with this kit. Read it before writing or debugging Verse code, or when investigating a compile/runtime error, to check whether it's already a known issue. Also the place to add a new entry when you discover something non-obvious that would help on future projects too, not just this one.
+last_reviewed: 2026-10-16
+sources: [original]
 ---
 
 # UEFN / Verse lessons learned

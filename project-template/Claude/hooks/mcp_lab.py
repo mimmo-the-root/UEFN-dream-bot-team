@@ -13,7 +13,8 @@ Two modes, both enforced by the code (a refusal is reported, never worked around
  * LABORATORY (LAB_AGGRESSIVE=1): for a disposable project only. It starts ONLY if (1) the file Claude/LAB-PROJECT.txt exists,
    (2) LAB_ROOT is set (for example /lab_mcp) and (3) the open level really lives under LAB_ROOT. Then everything inside LAB_ROOT is
    allowed, including delete, level writes, sessions, Verse edits and Python. Still refused: quitting or restarting the editor and any
-   disk path outside the project."""
+   disk path outside the project. A path outside the lab is accepted only as the SOURCE of something the call creates inside the lab
+   (template, class, catalog asset; /Niagara, /Engine, /Game, /Script...), never as the target of a write."""
 import json, os, re, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -21,10 +22,42 @@ import mcp_map as m
 import toolset_diff as td
 
 AGGR = os.environ.get("LAB_AGGRESSIVE") == "1"
-ROOT = os.environ.get("LAB_ROOT") or ("" if AGGR else "/root_pillars")
+
+def _default_root():
+    """Laboratory mode without LAB_ROOT (a script started without the variable): the project folder's own name
+    (<project>/Content/Claude/hooks -> /<project>). lab_check still proves the OPEN LEVEL lives there, so this is no weaker."""
+    if not (AGGR and os.path.isfile(os.path.join(HERE, "..", "LAB-PROJECT.txt"))):
+        return ""
+    proj = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(HERE))))
+    return "/" + proj if proj and re.fullmatch(r"[A-Za-z0-9_]+", proj) else ""
+
+
+ROOT = re.sub(r"^/[0-9a-fA-F-]{36}/", "/", os.environ.get("LAB_ROOT") or "") or _default_root() or ("" if AGGR else "/root_pillars")
 SANDBOX = ROOT + "/KitTest"
+
+
+def _extra_roots():
+    """Laboratory mode only: more top-level folders of the SAME disposable project that count as lab (for example an imported
+    model in /mech-drone). Declared by the owner in Claude/LAB-PROJECT.txt (a line `extra-root: /mech-drone`) or LAB_EXTRA_ROOTS=/a,/b.
+    Never a path of another project: only plain /Folder names, never a mount name such as /Game or /Engine."""
+    out = []
+    items = [x for x in (os.environ.get("LAB_EXTRA_ROOTS") or "").split(",")]
+    try:
+        with open(os.path.join(HERE, "..", "LAB-PROJECT.txt"), encoding="utf-8") as f:
+            items += [l.split(":", 1)[1] for l in f if l.lower().startswith("extra-root:")]
+    except OSError:
+        pass
+    for x in items:
+        x = x.strip().rstrip("/")
+        if AGGR and re.fullmatch(r"/[A-Za-z0-9_\-]+", x) and x not in ("/Game", "/Engine", "/Script", "/Niagara", "/Fortnite", "/FortniteGame", "/root_pillars"):
+            out.append(x)
+    return out
+
+
+EXTRA = _extra_roots()
 LOGS = os.path.join(HERE, "..", "logs")
 LEDGER = os.path.join(LOGS, "explore-ledger.jsonl")
+SRC = os.environ.get("LAB_SRC", "agent")
 MARKER = os.path.join(HERE, "..", "LAB-PROJECT.txt")
 NEVER = re.compile(r"delete|remove_asset|import|StartSession|StopSession|StartGame|StopGame|PushChanges|BuildAll|exit|quit|restart|shutdown|open_level|load_level|new_level|save_level|SetCVar|set_cvar|console|python", re.I)
 HARD_NEVER = re.compile(r"exit|quit|restart|shutdown", re.I)
@@ -65,18 +98,58 @@ def schema(ts, tool):
     return {"description": t.get("description"), "input": t.get("inputSchema"), "output": t.get("outputSchema"), "annotations": t.get("annotations")} if t else None
 
 
-def _strings(o):
+def _strings(o, depth=0):
     if isinstance(o, str):
         yield o
+        t = o.strip()
+        if depth < 4 and t[:1] in "{[" and t[-1:] in "}]":  # B-002: a JSON TEXT in an argument (values="{...}") is inspected too
+            try:
+                yield from _strings(json.loads(t), depth + 1)
+            except Exception:  # noqa
+                pass
     elif isinstance(o, dict):
         for v in o.values():
-            yield from _strings(v)
+            yield from _strings(v, depth)
     elif isinstance(o, list):
         for v in o:
-            yield from _strings(v)
+            yield from _strings(v, depth)
+
+
+_GUID = re.compile(r"^/[0-9a-fA-F-]{36}/")
+SRC_ROOTS = re.compile(r"^/(Niagara|Engine|Game|Script|FortniteGame|Fortnite|NiagaraAdditions)(/|\.|$)")
+# catalog / plugin mounts (devices, entity components, sample meshes): only as the SOURCE of something CREATED in the lab
+# (place a device, create an entity, duplicate a mesh into the lab). add / assign / apply / attach are not enough for these:
+# assign_physics_asset(<plugin mesh>, <lab asset>) would change the plugin's mesh.
+CAT_ROOTS = re.compile(r"^/(CreativeCoreDevices|VerseDevices|CR_Legacy|EntityFramework|AnimToTexture|FigureCosmetics|" + (os.environ.get("LAB_SOURCE_MOUNTS") or "NoSuchMount").replace(",", "|") + r")(/|\.|$)")
+CAT_TOOL = re.compile(r"^(create|duplicate|clone|copy|make|spawn|place|instantiate|addcomponent|addeventbinding)", re.I)
+SRC_TOOL = re.compile(r"^(create|duplicate|clone|copy|make|spawn|place|add|apply|assign|attach|instantiate|replace)", re.I)
+SRC_DENY = re.compile(r"delete|remove|rename|move|save|import|export|cvar|console|python|exit|quit|restart|shutdown", re.I)
+PLACE_TOOL = re.compile(r"^(spawn|place|add_?actor|create_?entity|instantiate)", re.I)
+
+
+def _lab_form(s):
+    """UEFN names objects of the open project /<project-guid>/<project-name>...: same thing as /<project-name>..."""
+    return _GUID.sub("/", s, 1) if (AGGR and _GUID.match(s)) else s
+
+
+def _source_ref_ok(tool, s, strs):
+    """Laboratory only: a SOURCE reference outside the lab (a template, a class, a catalog asset) is fine when the tool creates
+    something new, and the result lands inside the lab (another path of the call is inside it) or in the level (the level is the lab)."""
+    if not AGGR or SRC_DENY.search(tool):
+        return False
+    if not ((SRC_ROOTS.match(s) and SRC_TOOL.match(tool)) or (CAT_ROOTS.match(s) and CAT_TOOL.match(tool))):
+        return False
+    return bool(PLACE_TOOL.match(tool)) or any(x.startswith("/") and x != s and _path_ok(x) for x in strs)
 
 
 def _path_ok(s):
+    s = _lab_form(s)
+    if AGGR and (s == "/" or re.search(r"[\s*?\[\]()|\\^$+]", s)):
+        return True  # the root folder, or a regex / glob pattern (Grep "/Bad.*Value"): not an asset path
+    if AGGR and re.match(r"/_Verse\.%s-" % re.escape(ROOT.strip("/")), s):
+        return True  # the lab's own Verse classes (/<guid>/_Verse.<project>-<module>)
+    if AGGR and any(re.match(re.escape(r) + r"([/.:]|$)", s) for r in [ROOT] + EXTRA):
+        return True
     base = s.split(":", 1)[0]
     if s.startswith(("/Script/", "/Engine/")) or (s.endswith("_C") and s.startswith(("/Game/Valkyrie/UMG/", ROOT + "/VerseUIKit/Widgets/"))):
         return True
@@ -100,11 +173,18 @@ def lab_check():
         return "laboratory mode needs the file Claude/LAB-PROJECT.txt (the owner creates it in the disposable project)"
     if not ROOT.startswith("/") or len(ROOT) < 3:
         return "laboratory mode needs LAB_ROOT, for example /lab_mcp"
-    try:
-        lvl = m.parse_text(client().call("call_tool", {"toolset_name": "editor_toolset.toolsets.scene.SceneTools", "tool_name": "get_current_level", "arguments": {}}))
-        lvl = (lvl or {}).get("returnValue", "") if isinstance(lvl, dict) else ""
-    except Exception as e:  # noqa
-        return "could not read the open level to confirm the laboratory: %s" % str(e)[:80]
+    lvl, err = "", None
+    for _try in range(2):  # one retry: right after a session change the MCP can answer HTTP 400 / time out once
+        try:
+            lvl = m.parse_text(client().call("call_tool", {"toolset_name": "editor_toolset.toolsets.scene.SceneTools", "tool_name": "get_current_level", "arguments": {}}))
+            lvl = (lvl or {}).get("returnValue", "") if isinstance(lvl, dict) else ""
+            err = None
+            break
+        except Exception as e:  # noqa
+            err = e
+            time.sleep(2)
+    if err is not None:
+        return "could not read the open level to confirm the laboratory: %s" % str(err)[:80]
     lv = str(lvl)
     # UEFN reports the project's own level as /<project-guid>/<project-name>: accept it when the name is the LAB_ROOT name
     guid_ok = re.fullmatch(r"/[0-9a-fA-F-]{36}/" + re.escape(ROOT.strip("/")) + r"(/.*)?", lv) is not None
@@ -129,7 +209,7 @@ def refusal(ts, tool, args):
         if _is_read(ts, tool):
             return ""
         for s in strs:
-            if s.startswith("/") and not _path_ok(s):
+            if s.startswith("/") and not _path_ok(s) and not _source_ref_ok(tool, s, strs):
                 return "refused even in the laboratory, path outside %s: %s" % (ROOT, s[:80])
         return ""
     if NEVER.search(tool):
@@ -167,6 +247,8 @@ def call(ts, tool, args=None, peek=600):
             pass
     why = refusal(ts, tool, args)
     rec = {"t": time.strftime("%H:%M:%S"), "toolset": ts, "tool": tool, "args": json.dumps(args)[:400]}
+    if SRC != "agent":
+        rec["src"] = SRC  # "battery": made by mcp_cover (coverage, soak, session); these rows are not lessons
     if why:
         rec.update(r="refused", why=why)
         _log(rec)

@@ -295,7 +295,7 @@ header{align-items:baseline;padding:14px 4px 12px;margin-bottom:16px;}
   </div>
 </div>
 
-<script>document.getElementById('flowKitVersion').textContent = 'v1.106.0';</script>
+<script>document.getElementById('flowKitVersion').textContent = 'v1.107.0';</script>
 <script>
 // v1.78.0 — REAL state, replacing the old always-on decorative loop. Same source of truth the
 // main console (agent-console.html) uses: poll /log every second, replay start/stop events into
@@ -540,7 +540,7 @@ function updateStages(){
     e.tok.innerHTML = s.ic + (st === 'done' ? '<span class="bd">✓</span>' : '') + (st === 'active' ? '<span class="tag">' + (mfTaskId || 'now') + ' ▶</span>' : '');
     e.tok.style.width = e.tok.style.height = (st === 'active' ? 46 : 40) + 'px';
     let vals = [], bl = 0, br = 0;
-    if (!s.a){ vals = s.key === 'intake' ? [['task', mfTaskId || '—']] : [['step', 'no agent']]; }
+    if (!s.a){ vals = s.key === 'intake' ? [['task', mfTaskId || '—']] : []; }
     else {
       const co = costMap[s.a], v = verd[s.a];
       const tok = co ? fmtTok(co.total) : (costsOk ? '0' : '—');
@@ -553,7 +553,7 @@ function updateStages(){
       if (co && costSum > 0) bl = Math.round(100 * co.total / costSum);
       if (v && v.total > 0) br = Math.round(100 * v.pass / v.total);
     }
-    e.kv.innerHTML = vals.map(x => '<span>' + esc(x[0]) + '<b' + (String(x[1]).length > 9 ? ' style="font-size:11px"' : '') + '>' + esc(x[1]) + '</b></span>').join('');
+    e.kv.innerHTML = (!s.a && s.key !== 'intake') ? '<span style="font-size:10px">no events of its own<br>shown from the stations around it</span>' : vals.map(x => '<span>' + esc(x[0]) + '<b' + (String(x[1]).length > 9 ? ' style="font-size:11px"' : '') + '>' + esc(x[1]) + '</b></span>').join('');
     e.bl.style.width = bl + '%'; e.br.style.width = br + '%';
     const z = zc[s.z]; z[2]++; if (st === 'done') z[0]++; if (st === 'active') z[1]++;
     if (st === 'done' || st === 'active') maxD = Math.max(maxD, upos(i).d);

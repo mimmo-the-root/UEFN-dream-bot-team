@@ -635,7 +635,29 @@ def summary(dirpath=None):
         out["last_full"] = json.load(open(os.path.join(d, "auto.json"), encoding="utf-8")).get("last_full", 0)
     except (OSError, ValueError):
         out["last_full"] = 0
+    try:
+        import recipes_status
+        out["recipes"] = recipes_status.progress() or None
+    except Exception:
+        out["recipes"] = None
     return out
+
+
+def lab_known():
+    """What the lab learned about each tool (mcp-known-tools.json, built by tool/build_known_tools.py). {} if absent."""
+    try:
+        return json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "mcp-known-tools.json"), encoding="utf-8")).get("tools", {})
+    except (OSError, ValueError):
+        return {}
+
+
+def lab_text(row):
+    """' | lab: ok' / ' | lab: refused (why) | ask the owner first' - empty when the lab knows nothing."""
+    if not row:
+        return ""
+    s = row.get("s", "never")
+    out = " | lab: " + {"never": "not tried"}.get(s, s) + (" (%s)" % row["why"] if row.get("why") else "")
+    return out + (" | ask the owner first" if row.get("c") else "")
 
 
 def find(words, dirpath=None, limit=25):
@@ -650,6 +672,7 @@ def find(words, dirpath=None, limit=25):
     except (OSError, ValueError):
         tested = {}
     known = td.kit_known()
+    lab = lab_known()
     ws = [w.lower() for w in words]
     scored = []
     for k, e in tools.items():
@@ -661,7 +684,7 @@ def find(words, dirpath=None, limit=25):
     for _, k in scored[:limit]:
         e = tools[k]
         t = tested.get(k)
-        print("%s | %s | %s%s | %s" % (k, e.get("a", "?"), "tested ok" if t == "ok" else ("test failed" if t else "not tested"), " | kit uses it" if td.short(k) in known else "", e.get("d", "")))
+        print("%s | %s | %s%s%s | %s" % (k, e.get("a", "?"), "tested ok" if t == "ok" else ("test failed" if t else "not tested"), " | kit uses it" if td.short(k) in known else "", lab_text(lab.get(k)), e.get("d", "")))
     if not scored:
         print("No tool matches %s in the map (%d tools)." % (" ".join(words), len(tools)))
     return 0

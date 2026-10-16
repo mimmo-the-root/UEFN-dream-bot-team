@@ -59,3 +59,8 @@ All through `call_tool`. Reference parameters take `{"refPath": "..."}`.
 - `AssetTools/find_assets {folder_path}` alone does NOT limit the answer to the folder (it returned engine paths): always add `name`.
 - `ObjectTools/set_properties` with the JSON text form returned true. `get_properties` rejects the guessed argument shape (not solved; use `list_properties` to read).
 - `AssetTools/duplicate` returns false when the target already exists.
+
+## When the editor's MCP stops answering (lab, 2026-10-15)
+
+- `SessionToolset/StartSession` came back `Failed: Validation failed` and from then on every MCP call timed out (90 s) and later refused the connection, while the editor process and port 8000 looked fine. The cause was UEFN's **Revision Control** having disconnected. Reconnecting it was enough: no editor restart. Check Revision Control first, before restarting anything or blaming the project.
+- An agent that sees this must stop, say so, and ask the owner to look at the UEFN window (dialogs, Revision Control, a leftover play client). It must not retry in a loop, and it never closes or kills a running editor. Only after a crash (no editor process, crash evidence) and only with the owner's opt-in (`auto-recover: yes` in Claude/LAB-PROJECT.txt), `python Claude/hooks/uefn_session.py recover` may start it again (max 2 attempts in 30 min).

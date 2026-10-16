@@ -372,6 +372,23 @@
   footer details.howto{margin-top:8px;border-top:1px solid var(--line-soft);padding-top:8px;}
   footer details.howto summary{cursor:pointer;color:var(--cyan);font-size:11px;letter-spacing:.5px;}
   footer details.howto[open] summary{margin-bottom:8px;}
+
+  /* Planets and moons (v1.107) */
+  .gtint{position:absolute;left:0;top:0;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,color-mix(in srgb,var(--gc) 14%,transparent),transparent 70%);border:1px dashed color-mix(in srgb,var(--gc) 35%,transparent);}
+  .glabel{position:absolute;left:0;top:0;z-index:2;font-size:10px;font-weight:700;letter-spacing:1.4px;pointer-events:none;}
+  .gqueue{position:absolute;left:0;top:0;z-index:4;background:var(--red,#ff4d5e);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:9px;pointer-events:none;}
+  .chain-num{position:absolute;left:0;top:0;z-index:4;width:18px;height:18px;border-radius:50%;background:#3dff9a;color:#04110a;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+  .orbit-svg .tok-arc{fill:none;stroke-width:6;stroke-linecap:round;opacity:.85;}
+  .orbit-svg .tok-lab{font-size:10px;text-anchor:middle;}
+  .node{cursor:pointer;} .node.selected .node-blob{outline:2px dashed #fff;outline-offset:4px;}
+  .detailcard,.pinrow,.youbanner{margin:10px 14px 0;border:1px solid var(--line,#2a313c);border-radius:10px;padding:8px 12px;font-size:12px;}
+  .youbanner{border-color:var(--red,#ff4d5e);background:rgba(255,77,94,.12);}
+  .detailcard .dim,.pincard .dim,.pinhead{color:var(--dim,#8b94a3);font-size:11px;} .pinbtn{margin-top:6px;background:transparent;color:var(--cyan,#4fd8ff);border:1px solid var(--cyan,#4fd8ff);border-radius:12px;padding:2px 10px;cursor:pointer;font-size:11px;}
+  .pinrow{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;} .pinhead{width:100%;} .pincard{flex:1;min-width:140px;border:1px solid;border-radius:8px;padding:6px 10px;cursor:pointer;}
+  .iconbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 14px;padding:8px;border:1px solid var(--line,#2a313c);border-radius:10px;}
+  .ibtn{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;background:transparent;border:0;color:var(--dim,#8b94a3);cursor:pointer;font:inherit;}
+  .ibtn .ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #2a3a5a;opacity:.45;font-size:16px;} .ibtn.on .ic{border-color:#4fd8ff;opacity:1;background:#16324a;} .ibtn .il{font-size:9px;}
+  .ibtn .ib{position:absolute;top:-3px;right:-2px;background:#ff6b7a;color:#fff;font-size:9px;font-weight:700;border-radius:8px;padding:0 5px;}
 </style>
 </head>
 <body>
@@ -380,7 +397,7 @@
     <div class="line prompt"><img class="kit-logo" src="data:image/png;base64,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" alt="" width="30" height="30" style="vertical-align:middle;border-radius:6px;margin-right:8px">&gt; <span class="title-text">DREAM BOT TEAM AGENT CONSOLE FOR UEFN<span class="blink">_</span></span><span class="kit-version" id="kitVersion" title="This is the version baked into the HTML file this tab loaded. If you just replaced the file and this still shows the old number, hard-refresh this tab (Ctrl/Cmd+Shift+R) — a running tab doesn't notice a file changing on disk on its own."></span></div>
     <div class="termlines-side">
       <div class="view-switch"><a href="agent-console.html" class="on">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a><a href="agent-console-news.html">What&#39;s new</a></div>
-      <div class="line comment"># seventeen agents. one chief of staff. every change still waits on you.</div>
+      <div class="line comment"># twenty-two agents. one chief of staff. every change still waits on you.</div>
       <div class="line status" id="statusLine">… connecting to local server</div>
     </div>
   </div>
@@ -442,6 +459,10 @@
           </div>
         </div>
       </div>
+      <div class="youbanner" id="youBanner" hidden></div>
+      <div class="detailcard" id="detailCard" hidden></div>
+      <div class="pinrow" id="pinRow" hidden></div>
+      <div class="iconbar" id="iconBar"></div>
     </div>
 
     <div class="terminal-panel">
@@ -503,7 +524,7 @@
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.106.0";
+const KIT_VERSION = "v1.107.0";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -527,6 +548,11 @@ const AGENTS = [
   {id:"skill-reflector",       name:"skill-reflector",        icon:"🧬", color:"cyan",    blurb:"queues lessons for the Skills page"},
   {id:"coder-prep",            name:"coder-prep",             icon:"🧩", color:"green",   blurb:"coder's helper: writes the Verse of one area in parallel"},
   {id:"second-brain-scout",    name:"second-brain-scout",     icon:"🔭", color:"teal",    blurb:"trainer's helper: reads one area, read-only, cheap model"},
+  {id:"mcp-build",            name:"mcp-build",              icon:"🔨", color:"cyan",    blurb:"UEFN MCP: builds and edits assets and Verse, one writer at a time"},
+  {id:"mcp-session",          name:"mcp-session",            icon:"⏱️", color:"cyan",    blurb:"UEFN MCP: play sessions, logs, regression runs"},
+  {id:"mcp-level",            name:"mcp-level",              icon:"🗺️", color:"cyan",    blurb:"UEFN MCP: level, devices and placement"},
+  {id:"mcp-ui-assets",        name:"mcp-ui-assets",          icon:"🖼️", color:"cyan",    blurb:"UEFN MCP: UI widgets and data assets"},
+  {id:"mcp-material-vfx",     name:"mcp-material-vfx",       icon:"✨", color:"cyan",    blurb:"UEFN MCP: materials and Niagara"},
 ];
 
 // Two special, non-subagent nodes requested alongside the real agents — they don't get
@@ -1288,7 +1314,137 @@ async function pollSession(){
 // Nodes that aren't real agents get their spoke pointed at the agent that actually drives them,
 // instead of at the hub — Obsidian Vault isn't a bot the Chief of Staff talks to directly, it's
 // storage that second-brain-librarian writes into, so its line should visually say that.
-const SPOKE_TARGET_OVERRIDE = { "__obsidian_vault__": "second-brain-librarian", "coder-prep": "coder", "second-brain-scout": "second-brain-trainer" }; // helpers hang off the agent that dispatches them
+// --- Planets and moons ----------------------------------------------------------------------
+// Five groups. The head of each group is a "planet" that orbits the chief of staff; the rest of
+// the group are its "moons", orbiting the planet the other way and more slowly.
+const GROUPS = [
+  {id:"build",   name:"BUILD",     color:"#3dff9a", head:"coder",              moons:["coder-prep","intent-gate","project-bootstrap"]},
+  {id:"control", name:"CONTROL",   color:"#ffb454", head:"intent-reviewer",    moons:["compliance-reviewer","qa-regression","codebase-auditor"]},
+  {id:"release", name:"RELEASE",   color:"#ff5fa8", head:"release-gate",       moons:["planner-docs","growth-manager"]},
+  {id:"memory",  name:"MEMORY",    color:"#b08cff", head:"__obsidian_vault__", moons:["second-brain-librarian","second-brain-trainer","second-brain-scout","skill-reflector","template-reader","materials-expert"]},
+  {id:"mcp",     name:"UEFN MCP",  color:"#4fd8ff", head:"__mcp_server__",     moons:["mcp-build","mcp-session","mcp-level","mcp-ui-assets","mcp-material-vfx"]},
+];
+const GROUP_OF = {}; const SPOKE_TARGET_OVERRIDE = {};
+GROUPS.forEach((g, gi) => { GROUP_OF[g.head] = gi; g.moons.forEach(m => { GROUP_OF[m] = gi; SPOKE_TARGET_OVERRIDE[m] = g.head; }); });
+const PLANET_DEG_PER_SEC = 1.4, MOON_DEG_PER_SEC = -0.9;
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+vaultTrainerSpoke.style.display = "none"; ringGuide.style.display = "none";
+
+// View switches (icon bar), remembered in this browser.
+const VIEW = {tok:true, queue:true, chain:true, card:true, pin:true, you:true};
+try { Object.assign(VIEW, JSON.parse(localStorage.getItem("dbt.view") || "{}")); } catch(e){}
+let PINS = []; try { PINS = JSON.parse(localStorage.getItem("dbt.pins") || "[]"); if (!Array.isArray(PINS)) PINS = []; } catch(e){ PINS = []; }
+let selectedId = null;
+const groupTokens = GROUPS.map(() => 0); const agentTokens = {};
+
+const tintEls = [], labelEls = [], queueEls = [], tokArcs = [], tokLabs = [];
+const NS_SVG = "http://www.w3.org/2000/svg";
+GROUPS.forEach((g, i) => {
+  const t = document.createElement("div"); t.className = "gtint"; t.style.setProperty("--gc", g.color); stage.insertBefore(t, stage.firstChild); tintEls.push(t);
+  const l = document.createElement("div"); l.className = "glabel"; l.style.color = g.color; l.textContent = g.name; stage.appendChild(l); labelEls.push(l);
+  const q = document.createElement("div"); q.className = "gqueue"; q.hidden = true; stage.appendChild(q); queueEls.push(q);
+  const a = document.createElementNS(NS_SVG, "path"); a.setAttribute("class", "tok-arc"); a.setAttribute("stroke", g.color); svg.appendChild(a); tokArcs.push(a);
+  const tx = document.createElementNS(NS_SVG, "text"); tx.setAttribute("class", "tok-lab"); tx.setAttribute("fill", g.color); svg.appendChild(tx); tokLabs.push(tx);
+});
+const chainEls = [];
+function chainBadge(i){ if (!chainEls[i]){ const d = document.createElement("div"); d.className = "chain-num"; stage.appendChild(d); chainEls[i] = d; } return chainEls[i]; }
+
+async function loadGroupTokens(){
+  if (!VIEW.tok) return;
+  try {
+    const j = await (await fetch("/agent-costs", {cache:"no-store"})).json();
+    if (!j || !j.available || !Array.isArray(j.agents)) return;
+    groupTokens.fill(0);
+    j.agents.forEach(a => { agentTokens[a.agent] = a.total || 0; const gi = GROUP_OF[a.agent]; if (gi !== undefined) groupTokens[gi] += a.total || 0; });
+  } catch(e){}
+}
+loadGroupTokens(); setInterval(loadGroupTokens, 90000);
+
+function nodeState(id){
+  const node = nodeEls[id]; if (!node) return "idle";
+  const led = node.querySelector(".node-led"); if (!led) return "idle";
+  return led.classList.contains("led-broken") ? "broken" : led.classList.contains("led-active") ? "working" : led.classList.contains("led-waiting") ? "waiting" : "idle";
+}
+function nameOf(id){ const a = ALL_NODES.find(x => x.id === id); return a ? a.name : id; }
+function colorOf(id){ const gi = GROUP_OF[id]; return gi === undefined ? "#9fb0d0" : GROUPS[gi].color; }
+function savePins(){ try { localStorage.setItem("dbt.pins", JSON.stringify(PINS)); } catch(e){} }
+function saveView(){ try { localStorage.setItem("dbt.view", JSON.stringify(VIEW)); } catch(e){} }
+
+stage.addEventListener("click", e => {
+  const n = e.target.closest && e.target.closest(".node"); if (!n) return;
+  selectedId = n.id.replace(/^node-/, ""); renderPanels();
+});
+const barEl = document.getElementById("iconBar");
+if (barEl){
+  [["tok","🪙","Token"],["queue","⏳","Queue"],["chain","🔗","Chain"],["card","📋","Detail"],["pin","📌","Pins"],["you","🧑","Needs you"]].forEach(([k, ic, lab]) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "ibtn"; b.dataset.k = k; b.title = lab;
+    b.innerHTML = '<span class="ic">' + ic + '</span><span class="il">' + lab + '</span><span class="ib" hidden></span>';
+    b.addEventListener("click", () => { VIEW[k] = !VIEW[k]; saveView(); if (k === "tok" && VIEW.tok) loadGroupTokens(); renderPanels(); });
+    barEl.appendChild(b);
+  });
+}
+function fmtTok(n){ return n >= 1e6 ? (n/1e6).toFixed(1) + "M" : n >= 1e3 ? Math.round(n/1e3) + "k" : String(n || 0); }
+function renderPanels(){
+  if (barEl) Array.prototype.forEach.call(barEl.children, b => { b.classList.toggle("on", !!VIEW[b.dataset.k]); });
+  const card = document.getElementById("detailCard"), pinRow = document.getElementById("pinRow"), you = document.getElementById("youBanner");
+  if (card){
+    if (VIEW.card && selectedId && nodeEls[selectedId]){
+      const node = nodeEls[selectedId], pinned = PINS.includes(selectedId), gi = GROUP_OF[selectedId];
+      const task = (node.querySelector(".node-task") || {}).textContent || "";
+      card.hidden = false; card.style.borderColor = colorOf(selectedId);
+      card.innerHTML = '<b style="color:' + colorOf(selectedId) + '">' + esc(nameOf(selectedId)) + '</b> <span class="dim">· ' + (gi === undefined ? "other" : GROUPS[gi].name) + ' · ' + nodeState(selectedId) + '</span>' +
+        '<div>' + esc(task) + '</div><div class="dim">runs this session: ' + (counts[selectedId] || 0) + ' · tokens (30 days): ' + fmtTok(agentTokens[selectedId] || 0) + '</div>' +
+        '<button type="button" class="pinbtn">' + (pinned ? "Unpin" : "📌 Pin") + '</button>';
+      card.querySelector(".pinbtn").onclick = () => { if (PINS.includes(selectedId)) PINS = PINS.filter(x => x !== selectedId); else PINS.push(selectedId); savePins(); renderPanels(); };
+    } else card.hidden = true;
+  }
+  if (pinRow){
+    PINS = PINS.filter(id => nodeEls[id]);
+    if (VIEW.pin && PINS.length){
+      pinRow.hidden = false; pinRow.innerHTML = '<div class="pinhead">📌 Pinned agents</div>' + PINS.map(id =>
+        '<div class="pincard" data-id="' + esc(id) + '" style="border-color:' + colorOf(id) + '"><b style="color:' + colorOf(id) + '">' + esc(nameOf(id)) + '</b><div class="dim">' + nodeState(id) + ' · ' + (counts[id] || 0) + ' runs</div><div class="dim">' + fmtTok(agentTokens[id] || 0) + ' tokens (30 days)</div></div>').join("");
+      Array.prototype.forEach.call(pinRow.querySelectorAll(".pincard"), c => { c.onclick = () => { selectedId = c.dataset.id; renderPanels(); }; });
+    } else pinRow.hidden = true;
+  }
+  if (you){
+    const need = approvalAlert.classList.contains("show");
+    you.hidden = !(VIEW.you && need);
+    if (!you.hidden) you.innerHTML = '🧑 <b>Needs you:</b> ' + esc(document.getElementById("approvalWho").textContent);
+    const yb = barEl && barEl.querySelector('[data-k="you"] .ib'); if (yb){ yb.hidden = !need; yb.textContent = need ? "1" : ""; }
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".node"), n => n.classList.toggle("selected", n.id === "node-" + selectedId));
+}
+setInterval(renderPanels, 700); renderPanels();
+
+function updateOverlays(ts, rect, cx, cy, positions, offP){
+  const R = Math.min(rect.width, rect.height) / 2 - 8, total = groupTokens.reduce((a, b) => a + b, 0);
+  let a0 = -90 + offP;
+  GROUPS.forEach((g, i) => {
+    const hp = positions[g.head];
+    if (hp){
+      const rm = Math.min(rect.width, rect.height) * (g.moons.length > 4 ? 0.14 : 0.115);
+      const tint = tintEls[i]; tint.style.width = tint.style.height = (2 * (rm + 36)) + "px"; tint.style.transform = "translate(" + (hp.x - rm - 36) + "px," + (hp.y - rm - 36) + "px)";
+      const lab = labelEls[i]; lab.style.transform = "translate(" + hp.x + "px," + (hp.y - rm - 44) + "px) translateX(-50%)";
+      let wait = 0; [g.head].concat(g.moons).forEach(id => { if (nodeState(id) === "waiting") wait++; });
+      const q = queueEls[i]; q.hidden = !(VIEW.queue && wait); if (!q.hidden){ q.textContent = "⏳ " + wait; q.style.transform = "translate(" + (hp.x + 22) + "px," + (hp.y - 40) + "px)"; }
+    }
+    const arc = tokArcs[i], lt = tokLabs[i];
+    if (VIEW.tok && total > 0){
+      const span = groupTokens[i] / total * 360, a1 = a0 + Math.max(2, span) - 2, big = (a1 - a0) > 180 ? 1 : 0, rad = d => d * Math.PI / 180;
+      arc.setAttribute("d", "M" + (cx + R * Math.cos(rad(a0))) + " " + (cy + R * Math.sin(rad(a0))) + " A" + R + " " + R + " 0 " + big + " 1 " + (cx + R * Math.cos(rad(a1))) + " " + (cy + R * Math.sin(rad(a1))));
+      arc.style.display = ""; const am = rad((a0 + a1) / 2); lt.setAttribute("x", cx + (R - 14) * Math.cos(am)); lt.setAttribute("y", cy + (R - 14) * Math.sin(am) + 3); lt.textContent = fmtTok(groupTokens[i]); lt.style.display = "";
+      a0 += span;
+    } else { arc.style.display = "none"; lt.style.display = "none"; }
+  });
+  const chain = []; active.forEach(al => { if (!chain.includes(al.agent)) chain.push(al.agent); });
+  chainEls.forEach(e => { if (e) e.hidden = true; });
+  if (VIEW.chain) chain.slice(0, 9).forEach((id, i) => {
+    const pos = positions[id]; if (!pos) return;
+    const tid = SPOKE_TARGET_OVERRIDE[id], tp = (tid && positions[tid]) ? positions[tid] : {x: cx, y: cy};
+    const b = chainBadge(i); b.hidden = false; b.textContent = i + 1; b.style.transform = "translate(" + ((pos.x + tp.x) / 2) + "px," + ((pos.y + tp.y) / 2) + "px) translate(-50%,-50%)";
+  });
+}
+
 
 function layoutOrbit(ts){
   const rect = stage.getBoundingClientRect();
@@ -1296,22 +1452,23 @@ function layoutOrbit(ts){
   const halfDim = Math.min(rect.width, rect.height) / 2;
   const rx = Math.max(rect.width / 2 * 0.62, rect.width / 2 - 72), ry = Math.max(rect.height / 2 * 0.62, rect.height / 2 - 64);  // one shared ring, an ellipse that fills the stage so 20 names do not collide
   const nodeScale = Math.min(1, Math.max(0.7, rect.width / 820));  // narrow stage: smaller cards instead of overlapping ones
-  const offsetDeg = (ts / 1000) * ROTATE_DEG_PER_SEC;
+  const offP = (ts / 1000) * PLANET_DEG_PER_SEC, offM = (ts / 1000) * MOON_DEG_PER_SEC;
   const positions = {};
-
-  ringGuide.setAttribute("cx", cx); ringGuide.setAttribute("cy", cy); ringGuide.setAttribute("rx", rx); ringGuide.setAttribute("ry", ry);
-
-  ALL_NODES.forEach(a => {
-    const node = nodeEls[a.id];
-    if (!node) return;
-    const k = a.id === "__obsidian_vault__" ? 0.68 : 1;  // the Vault sits between its two brains, a bit closer to the hub, so its name never covers theirs
-    const baseAngle = parseFloat(node.dataset.angle) || 0;
-    const angleRad = (baseAngle + offsetDeg - 90) * Math.PI / 180;
-    const x = cx + rx * k * Math.cos(angleRad);
-    const y = cy + ry * k * Math.sin(angleRad);
-    node.style.transform = `translate(${x}px, ${y}px) scale(${nodeScale})`;
-    positions[a.id] = {x, y};
+  const minD = Math.min(rect.width, rect.height);
+  function place(id, x, y, sc){ const node = nodeEls[id]; if (!node) return; node.style.transform = `translate(${x}px, ${y}px) scale(${sc})`; positions[id] = {x, y}; }
+  GROUPS.forEach((g, gi) => {
+    const ang = (gi / GROUPS.length) * 360 - 90 + offP;
+    const hx = cx + rect.width * 0.265 * Math.cos(ang * Math.PI / 180), hy = cy + rect.height * 0.265 * Math.sin(ang * Math.PI / 180);
+    place(g.head, hx, hy, nodeScale * 0.95);
+    const rm = minD * (g.moons.length > 4 ? 0.14 : 0.115);
+    g.moons.forEach((m, j) => {
+      const a = ((j / g.moons.length) * 360 + 35 + offM) * Math.PI / 180;
+      place(m, hx + rm * Math.cos(a), hy + rm * Math.sin(a), nodeScale * 0.72);
+    });
   });
+  place("__you__", cx - minD * 0.17, cy + minD * 0.1, nodeScale * 0.8);
+  const others = ALL_NODES.filter(a => positions[a.id] === undefined && nodeEls[a.id]);
+  others.forEach((a, i) => { const ang = ((i / Math.max(1, others.length)) * 360 + 20 + offM) * Math.PI / 180; place(a.id, cx + minD * 0.2 * Math.cos(ang), cy + minD * 0.2 * Math.sin(ang), nodeScale * 0.7); });
 
   ALL_NODES.forEach(a => {
     const node = nodeEls[a.id];
@@ -1359,6 +1516,7 @@ function layoutOrbit(ts){
     vaultTrainerSpoke.setAttribute("stroke", trainerActive ? "rgba(45,212,191,0.65)" : "rgba(45,212,191,0.22)");
   }
 
+  updateOverlays(ts, rect, cx, cy, positions, offP);
   requestAnimationFrame(layoutOrbit);
 }
 

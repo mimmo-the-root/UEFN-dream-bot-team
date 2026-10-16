@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.105.0"
+   "tag": "v1.106.0"
   },
   "state": {
    "genres": [],
@@ -22,19 +22,19 @@
   }
  },
  "release": {
-  "date": "2026-10-15",
+  "date": "2026-10-16",
   "items": [
-   "New skill `verse-ui-kit`: how to build and wire in-game screens with or without Epic's free Verse UI Kit (the kit is a teacher and a shortcut, never a requirement; a section covers building UI without it) (focus, gamepad and keyboard, Back, shared click events, public modules, the order compile, save, build), written in this kit's own words, with code snippets marked \"not compiled\" until `/verse-check` builds them. The coder and `game-ui-designer` point to it.",
-   "`/ui-kit-check`: tells whether the kit is installed (optional: it never blocks a task), whether its separate `AGENTS.md` download is in place, and whether Epic changed it since the version this kit was written against. Only a SHA-256 fingerprint is compared; Epic's guide is never copied into the kit because the Fab licence does not allow handing it on. It is kept once on your computer for all projects (`~/.claude/skills/verse-ui-kit/references/epic/`, stored with `--store`), not in each project. `--diff` and `--accept` support the review after an Epic update; nothing changes without your yes.",
-   "The kit maps UEFN's MCP by itself, and tests it. At every session start it checks whether the MCP answers; if so, and the last full map is older than six hours, it maps every toolset and tool in the background (`mcp_map.py`, no AI tokens, silent when UEFN is closed) and calls the safe tools to see that they work: read-only, no arguments, never a writer. First real map on UEFN 42.40: 28 toolsets, 388 tools, of which the kit documented 6. One private catalog for all projects (it holds Epic's descriptions, so it stays on your computer), with a read or write guess and a tested mark per tool, a NEWS file (added, removed, changed, stopped working), a history and a change log. The next session start tells the agent, who tells you in two lines and proposes ideas; nothing changes without your yes. It works whether or not a kit release is published.",
-   "Console, Skills page: new \"UEFN MCP\" section with the share of tools the kit uses (e.g. 6 of 388), read and write counts, the test results, tools that stopped working and the latest news. Served by both console servers (`/uefn-mcp-map`).",
-   "Agents use the whole MCP: the coder, QA and bootstrap agents search the map (`mcp_map.py --find <words>`, pre-approved) before working through UEFN and never guess a tool name; `mcp-tool-contracts` has a new first contract for it. `/mcp-snapshot` runs the same mapping on demand; `/kit-doctor` notes a missing or month-old map. New manual chapter \"The MCP engine\". The mapper is tested against a fake MCP server (tool lists, event-stream replies, odd replies, changes, tools that stop working).",
-   "Rule: when a file cannot be deleted, it is parked in `_to_delete`. New block `no-delete` in every project's `CLAUDE.md` (and rule 15 in the base rules): if a delete is refused or not possible, agents move the file to `_to_delete/<date-time>/` and tell you; you empty the folder. The kit follows it too, also in updates: removing a skill file from the console and `sync-skills.ps1` replacing a skill try to delete first and park the old copy in `_to_delete` only if the system refuses. Scratch files (locks, temp, markers) are simply removed. `_to_delete/` is already ignored by git.",
-   "Batching proven: the MCP's `ProgrammaticToolset/execute_tool_script` ran four read calls in a single request on a real project. `read-tools-proven.md` now documents the script shape, the widget and actor read chains, and that object references are plain path strings.",
-   "Console, Docs page: it now follows the files. The page kept the first copy of STATUS, ROADMAP and BUGS for as long as the tab stayed open, so documents written meanwhile never appeared. It now checks the six documents every 5 seconds and redraws only when one changed."
+   "Console as a small solar system. The chief of staff is the sun; five planets (BUILD, CONTROL, RELEASE, MEMORY, UEFN MCP) orbit it, and every other agent is a moon turning the other way, more slowly. The five MCP sub-agents are on the map (22 agents). Coloured arcs show the tokens of each group, a click opens a detail card, agents can be pinned, a `\u23f3` label marks a group with agents waiting, numbers show the chain of working agents, and a red line says when something needs you. Six round switches under the map show or hide each of these and are remembered.",
+   "14 UEFN MCP skills and 5 MCP sub-agents (`mcp-build`, `mcp-session`, `mcp-level`, `mcp-ui-assets`, `mcp-material-vfx`) ship in the kit, with references for ten areas (`mcp-tool-contracts/references/areas/`: 246 recipes, coverage 357 of 388 tools). The `coder` can hand UEFN work to them (one editor writer at a time).",
+   "Recipes know how sure they are: `unverified`, `tool-ok` (the tool answered once in the lab) or `proven` (the same kind of call worked in real work). A small hook (`mcp_work_log.py`, on success and on failure) notes real calls locally; `recipes_status.py --report` shows the count and the Skills page shows it as four rings, a bar per area and a weekly line.",
+   "Share what you proved: in the Skills tab, \"Contribute to the community\" now has a line for the UEFN MCP recipes you proved. It sends counts only, never arguments, paths or names, and you finish on GitHub yourself.",
+   "UEFN restart after a crash (opt-in): `uefn_session.py` tells what the editor is doing (`status`) and starts it again only after a crash (`recover`: no editor running, last run a crash, your opt-in, max 2 tries in 30 minutes). A running editor is never closed or killed. Tested live on a throw-away project.",
+   "Known tools: `mcp-known-tools.json` (388 tools: what the lab found for each) and `mcp_map.py --find` shows \"ask the owner first\" where it applies. `mcp_lessons.py` lists recurring MCP errors that the skills do not mention yet.",
+   "Lab guard, second pass: catalogue mounts accepted only as the source of create/duplicate/place, `extra-root` for imported models in the same throw-away project, and a token rule for long jobs.",
+   "Fix: a battery that could not reach the MCP is no longer counted as finished."
   ],
-  "tag": "v1.106.0",
-  "title": "v1.106.0 \u2014 Epic's Verse UI Kit"
+  "tag": "v1.107.0",
+  "title": "v1.107.0 \u2014 The MCP, mapped, learned and proven"
  },
  "schema": 1,
  "skills": [],

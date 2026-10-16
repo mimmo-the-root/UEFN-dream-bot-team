@@ -78,3 +78,34 @@ In a laboratory project the kit can test the whole toolset without anyone writin
 Three more suites repeat things to find what a single call hides: `soak` repeats create, edit, compile, save and delete many times and warns if the editor gets slower; `session` runs the game-session loop several times with timings and always stops the session; `mapcheck` confirms the saved map still matches the server.
 
 `Claude/hooks/mcp_queue.py` runs them one after the other. Start it in a second terminal and it waits, spending no tokens, until the exploration is finished, then runs the four suites and writes `QUEUE-REPORT.md`.
+
+## How sure is a recipe?
+
+Each recipe in `recipes.json` has one of three states. **Not verified** means nobody has called it. **Tool answered** (`tool-ok`) means the tool replied once, but that exact call has not been repeated while working. **Proven** means that exact kind of call (same tool, same argument names, same on/off switches; the text and numbers do not matter) worked while someone was really working. Only calls made during real work count (the hook marks them `work`). Calls made by exploring in the lab or by the long batteries never count as proof.
+
+You do not have to do anything. Every call your agents make to UEFN during real work is noted by a small hook (`Claude/hooks/mcp_work_log.py`) in `Claude/logs/explore-ledger.jsonl`, on your computer only, and the proof builds up by itself. To see where you stand, run `python Claude/hooks/recipes_status.py --report`: it only reads and prints, it writes nothing. The Skills tab shows the same count in the UEFN MCP map card: four rings with the percentage of recipes (proven, tool answered, not verified, failed), one bar per area to see where proof is missing, and a small line with the proven recipes of the last weeks.
+
+![The UEFN MCP map card with the recipe progress (demo data)](shot-mcp-map.png)
+
+To share what you proved, open the Skills tab, switch on **Contribute to the community**, and press **Contribute** next to *UEFN MCP recipes you proved*. You see the exact JSON, then finish on GitHub with your own account; nothing is sent by the kit. (From a terminal, `recipes_status.py --export out.json` makes the same file.) The file holds only a count per recipe (how many times it worked, how many failed, the last short error). It has no arguments, no paths and no project names, so it cannot reveal your islands. The maintainer merges the counts from many people and, with `--apply --write`, marks the recipes as proven in the next release. The next battery skips recipes that are already proven.
+
+You can also skip the long batteries completely: if enough people share what they proved, the recipes become `proven` release after release. The batteries only make it faster.
+
+## When UEFN closes or crashes
+
+`Claude/hooks/uefn_session.py` tells what UEFN is doing and, only after a crash, can start it again. It is based on the idea in the open-source `uefn-mcp-server` project (MIT).
+
+- `python Claude/hooks/uefn_session.py status` only looks, never changes anything. It reads the editor log, the running programs and the two ports, and answers one of: not running, starting, hub (the start screen), opening, project open, closing, another project open, open failed, crash dialog.
+- `python Claude/hooks/uefn_session.py recover` starts the project again. It refuses unless all of this is true: no editor is running, the last run ended in a crash, you switched it on (`auto-recover: yes` in `Claude/LAB-PROJECT.txt`, or `UEFN_AUTO_RECOVER=1`; it is off by default), it is the same project, and it has not already tried twice in the last 30 minutes. `--wait 180` waits until the project is open again (about a minute in practice).
+- A normal close is not a crash. A killed editor is a crash. The crash window from Epic's reporter next to a healthy editor is not a crash either.
+- **A running editor is never closed or killed by an agent.** If UEFN stops on the start screen, the agent tells you and you open the project. To avoid that, set UEFN to open the last project on start: `python Claude/hooks/uefn_session.py set-load-on-startup LastProject` (only while UEFN is closed; it keeps a backup).
+
+## Known traps of UEFN 42.20
+
+These are written in the skills too, so the agents avoid them.
+
+- **Static mesh readers that crash the editor:** `get_lod_count`, `get_number_verts`, `get_num_triangles`, `get_num_sections` and `agg_geom.export_text()`. Do not call them.
+- **"Overwrite Existing Object":** creating an asset with a name that already exists opens a window that waits for a click and blocks the MCP. Pick a new name, or check first that it does not exist.
+- **Tools marked `[experimental]`:** ask the owner before using them; the map shows them as "ask the owner first".
+- **Editor in the background:** some calls wait until the UEFN window is in front. If a call hangs, say so instead of retrying in a loop.
+- **Revision Control disconnected:** `StartSession` fails with "Validation failed" and the MCP can hang. Reconnect it first.

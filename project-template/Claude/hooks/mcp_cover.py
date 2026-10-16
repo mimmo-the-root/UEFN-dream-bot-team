@@ -36,6 +36,20 @@ def out_titles(sch):
     return [t] if t and "refPath" in (rv.get("properties") or {}) else []
 
 
+def cover_dir():
+    """UEFN only accepts asset folders in the form /<project-guid>/<project>/...; the bare /<project>/... is rejected
+    ("outside this project's valid asset roots"). The guid is read from the open level."""
+    try:
+        r = L.call("editor_toolset.toolsets.scene.SceneTools", "get_current_level", {})
+        lv = str(L.val(r) or "")
+        mo = re.match(r"^(/[0-9a-fA-F-]{36})/", lv)
+        if mo:
+            return mo.group(1) + L.ROOT + "/Cover"
+    except Exception:  # noqa
+        pass
+    return L.ROOT + "/Cover"
+
+
 class Battery:
     def __init__(self, cover_dir):
         self.cover = cover_dir
@@ -271,7 +285,7 @@ def load_prev():
 
 def suite_coverage(a):
     t0 = time.time()
-    b = Battery(L.ROOT + "/Cover")
+    b = Battery(cover_dir())
     n = b.load()
     prev = load_prev()
     run_no = 1 + max([v.get("run", 0) for v in prev.values()] or [0])
@@ -282,7 +296,7 @@ def suite_coverage(a):
 
 def suite_soak(a):
     """Repeat a full create-edit-compile-save-delete cycle and watch the editor's latency drift."""
-    b = Battery(L.ROOT + "/Cover")
+    b = Battery(cover_dir())
     b.load()
     steps = ["UMGToolSet.UMGToolSet/CreateWidgetBlueprint", "UMGToolSet.UMGToolSet/AddWidget", "UMGToolSet.UMGToolSet/CompileWidgetBlueprint",
              "editor_toolset.toolsets.asset.AssetTools/save_assets", "editor_toolset.toolsets.asset.AssetTools/delete"]
@@ -323,7 +337,7 @@ def suite_session(a):
     """Game-session loop: start, wait, read, stop. Timings per step, flakiness. The session is ALWAYS stopped."""
     S = "ValkyrieToolset.SessionToolset"
     out, ok_loops = [], 0
-    b = Battery(L.ROOT + "/Cover")
+    b = Battery(cover_dir())
     b.load()
     def step(tool, **kw):
         t0 = time.time()
@@ -349,14 +363,25 @@ def suite_session(a):
                 time.sleep(3)
             rec["connected_after_s"] = round(time.time() - t0, 1)
             rec["status"] = str(status)[:60]
+            # StartSession can return "Completed" before the session is ready: StartGame only works once GetGameState says
+            # CanStart AND StartGame stops answering "not currently available" (lab measurement: ~60-80 s after StartSession).
+            t1 = time.time()
             rec["game"] = step("StartGame")
-            time.sleep(5)
+            while not rec["game"][0] and time.time() - t1 < getattr(a, "wait", 180):
+                time.sleep(3)
+                rec["game"] = step("StartGame")
+            rec["game_ready_after_s"] = round(time.time() - t1, 1)
+            t2 = time.time()
             rec["state"] = step("GetGameState")
-            rec["log"] = step("GetClientLogEntries", **({"pattern": "Error"} if "pattern" in (b.cat.get(S + "/GetClientLogEntries", {}).get("in", {}).get("properties") or {}) else {}))
+            while rec["game"][0] and str(rec["state"][2]) != "Running" and time.time() - t2 < min(60, getattr(a, "wait", 180)):
+                time.sleep(2)
+                rec["state"] = step("GetGameState")
+            # the client log needs a non-empty pattern; "No client log was found" is a known answer, kept as a note, not a failure
+            rec["log_note"] = step("GetClientLogEntries", pattern="Log")
             rec["stop_game"] = step("StopGame")
         finally:
             rec["stop_session"] = step("StopSession")
-        loop_ok = all(v[0] for k, v in rec.items() if isinstance(v, tuple))
+        loop_ok = all(v[0] for k, v in rec.items() if isinstance(v, tuple) and k != "log_note")
         ok_loops += 1 if loop_ok else 0
         out.append(rec)
     res = {"suite": "session", "loops": a.n, "clean_loops": ok_loops, "detail": out}
@@ -375,6 +400,7 @@ SUITES = {"coverage": suite_coverage, "soak": suite_soak, "session": suite_sessi
 
 
 def main(argv=None):
+    L.SRC = "battery"  # every ledger row written from here on is a battery probe, not an agent lesson
     ap = argparse.ArgumentParser()
     ap.add_argument("--suite", default="coverage", choices=list(SUITES) + ["all"])
     ap.add_argument("--fraction", type=float, default=1.0)

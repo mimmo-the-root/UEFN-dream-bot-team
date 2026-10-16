@@ -200,6 +200,24 @@ you, one area at a time.
   each for the whole wave after every area is integrated and compiling, not once per area per
   agent — same reasoning as the second-brain handoff above.
 
+## Delegating UEFN MCP work to the MCP sub-agents (optional)
+
+For work that is mostly UEFN MCP calls (a Verse build cycle, a level setup, widgets, materials, a play test), you can orchestrate instead of doing every call yourself. You stay the orchestrator and the only one who talks to the owner; the sub-agents each do ONE narrow task and report back in at most 10 lines.
+
+| Sub-agent | Skills it works from | Model |
+|---|---|---|
+| `mcp-build` | `uefn-verse-build`, `uefn-scripting-batch` | cheap |
+| `mcp-session` | `uefn-session-regression`, `uefn-editor-logs` | mid (gives the verdict) |
+| `mcp-level` | `uefn-level-devices`, `uefn-physics-mesh` | mid |
+| `mcp-ui-assets` | `uefn-ui-widgets`, `uefn-assets-data` | cheap |
+| `mcp-material-vfx` | `uefn-materials`, `uefn-vfx-niagara` | cheap |
+
+- **One editor, one writer.** Sub-agents that write run ONE at a time; only read-only ones may run in parallel. Same reason as the wave above: two concurrent MCP calls or builds race on the one shared instance.
+- **The shape is a diamond.** Fan out the thinking (`coder-prep` per area, read-only MCP questions in parallel), run the editor work serially through the sub-agents, then fan in: you assemble one result, run the compile gate once, and call `intent-reviewer` then `compliance-reviewer` once for the whole wave.
+- **Hand-off in:** `task` (one sentence), `recipe_keys` from `mcp-tool-contracts/references/areas/recipes.json` (`tool-ok` or `proven` only, `proven` preferred), the project root in GUID form, a `budget` of about 15 calls, and `stop_on` (MCP silent, any refusal by the guard).
+- **Hand-off back:** `verdict` PASS/FAIL/BLOCKED, the steps, what was read back, cleanup, and new findings with the exact error. If a recipe fails, the sub-agent reports the exact error and stops; it never retries blindly and never works around the guard.
+- **Token rule:** a sub-agent reads only its own skills and the one area file it needs. Do not paste raw MCP payloads into a hand-off.
+
 When the project is connected to UEFN via MCP:
 - **New-machine check — server registered on the project but not on this machine**: if MCP tools seem unavailable, check `claude mcp list` before assuming the project isn't set up for MCP. Server registration lives in `~/.claude.json`, per machine — it does NOT travel with the project files (Git, cloud sync, a new computer). So it's expected and normal that a project whose `CLAUDE.md` "Project identity" is already filled in (not the `<AUTO_PROJECT_NAME>` placeholder) shows no MCP tools the first time you open it on a machine that never ran Phase 1/registration before. Don't treat this as "the project needs re-onboarding" — just run the same auto-find-and-register routine as initial setup: check port 8000 is listening (`netstat`/`lsof`), then, if `claude mcp list` doesn't show `unreal-mcp`, register it yourself with `claude mcp add --transport http unreal-mcp --scope user http://127.0.0.1:<port found>/mcp` — no need to ask the owner to redo project setup for this.
 - **MCP first**: UEFN's MCP is the engine and the kit maps all of it by itself. Before doing something through UEFN by hand, by script or by guesswork, search the map with `py -3 Claude/hooks/mcp_map.py --find <keywords>` (it lists tools, read or write, tested or not, what each does); a purpose-built tool beats a workaround. Never guess a tool name. A tool the contracts do not cover but the map shows as read-only is fine to use; anything that writes follows the contract rules and asks first.

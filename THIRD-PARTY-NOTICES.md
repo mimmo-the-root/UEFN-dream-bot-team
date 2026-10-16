@@ -32,3 +32,9 @@ autoharness is licensed under the MIT License:
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
+
+## uefn-mcp-server (adapted in `project-template/Claude/hooks/uefn_session.py`)
+
+The editor state detection (editor log markers, process and crash-reporter checks, Load on Startup setting) and the relaunch idea are adapted from
+[KirChuvakov/uefn-mcp-server](https://github.com/KirChuvakov/uefn-mcp-server) (`uefn_session.py`, `win_procs.py`), MIT License. The kit's version is a smaller,
+stdlib-only rewrite with a stricter rule: it never closes or kills a running editor and relaunches only after a crash, with the owner's opt-in.
