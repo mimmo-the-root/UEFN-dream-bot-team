@@ -616,7 +616,7 @@ def summary(dirpath=None):
             why = "No map yet. The last attempt (%s) failed: %s" % (err.get("when", ""), err.get("text", ""))
         return {"available": False, "reason": why, "last_error": err}
     known = td.kit_known()
-    used = sum(1 for k in tools if td.short(k) in known)
+    used = sum(1 for k in tools if td.is_known(k, known))
     out = {"available": True, "saved": m.get("saved", ""), "uefn_version": m.get("uefn_version", ""), "count": len(tools),
            "toolsets": len({k.split("/")[0] for k in tools if "/" in k}), "kit_uses": used, "kit_uses_pct": round(100.0 * used / max(1, len(tools)), 1),
            "read": sum(1 for e in tools.values() if e.get("a") == "read"), "write": sum(1 for e in tools.values() if e.get("a") == "write")}
@@ -684,7 +684,7 @@ def find(words, dirpath=None, limit=25):
     for _, k in scored[:limit]:
         e = tools[k]
         t = tested.get(k)
-        print("%s | %s | %s%s%s | %s" % (k, e.get("a", "?"), "tested ok" if t == "ok" else ("test failed" if t else "not tested"), " | kit uses it" if td.short(k) in known else "", lab_text(lab.get(k)), e.get("d", "")))
+        print("%s | %s | %s%s%s | %s" % (k, e.get("a", "?"), "tested ok" if t == "ok" else ("test failed" if t else "not tested"), " | kit uses it" if td.is_known(k, known) else "", lab_text(lab.get(k)), e.get("d", "")))
     if not scored:
         print("No tool matches %s in the map (%d tools)." % (" ".join(words), len(tools)))
     return 0

@@ -64,30 +64,44 @@ def entry(name, desc):
     return {"h": hashlib.sha1(desc.encode("utf-8")).hexdigest()[:10], "d": first_sentence(desc), "a": access(name)}
 
 
+def is_known(k, known):
+    """True when the kit documents tool k (full name from the lab map, or short name from the reference list)."""
+    return k in known or short(k) in known
+
+
 def kit_known():
+    """Tools the kit documents: the short list in reference/ plus every tool the lab map marks as answered
+    (ok) or with a recipe, from hooks/mcp-known-tools.json (the file that also feeds `mcp_map.py --find`)."""
+    out = set()
     p = os.path.join(HERE, "..", "reference", "mcp-known-tools.json")
     try:
-        return set(json.load(open(p, encoding="utf-8-sig")).get("tools", []))
+        out |= set(json.load(open(p, encoding="utf-8-sig")).get("tools", []))
     except (OSError, ValueError, AttributeError):
-        return set()
+        pass
+    try:
+        t = json.load(open(os.path.join(HERE, "mcp-known-tools.json"), encoding="utf-8-sig")).get("tools", {})
+        out |= {k for k, e in t.items() if isinstance(e, dict) and e.get("s") in ("ok", "recipe")}
+    except (OSError, ValueError, AttributeError):
+        pass
+    return out
 
 
 def write_map(d, tools, version, known):
     sets = {}
     for k in sorted(tools):
         sets.setdefault(k.split("/")[0] if "/" in k else "(no toolset)", []).append(k)
-    used = [k for k in tools if short(k) in known]
+    used = [k for k in tools if is_known(k, known)]
     L = ["# UEFN MCP map", "", "Private to this computer (the descriptions are Epic's text). Made %s%s by /mcp-snapshot." % (time.strftime("%Y-%m-%d"), (", UEFN " + version) if version else ""), "",
          "%d toolsets, %d tools. The kit documents and uses %d of them (%.1f%%): marked [kit] below." % (len(sets), len(tools), len(used), 100.0 * len(used) / max(1, len(tools))), "",
          "| Toolset | Tools | Read | Write | Not sure | Kit uses |", "|---|---|---|---|---|---|"]
     for s, ks in sorted(sets.items()):
         c = lambda a: sum(1 for k in ks if tools[k]["a"] == a)
-        L.append("| %s | %d | %d | %d | %d | %d |" % (s, len(ks), c("read"), c("write"), c("?"), sum(1 for k in ks if short(k) in known)))
+        L.append("| %s | %d | %d | %d | %d | %d |" % (s, len(ks), c("read"), c("write"), c("?"), sum(1 for k in ks if is_known(k, known))))
     for s, ks in sorted(sets.items()):
         L += ["", "## " + s, ""]
         for k in ks:
             e = tools[k]
-            L.append("- `%s` (%s)%s %s" % (short(k), e["a"], " [kit]" if short(k) in known else "", e["d"]))
+            L.append("- `%s` (%s)%s %s" % (short(k), e["a"], " [kit]" if is_known(k, known) else "", e["d"]))
     tmp = os.path.join(d, "MAP.md.tmp")
     open(tmp, "w", encoding="utf-8", newline="\n").write("\n".join(L) + "\n")
     os.replace(tmp, os.path.join(d, "MAP.md"))
@@ -122,7 +136,7 @@ def apply_map(raw, d, version="", save=True, server=""):
     except (OSError, ValueError, AttributeError):
         pass
     known = kit_known()
-    used = sum(1 for k in now if short(k) in known)
+    used = sum(1 for k in now if is_known(k, known))
     res = {"count": len(now), "toolsets": len({k.split("/")[0] for k in now if "/" in k}), "kit_uses": used, "kit_uses_pct": round(100.0 * used / len(now), 1)}
     code = 0
     added = removed = changed = []

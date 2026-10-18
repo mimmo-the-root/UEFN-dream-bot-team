@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.107.1 — The UEFN MCP card shows the real numbers
+
+- **Fix: the UEFN MCP card showed "The kit uses 18 of 388 tools".** In v1.107.0 the count read only the short list in `reference/` and ignored `hooks/mcp-known-tools.json` (the 388-tool file with what the lab found for each tool). It now adds every tool the lab marked `ok` or `recipe`, and matches full names (`Toolset/Tool`) and short ones. With the shipped data the card shows 359 of 388 (92.5%).
+
 ## v1.107.0 — The MCP, mapped, learned and proven
 
 - **Console as a small solar system.** The chief of staff is the sun; five planets (BUILD, CONTROL, RELEASE, MEMORY, UEFN MCP) orbit it, and every other agent is a moon turning the other way, more slowly. The five MCP sub-agents are on the map (22 agents). Coloured arcs show the tokens of each group, a click opens a detail card, agents can be pinned, a `⏳` label marks a group with agents waiting, numbers show the chain of working agents, and a red line says when something needs you. Six round switches under the map show or hide each of these and are remembered.
