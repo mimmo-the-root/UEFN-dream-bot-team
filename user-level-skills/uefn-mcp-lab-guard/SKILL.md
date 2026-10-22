@@ -30,6 +30,8 @@ sources: [original]
 ## Known editor traps (UEFN 42.20)
 
 - Never call `get_lod_count`, `get_number_verts`, `get_num_triangles`, `get_num_sections` or `agg_geom.export_text()` on a static mesh: they crash the editor.
+- `ObjectTools`-style dynamic input schema: `GetDynamicInputSchema` crashed the editor once on an input that was not dynamic. Call it only on a verified dynamic input (`GetScriptStackTopology` says `bIsDynamic: true`).
+- UI components: `AddUIComponent` accepts only the classes the project permits (others answer "is not permitted in this project"); ask the project before assuming a class is allowed.
 - Creating an asset with an existing name opens a modal "Overwrite Existing Object" that blocks the MCP: use a new name or check first.
 - A tool tagged `[experimental]` is ask-the-owner-first. A call that hangs while UEFN is in the background: report it, do not loop.
 - With Revision Control disconnected `StartSession` fails (Validation failed): reconnect it first.

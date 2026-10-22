@@ -78,4 +78,26 @@ ok("NOT the laboratory" in LB.refusal(A, "delete", {"p": "/lab_mcp/x"}), "lab: r
 LC = load(LAB_AGGRESSIVE="1")
 LC.MARKER = marker
 ok("LAB_ROOT" in LC.refusal(A, "delete", {}), "lab: needs LAB_ROOT")
+import time
+with tempfile.TemporaryDirectory() as _d:
+    LS = load()
+    LS.LOGS = _d
+    ok(LS._src() == "agent", "src: agent without a marker")
+    open(os.path.join(_d, "replay.on"), "w").close()
+    ok(LS._src() == "replay", "src: replay while replay.on is fresh (calls made by a script too)")
+    _old = time.time() - 13 * 3600
+    os.utime(os.path.join(_d, "replay.on"), (_old, _old))
+    ok(LS._src() == "agent", "src: a forgotten marker is ignored")
+    LS.SRC = "battery"
+    ok(LS._src() == "battery", "src: LAB_SRC wins over the marker")
+with tempfile.TemporaryDirectory() as _e:
+    LX = load()
+    LX.EXPLORE = os.path.join(_e, "_explore")
+    os.makedirs(LX.EXPLORE)
+    good = os.path.join(LX.EXPLORE, "a.csv")
+    open(good, "w").close()
+    ok(LX._explore_ok("import_file", good) and LX._explore_ok("export_png", good), "P2: import_file and export_png may use a file inside _explore")
+    ok(not LX._explore_ok("other_write", good), "P2: any other tool still refuses a disk path")
+    ok(not LX._explore_ok("import_file", os.path.join(LX.EXPLORE, "..", "x.csv")), "P2: a `..` escape is refused")
+    ok(not LX._explore_ok("import_file", os.path.join(_e, "other.csv")), "P2: a file outside _explore is refused")
 print("mcp_lab ok")

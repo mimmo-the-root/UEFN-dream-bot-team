@@ -42,7 +42,7 @@ The MCP belongs to UEFN, not to a project, so there is **one map for all your pr
 
 The kit also tests the MCP, safely. It only calls tools that are read-only (the server says so, or the name starts with get, list, find, describe, query, search, count, is or has) and that need no arguments. Writing tools are never called. Each result is recorded, and a tool that worked last time and fails now is reported as **stopped working**: that is how you notice an UEFN update that broke something before it breaks your session.
 
-You can see the numbers on the **Skills** page of the console, in the UEFN MCP section: how many tools the kit uses out of the total (this share is recomputed at every map, so you see it grow as the kit learns to use more), what the tests found, and the latest news.
+You can see the numbers on the **Skills** page of the console, in the UEFN MCP section: how many tools have a recipe out of the total, and how many of those are proven (recomputed at every map, so you see it grow as recipes are added), what the tests found, and the latest news.
 
 ## How the agents use it
 
@@ -87,7 +87,7 @@ You do not have to do anything. Every call your agents make to UEFN during real 
 
 ![The UEFN MCP map card with the recipe progress (demo data)](shot-mcp-map.png)
 
-To share what you proved, open the Skills tab, switch on **Contribute to the community**, and press **Contribute** next to *UEFN MCP recipes you proved*. You see the exact JSON, then finish on GitHub with your own account; nothing is sent by the kit. (From a terminal, `recipes_status.py --export out.json` makes the same file.) The file holds only a count per recipe (how many times it worked, how many failed, the last short error). It has no arguments, no paths and no project names, so it cannot reveal your islands. The maintainer merges the counts from many people and, with `--apply --write`, marks the recipes as proven in the next release. The next battery skips recipes that are already proven.
+To share what you proved, open the Skills tab, switch on **Contribute to the community**, and press **Contribute** next to *UEFN MCP recipes you proved*. You see the exact JSON, then finish on GitHub with your own account; nothing is sent by the kit. (From a terminal, `recipes_status.py --export out.json` makes the same file.) The file holds only a count per recipe (how many times it worked, how many failed, the last short error). It has no arguments, no paths and no project names, so it cannot reveal your islands. The maintainer merges the counts from many people and, with `--apply --write`, marks the recipes as proven in the next release. The next battery skips recipes that are already proven, and a recipe it replays with its own arguments and that works becomes proven too.
 
 You can also skip the long batteries completely: if enough people share what they proved, the recipes become `proven` release after release. The batteries only make it faster.
 
@@ -105,6 +105,8 @@ You can also skip the long batteries completely: if enough people share what the
 These are written in the skills too, so the agents avoid them.
 
 - **Static mesh readers that crash the editor:** `get_lod_count`, `get_number_verts`, `get_num_triangles`, `get_num_sections` and `agg_geom.export_text()`. Do not call them.
+- **Dynamic input schema:** `GetDynamicInputSchema` crashed the editor once on an input that was not dynamic. Use it only on a verified dynamic input.
+- **UI components:** `AddUIComponent` accepts only the classes the project permits; any other class answers "is not permitted in this project".
 - **"Overwrite Existing Object":** creating an asset with a name that already exists opens a window that waits for a click and blocks the MCP. Pick a new name, or check first that it does not exist.
 - **Tools marked `[experimental]`:** ask the owner before using them; the map shows them as "ask the owner first".
 - **Editor in the background:** some calls wait until the UEFN window is in front. If a call hangs, say so instead of retrying in a loop.

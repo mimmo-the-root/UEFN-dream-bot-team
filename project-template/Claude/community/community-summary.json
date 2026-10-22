@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.107.0"
+   "tag": "v1.107.1"
   },
   "state": {
    "genres": [],
@@ -22,12 +22,17 @@
   }
  },
  "release": {
-  "date": "2026-10-19",
+  "date": "2026-10-22",
   "items": [
-   "Fix: the UEFN MCP card showed \"The kit uses 18 of 388 tools\". In v1.107.0 the count read only the short list in `reference/` and ignored `hooks/mcp-known-tools.json` (the 388-tool file with what the lab found for each tool). It now adds every tool the lab marked `ok` or `recipe`, and matches full names (`Toolset/Tool`) and short ones. With the shipped data the card shows 359 of 388 (92.5%)."
+   "Recipes for 381 of the 388 UEFN MCP tools, 387 recipes `proven` (377 tools have a proven recipe; before, 225 tools had a recipe). Every tool that answered in the lab now has one, and every recipe was replayed with its own arguments, area by area. 11 entries are multi-step notes and 4 stay `unverified` with the reason written down: SelectAssets (it times out), GetClientLogEntries (needs a live client), ApplyStackIssueFix (the first call errors while a compile runs) and `get_lod_count` on a static mesh (it crashes the editor). Of the 29 tools that never worked, 22 now work: most had been called with wrong arguments or were locked by our own test lab, not by UEFN. 5 do not work in this project (AddViewModelProperty, AddUIComponent, MoveUIComponent, RemoveUIComponent, diff) and 2 (create_level, load_level) are left untested on purpose.",
+   "Honest numbers on the UEFN MCP card. The first line used to say \"The kit uses 359 of 388 tools\", which only meant \"answered at least once in the lab\". It now says \"Recipes cover X of 388 tools (Y proven)\" and keeps the answered count as a small line. Multi-step notes are counted apart, \"failed\" no longer counts a recipe that failed once and worked later, and the recipes line says \"proven by use (real work or a replay)\".",
+   "A replay counts as proof. While an agent runs a validation replay it creates `Claude/logs/replay.on`; calls made meanwhile (by the hook and by `mcp_lab.py` scripts) are noted as `src: \"replay\"` and count like real work. Exploration rows of the coverage battery still never count. New: `recipes_status.py --todo [--area NAME]` (what is left to replay) and `--gap` (tools that answered but have no recipe yet, with the last good call).",
+   "Lab guard: one folder on disk is allowed. `import_file` and `export_png` may now use a file inside `Claude/logs/_explore/` of the project (the real path is checked: no `..`, no symlink out); every other tool still refuses paths on the disk. This lets the lab test the import tools without opening the guard anywhere else.",
+   "Fix: long arguments. A call with a very long argument (a whole script in `execute_tool_script`) was cut at 400 characters, which broke the JSON, so the recipe could never become `proven`. Long strings are now shortened and the JSON stays valid.",
+   "Fix: recipes. `execute_tool_script#verse_edit_build` (run() must return a dict), `delete_folder` (the folder must exist first), a short toolset name now matches the full class name, and several notes."
   ],
-  "tag": "v1.107.1",
-  "title": "v1.107.1 \u2014 The UEFN MCP card shows the real numbers"
+  "tag": "v1.107.2",
+  "title": "v1.107.2 \u2014 Recipes proven by a validation battery"
  },
  "schema": 1,
  "skills": [],

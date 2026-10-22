@@ -637,7 +637,7 @@ def summary(dirpath=None):
         out["last_full"] = 0
     try:
         import recipes_status
-        out["recipes"] = recipes_status.progress() or None
+        out["recipes"] = recipes_status.progress(tools=list(tools)) or None
     except Exception:
         out["recipes"] = None
     return out

@@ -62,6 +62,8 @@ MARKER = os.path.join(HERE, "..", "LAB-PROJECT.txt")
 NEVER = re.compile(r"delete|remove_asset|import|StartSession|StopSession|StartGame|StopGame|PushChanges|BuildAll|exit|quit|restart|shutdown|open_level|load_level|new_level|save_level|SetCVar|set_cvar|console|python", re.I)
 HARD_NEVER = re.compile(r"exit|quit|restart|shutdown", re.I)
 DISK_PATH = re.compile(r"^[A-Za-z]:[\\/]|^\\\\|^/(home|mnt|Users|usr|etc|var)/", re.I)
+EXPLORE = os.path.join(HERE, "..", "logs", "_explore")  # the one folder on disk the lab may read from or write to (import_file, export_png)
+EXPLORE_TOOLS = ("import_file", "export_png")
 SESSION_OK = os.environ.get("LAB_SESSION") == "1"
 LEVEL_OK = os.environ.get("LAB_LEVEL") == "1"
 LEVEL_SETS = re.compile(r"Actor|Scene|Entity|Device|Valkyrie", re.I)
@@ -193,6 +195,19 @@ def lab_check():
     return ""
 
 
+def _explore_ok(tool, s):
+    """A disk path is accepted only for import_file / export_png and only when its real path is inside <project>/Claude/logs/_explore/
+    (no `..`, no symlink out: both are resolved before the comparison)."""
+    if tool not in EXPLORE_TOOLS:
+        return False
+    try:
+        base = os.path.normcase(os.path.realpath(EXPLORE))
+        real = os.path.normcase(os.path.realpath(s))
+    except (OSError, ValueError):
+        return False
+    return real.startswith(base + os.sep)
+
+
 def refusal(ts, tool, args):
     global _checked
     if AGGR and not _checked:
@@ -203,7 +218,7 @@ def refusal(ts, tool, args):
     strs = list(_strings(args))
     if HARD_NEVER.search(tool):
         return "never: quitting or restarting the editor ends the MCP server"
-    if any(DISK_PATH.match(s) for s in strs) and not _is_read(ts, tool):
+    if any(DISK_PATH.match(s) and not _explore_ok(tool, s) for s in strs) and not _is_read(ts, tool):
         return "refused: a path on the disk outside the project"
     if AGGR:
         if _is_read(ts, tool):
@@ -237,6 +252,36 @@ def _log(rec):
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 
+def clip_args(args, limit=400):
+    """The arguments as JSON for the ledger. When they are longer than `limit` (a whole script, a long text), long strings are
+    shortened to 60 characters so the JSON stays valid and keeps its names and booleans, which is all that proves a recipe."""
+    s = json.dumps(args, ensure_ascii=False)
+    if len(s) <= limit:
+        return s
+
+    def cut(v):
+        if isinstance(v, str):
+            return v[:60]
+        if isinstance(v, dict):
+            return {k: cut(x) for k, x in v.items()}
+        if isinstance(v, list):
+            return [cut(x) for x in v[:20]]
+        return v
+    s = json.dumps(cut(args), ensure_ascii=False)
+    return s if len(s) <= 2000 else s[:2000]
+
+
+def _src():
+    """Where a row comes from: LAB_SRC if set (battery, replay), else "replay" while Claude/logs/replay.on is fresh (a validation
+    replay run by an agent; the marker older than 12 hours is ignored), else "agent"."""
+    if SRC != "agent":
+        return SRC
+    try:
+        return "replay" if time.time() - os.path.getmtime(os.path.join(LOGS, "replay.on")) < 12 * 3600 else "agent"
+    except OSError:
+        return "agent"
+
+
 def call(ts, tool, args=None, peek=600):
     """One logged call. Returns the parsed reply or raises RuntimeError with the server's message."""
     args = args or {}
@@ -246,9 +291,10 @@ def call(ts, tool, args=None, peek=600):
         except Exception:  # noqa
             pass
     why = refusal(ts, tool, args)
-    rec = {"t": time.strftime("%H:%M:%S"), "toolset": ts, "tool": tool, "args": json.dumps(args)[:400]}
-    if SRC != "agent":
-        rec["src"] = SRC  # "battery": made by mcp_cover (coverage, soak, session); these rows are not lessons
+    rec = {"t": time.strftime("%H:%M:%S"), "toolset": ts, "tool": tool, "args": clip_args(args)}
+    src = _src()
+    if src != "agent":
+        rec["src"] = src  # "battery": made by mcp_cover (coverage, soak, session); these rows are not lessons
     if why:
         rec.update(r="refused", why=why)
         _log(rec)

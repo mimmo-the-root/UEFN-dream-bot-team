@@ -86,7 +86,7 @@ What the kit has learned, in four parts:
 
 - **The kit**: everything it knows across all your genres and maps.
 - **This map**: the genre and type of the map you are in, its blueprint, and the lessons waiting for your approval.
-- **UEFN MCP**: how many of UEFN's tools the kit uses ("the kit uses 6 of 388"), what the safe tests found, and the latest news: tools added, removed or no longer working. The card also shows the progress of the recipes: four rings (proven by real work, tool answered, not verified, failed), a bar per area and the growth over the last weeks. It fills by itself, see [The MCP engine](ch:mcp-engine).
+- **UEFN MCP**: how many of UEFN's tools have a recipe ("recipes cover 225 of 388 tools, 221 proven") and how many answered in tests, what the safe tests found, and the latest news: tools added, removed or no longer working. The card also shows the progress of the recipes: four rings (proven by use, tool answered, not verified, failed), a bar per area and the growth over the last weeks. It fills by itself, see [The MCP engine](ch:mcp-engine).
 - **Community**: the switch to share lessons, covered in [Community](ch:community).
 
 The **SKILLS** tab blinks when something waits for you. More in [Skills and lessons](ch:skills-and-lessons).
