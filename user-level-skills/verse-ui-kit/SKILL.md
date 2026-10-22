@@ -21,7 +21,7 @@ This skill covers how an in-game screen is built and wired, whether or not Epic'
 3. Read `references/rules.md`: the rules for all UI come first, the kit-only wiring after. With the kit, start from one of its examples (`Verse/<Category>/*_example.verse`) rather than blank. Without it, follow `references/without-kit.md`. Snippets are in `references/snippets.md`.
 
 ## Editing widgets from here
-With the UEFN MCP connected, widget editing may be possible. Tool coverage changes between UEFN versions: list the toolsets and read their descriptions before saying something cannot be done, and run `/mcp-snapshot` now and then so new tools are noticed. If the server is unreachable, say so and give the owner numbered manual steps instead.
+With the UEFN MCP connected, widget editing may be possible. Use the `uefn-ui-widgets` skill: it points to the proven recipes in `mcp-tool-contracts` (widget blueprints, bindings, animations). Tool coverage changes between UEFN versions: check `mcp_map.py --find <word>` and read the tool's description before saying something cannot be done, and run `/mcp-snapshot` now and then so new tools are noticed. If the server is unreachable, say so and give the owner numbered manual steps instead.
 
 ## Always report
 Compile and save each changed widget, then build Verse with `/verse-check`; only `clean` counts. List every step the owner must do by hand (values only the editor panels can set) and the manual gamepad, keyboard and mouse test.
