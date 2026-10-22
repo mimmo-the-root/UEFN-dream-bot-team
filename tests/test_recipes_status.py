@@ -69,5 +69,7 @@ with tempfile.TemporaryDirectory() as d3:
     open(l3, "w").write(json.dumps({"toolset": "ns", "tool": "Q", "r": "ok", "args": '{"a": 1}'}) + "\n")
     g = R.gap({"ns/P": {"status": "tool-ok"}}, {"ns/P": {"s": "ok", "a": "x"}, "ns/Q": {"s": "ok", "a": "x"}, "ns/R": {"s": "rejected"}}, l3)
     check("gap lists answered tools with no recipe and their last good call", g == [("x", "ns/Q", '{"a": 1}')])
+av = R.merge({"A/x": {"args": {}, "status": "avoid"}}, {"A/x": {R.form({}): [3, 0, ""]}})
+check("an `avoid` recipe stays avoid (a known trap) and is not replayed", av["A/x"]["status"] == "avoid" and R.todo(av) == [])
 print("ALL PASS" if not fails else "%d FAIL" % len(fails))
 sys.exit(1 if fails else 0)

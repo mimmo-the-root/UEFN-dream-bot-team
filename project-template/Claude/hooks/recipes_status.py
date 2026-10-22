@@ -100,6 +100,9 @@ def merge(recipes, ev):
         slot = _slot(ev, tool, form(rec.get("args", {})))
         base = rec.get("status", "unverified")
         base = "tool-ok" if base == "verified" else base
+        if base == "avoid":  # a known trap (e.g. an editor crasher): documented, never replayed, not counted as "not verified"
+            out[key] = {"status": "avoid", "ok": 0, "failed": 0, "last_failure": ""}
+            continue
         ok_n, fail_n, last = slot or (0, 0, "")
         out[key] = {"status": "proven" if ok_n else base, "ok": ok_n, "failed": fail_n, "last_failure": last}
     return out
@@ -132,7 +135,7 @@ def todo(merged, area=None):
         tools = {}
     out = []
     for key, v in merged.items():
-        if v["status"] in ("proven", "note"):
+        if v["status"] in ("proven", "note", "avoid"):
             continue
         ar = (tools.get(key.split("#")[0]) or {}).get("a") or "other"
         if area is None or ar == area:
@@ -195,7 +198,7 @@ def _areas(merged):
         tools = {}
     out = {}
     for key, v in merged.items():
-        if v["status"] == "note":
+        if v["status"] in ("note", "avoid"):
             continue
         area = (tools.get(key.split("#")[0]) or {}).get("a") or "other"
         slot = out.setdefault(area, {"area": area, "total": 0, "proven": 0, "tool_ok": 0})
@@ -240,8 +243,8 @@ def progress(ledger=None, recipes_path=None, history=None, tools=None):
         n = {"proven": 0, "tool-ok": 0, "unverified": 0}
         for v in merged.values():
             n[v["status"]] = n.get(v["status"], 0) + 1
-        total = len(merged) - n.get("note", 0)
-        out = {"total": total, "notes": n.get("note", 0), "proven": n["proven"], "tool_ok": n["tool-ok"], "unverified": n["unverified"],
+        total = len(merged) - n.get("note", 0) - n.get("avoid", 0)
+        out = {"total": total, "notes": n.get("note", 0), "avoid": n.get("avoid", 0), "proven": n["proven"], "tool_ok": n["tool-ok"], "unverified": n["unverified"],
                "failed": sum(1 for v in merged.values() if v["failed"] and v["status"] != "proven"),  # a recipe that failed once and later worked is not "failed"
                 "proven_pct": round(100.0 * n["proven"] / max(1, total), 1),
                "areas": _areas(merged)}

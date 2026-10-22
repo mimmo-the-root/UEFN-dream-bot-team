@@ -3,7 +3,7 @@
   "intro": "A team of AI agents for your UEFN maps, a console to watch them work, and a kit that learns from every map you build. Start with the 15-minute quick start, or jump to the chapter you need.",
   "parts": [
     {
-      "title": "Part 1 \u00b7 Start here",
+      "title": "Part 1 · Start here",
       "chapters": [
         "welcome",
         "quick-start",
@@ -11,7 +11,7 @@
       ]
     },
     {
-      "title": "Part 2 \u00b7 Use it every day",
+      "title": "Part 2 · Use it every day",
       "chapters": [
         "your-team",
         "daily-work",
@@ -23,15 +23,16 @@
       ]
     },
     {
-      "title": "Part 3 \u00b7 When something is wrong",
+      "title": "Part 3 · When something is wrong",
       "chapters": [
         "troubleshooting",
         "faq"
       ]
     },
     {
-      "title": "Part 4 \u00b7 Reference",
+      "title": "Part 4 · Reference",
       "chapters": [
+        "mcp-tool-reference",
         "glossary",
         "about"
       ]
@@ -51,6 +52,7 @@
     "faq": "Short answers to the questions people ask first.",
     "glossary": "The words this manual uses.",
     "about": "Who made the kit, how to follow along, the license.",
-    "mcp-engine": "Mapping everything UEFN's MCP offers, and noticing what Epic adds."
+    "mcp-engine": "Mapping everything UEFN's MCP offers, and noticing what Epic adds.",
+    "mcp-tool-reference": "Every tool the kit knows, by toolset, with its parameters and how far it is proven."
   }
 }

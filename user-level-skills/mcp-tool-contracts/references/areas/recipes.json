@@ -920,7 +920,7 @@
     "writes": true,
     "cleanup": "none",
     "status": "unverified",
-    "note": "replay 2026-10-22: twice \"Timed out waiting for asset selection.\" with the exact args (asset exists, editor in foreground); not insisted."
+    "note": "replay 2026-10-22: twice \"Timed out waiting for asset selection.\" with the exact args (asset exists, editor in foreground); not insisted. lab-18: needs the Content Browser open and in front (timeout otherwise); not retried from here. The owner may try it once by hand."
   },
   "EditorToolset.EditorAppToolset/OpenEditorForAsset": {
     "args": {
@@ -978,8 +978,9 @@
     ],
     "writes": false,
     "cleanup": "none",
-    "note": "ALWAYS 'No client log was found; start a play-in-client session first.' in every state, any pattern/startLine, even with the real client running and writing FortniteGame.log. For Verse Print lines use LogsToolset/GetLogEntries {category:'',maxEntries:0,pattern:'<marker>'}: forwarded as 'LogVerse: : <text>' ~0.8-4 s after StartGame replay 2026-10-24: again \"No client log was found\" after StartGame Running.",
-    "status": "unverified"
+    "note": "lab-18 2026-10-22: StartSession IS the play-in-client session (its description says so); after StartGame Running and waits of 10/20/30 s the answer is still \"No client log was found; start a play-in-client session first.\" The working path for logs is LogsToolset/GetLogEntries (proven). This tool needs a client log file we cannot make appear from the MCP.",
+    "status": "unverified",
+    "verified": false
   },
   "editor_toolset.toolsets.scene.SceneTools/add_to_scene_from_class": {
     "args": {
@@ -3030,13 +3031,13 @@
       "fixId": "{issues[].fixes[].fixId with style Fix}"
     },
     "needs": [
-      "a lab-owned system: CreateNiagaraSystem into <LAB_ROOT>/Fx (run with LAB_ROOT=/root_ai_lab in PowerShell; guid form is refused since the guard widening)",
-      "an Error issue with a Fix: RemoveModule EmitterState on an emitter, wait ~9 s, GetStackIssues"
+      "a lab-owned Niagara system with an Error issue that has a Fix (e.g. RemoveModule EmitterState on an emitter)",
+      "wait until compile is quiet: poll GetSystemCompileState + GetStackIssues until the same Error issueId appears twice 15 s apart, then call"
     ],
     "writes": true,
-    "cleanup": "fix re-adds the module; the call itself answers an error 'compile in flight' (fix still applied, verified by re-read)",
+    "cleanup": "fix re-adds the module; verify with GetStackIssues",
     "status": "unverified",
-    "note": "replay 2026-10-22: always answers \"Cannot collect stack issues while a compile is in flight\" (rejected) even 9 s after the break; the fix is applied per earlier note but the ledger counts the call as rejected T-012 2026-10-24: the first call after RemoveModule EmitterState answers \"compile in flight\" (error) BUT the fix is applied (next GetStackIssues: 0 errors, the issueId is gone); retrying then gives \"No stack issue with IssueId ... was found\". So the effect works, the call always errors the first time: stays unverified."
+    "note": "Effect confirmed by GetStackIssues (0 errors after the call, the issueId is gone), call always errors (\"Cannot collect stack issues while a compile is in flight\", also after a 30 s poll with a quiet compile state): the fix itself triggers a recompile and the tool then fails collecting issues. Final: unverified (2026-10-22, lab-18)."
   },
   "NiagaraToolsets.NiagaraToolset_Component/GetUserVariables": {
     "args": {
@@ -4698,7 +4699,7 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "unverified",
+    "status": "avoid",
     "note": "known editor crasher on a static mesh (uefn-mcp-lab-guard \"Known editor traps\"); a ledger row exists but it is not replayed on purpose"
   },
   "editor_toolset.toolsets.material.MaterialTools/create_function": {
