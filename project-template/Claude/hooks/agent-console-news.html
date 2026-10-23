@@ -108,7 +108,7 @@ function mineHtml(C,top){
   '<a class="btn" href="agent-console-skills.html">Open the Skills page</a>';
 }
 // Game jam timer. Dates are fixed instants (UTC); the page shows them in YOUR local time. To change the jam, edit JAM.
-var JAM={name:"Game jam",start:"2026-11-12T05:00:00Z",end:"2026-11-16T01:59:00Z"};
+var JAM={name:"Epic AI MegaJam",url:"https://www.unrealengine.com/news/2026-epic-ai-megajam",start:"2026-11-12T05:00:00Z",end:"2026-11-16T01:59:00Z"};
 function jamTick(){
  var el=$("jam");if(!el)return;
  var now=Date.now(),a=Date.parse(JAM.start),b=Date.parse(JAM.end),st,target;
@@ -121,7 +121,7 @@ function jamTick(){
  var head=st==="soon"?"Starts in":(st==="live"?"Time left to submit":"Submissions closed");
  el.className="card jam"+(st==="live"?" live":(st==="over"?" over":""));
  el.innerHTML='<div class="jt"><div class="k" style="font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase">'+esc(JAM.name)+'</div><b>'+head+'</b>'+
-  '<div class="s">Opens '+esc(fmt(a))+'<br>Closes '+esc(fmt(b))+'<br>'+esc(tz?"Your local time ("+tz+")":"Your local time")+'</div></div>'+
+  '<div class="s">Opens '+esc(fmt(a))+'<br>Closes '+esc(fmt(b))+'<br>'+esc(tz?"Your local time ("+tz+")":"Your local time")+(JAM.url?'<br><a href="'+esc(JAM.url)+'" target="_blank" rel="noopener" style="color:var(--blue)">Jam rules and details</a>':'')+'</div></div>'+
   (st==="over"?'':'<div class="cd">'+u(days,"days")+u(h,"hours")+u(m,"minutes")+u(sc,"seconds")+'</div>');
 }
 jamTick();setInterval(jamTick,1000);

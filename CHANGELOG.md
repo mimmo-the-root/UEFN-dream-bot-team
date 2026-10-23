@@ -8,7 +8,7 @@
 - **`/devlog`** builds `Claude/docs/devlog.md` day by day from the two logs; your "How AI was used" text is kept.
 - **`/jam-check`** checks Verse headers, asset names, path length (140 with the project folder name), dev log and concept card, then lists what only you can confirm (private version code, 30-60 s video, licences, Fortnite rules).
 - **What's new page:** a "Changes" tile shows how many things the release changed, so the top row is never all zeros.
-- **Jam timer on the What's new page:** days, hours, minutes and seconds to the start of the jam, then to the deadline, shown in your local time. The dates are one line (`JAM`) at the top of the page script.
+- **Epic AI MegaJam timer on the What's new page (with a link to the jam page):** days, hours, minutes and seconds to the start of the jam, then to the deadline, shown in your local time. The dates are one line (`JAM`) at the top of the page script.
 - **One number for the agents: 22** (17 team agents plus the 5 UEFN MCP sub-agents) in the README, the manual, the badge and `docs/kit-stats.json`.
 - **Lab test of 1.107.6:** the guard refuses `save_assets` with no list and lets one with named assets pass; `SelectAssets` answers in 1.4-1.7 s whether UEFN is in front or not, so the earlier timeouts did not come from the editor running in the background. Texts corrected in the guard skill and the manual.
 - **Manual:** new chapter "Kit for the jam". **Repo:** `sync-skills.ps1` and one message in `mcp_lessons.py` are now in English (the confirmation answer is `y`).
