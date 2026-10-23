@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.107.5"
+   "tag": "v1.107.6"
   },
   "state": {
    "genres": [],
@@ -24,15 +24,17 @@
  "release": {
   "date": "2026-10-23",
   "items": [
-   "A call that changes something and times out is never repeated blindly. The five MCP sub-agents, the lab guard skill and the manual now say it: the call may have worked, so the agent reads the editor state first (no second device, entity, file or session).",
-   "`save_assets` without a list of assets is refused by the lab guard: it would save every unsaved asset of the project. Name the assets, or pass `allow_save_all: true` on purpose.",
-   "Known crashers, with safe ways out. The `get_lod_count` entry now says what to read instead (the `Triangles` tag, `static_materials`, the bounding box, Nanite settings). New in the traps: `EDIT COPY` with no world, opening asset editors from Python, the editor throttled in the background, rotators by name, and the two new questions of UEFN 42.40. A new test fails if a skill, agent or command names a tool marked `avoid`.",
-   "The doctor checks \"Load on Startup\". If UEFN opens on the home screen, a relaunch after a crash cannot reopen your project; the doctor says how to change it.",
-   "Skills: binding limits for UI (`uefn-ui-widgets`), the Verse build compiles only the open project (`uefn-verse-build`), and agents tag what they create with `kit:<run id>` (`uefn-level-devices`).",
-   "Repo: a `docs/adr` folder with the decisions, a secret scan (gitleaks) on every push, and `KIT-VERSION.tmp` is no longer tracked."
+   "A new project asks: map or Fab product? Open a session from the `Content` folder of a UEFN project with no kit: for a map the kit shows a dry run (how many files), asks for a yes, copies `project-template/` without overwriting anything and runs the setup steps. For a Fab product it installs nothing (its components are added to the customer's project later) and remembers the answer outside the project. New `kit_install.py` in your user profile.",
+   "Verse headers keep only the present. An English summary that is always up to date, the real date and the version; no change history in the file. Every change is one line in the new `Claude/logs/verse-changes.jsonl` (file, summary, reason, outcome), next to `verse-errors.jsonl`. Old history lines are moved out of existing headers into `Claude/docs/archive/` on the first session, code untouched. The reviewer now blocks a header with history or a change without a log line.",
+   "`/concept-card` scores an idea from 1 to 5 on six criteria (feasibility, scope, hook, showability, retention, originality) and gives a verdict out of 100.",
+   "`/devlog` builds `Claude/docs/devlog.md` day by day from the two logs; your \"How AI was used\" text is kept.",
+   "`/jam-check` checks Verse headers, asset names, path length (140 with the project folder name), dev log and concept card, then lists what only you can confirm (private version code, 30-60 s video, licences, Fortnite rules).",
+   "What's new page: a \"Changes\" tile shows how many things the release changed, so the top row is never all zeros.",
+   "Epic AI MegaJam timer on the What's new page (with a link to the jam page): days, hours, minutes and seconds to the start of the jam, then to the deadline, shown in your local time. The dates are one line (`JAM`) at the top of the page script.",
+   "One number for the agents: 22 (17 team agents plus the 5 UEFN MCP sub-agents) in the README, the manual, the badge and `docs/kit-stats.json`."
   ],
-  "tag": "v1.107.6",
-  "title": "v1.107.6 \u2014 Safer calls to UEFN"
+  "tag": "v1.108.0",
+  "title": "v1.108.0 \u2014 Ready for the jam"
  },
  "schema": 1,
  "skills": [],
