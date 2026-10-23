@@ -69,6 +69,8 @@ You can leave `SETUP-INSTRUCTIONS.md` in place afterwards; it does no harm.
 
 ## Updating a project
 
+> **Note** If you installed the kit **before v1.108.3**, update it by hand once: run `/kit-update --fetch` in a session (or `update-my-profile.cmd` from the repo folder), then open a new session. Older kits never look at GitHub, so they cannot find the new version alone. From v1.108.3 on, a background check at session start (at most every 6 hours) downloads new releases by itself, and every project follows at its next session. To switch it off, create an empty file `~/.claude/kit-auto-update.off`.
+
 The easy way is described in [Troubleshooting](ch:troubleshooting): with `~/.claude/kit-template/` in place, each session updates the kit files of the project you open. If you prefer to do it by hand, this is the rule.
 
 **Safe to overwrite at any time:** `Claude/hooks/` (the console, its server and every hook), `Claude/reference/`, `Claude/community/`, `Claude/SETUP-INSTRUCTIONS.md`, and `.claude/settings.json` (diff it first if you edited a hook matcher).

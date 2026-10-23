@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.108.3 — The kit updates itself from GitHub
+
+- **Automatic profile update.** Until now only the step "profile to project" was automatic; the step "GitHub to your profile" needed `/kit-update --fetch` or `update-my-profile.cmd`, so a new release never arrived by itself. Now the global SessionStart hook starts, at most once every 6 hours, a background check of the newest GitHub release (`kit_fetch.py --auto`). A newer release is downloaded into `~/.claude` without delaying the session, and the project picks it up at its next session start ("KIT UPDATED"). The check writes one line to `~/.claude/kit-auto-update.log`. Switch it off with `UEFN_KIT_AUTOUPDATE=0` or an empty file `~/.claude/kit-auto-update.off`.
+- **The global hook updates itself too.** `kit_fetch.py` now also installs `user-level-hooks` into `~/.claude/hooks`. The version file is written last, so an interrupted update is retried.
+- **One manual step, once:** run `/kit-update --fetch` (or `update-my-profile.cmd`) after this release. It brings the new `kit_sync.py` and `kit_fetch.py` into your profile and projects; from the next session on, releases arrive by themselves. Kits older than this release cannot do it alone: nothing in them looks at GitHub.
+
 ## v1.108.2 — Score page in the manual
 
 - **The manual covers the Score page:** the console chapter now says seven pages and shows the Score page with demo data; the README lists it in the console menu and in What's new.

@@ -56,8 +56,9 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.108.2)
+## What's new (v1.102 - v1.108.3)
 
+- **The kit updates itself (1.108.3).** A background check of the newest GitHub release runs at session start, at most every 6 hours, and downloads a newer one into your profile; the project follows at its next session. **If you have an older version, do this once:** run `/kit-update --fetch` in a session (or `update-my-profile.cmd` from the repo), then open a new session. Older kits cannot update themselves because nothing in them looks at GitHub. Off switch: an empty file `~/.claude/kit-auto-update.off`.
 - **Score page (1.108.1).** A new console tab that measures the project against its own plan, release by release: a chart of plan, built and proven with a forecast, and a green, yellow or red light per criterion so you see where to act first. It reads ROADMAP, BUGS and the readiness verdict by itself; new criteria are proposed on the Skills page and need your approval.
 - **Ready for the jam (1.108).** A new project asks whether it is a map or a Fab product (a map gets the kit, a Fab product never does). Verse headers keep only the present and every change goes to a log. `/concept-card` scores an idea, `/devlog` writes the dev log from the logs, `/jam-check` checks the entry before you hand it in.
 - **The MCP, mapped, learned and proven (1.107).** The Console is now a small solar system: five planets around the chief of staff, the other agents as moons, token arcs, a detail card, pinned agents and switches to show or hide each part. 14 UEFN MCP skills and 5 MCP sub-agents ship in the kit; recipes are marked `tool-ok` or `proven`, and what you prove can be shared with the community (counts only). UEFN can be restarted after a crash if you opt in; a running editor is never closed.

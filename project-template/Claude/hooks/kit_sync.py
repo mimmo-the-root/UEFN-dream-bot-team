@@ -633,6 +633,33 @@ def _log_run(project, r, emitted, announce):
         pass
 
 
+def auto_update_check():
+    """v1.108.3: at most once every 6 hours, start a detached background check of the newest GitHub release
+    (kit_fetch.py --auto). Never delays or fails a session; the new kit reaches this project at the NEXT session start.
+    Off: UEFN_KIT_AUTOUPDATE=0 or an empty ~/.claude/kit-auto-update.off. The global hook does the same (shared stamp)."""
+    import subprocess
+    home = os.environ.get("UEFN_HOME") or os.path.join(os.path.expanduser("~"), ".claude")
+    fetch = os.path.join(HERE, "kit_fetch.py")
+    stamp = os.path.join(home, "kit-update-check.stamp")
+    if os.environ.get("UEFN_KIT_AUTOUPDATE") == "0" or os.path.exists(os.path.join(home, "kit-auto-update.off")) or not os.path.isfile(fetch):
+        return False
+    try:
+        if os.path.exists(stamp) and time.time() - os.path.getmtime(stamp) < 6 * 3600:
+            return False
+        os.makedirs(home, exist_ok=True)
+        with open(stamp, "w") as f:
+            f.write(str(time.time()))
+    except OSError:
+        return False
+    kw = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "close_fds": True}
+    if os.name == "nt":
+        kw["creationflags"] = 0x00000008 | 0x08000000  # DETACHED_PROCESS | CREATE_NO_WINDOW
+    else:
+        kw["start_new_session"] = True
+    subprocess.Popen([sys.executable, fetch, "--auto"], **kw)
+    return True
+
+
 def main():
     project = os.environ.get("CLAUDE_PROJECT_DIR") or (sys.argv[1] if len(sys.argv) > 1 else os.getcwd())
     try:
@@ -647,6 +674,10 @@ def main():
         news = mcp_map.session_check(project)
         if news:
             r["notes"].append(news)
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        auto_update_check()
     except Exception:  # noqa: BLE001
         pass
     changed = r["updated"] or r["added"] or r["settings"] or r["claude_md"]

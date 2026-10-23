@@ -6,6 +6,10 @@ Updates, the doctor, and the problems people meet most.
 
 Every time you start `claude` in a project, the kit compares that project's files with the copy in `~/.claude/kit-template/` and updates what is old or missing. The previous version of a replaced file is saved in `Claude/logs/kit-backup/`. Your own data is never touched: `Claude/docs/`, `Claude/logs/` and your `CLAUDE.md` outside the kit blocks.
 
+> **Note** Kits older than v1.108.3 do not update themselves: run `/kit-update --fetch` once (see [Installing](ch:install)).
+
+The copy in `~/.claude/` updates itself too: at most once every 6 hours the session start checks GitHub in the background and, if a newer release exists, downloads it without slowing the session. The project then updates at its next session start. The check logs one line in `~/.claude/kit-auto-update.log`. To switch it off, create an empty file `~/.claude/kit-auto-update.off`. Both the project hook and the global hook start the check. The very first time, run `/kit-update --fetch` (or `update-my-profile.cmd`) once, so that the new files are in place.
+
 - `/kit-update` updates the current project now.
 - `/kit-update --fetch` first downloads the latest release from GitHub into `~/.claude/kit-template/`, then updates the project.
 - After an update, **open a new session** (rules, agents and hooks are read at the start) and reload the console page.

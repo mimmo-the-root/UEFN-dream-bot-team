@@ -34,6 +34,33 @@ def new_map_context(base):
             "The answer is remembered outside the project, so the question is not asked again."
             % (root, inst, content, inst, root))
 
+def maybe_auto_update(tpl):
+    """Once every 6 hours start a detached background check of the newest GitHub release (kit_fetch.py --auto). It never
+    delays or fails the session; the new kit reaches this project at the NEXT session start. Off: set UEFN_KIT_AUTOUPDATE=0
+    or create ~/.claude/kit-auto-update.off."""
+    import subprocess, time
+    home = os.path.join(os.path.expanduser("~"), ".claude")
+    if os.environ.get("UEFN_KIT_AUTOUPDATE") == "0" or os.path.exists(os.path.join(home, "kit-auto-update.off")):
+        return False
+    fetch = os.path.join(tpl, "Claude", "hooks", "kit_fetch.py")
+    stamp = os.path.join(home, "kit-update-check.stamp")
+    if not os.path.isfile(fetch):
+        return False
+    try:
+        if os.path.exists(stamp) and time.time() - os.path.getmtime(stamp) < 6 * 3600:
+            return False
+        with open(stamp, "w") as f:
+            f.write(str(time.time()))
+    except OSError:
+        return False
+    kw = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "close_fds": True}
+    if os.name == "nt":
+        kw["creationflags"] = 0x00000008 | 0x08000000  # DETACHED_PROCESS | CREATE_NO_WINDOW
+    else:
+        kw["start_new_session"] = True
+    subprocess.Popen([sys.executable, fetch, "--auto"], **kw)
+    return True
+
 def main():
     try:
         data = json.load(sys.stdin)
@@ -42,6 +69,10 @@ def main():
     base = data.get("cwd") or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
     tpl = os.path.join(os.path.expanduser("~"), ".claude", "kit-template")
     sync = os.path.join(tpl, "Claude", "hooks", "kit_sync.py")
+    try:
+        maybe_auto_update(tpl)
+    except Exception:
+        pass
     if not os.path.isfile(sync):
         return 0
     project = None
