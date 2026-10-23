@@ -16,11 +16,15 @@ ASSET_EXT = (".uasset", ".umap")
 MAX_PATH = 140
 
 MANUAL = [
-    "Private version code: the island code of the PRIVATE version you submit is in the entry form",
-    "Video: 30-60 seconds, shows the game being played, not slides",
-    "Third-party assets and code: every one has a licence that allows this use, and is credited",
-    "Fortnite rules: the island passes the content rating questionnaire and the platform rules",
-    "Dev log: the 'How AI was used' part of Claude/docs/devlog.md is filled in by you",
+    "Private version code (NOT a live or playtest code): made during the contest period, from the final build you want judged",
+    "Video: 30-60 seconds of recorded gameplay, 1920x1080 or higher, in English",
+    "Everything players and judges see is in English: in-game text, audio, the video and the entry form",
+    "The game demonstrates the contest theme (announced at the start of the jam)",
+    "Gameplay, levels and art were made during the contest period; only AI tools, agent setups, MCP settings, prompts and scripts may be older (Epic can ask for them or for your version history)",
+    "Sourced (non-original) assets are listed in the submission, with licences you cleared; AI-generated content does not count as sourced",
+    "Suitable for players aged 13 and over (Teen); no trademarks or logos except the Developed in Fortnite logo",
+    "Team of 1 to 5 with names and emails, one team owner; one entry per team; the entry is sent by a person, not by an AI agent",
+    "Glass Box prize only: the dev log is submitted together with the entry (Claude/docs/devlog.md, 'How AI was used' filled in by you)",
 ]
 
 

@@ -98,6 +98,19 @@ Registro delle modifiche all'editor con "annulla sessione"; riprova delle ricett
 
 Ipotesi di lavoro per il punto 3 (da confermare quando arriviamo a R3): due gruppi di documenti. `Documentation/` = istruzioni di configurazione e uso che viaggiano con il prodotto; `FabListing/` = testi per il portale (titolo, descrizione, tag, dettagli tecnici, dichiarazione risorse di terzi), che restano fuori dall'archivio. Sono solo `.md`, con nomi solo alfanumerici e underscore.
 
+## Pagina "Score" della console (decisa il 23 ottobre, da costruire)
+
+Una pagina nuova della console, non legata al jam: misura l'evoluzione del progetto contro il piano, release per release. Prototipo scelto: **proposta 1 "grafico in alto"** (`docs/prototypes/score-console-1.html`, dati inventati).
+
+Decisioni dell'utente:
+- **Criteri**: niente divisione Epic/nostri. **Primary** (70 punti: i sette criteri di qualità: ambizione e innovazione, aderenza al brief/tema, fun, gameplay, visuals, level design, audio) e **Additional** (30 punti: fattibilità in UEFN, ambito rispetto al piano, retention, prontezza alla pubblicazione, documentazione/release notes). In più una traccia **bonus** fuori dai 100 (per esempio personaggi LLM).
+- **Tempo = release**, non giorni: confronto con la release precedente e con il piano delle prossime. Grafico con piano, costruito, provato e previsione "a questo ritmo".
+- **Un solo progetto**: niente cambio di progetto o profilo, i dati restano nel progetto. Il profilo (mappa, jam, Fab) è fisso e cambia solo le etichette.
+- **Semaforo per criterio** (rosso agisci ora / giallo tieni d'occhio / verde a posto, con forme diverse per i daltonici) e numero di priorità: le soglie si stringono con l'avanzare delle release.
+
+Da definire prima di costruire: (1) da dove vengono i traguardi del piano per release (proposta: il kit li propone dal ROADMAP/spec, l'utente conferma); (2) come si calcolano "costruito" (file e asset del progetto) e "provato" (verse-check, playtest, controlli); (3) dove si salva lo storico (proposta: `Claude/logs/score-history.jsonl`, una riga per release); (4) il punteggio dei criteri soggettivi (fun, visuals, audio) viene dato dagli agenti con motivazione e confermato dall'utente.
+
+
 ## Come ripartire dopo la chiusura della sessione
 
 Aprire la pagina di progetto `claude/PLAN-next-releases.md`, rileggere le "Decisioni dell'utente", poi R1 (piccola) o R2 (jam). Prima di modificare file: `git status` pulito, test 50/50. Prossimo passo: R3 (modo Fab). Da confermare con l'utente: l'ipotesi `Documentation/` + `FabListing/`, le regole del jam (controllare l'elenco di `/jam-check` sul regolamento ufficiale), le date del timer.

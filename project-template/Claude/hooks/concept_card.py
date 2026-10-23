@@ -1,48 +1,62 @@
 #!/usr/bin/env python3
-"""Concept card with a feasibility score (v1.108): decide fast whether an idea is worth building.
+"""Concept card with a score (v1.108): decide fast whether an idea is worth building for the jam.
 
   python Claude/hooks/concept_card.py --title "Name" --pitch "one sentence" \
-      --scores feasibility=4,scope=3,hook=5,retention=3,originality=4,showability=5 [--days-left 14] [--write]
+      --scores ambition=4,theme=4,fun=5,gameplay=4,visuals=3,level=3,audio=2,feasibility=4,scope=3 [--days-left 14] [--write]
 
-Each score is 1-5 (5 = best). For 'scope', 5 means SMALL (easy to finish in the time left).
-Weights (total 100): feasibility 25 (can UEFN + Verse really do it), scope 20, hook 20 (fun in the first
-30 seconds), showability 15 (a clear 30-60 second video), retention 10, originality 10.
+Every score is 1-5 (5 = best). Two groups, 100 points in all:
+
+ JUDGING (70 points): Epic's seven criteria of the 2026 Epic AI MegaJam, up to 5 points each
+   ambition (Ambition and Innovation), theme (Use of Contest Theme), fun (Fun Factor), gameplay,
+   visuals, level (Level Design), audio. Score what the idea can realistically reach, not a dream.
+   Before the theme is announced leave `theme` out: the group is then scaled over the six others
+   and the card says the theme is not scored yet.
+ BUILDABLE (30 points): our own two checks, 15 points each
+   feasibility (can UEFN and Verse really do it), scope (5 = small, easy to finish in the days left).
+
 Verdict: 75+ build it, 55-74 build it only with a smaller scope, below 55 pick another idea.
-Any score of 1 in feasibility or scope caps the verdict at 'smaller scope or another idea'.
---write saves Claude/docs/concept-card.md.
+A 1 in feasibility or scope caps the verdict at 'smaller scope'. A 1 in theme means the idea does not
+use the contest theme, which the rules require: the verdict is then 'pick another idea'. --write saves Claude/docs/concept-card.md.
 """
 import os, sys
 
-W = {"feasibility": 25, "scope": 20, "hook": 20, "showability": 15, "retention": 10, "originality": 10}
+JUDGE = (("ambition", "Ambition and Innovation"), ("theme", "Use of Contest Theme"), ("fun", "Fun Factor"),
+         ("gameplay", "Gameplay"), ("visuals", "Visuals"), ("level", "Level Design"), ("audio", "Audio"))
+BUILD = (("feasibility", "Feasibility in UEFN and Verse", 15), ("scope", "Scope for the days left (5 = small)", 15))
+JUDGE_POINTS = 70
+NAMES = [k for k, _ in JUDGE] + [k for k, _, _ in BUILD]
 
 
 def score(s):
-    miss = [k for k in W if k not in s]
-    if miss:
-        raise ValueError("missing score(s): " + ", ".join(miss))
     for k, v in s.items():
-        if k not in W:
+        if k not in NAMES:
             raise ValueError("unknown criterion: " + k)
         if not 1 <= v <= 5:
             raise ValueError("%s must be 1-5" % k)
-    total = round(sum(W[k] * (s[k] / 5.0) for k in W))
-    if total >= 75:
-        v = "build it"
-    elif total >= 55:
-        v = "build it only with a smaller scope"
-    else:
-        v = "pick another idea"
+    need = [k for k, _ in JUDGE if k != "theme"] + [k for k, _, _ in BUILD]
+    miss = [k for k in need if k not in s]
+    if miss:
+        raise ValueError("missing score(s): " + ", ".join(miss))
+    j = [k for k, _ in JUDGE if k in s]
+    total = JUDGE_POINTS * sum(s[k] for k in j) / (5.0 * len(j)) + sum(w * s[k] / 5.0 for k, _, w in BUILD)
+    total = int(round(total))
+    v = "build it" if total >= 75 else ("build it only with a smaller scope" if total >= 55 else "pick another idea")
     if (s["feasibility"] == 1 or s["scope"] == 1) and v == "build it":
         v = "build it only with a smaller scope"
+    if s.get("theme") == 1:
+        v = "pick another idea"
     return total, v
 
 
 def card(title, pitch, s, days_left=None):
     total, v = score(s)
-    rows = "\n".join("| %s | %d/5 | %d |" % (k, s[k], W[k]) for k in W)
+    rows = ["| %s | %s | %d/5 |" % ("Judging", n, s[k]) for k, n in JUDGE if k in s]
+    if "theme" not in s:
+        rows.append("| Judging | Use of Contest Theme | not scored yet |")
+    rows += ["| Buildable | %s | %d/5 (%d points) |" % (n, s[k], w) for k, n, w in BUILD]
     extra = "\n- Days left: %s" % days_left if days_left else ""
-    return ("# Concept card: %s\n\n%s\n\n| Criterion | Score | Weight |\n|---|---|---|\n%s\n\n- Score: **%d / 100**\n- Verdict: **%s**%s\n"
-            % (title, pitch, rows, total, v, extra))
+    return ("# Concept card: %s\n\n%s\n\n| Group | Criterion | Score |\n|---|---|---|\n%s\n\n- Score: **%d / 100** (judging 70 + buildable 30)\n- Verdict: **%s**%s\n"
+            % (title, pitch, "\n".join(rows), total, v, extra))
 
 
 def _main(argv):

@@ -7,7 +7,9 @@
       "chapters": [
         "welcome",
         "quick-start",
-        "install"
+        "install",
+        "uefn-map-project",
+        "fab-product-project"
       ]
     },
     {
@@ -20,7 +22,7 @@
         "mcp-engine",
         "skill-catalog",
         "community",
-        "jam-kit"
+        "epic-ai-megajam"
       ]
     },
     {
@@ -55,7 +57,9 @@
     "about": "Who made the kit, how to follow along, the license.",
     "mcp-engine": "Mapping everything UEFN's MCP offers, and noticing what Epic adds.",
     "mcp-tool-reference": "Every tool the kit knows, by toolset, with its parameters and how far it is proven.",
-    "jam-kit": "New project: map or Fab product, and the three jam commands."
+    "epic-ai-megajam": "How the kit helps in the 2026 Epic AI MegaJam and what we added for it.",
+    "uefn-map-project": "A map project: what the kit installs and the documents it produces.",
+    "fab-product-project": "A Fab product: why the kit installs nothing, and the planned documents."
   },
   "seo": {
     "index": [
@@ -122,9 +126,17 @@
       "About Dream Bot Team: author, license and updates",
       "Who made the Dream Bot Team kit for UEFN, how to follow updates, and the MIT license."
     ],
-    "jam-kit": [
-      "Game jam kit for UEFN: concept score, dev log and entry check",
-      "Use the Dream Bot Team kit for a UEFN game jam: score an idea, write the dev log from the logs, check the entry, and set up a new map or Fab product."
+    "epic-ai-megajam": [
+      "2026 Epic AI MegaJam: how the Dream Bot Team kit helps",
+      "How the UEFN AI agent kit helps in the 2026 Epic AI MegaJam: idea scoring, dev log, entry check and a countdown in your local time."
+    ],
+    "uefn-map-project": [
+      "UEFN map project: files and documents the AI kit creates",
+      "What the Dream Bot Team kit installs in a UEFN map project and the documents it produces: spec, status, roadmap, bugs, code map and logs."
+    ],
+    "fab-product-project": [
+      "Fab product project for UEFN: what the AI kit does and does not do",
+      "Why the Dream Bot Team kit installs nothing in a Fab product, what Fab requires of a UEFN upload, and the planned documents for the listing."
     ]
   }
 }

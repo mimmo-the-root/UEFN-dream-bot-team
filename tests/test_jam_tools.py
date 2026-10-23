@@ -3,12 +3,19 @@ H = os.path.join(os.path.dirname(__file__), "..", "project-template", "Claude", 
 sys.path.insert(0, H)
 import concept_card as cc, devlog, jam_check
 
-# concept card
-assert cc.score(dict(feasibility=5, scope=5, hook=5, retention=5, originality=5, showability=5)) == (100, "build it")
-t, v = cc.score(dict(feasibility=3, scope=3, hook=3, retention=3, originality=3, showability=3)); assert (t, v) == (60, "build it only with a smaller scope")
-assert cc.score(dict(feasibility=1, scope=5, hook=5, retention=5, originality=5, showability=5))[1] == "build it only with a smaller scope"
-assert cc.score(dict(feasibility=2, scope=2, hook=2, retention=2, originality=2, showability=2))[1] == "pick another idea"
-for bad in (dict(feasibility=6, scope=1, hook=1, retention=1, originality=1, showability=1), dict(feasibility=1)):
+# concept card: Epic's 7 criteria (70 points) + feasibility and scope (30 points)
+ALL5 = dict(ambition=5, theme=5, fun=5, gameplay=5, visuals=5, level=5, audio=5, feasibility=5, scope=5)
+ALL3 = {k: 3 for k in ALL5}
+ALL2 = {k: 2 for k in ALL5}
+assert cc.score(ALL5) == (100, "build it")
+assert cc.score(ALL3) == (60, "build it only with a smaller scope")
+assert cc.score(ALL2)[1] == "pick another idea"
+assert cc.score(dict(ALL5, feasibility=1))[1] == "build it only with a smaller scope"
+assert cc.score(dict(ALL5, theme=1))[1] == "pick another idea", "an idea that ignores the theme is not allowed"
+no_theme = {k: v for k, v in ALL5.items() if k != "theme"}
+assert cc.score(no_theme) == (100, "build it"), "without the theme the judging group is scaled over six criteria"
+assert "not scored yet" in cc.card("T", "p", no_theme)
+for bad in (dict(ALL5, fun=6), {"fun": 3}, dict(ALL5, hook=3)):
     try: cc.score(bad); raise SystemExit("should fail")
     except ValueError: pass
 

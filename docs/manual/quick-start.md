@@ -30,7 +30,7 @@ claude mcp add --transport http unreal-mcp --scope user http://127.0.0.1:8000/mc
 
 ## Part B: once per project
 
-> **Shortcut** If the project has no kit yet, open a session from its `Content/` folder: the kit asks whether it is a map or a Fab product and, for a map, offers to do steps 2 to 4 for you (see *Kit for the jam*). The steps below are the manual way.
+> **Shortcut** If the project has no kit yet, open a session from its `Content/` folder: the kit asks whether it is a map or a Fab product and, for a map, offers to do steps 2 to 4 for you (see *A UEFN map project* and *A Fab product project*). The steps below are the manual way.
 
 1. In UEFN, open **Project Settings** and enable *Python Editor Scripting* and *UEFN MCP Toolsets* for this project.
 2. Copy the **contents** of the kit's `project-template/` folder into the project's `Content/` folder.
