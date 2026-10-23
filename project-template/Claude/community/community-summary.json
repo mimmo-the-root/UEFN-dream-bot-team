@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.108.3"
+   "tag": "v1.108.4"
   },
   "state": {
    "genres": [],
@@ -24,11 +24,17 @@
  "release": {
   "date": "2026-10-23",
   "items": [
-   "A way to see how many machines take each release. Every release now carries a `kit.zip` file and the automatic update downloads that file, so GitHub counts its downloads (shown on the Releases page next to the file). Nothing is sent from your computer and no one is identified; a download is roughly one machine taking that version. `python tool/installs.py` prints the numbers per release. The count starts with the machines that already run this version or later, because a kit downloads with the code it already has.",
-   "Score page is dark like the other console pages, also when the system uses a light theme (the manual screenshot was light before)."
+   "Fab products. New skill `fab-product` and helper `fab_pack.py` (in your profile, never in the project). `check` tests the package against Epic's Fab rules (no `.py`, no `Saved`/`Intermediate`, no kit files, names with letters, digits and underscore, paths up to 140 characters counted from the top-level folder). `docs` creates `Documentation/` (README and a `SETTINGS.md` generated from the `@editable` settings and Verse summaries) and `FabListing/` (listing texts, third-party declaration, image list). `zip` writes a clean archive. `grid` puts the listing captures in a panoramic grid on a plain background. Nothing is written without `--apply`, existing documents are never overwritten. A new project answered \"Fab product\" points the agents to this skill.",
+   "Verse style for Fab products. Every Verse file is a small manual: header with what it does, why it is useful, quick setup, good to know, version and date, then your signature block (ASCII art and links, saved once with `fab_pack.py signature save`, kept in your profile). `fab_pack.py header <Name>` prints a new header; `check` warns when a part or the signature is missing. Fab products only; the generated `SETTINGS.md` reads the `WHAT IT DOES` text too.",
+   "Economy simulator. New skill `economy-sim` and helper `economy_sim.py`: from the planned prices and incomes it shows when each milestone arrives and which generator is never worth buying (pure arithmetic, no AI, no editor).",
+   "Log signals. The logger template gets `Signal(Name, Details)`, which prints `[SIGNAL] name key=value`. The helper `log_signals.py` counts them, checks optional rules in `Claude/docs/signals.json` and reports expected signals that never appeared. `qa-regression` uses it.",
+   "Delivery document. `Claude/hooks/delivery.py` writes `Claude/docs/DELIVERY.md`: the state of the map (finished tasks by release, open bugs, verdict) rebuilt from the project's documents, with free parts for the pitch, controls and credits that are kept. `planner-docs` knows it.",
+   "Editor change record and \"undo session\". The call ledger now keeps the session and the date. `/editor-changes` lists what the agents wrote to the editor per session; `editor_changes.py undo-plan` prints the steps that would undo the newest one (creations can be deleted; changed values cannot, so those say \"manual\"). It never touches the editor.",
+   "A real lock on the editor. Only one session at a time may write; a second one is refused with a clear message (reading is never blocked). It goes stale after ten minutes; `editor_lock.py status` and `release`; `UEFN_KIT_LOCK=0` turns it off.",
+   "Recipes after a new UEFN. `recipes_status.py --stale` lists the recipes whose tool changed or was removed in a newer UEFN (from the saved map history); `--retested` stamps today."
   ],
-  "tag": "v1.108.4",
-  "title": "v1.108.4 \u2014 Counting installs, dark Score page"
+  "tag": "v1.109.0",
+  "title": "v1.109.0 \u2014 Fab products, economy, log signals, delivery, safe editing"
  },
  "schema": 1,
  "skills": [],
