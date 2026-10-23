@@ -62,13 +62,13 @@ Cosa ne ricavo per il modo Fab:
 
 | # | Voce | Stato |
 |---|---|---|
-| R2.1 | U1: intestazione Verse = descrizione in inglese sempre aggiornata + data vera + versione (senza righe di storico); nuovo `Claude/logs/verse-changes.jsonl` (file, ora, riassunto, motivo, esito) + `verse-errors.jsonl` letti dall'apprendimento; migrazione delle intestazioni esistenti (`history_trim` adattato: toglie le righe di storico, le archivia); coder, compliance-reviewer (controllo 3: descrizione aggiornata, data e versione, nessuno storico), test, manuale | da fare |
-| R2.2 | U2: rilevamento della mappa nuova a inizio sessione (nessun `Claude/docs/SPEC.md` e nessun `project-template` installato) e proposta di installarlo da solo: copia di `project-template` in `Content/`, un solo passo, ripetibile, con `--dry-run`, riusando `kit_sync`; poi i passi di `SETUP-INSTRUCTIONS` (nome progetto, registrazione MCP, controlli) senza che l'utente debba dirlo | da fare |
-| R2.3 | U3: domanda "mappa o prodotto Fab?" subito, PRIMA di installare qualsiasi cosa: se Fab, non si installa `project-template`; il tipo si registra fuori dal progetto Fab o in un solo file `.md` (da decidere in R3) | da fare |
-| R2.4 | Controllo prima della consegna del jam (codice di versione privata, video 30-60 secondi, risorse di terzi con licenza, regole Fortnite) | da fare |
-| R2.5 | `/devlog`: dev log automatico per il premio Glass Box | da fare |
-| R2.6 | Scheda concept con punteggio di fattibilità (skill + script) | da fare |
-| R2.7 | Manuale e README: sezione "Kit per il jam" | da fare |
+| R2.1 | U1: intestazione Verse = descrizione in inglese sempre aggiornata + data vera + versione (senza righe di storico); nuovo `Claude/logs/verse-changes.jsonl` (file, ora, riassunto, motivo, esito) + `verse-errors.jsonl` letti dall'apprendimento; migrazione delle intestazioni esistenti (`history_trim` adattato: toglie le righe di storico, le archivia); coder, compliance-reviewer (controllo 3: descrizione aggiornata, data e versione, nessuno storico), test, manuale | fatto (1.108.0): helper, migrazione, regole, test, manuale, e `verse_changes.py recurring` letto dal coder per proporre lezioni |
+| R2.2 | U2: rilevamento della mappa nuova a inizio sessione (nessun `Claude/docs/SPEC.md` e nessun `project-template` installato) e proposta di installarlo da solo: copia di `project-template` in `Content/`, un solo passo, ripetibile, con `--dry-run`, riusando `kit_sync`; poi i passi di `SETUP-INSTRUCTIONS` (nome progetto, registrazione MCP, controlli) senza che l'utente debba dirlo | fatto (1.108.0) |
+| R2.3 | U3: domanda "mappa o prodotto Fab?" subito, PRIMA di installare qualsiasi cosa: se Fab, non si installa `project-template`; il tipo si registra fuori dal progetto Fab o in un solo file `.md` (da decidere in R3) | fatto (1.108.0) |
+| R2.4 | Controllo prima della consegna del jam (codice di versione privata, video 30-60 secondi, risorse di terzi con licenza, regole Fortnite) | fatto (1.108.0) |
+| R2.5 | `/devlog`: dev log automatico per il premio Glass Box | fatto (1.108.0) |
+| R2.6 | Scheda concept con punteggio di fattibilità (skill + script) | fatto (1.108.0) |
+| R2.7 | Manuale e README: sezione "Kit per il jam" | fatto (1.108.0) |
 
 ### R3 - 1.109.0 "Prodotti Fab e screenshot"
 

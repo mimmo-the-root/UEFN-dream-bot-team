@@ -2,6 +2,18 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
+      "Bash(py -3 Claude/hooks/verse_changes.py *)",
+      "Bash(python Claude/hooks/verse_changes.py *)",
+      "Bash(python3 Claude/hooks/verse_changes.py *)",
+      "Bash(py -3 Claude/hooks/devlog.py *)",
+      "Bash(python Claude/hooks/devlog.py *)",
+      "Bash(python3 Claude/hooks/devlog.py *)",
+      "Bash(py -3 Claude/hooks/jam_check.py *)",
+      "Bash(python Claude/hooks/jam_check.py *)",
+      "Bash(python3 Claude/hooks/jam_check.py *)",
+      "Bash(py -3 Claude/hooks/concept_card.py *)",
+      "Bash(python Claude/hooks/concept_card.py *)",
+      "Bash(python3 Claude/hooks/concept_card.py *)",
       "Bash(py -3 Claude/hooks/verse_check.py *)",
       "Bash(python Claude/hooks/verse_check.py *)",
       "Bash(python3 Claude/hooks/verse_check.py *)",

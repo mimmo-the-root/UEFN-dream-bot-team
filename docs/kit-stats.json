@@ -1,8 +1,8 @@
 {
-  "agents": 17,
+  "agents": 22,
   "mcp_subagents": 5,
   "skills": 34,
   "mcp_tools": 388,
   "recipes_proven": 387,
-  "version": "1.107.6"
+  "version": "1.108.0"
 }

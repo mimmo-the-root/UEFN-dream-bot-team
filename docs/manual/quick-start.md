@@ -30,13 +30,15 @@ claude mcp add --transport http unreal-mcp --scope user http://127.0.0.1:8000/mc
 
 ## Part B: once per project
 
+> **Shortcut** If the project has no kit yet, open a session from its `Content/` folder: the kit asks whether it is a map or a Fab product and, for a map, offers to do steps 2 to 4 for you (see *Kit for the jam*). The steps below are the manual way.
+
 1. In UEFN, open **Project Settings** and enable *Python Editor Scripting* and *UEFN MCP Toolsets* for this project.
 2. Copy the **contents** of the kit's `project-template/` folder into the project's `Content/` folder.
 3. Open a terminal **inside that `Content/` folder** and start `claude`.
 4. Tell it: *Read Claude/SETUP-INSTRUCTIONS.md and set up this project.* It checks the connection, asks what the project is, and sets up the rest.
 5. On the first session, ask for **project-bootstrap**. With existing code it maps the project and writes a first spec and bug list. With an empty project it asks you questions instead of inventing anything.
 
-> **Checkpoint** Open `http://127.0.0.1:8765/` in your browser. The console is running, and it shows 17 agents, all idle.
+> **Checkpoint** Open `http://127.0.0.1:8765/` in your browser. The console is running, and it shows 22 agents, all idle.
 
 > **Tip** Open the console as that web address, not as a file from your disk, or it cannot talk to the local server.
 

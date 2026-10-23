@@ -14,7 +14,7 @@ def stats():
     skills = [d for d in os.listdir(os.path.join(ROOT, "user-level-skills")) if os.path.isfile(os.path.join(ROOT, "user-level-skills", d, "SKILL.md"))]
     known = json.load(open(os.path.join(ROOT, "project-template/Claude/hooks/mcp-known-tools.json"), encoding="utf-8"))["tools"]
     rec = json.load(open(os.path.join(ROOT, "user-level-skills/mcp-tool-contracts/references/areas/recipes.json"), encoding="utf-8"))
-    return {"agents": len([a for a in agents if not a.startswith("mcp-")]), "mcp_subagents": len([a for a in agents if a.startswith("mcp-")]),
+    return {"agents": len(agents), "mcp_subagents": len([a for a in agents if a.startswith("mcp-")]),
             "skills": len(skills), "mcp_tools": len(known), "recipes_proven": sum(1 for v in rec.values() if v.get("status") == "proven"),
             "version": open(os.path.join(ROOT, "project-template/Claude/KIT-VERSION"), encoding="utf-8").read().strip()}
 

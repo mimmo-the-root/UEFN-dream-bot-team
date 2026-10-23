@@ -1,29 +1,27 @@
 <#
 sync-skills.ps1
-Uso PERSONALE — fuori dal kit, non va distribuito/rilasciato alla community.
+PERSONAL use - outside the kit, not to be distributed or released to the community.
 
-Scopo: allineare le skill dal profilo utente (dove evolvono mentre lavori)
-al progetto (da cui parte il rilascio su git), SENZA MAI sovrascrivere
-automaticamente nulla. Ogni copia richiede conferma esplicita, e ogni
-promozione viene loggata in un manifest cosi' la cronologia di cosa hai
-rilasciato e quando resta tracciabile (e puo' finire su git insieme al
-resto).
+Purpose: align skills from the user profile (where they evolve while you work) to the
+project (where the git release starts), WITHOUT EVER overwriting anything automatically.
+Every copy needs explicit confirmation, and every promotion is logged in a manifest so the
+history of what you released and when stays traceable (and can go to git with the rest).
 
-Percorsi di default (modificabili anche da riga di comando):
-  Profilo (sorgente, evolve)  : $env:USERPROFILE\.claude\skills
-  Progetto (destinazione, git): <cartella del kit>\user-level-skills (la cartella sopra tool\)
-  (La cartella del kit è il repo del kit stesso — le skill "di progetto" da
-  rilasciare stanno sotto user-level-skills, non sotto Claude\skills, che
-  invece è la struttura usata DENTRO ogni progetto UEFN che usa il kit)
+Default paths (can be overridden on the command line):
+  Profile (source, evolves)    : $env:USERPROFILE\.claude\skills
+  Project (destination, git)   : <kit folder>\user-level-skills (the folder above tool\)
+  (The kit folder is the kit repo itself - the "project" skills to release live under
+  user-level-skills, not under Claude\skills, which is the structure used INSIDE every
+  UEFN project that uses the kit)
 
-Uso:
-  .\sync-skills.ps1                       # mostra solo il riepilogo (dry-run, default)
-  .\sync-skills.ps1 -Apply                # applica interattivamente (conferma per ogni skill)
-  .\sync-skills.ps1 -Apply -All           # applica tutto senza chiedere skill per skill
-  .\sync-skills.ps1 -ProfilePath "..." -ProjectPath "..."   # override percorsi
+Usage:
+  .\sync-skills.ps1                       # summary only (dry-run, default)
+  .\sync-skills.ps1 -Apply                # apply interactively (confirm for each skill)
+  .\sync-skills.ps1 -Apply -All           # apply everything without asking skill by skill
+  .\sync-skills.ps1 -ProfilePath "..." -ProjectPath "..."   # override paths
 
-Nota: il confronto e' per HASH del contenuto (non per data), cosi' una skill
-"toccata" ma non davvero modificata non risulta come cambiata.
+Note: the comparison is by content HASH (not by date), so a skill that was "touched" but not
+really modified does not show up as changed.
 #>
 
 param(
@@ -31,9 +29,9 @@ param(
     [string]$ProjectPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "user-level-skills"),
     [switch]$Apply,
     [switch]$All,
-    # Cartelle sotto $ProfilePath da ignorare sempre: non sono skill vere, sono
-    # bookkeeping interno di Claude Code (es. "synced" contiene solo cartelle
-    # con GUID e file .bucket-* vuoti). Aggiungi qui altri nomi se ne scopri altri.
+    # Folders under $ProfilePath to always ignore: they are not real skills, they are
+    # Claude Code internal bookkeeping (e.g. "synced" only holds GUID folders and empty
+    # .bucket-* files). Add other names here if you find more.
     # "genre" is excluded on purpose (v1.81, Skill Harness): in your profile the genre skills hold
     # PRIVATE data from your maps (local/ folder: map names, task IDs, notes) and learned patterns.
     # They must never be promoted to the kit repo by a folder copy. The seed files in the repo are
@@ -81,11 +79,11 @@ function Save-Manifest {
 }
 
 if (-not (Test-Path $ProfilePath)) {
-    Write-Host "ERRORE: percorso profilo non trovato: $ProfilePath" -ForegroundColor Red
+    Write-Host "ERROR: profile path not found: $ProfilePath" -ForegroundColor Red
     exit 1
 }
 if (-not (Test-Path $ProjectPath)) {
-    Write-Host "Il percorso progetto non esiste, lo creo: $ProjectPath" -ForegroundColor Yellow
+    Write-Host "The project path does not exist, creating it: $ProjectPath" -ForegroundColor Yellow
     New-Item -ItemType Directory -Path $ProjectPath -Force | Out-Null
 }
 
@@ -108,41 +106,41 @@ foreach ($skillDir in $profileSkills) {
 
     $status = ""
     if ($null -eq $projectHash) {
-        $status = "NUOVA"
+        $status = "NEW"
     } elseif ($profileHash -ne $projectHash) {
-        $status = "MODIFICATA"
+        $status = "MODIFIED"
     } else {
-        $status = "INVARIATA"
+        $status = "UNCHANGED"
     }
 
-    $lastPromoted = if ($manifest.ContainsKey($skillName)) { $manifest[$skillName].lastPromotedAt } else { "mai" }
+    $lastPromoted = if ($manifest.ContainsKey($skillName)) { $manifest[$skillName].lastPromotedAt } else { "never" }
 
     $results += [PSCustomObject]@{
         Skill         = $skillName
-        Stato         = $status
+        Status        = $status
         ProfileHash   = if ($profileHash) { $profileHash.Substring(0,10) } else { "-" }
         ProjectHash   = if ($projectHash) { $projectHash.Substring(0,10) } else { "-" }
-        UltimaPromo   = $lastPromoted
+        LastPromoted  = $lastPromoted
     }
 }
 
 Write-Host ""
-Write-Host "=== Riepilogo sync skills ===" -ForegroundColor Cyan
-Write-Host "Profilo : $ProfilePath"
-Write-Host "Progetto: $ProjectPath"
+Write-Host "=== Skills sync summary ===" -ForegroundColor Cyan
+Write-Host "Profile : $ProfilePath"
+Write-Host "Project : $ProjectPath"
 Write-Host ""
 $results | Format-Table -AutoSize
 
-$toPromote = $results | Where-Object { $_.Stato -ne "INVARIATA" }
+$toPromote = $results | Where-Object { $_.Status -ne "UNCHANGED" }
 
 if ($toPromote.Count -eq 0) {
-    Write-Host "Nessuna skill da promuovere. Tutto allineato." -ForegroundColor Green
+    Write-Host "No skill to promote. Everything is aligned." -ForegroundColor Green
     exit 0
 }
 
 if (-not $Apply) {
     Write-Host ""
-    Write-Host "Modalita' dry-run (nessuna copia effettuata). Rilancia con -Apply per promuovere." -ForegroundColor Yellow
+    Write-Host "Dry-run mode (nothing copied). Run again with -Apply to promote." -ForegroundColor Yellow
     exit 0
 }
 
@@ -150,8 +148,8 @@ Write-Host ""
 foreach ($item in $toPromote) {
     $doPromote = $All
     if (-not $All) {
-        $answer = Read-Host "Promuovere '$($item.Skill)' ($($item.Stato)) dal profilo al progetto? [s/N]"
-        $doPromote = ($answer -eq "s" -or $answer -eq "S")
+        $answer = Read-Host "Promote '$($item.Skill)' ($($item.Status)) from the profile to the project? [y/N]"
+        $doPromote = ($answer -eq "y" -or $answer -eq "Y")
     }
 
     if ($doPromote) {
@@ -175,13 +173,13 @@ foreach ($item in $toPromote) {
             hash           = $newHash
         }
 
-        Write-Host "  -> Promossa: $($item.Skill)" -ForegroundColor Green
+        Write-Host "  -> Promoted: $($item.Skill)" -ForegroundColor Green
     } else {
-        Write-Host "  -> Saltata: $($item.Skill)" -ForegroundColor DarkGray
+        Write-Host "  -> Skipped: $($item.Skill)" -ForegroundColor DarkGray
     }
 }
 
 Save-Manifest -ManifestPath $manifestPath -Manifest $manifest
 Write-Host ""
-Write-Host "Manifest aggiornato: $manifestPath" -ForegroundColor Cyan
-Write-Host "Fatto." -ForegroundColor Green
+Write-Host "Manifest updated: $manifestPath" -ForegroundColor Cyan
+Write-Host "Done." -ForegroundColor Green

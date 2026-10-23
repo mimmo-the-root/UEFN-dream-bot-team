@@ -25,3 +25,22 @@ try:
     print("history_trim tests OK")
 finally:
     shutil.rmtree(d, ignore_errors=True)
+
+# v1.108: header history is removed from ANY size of file, Summary + Last modified stay, code untouched, one log row
+d = tempfile.mkdtemp()
+try:
+    hv = ("# B.verse\n# Summary: Spawns waves.\n# Last modified: 2026-10-23 - v7\n"
+          "# v6 2026-10-01: fixed timer\n# v1-v5: initial build\nusing { /Fortnite.com/Devices }\nc := class:\n    X:int = 1\n")
+    p2 = os.path.join(d, "b.verse"); open(p2, "w").write(hv)
+    r = h.run(d, apply=True)
+    n2 = open(p2).read()
+    assert r and "header history" in r[0], r
+    assert "Summary: Spawns waves." in n2 and "Last modified: 2026-10-23 - v7" in n2
+    assert "v6 2026" not in n2 and "v1-v5" not in n2
+    assert code_lines(n2) == code_lines(hv)
+    assert h.run(d, apply=True) == [], "idempotent"
+    lg = open(os.path.join(d, "Claude", "logs", "verse-changes.jsonl")).read()
+    assert '"migrated"' in lg and "b.verse" in lg
+    print("header history migration OK")
+finally:
+    shutil.rmtree(d, ignore_errors=True)

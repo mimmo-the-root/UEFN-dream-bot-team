@@ -19,7 +19,8 @@
         "skills-and-lessons",
         "mcp-engine",
         "skill-catalog",
-        "community"
+        "community",
+        "jam-kit"
       ]
     },
     {
@@ -41,7 +42,7 @@
   "summaries": {
     "welcome": "What the kit is, what it does for you, what it does not do.",
     "quick-start": "From zero to a first working session.",
-    "your-team": "The 17 agents, the model each one runs on, and when to call them.",
+    "your-team": "The 22 agents, the model each one runs on, and when to call them.",
     "the-console": "The six pages of the local console, one by one.",
     "skills-and-lessons": "How the kit learns from your maps and what you approve.",
     "community": "Share a lesson, get everyone's: how it works and what stays private.",
@@ -53,7 +54,8 @@
     "glossary": "The words this manual uses.",
     "about": "Who made the kit, how to follow along, the license.",
     "mcp-engine": "Mapping everything UEFN's MCP offers, and noticing what Epic adds.",
-    "mcp-tool-reference": "Every tool the kit knows, by toolset, with its parameters and how far it is proven."
+    "mcp-tool-reference": "Every tool the kit knows, by toolset, with its parameters and how far it is proven.",
+    "jam-kit": "New project: map or Fab product, and the three jam commands."
   },
   "seo": {
     "index": [
@@ -119,6 +121,10 @@
     "about": [
       "About Dream Bot Team: author, license and updates",
       "Who made the Dream Bot Team kit for UEFN, how to follow updates, and the MIT license."
+    ],
+    "jam-kit": [
+      "Game jam kit for UEFN: concept score, dev log and entry check",
+      "Use the Dream Bot Team kit for a UEFN game jam: score an idea, write the dev log from the logs, check the entry, and set up a new map or Fab product."
     ]
   }
 }

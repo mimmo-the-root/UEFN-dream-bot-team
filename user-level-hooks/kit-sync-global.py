@@ -4,6 +4,36 @@ Brings ANY project that already has the kit (even a very old one, with no hook o
 version in ~/.claude/kit-template. Silent when there is nothing to do. Never fails a session."""
 import json, os, sys
 
+def new_map_context(base):
+    """v1.108 (U2+U3): a UEFN project that has no kit yet. Returns the text for Claude, or None."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, here)
+    try:
+        import kit_install as ki
+    except Exception:
+        return None
+    r = ki.find_uefn_root(base)
+    if not r:
+        return None
+    root, content = r
+    if ki.kit_installed(content):
+        return None
+    kind = ki.get_kind(root)
+    inst = 'python "%s"' % os.path.join(here, "kit_install.py")
+    if kind == "fab":
+        return ("This UEFN project is registered as a FAB PRODUCT. Do NOT install the kit's project-template in it "
+                "(its components are added to the customer's project later). Work on it normally.")
+    return ("NEW UEFN PROJECT WITHOUT THE KIT (%s). Before anything else, in your first reply: "
+            "1) ask ONE question with AskUserQuestion: 'Is this a map (island) or a Fab product?' "
+            "(skip it only if the owner already said which). "
+            "2) If MAP: run `%s \"%s\" --dry-run`, tell the owner in one line how many files will be copied, ask for a yes, "
+            "then run it again with --apply (it never overwrites a file), then read Claude/SETUP-INSTRUCTIONS.md and run it "
+            "(on Windows use `py -3` if `python` is not found). The kit's hooks start working from the next session; say so. "
+            "3) If FAB PRODUCT: run `%s --kind \"%s\" fab` and install NOTHING: a Fab product is a small UEFN project whose "
+            "components are added to the customer's project, so project-template must never be put in it. "
+            "The answer is remembered outside the project, so the question is not asked again."
+            % (root, inst, content, inst, root))
+
 def main():
     try:
         data = json.load(sys.stdin)
@@ -20,6 +50,9 @@ def main():
             project = c
             break
     if not project:
+        ctx = new_map_context(base)
+        if ctx:
+            print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": ctx}}))
         return 0
     sys.path.insert(0, os.path.dirname(sync))
     os.environ["CLAUDE_PROJECT_DIR"] = project

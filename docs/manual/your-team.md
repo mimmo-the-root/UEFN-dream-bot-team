@@ -1,6 +1,6 @@
 # Your team
 
-Seventeen agents, each with one narrow job, so that the one who writes is never the one who approves.
+Twenty-two agents, each with one narrow job, so that the one who writes is never the one who approves.
 
 You do not need to remember all of them. In day-to-day work you talk to Claude, and it calls the right agent. You can also ask for one by name.
 
@@ -52,7 +52,7 @@ Haiku is the lighter, cheaper model; Sonnet is the stronger one. No agent uses O
 
 ## The five MCP sub-agents
 
-On top of the seventeen agents, five sub-agents do the hands-on work through UEFN's MCP. You do not call them yourself: the `coder` calls them, one narrow task each (about 15 MCP calls, a reply of 10 lines at most), and assembles the result. Only one of them writes at a time, because the editor is a single shared instance.
+Five of the twenty-two are sub-agents that do the hands-on work through UEFN's MCP. You do not call them yourself: the `coder` calls them, one narrow task each (about 15 MCP calls, a reply of 10 lines at most), and assembles the result. Only one of them writes at a time, because the editor is a single shared instance.
 
 | Sub-agent | Model | Job |
 |---|---|---|

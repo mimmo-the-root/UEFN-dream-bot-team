@@ -116,16 +116,15 @@ Every Verse file (created or modified) must have a comment block at the top in t
   just give the sections a readable structure.
 - **Date and version**: `coder` updates the date (the real one — check it with a command
   instead of guessing) and increments the version number every time it substantially modifies
-  that file. There's no Git tracking versions, so this header is the only history we have: keep
-  it disciplined and up to date, don't let it fall behind.
-- **History lines and pruning**: if a file keeps change notes in its header (e.g. `# v12 2026-09-30: ...`),
-  keep them SHORT (one line per version) and cap them at **15 lines**. When a new entry would exceed
-  15, merge the oldest entries into ONE rolled-up line and keep only the newest 8 individually, e.g.
-  `# v1-v14: initial build, wave spawner, shop, VIP bindings (details condensed)`. Never drop the
-  Summary or the "Last modified" line, never delete a decision that still matters (move it into the
-  rolled-up line in a few words), and do the pruning in the same edit that adds the new entry — no
-  separate cleanup task. Files whose header is already longer than the cap are shortened the next
-  time `coder` touches them.
+  that file. The header keeps the CURRENT state only: file name, an English Summary that is
+  always up to date (rewrite it when the behaviour changes), and the real date and version.
+- **No change history in the file.** Do not write `# v12 2026-..: ...` lines, "History" blocks or
+  fix notes in the header. The history of changes goes to the log instead:
+  `python Claude/hooks/verse_changes.py add <file.verse> --summary "what changed" --reason "why"`
+  (one line in `Claude/logs/verse-changes.jsonl`, next to `verse-errors.jsonl`; the learning
+  system reads both). A header that still has history lines is cleaned by `history_trim.py`
+  (lines archived in `Claude/docs/archive/verse/`, one "migrated" row in the log); a decision that
+  still matters goes into the Summary in a few words.
 - If an existing Verse file doesn't have this header, `coder` adds it the first time it touches
   that file (starting at v1 with today's date); `project-bootstrap` flags files still missing
   it in BUGS.md as a non-blocking gap.

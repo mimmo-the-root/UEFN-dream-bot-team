@@ -57,7 +57,7 @@ A few rules live in `~/.claude/CLAUDE.md` and apply to every project without bei
 - **Always multiplayer:** the coder and the QA agent reason about authority and several players, not just solo preview.
 - **Performance:** the bootstrap flags per-tick work, unbounded loops and deprecated API calls; QA flags frame drops at playtest.
 - **State machines** for phase-based logic.
-- **A header comment** in every Verse file with what it does, a date and a version, because there is no Git history inside the project.
+- **A header comment** in every Verse file with an up-to-date description in English, the real date and the version. It holds no change history: every change is written as one line in `Claude/logs/verse-changes.jsonl` (what changed, why, the outcome), next to `verse-errors.jsonl`. On the first session after the update the kit moves any old history lines out of existing headers into `Claude/docs/archive/`; the code is never touched.
 - **A DemoDisplay stand** for each custom Verse device, with its devices placed on it. Devices whose position matters for gameplay stay where they are.
 - **A file that cannot be deleted is parked, not forced:** when a file has to go (replaced in an update, obsolete, a test leftover) and the team is not allowed to delete it, it moves to a `_to_delete` folder at the project root, in a dated subfolder, and tells you. You empty that folder when you are sure. The same holds for the kit when it updates.
 - **Support devices outside the play area,** grouped on their stand, so players never see or reach them.

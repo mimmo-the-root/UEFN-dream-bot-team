@@ -920,7 +920,7 @@
     "writes": true,
     "cleanup": "none",
     "status": "unverified",
-    "note": "replay 2026-10-22: twice \"Timed out waiting for asset selection.\" with the exact args (asset exists, editor in foreground); not insisted. lab-18: needs the Content Browser open and in front (timeout otherwise); not retried from here. The owner may try it once by hand."
+    "note": "lab-19 2026-10-23: answered ok (returnValue None) in 1.7 s with UEFN in front and 1.4 s with another app on top, same args, Content Browser open. Background throttle is NOT the cause; the earlier timeouts (lab-18, replay 2026-10-22) look tied to the Content Browser not being open/ready. Status kept unverified (no read-back of the selection)."
   },
   "EditorToolset.EditorAppToolset/OpenEditorForAsset": {
     "args": {

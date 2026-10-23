@@ -4,6 +4,9 @@
 Moves OLD HISTORY out of the files agents read, into Claude/docs/archive/ (kept, with a pointer left behind):
   STATUS.md      older log entries (keeps the newest 5) when the file is over 8 KB
   BUGS.md        detail sections of bugs already resolved (keeps heading + 2 lines) when the file is over 12 KB
+  *.verse        (v1.108) change-history lines in the file HEADER (# v12 2026-..: ..., # v1-v14: ..., # History:) are
+                 removed: header = Summary + real date/version only. The lines go to the archive and one row to
+                 Claude/logs/verse-changes.jsonl (result "migrated"). Any size of file.
   *.verse        long dated change-history comment paragraphs (FIX / NUOVO / STORIA / DIAGNOSTICA / REGRESSIONE ...)
                  in files over 20 KB: keeps the first 3 comment lines + a pointer, full text goes to the archive
 Safety: Verse CODE is never touched (the non-comment lines are compared before and after; on any difference the
@@ -14,10 +17,13 @@ Opt out: create the file Claude/docs/.no-history-trim.
   python Claude/hooks/history_trim.py [project dir] --apply
 """
 import hashlib, os, re, shutil, sys, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 KEEP_STATUS = 5
 STATUS_MIN, BUGS_MIN, VERSE_MIN = 8000, 12000, 20000
-HIST_START = re.compile(r"^\s*#\s*(FIX|NUOVO|NUOVA|STORIA|DIAGNOSTICA|DIAGNOSTICO|LOG DIAGNOSTICO|REGRESSIONE|SUPERATO|TARATURA|SEMPLIFICATO|ABBANDONATO)\b")
+# Markers of old history comments. The Italian words are kept ON PURPOSE: they match comments that
+# existing user projects already contain; the code itself and everything it prints is English.
+HIST_START = re.compile(r"^\s*#\s*(FIX|NEW|HISTORY|REGRESSION|NUOVO|NUOVA|STORIA|DIAGNOSTICA|DIAGNOSTICO|LOG DIAGNOSTICO|REGRESSIONE|SUPERATO|TARATURA|SEMPLIFICATO|ABBANDONATO)\b")
 KEEP_LINES, MIN_PARA = 3, 7
 SKIP_DIRS = {".git", "Claude", "__ExternalActors__", "__ExternalObjects__", "node_modules", "__pycache__"}
 
@@ -133,6 +139,29 @@ def trim_verse(text, arch, rel):
     return new.replace("\n", nl), moved
 
 
+def strip_header_history(text, arch, rel):
+    """v1.108: header = file name + Summary + 'Last modified: date - vN'. Remove the history lines. Code untouched."""
+    import verse_changes as vc
+    nl = "\r\n" if "\r\n" in text else "\n"
+    lines = text.replace("\r\n", "\n").split("\n")
+    n = len(vc.header_block("\n".join(lines)))
+    # header_block skips leading blanks; find its real extent
+    start = 0
+    while start < len(lines) and not lines[start].strip():
+        start += 1
+    block = lines[start:start + n]
+    hist = [l for l in block if vc.HIST.match(l) and not vc.LASTMOD.match(l)]
+    if not hist:
+        return text, 0, []
+    keep = [l for l in block if l not in hist]
+    new = lines[:start] + keep + lines[start + n:]
+    code = lambda ls: [l for l in ls if not _is_comment(l)]
+    if code(new) != code(lines):
+        return text, 0, []
+    _append_archive(arch, "%s (header history)" % rel, "\n".join(hist))
+    return "\n".join(new).replace("\n", nl), len(hist), hist
+
+
 def run(project, apply=False):
     """Returns a list of report lines. With apply=True it writes (after a backup)."""
     docs = os.path.join(project, "Claude", "docs")
@@ -152,7 +181,8 @@ def run(project, apply=False):
             if dst.endswith(".verse"):
                 dst += ".bak"  # a backup must NEVER keep the .verse extension: UEFN compiles every .verse under Content/
             os.makedirs(os.path.dirname(dst), exist_ok=True)
-            shutil.copy2(path, dst)
+            if not os.path.exists(dst):  # keep the FIRST (original) copy if a file is changed twice in one run
+                shutil.copy2(path, dst)
             _write(path, new)
 
     for name, fn, arch in (("STATUS.md", trim_status, "STATUS-ARCHIVE.md"), ("BUGS.md", trim_bugs, "BUGS-ARCHIVE.md")):
@@ -172,12 +202,22 @@ def run(project, apply=False):
                 continue
             p = os.path.join(base, f)
             old = _read(p)
-            if len(old.encode("utf-8")) < VERSE_MIN:
-                continue
             rel = os.path.relpath(p, project).replace(os.sep, "__")
             a = os.path.join(arch_dir, "verse", rel + ".md")
             if not apply:
                 a = os.path.join(bk, "dry", rel + ".md")
+            new, k, hist = strip_header_history(old, a, os.path.relpath(p, project).replace(os.sep, "/"))
+            if k:
+                commit(p, old, new, "%d header history line(s) moved to the archive, code untouched" % k)
+                if apply:
+                    try:
+                        import verse_changes as vc
+                        vc.record(f, "header history moved to the archive (%d lines)" % k, "kit migration v1.108", "migrated", path=vc.log_path(project))
+                    except Exception:
+                        pass
+                old = new
+            if len(old.encode("utf-8")) < VERSE_MIN:
+                continue
             new, k = trim_verse(old, a, os.path.relpath(p, project).replace(os.sep, "/"))
             if k:
                 commit(p, old, new, "%d history comment block(s) condensed, code untouched" % k)

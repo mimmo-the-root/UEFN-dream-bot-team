@@ -115,6 +115,6 @@ These are written in the skills too, so the agents avoid them.
 - **`save_assets` with no list of assets** would save every unsaved asset of the project. The kit's guard refuses it; the agent names the assets it changed.
 - **Mesh numbers without the crash:** read the asset-registry tag `Triangles`, `static_materials`, the bounding box or the Nanite settings instead of the crashing readers.
 - **More calls that crash the editor:** the console command `EDIT COPY` with no world context, and opening an asset editor from Python.
-- **Editor throttled in the background:** UEFN has a setting 'Use Less CPU when in Background'; with the window out of focus a call can stall.
+- **Calls that need a panel:** a call such as `SelectAssets` can time out when the panel it needs (the Content Browser) is not open or not ready. Other tools blame the 'Use Less CPU when in Background' setting; in our test the call answered in 1.4 s with another app on top, so check the panel first.
 - **Rotations:** pass a rotator by name (roll, pitch, yaw), never by position; the order (roll, pitch, yaw) turns an actor the wrong way.
 - **UEFN 42.40 asks two new questions** that block the editor until you answer: a trust prompt when a project opens and a notice to enable Python Editor Scripting.

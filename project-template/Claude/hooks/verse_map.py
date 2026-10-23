@@ -351,6 +351,7 @@ def cmd_learned(project, outdir, token="", all_cards=False):
 
 DOC_SKIP = ("STATUS.md", "BUGS.md", "ROADMAP.md")  # task trackers: planner-docs owns them and they change every session
 DOCS_VERSION = 2  # bump to make every document be read again (v2: design decisions for the starter sections)
+# (the Italian words match docs that existing user projects already contain)
 STALE_RE = re.compile(r"\b(draft|bozza|proposed|proposal|planned|todo|to do|not implemented|non implementat\w*|nessun codice|no code|da fare|wip|in progress|in corso)\b", re.I)
 DOC_CAP = 40000  # characters per batch (a single longer doc is printed alone, complete)
 

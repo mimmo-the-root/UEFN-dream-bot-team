@@ -8,7 +8,7 @@
 
 
 **Dream Bot Team** is a free, open-source Claude Code kit for building, testing and improving
-**UEFN** (Unreal Editor for Fortnite) maps with AI. It gives you seventeen specialized AI agents,
+**UEFN** (Unreal Editor for Fortnite) maps with AI. It gives you twenty-two specialized AI agents (seventeen team agents plus five UEFN MCP sub-agents),
 each with one narrow job, instead of one general-purpose assistant trying to do everything and
 stepping on its own toes. It writes and fixes **Verse** code in a plan-first loop, and it drives the
 **UEFN MCP** (Epic's Model Context Protocol server for the editor) with recipes that were proven on a
@@ -56,8 +56,9 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.107)
+## What's new (v1.102 - v1.108)
 
+- **Ready for the jam (1.108).** A new project asks whether it is a map or a Fab product (a map gets the kit, a Fab product never does). Verse headers keep only the present and every change goes to a log. `/concept-card` scores an idea, `/devlog` writes the dev log from the logs, `/jam-check` checks the entry before you hand it in.
 - **The MCP, mapped, learned and proven (1.107).** The Console is now a small solar system: five planets around the chief of staff, the other agents as moons, token arcs, a detail card, pinned agents and switches to show or hide each part. 14 UEFN MCP skills and 5 MCP sub-agents ship in the kit; recipes are marked `tool-ok` or `proven`, and what you prove can be shared with the community (counts only). UEFN can be restarted after a crash if you opt in; a running editor is never closed.
 - **Flow page as a U-shaped board (1.106).** Twelve stations along a U, one card and one agent icon per station, zone progress bars, the Control Tower and a Pipeline pulse. Tokens, time and verdicts come from the real log and `/agent-costs`; a missing number is shown as a dash, never invented.
 - **Tokens per agent (1.104).** A table at the bottom of the Console, counted from the sub-agent transcripts: runs, calls, input, output and cache, per agent. Counts, not prices.
@@ -174,7 +175,7 @@ Full details for every version in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## What's in the box
 
-- **Seventeen agents** (plus five MCP sub-agents the `coder` orchestrates), each doing one job: project setup, an independent ambiguity check before any
+- **Twenty-two agents** (seventeen team agents plus five MCP sub-agents the `coder` orchestrates), each doing one job: project setup, an independent ambiguity check before any
   code is written, the actual Verse coding with a mandatory compile-fix loop, two separate review
   gates (spec adherence, then mechanical rule conformance — never the same agent grading both),
   regression/bug hunting after every playtest, documentation that stays current, a go/no-go release
@@ -204,7 +205,7 @@ Full version history is in [`CHANGELOG.md`](CHANGELOG.md).
 ```
 project-template/       Files copied into each UEFN project's Content/ folder (hooks, docs
                          templates, the Agent Console, per-project CLAUDE.md)
-user-level-agents/       The 17 agent definitions, installed once into ~/.claude/agents/
+user-level-agents/       The 22 agent definitions, installed once into ~/.claude/agents/
 user-level-memory/       Base rules loaded in every session, installed into ~/.claude/CLAUDE.md
 user-level-skills/       Shared skills (uefn-lessons, mcp-tool-contracts, and others),
                          installed once into ~/.claude/skills/

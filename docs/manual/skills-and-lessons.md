@@ -18,7 +18,7 @@ It never interviews you about your map. If a session stops halfway, the next one
 
 `/verse-check` asks your open UEFN to build the whole Verse project, the same build as "Build Verse Code" in Visual Studio Code, and answers with one of three states: **clean** (built, no errors), **errors** (with the build log: file, line, message) or **not analyzed** (UEFN is not reachable, so nothing was checked). The coder runs it before calling a task Done and the release gate runs it before a verdict; "not analyzed" is never reported as "compiles". It changes nothing in your project.
 
-When a build ends with errors, the kit notes it in `Claude/logs/verse-errors.jsonl` (time, error codes, a short excerpt without file paths). If the same error shows up in two different builds, the coder tells you in one line what it was and what fixed it, and asks whether to add it to the Verse lessons. It writes the lesson only after you say yes.
+When a build ends with errors, the kit notes it in `Claude/logs/verse-errors.jsonl` (time, error codes, a short excerpt without file paths). If the same error shows up in two different builds, the coder tells you in one line what it was and what fixed it, and asks whether to add it to the Verse lessons. It writes the lesson only after you say yes. Changes to Verse files are logged the same way in `Claude/logs/verse-changes.jsonl` (file, time, summary, reason, outcome) instead of in the file header; `python Claude/hooks/verse_changes.py list` shows the latest ones.
 
 ## Building screens with Epic's Verse UI Kit
 

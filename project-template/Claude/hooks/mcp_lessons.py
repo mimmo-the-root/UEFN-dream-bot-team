@@ -162,7 +162,7 @@ def render_md(items):
     for g in unc[:38]:
         lines.append("- x%d [%s] %s - %s" % (g["count"], g["r"], g["key"].split(" | ")[0], g["signature"]))
     if len(unc) > 38:
-        lines.append("- ... altri %d non coperti nel JSON" % (len(unc) - 38))
+        lines.append("- ... %d more not covered in the JSON" % (len(unc) - 38))
     lines.append("%d candidates, %d already covered" % (len(items), len(items) - len(unc)))
     return "\n".join(lines[:40]) + "\n"
 

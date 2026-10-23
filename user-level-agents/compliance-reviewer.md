@@ -44,8 +44,7 @@ files/devices it touched.
    Check what's verifiable from files (asset paths, naming in Verse/config), and for anything that
    only exists in the Outliner/device tree, say plainly in your verdict that it's taken on
    `coder`'s report rather than independently confirmed — don't imply you checked it live.
-3. **Header documentation** — every touched/created Verse file has an up-to-date header (what it
-   does, per-section comments, current date, incremented version). Also flag (non-blocking) a header whose history lines exceed 15; coder prunes it on the next touch.
+3. **Header documentation** — every touched/created Verse file has a header with file name, an up-to-date English Summary (matches what the code does now), the real date and an incremented version, and per-section comments. Run `python Claude/hooks/verse_changes.py check <file>`. **Blocking:** change-history lines in the header (the history belongs in `Claude/logs/verse-changes.jsonl`) or no entry for this change in that log.
 4. **Multiplayer authority** — anything touching shared state has visibly been thought through for
    server/client authority and concurrent players, not "works for one player" logic.
 5. **State machine** — multi-phase logic (lobby/round/end-of-match, a device's states) uses one
