@@ -11,11 +11,13 @@ a recipe is a template ({lab_mount}, {widget_bp}). Only rows with src "work" (re
   python recipes_status.py --report                    local evidence from this project's ledger, merged with the shipped recipes
   python recipes_status.py --todo [--area NAME]        what a validation battery still has to replay (proven recipes are skipped)
   python recipes_status.py --gap [--area NAME]         tools that answered in the lab but have no recipe yet (with the last good call)
+  python recipes_status.py --stale [--retested]        recipes whose tool CHANGED or was REMOVED in a new UEFN version (from the saved MCP map), to replay again;
+                                                       --retested stamps today, so only later changes are listed afterwards
   python recipes_status.py --export OUT.json           the same evidence as counts per recipe, with NO arguments and NO paths (shareable)
   python recipes_status.py --apply EVIDENCE.json [--write]   the maintainer: raise recipes to proven from an evidence/export file
 The evidence stays in Claude/logs/recipes-evidence.json; the shipped recipes.json is never edited by a normal run.
 """
-import argparse, json, os, re, sys
+import argparse, json, os, re, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -257,6 +259,46 @@ def progress(ledger=None, recipes_path=None, history=None, tools=None):
         return {}
 
 
+def map_changes(d=None):
+    """Rows of changes.jsonl (the MCP map's history): [{date, uefn, state, added, removed, changed}]."""
+    import toolset_diff as td
+    p = os.path.join(d or td.default_dir(), "changes.jsonl")
+    rows = []
+    try:
+        for l in open(p, encoding="utf-8"):
+            try:
+                rows.append(json.loads(l))
+            except ValueError:
+                pass
+    except OSError:
+        pass
+    return rows
+
+
+def stale(recipes, rows, since=""):
+    """[(recipe key, why, date, uefn)]: recipes that use a tool changed or removed since `since` (YYYY-MM-DD, exclusive).
+    A changed description does not prove the recipe broke: it means it must be replayed before it is trusted again."""
+    out = []
+    for r in rows:
+        if r.get("state") != "changed" or (since and str(r.get("date", "")) <= since):
+            continue
+        gone, chg = set(r.get("removed") or []), set(r.get("changed") or [])
+        for key in recipes:
+            if is_note(key):
+                continue
+            tool = key.split("#")[0]
+            if tool in gone:
+                out.append((key, "tool removed", r.get("date", ""), r.get("uefn", "")))
+            elif tool in chg:
+                out.append((key, "tool changed", r.get("date", ""), r.get("uefn", "")))
+    seen, res = set(), []
+    for x in out:
+        if x[0] not in seen:
+            seen.add(x[0])
+            res.append(x)
+    return res
+
+
 def export(merged):
     """Counts per recipe key, nothing else: no arguments, no paths, no project names."""
     return {"kind": "mcp-recipes-evidence", "recipes": {k: {"ok": v["ok"], "failed": v["failed"], "last_failure": v["last_failure"]}
@@ -281,6 +323,8 @@ def main(argv=None):
     ap.add_argument("--apply", metavar="EVIDENCE")
     ap.add_argument("--todo", action="store_true")
     ap.add_argument("--gap", action="store_true")
+    ap.add_argument("--stale", action="store_true")
+    ap.add_argument("--retested", action="store_true")
     ap.add_argument("--area", default=None)
     ap.add_argument("--write", action="store_true", help="with --apply: write the recipes file (else just count)")
     ap.add_argument("--min-ok", type=int, default=1)
@@ -292,6 +336,25 @@ def main(argv=None):
             json.dump(recipes, open(a.recipes or RECIPES, "w", encoding="utf-8", newline="\n"), indent=1, ensure_ascii=False)
         print("%d recipe(s) %s proven" % (n, "set to" if a.write else "would become"))
         return 0
+    if a.stale or a.retested:
+        stamp = os.path.join(os.path.dirname(os.path.abspath(a.ledger)), "recipes-retest.json")
+        try:
+            since = json.load(open(stamp, encoding="utf-8")).get("date", "")
+        except (OSError, ValueError):
+            since = ""
+        if a.retested:
+            os.makedirs(os.path.dirname(stamp), exist_ok=True)
+            json.dump({"date": time.strftime("%Y-%m-%d")}, open(stamp, "w", encoding="utf-8"))
+            print("stamped: only changes after today are listed from now on")
+            return 0
+        rows = stale(recipes, map_changes(), since)
+        if not rows:
+            print("no recipe uses a tool that changed%s since the last retest%s" % ("" if map_changes() else " (no MCP map history yet: it is saved at session start)", (" (" + since + ")") if since else ""))
+            return 0
+        print("recipes to replay again (%d): the tool changed in a newer UEFN. Replay with the lab guard, then run --retested." % len(rows))
+        for key, why, date, uefn in rows:
+            print("%s | %s | %s %s" % (key, why, date, ("UEFN " + uefn) if uefn else ""))
+        return 1
     merged = merge(recipes, evidence_from_ledger(a.ledger))
     if a.gap:
         try:

@@ -199,3 +199,7 @@ Style: go straight to the results, no preamble or narration of what you're about
 
 ## Score page link
 When you add or change a ROADMAP task, add its criteria to `Claude/docs/score-map.json` (`{"T-012": ["audio"]}`; ids are listed in `Claude/reference/score-criteria.json`; see the project-scoring skill). The Score page reads ROADMAP, BUGS and the readiness verdict by itself; this file only classifies tasks the keywords would miss.
+
+## Delivery document
+
+When the owner asks for a delivery document (for a client, a teammate or the jam), run `python Claude/hooks/delivery.py` and then help fill the parts outside the auto markers (what it is, how to play, credits) from SPEC.md and STATUS.md. The auto part is rebuilt from ROADMAP and BUGS; never edit it by hand.

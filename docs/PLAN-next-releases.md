@@ -1,6 +1,6 @@
 # Piano delle prossime release - stato al 2026-10-23 (notte)
 
-Repo: mimmo-the-root/UEFN-dream-bot-team (locale C:\UEFNDreamTeamBot). Pubblicate fino alla 1.108.3 (1.107.6 e 1.108.0 uscite insieme; 1.108.1 Score e strumenti jam; 1.108.2 Score nel manuale; 1.108.3 aggiornamento automatico). In preparazione, non ancora pubblicata: 1.108.4 (contatore installazioni con `kit.zip`, Score scura). L'utente possiede commit, tag e release.
+Repo: mimmo-the-root/UEFN-dream-bot-team (locale C:\UEFNDreamTeamBot). Pubblicate fino alla 1.108.4 (1.107.6 e 1.108.0 uscite insieme; 1.108.4 contatore installazioni; 1.108.1 Score e strumenti jam; 1.108.2 Score nel manuale; 1.108.3 aggiornamento automatico). In preparazione, non pubblicata, in test: 1.109.0, che raccoglie R3 e parte di R4 (Fab, economia, segnali nei log, documento di consegna, modifiche all'editor, blocco, ricette, Verse statico, prova console). L'utente possiede commit, tag e release.
 
 Come usare questo file: ripartire dalla prima riga con stato "da fare". Aggiornare lo stato qui (e nella copia della pagina di progetto `claude/PLAN-next-releases.md`) a ogni passo. Fonti: lista idee dei competitor (`claude/competitor-ideas-2026-10.md`) e richieste dell'utente del 23 ottobre.
 
@@ -14,7 +14,7 @@ Scadenza che guida l'ordine: Epic jam "Vibe your way to $50k", annuncio del tema
 | `robots.txt` del manuale e badge sitemap nel README | fatto (1.108.1) |
 | Video della release dedicato al jam (grafica nostra, tempio neon "Antiquated Future", senza immagini di Epic) + 5 post per X + annuncio Discord (`docs/release-videos/`) | fatto |
 | **Aggiornamento automatico da GitHub**: controllo ogni 6 ore in background (hook di progetto e hook globale), `kit_fetch --auto`; chi ha un kit precedente alla 1.108.3 deve lanciare `/kit-update --fetch` una volta (nota in README e manuale) | fatto (1.108.3) |
-| **Contatore installazioni**: ogni release allega `kit.zip`, l'aggiornamento scarica quello e GitHub conta i download; `python tool/installs.py` mostra i numeri (il conteggio parte con chi ha già la 1.108.4) | pronto, da pubblicare (1.108.4) |
+| **Contatore installazioni**: ogni release allega `kit.zip`, l'aggiornamento scarica quello e GitHub conta i download; `python tool/installs.py` mostra i numeri (il conteggio parte con chi ha già la 1.108.4) | fatto (1.108.4) |
 | Errore di pubblicazione: la 1.108.0 era già uscita quando ho continuato a lavorarci; da ora si controlla `git tag` prima di dire "da pubblicare" | chiuso |
 
 ## Da decidere / possibili prossimi passi
@@ -92,19 +92,22 @@ Cosa ne ricavo per il modo Fab:
 
 | # | Voce | Stato |
 |---|---|---|
-| R3.1 | U4: modo Fab - set specifico di `.md`: `Documentation/` (istruzioni di configurazione e uso: diventano il manuale utente del prodotto, per il cliente che aggiunge i componenti al suo progetto) e `FabListing/` (titolo, descrizione, tag, dettagli tecnici, dichiarazione risorse di terzi, elenco di cosa contiene il prodotto) | da fare |
-| R3.2 | Controllo leggero del pacchetto Fab: nessun `.py`, `Claude/`, `.claude/`, `CLAUDE.md`, `.lore`; nomi alfanumerici/underscore; percorsi di 140 caratteri al massimo (calcolati col nome della cartella del progetto); niente `Saved`/`Intermediate`; nessun nome generico. Prototipo già provato a mano su entrambi i pilota (trova i 9 percorsi lunghi di root_rank_system) | da fare |
-| R3.2b | Aiuto per accorciare i percorsi troppo lunghi (proposta di nuovi nomi, rinomina con `AssetTools/move`, poi riferimenti a posto) - solo con tuo ok | da fare |
-| R3.2c | Verifica della licenza di `VerseUIKit` e dichiarazione delle risorse di terzi nel listing | da fare |
-| R3.1b | Generare `Documentation/` dal codice: tabella delle impostazioni `@editable` con valori di default, `Summary` delle intestazioni, parametri dei materiali con le ricette provate | da fare |
-| R3.3b | Griglia panoramica dei materiali/asset su sfondo unito, dalle miniature | da fare |
-| R3.3 | U5: screenshot automatici per la pubblicazione (miniatura, galleria, panoramica a griglia) con le ricette di cattura già provate; dimensioni dopo verifica | da fare |
-| R3.4 | Simulatore di economia (tycoon/arena) | da fare |
-| R3.5 | Segnali strutturati nei log della mappa letti da `qa-regression` | da fare |
-| R3.6 | Documenti di consegna per ogni mappa (planner-docs) | da fare |
-| R3.7 | Vista portafoglio delle isole nella console | da fare |
+| R3.1 | U4: modo Fab - set specifico di `.md`: `Documentation/` (istruzioni di configurazione e uso: diventano il manuale utente del prodotto, per il cliente che aggiunge i componenti al suo progetto) e `FabListing/` (titolo, descrizione, tag, dettagli tecnici, dichiarazione risorse di terzi, elenco di cosa contiene il prodotto) | fatto (1.109.0, non pubblicata) |
+| R3.2 | Controllo leggero del pacchetto Fab: nessun `.py`, `Claude/`, `.claude/`, `CLAUDE.md`, `.lore`; nomi alfanumerici/underscore; percorsi di 140 caratteri al massimo (calcolati col nome della cartella del progetto); niente `Saved`/`Intermediate`; nessun nome generico. Prototipo già provato a mano su entrambi i pilota (trova i 9 percorsi lunghi di root_rank_system) | fatto (1.109.0, non pubblicata) |
+| R3.2b | Aiuto per accorciare i percorsi troppo lunghi (proposta di nuovi nomi, rinomina con `AssetTools/move`, poi riferimenti a posto) - solo con tuo ok | no (deciso dall'utente) |
+| R3.2c | Verifica della licenza di `VerseUIKit` e dichiarazione delle risorse di terzi nel listing | no (deciso dall'utente) |
+| R3.1b | Generare `Documentation/` dal codice: tabella delle impostazioni `@editable` con valori di default, `Summary` delle intestazioni, parametri dei materiali con le ricette provate | fatto (1.109.0, non pubblicata) |
+| R3.3b | Griglia panoramica dei materiali/asset su sfondo unito, dalle miniature | fatto (1.109.0, non pubblicata) |
+| R3.3 | U5: screenshot automatici per la pubblicazione (miniatura, galleria, panoramica a griglia) con le ricette di cattura già provate; dimensioni dopo verifica | fatto in parte: griglia con `fab_pack.py grid`; catture con le ricette dell'editor, da provare su un progetto vero |
+| R3.4 | Simulatore di economia (tycoon/arena) | fatto (1.109.0, non pubblicata) |
+| R3.5 | Segnali strutturati nei log della mappa letti da `qa-regression` | fatto (1.109.0, non pubblicata) |
+| R3.6 | Documenti di consegna per ogni mappa (planner-docs) | fatto (1.109.0, non pubblicata) |
+| R3.7 | Vista portafoglio delle isole nella console | annullato dall'utente |
 
 ### R4 - 1.110.0 e dopo (qualità e aggiornamenti)
+
+**Dentro la stessa release 1.109.0 (unica, non pubblicata, in test con mappe e prodotti Fab), fatto:** registro delle modifiche all'editor con piano "annulla sessione" (`editor_changes.py`, `/editor-changes`); blocco vero sull'editor, un solo scrittore (`editor_lock.py`); ricette da riprovare quando UEFN cambia uno strumento (`recipes_status.py --stale`); controllo statico del Verse (`verse_static.py`); prova della console in un browser vero con screenshot (`tool/shoot_consoles.py`). Tutto il resto dell'elenco qui sotto resta rimandato.
+
 
 Registro delle modifiche all'editor con "annulla sessione"; riprova delle ricette a ogni nuova versione di UEFN; importazione dei dati del Creator Portal (verificare il formato); blocco vero sull'editor; sorveglianza settimanale con attività pianificata; screenshot automatici del README e prova della console con dati veri; controllo statico del Verse; compiti di riferimento per collaudare skill e agenti; skill per NPC conversazionali (categoria Walkie-Talkie); localizzazione (verificare cosa supporta UEFN); apprendimento automatico (Fase B); via Python nell'editor e language server Verse (solo dopo misure).
 

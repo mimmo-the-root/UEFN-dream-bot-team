@@ -15,3 +15,8 @@
 Log(LogMessage : string):void=
     if (DebugLoggingEnabled?):
         Print(LogMessage)
+
+# Structured signal: one line per important event, read by `python ~/.claude/hooks/log_signals.py summary <log>`.
+# Name the event, then key=value pairs with no spaces inside values:   Signal("round_end", "winner=3 seconds=212")
+Signal(Name : string, Details : string):void=
+    Print("[SIGNAL] {Name} {Details}")

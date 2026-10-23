@@ -71,5 +71,14 @@ with tempfile.TemporaryDirectory() as d3:
     check("gap lists answered tools with no recipe and their last good call", g == [("x", "ns/Q", '{"a": 1}')])
 av = R.merge({"A/x": {"args": {}, "status": "avoid"}}, {"A/x": {R.form({}): [3, 0, ""]}})
 check("an `avoid` recipe stays avoid (a known trap) and is not replayed", av["A/x"]["status"] == "avoid" and R.todo(av) == [])
+# ---- stale recipes after a UEFN change ----
+import recipes_status as _R
+_rec = {"A.B/Make": {"args": {}, "status": "proven"}, "A.B/Keep": {"args": {}, "status": "proven"}, "A.B/Gone#note": {}, "A.B/Old": {"args": {}, "status": "tool-ok"}}
+_rows = [{"date": "2026-10-01", "uefn": "41.00", "state": "changed", "removed": ["A.B/Old"], "changed": ["A.B/Make"]},
+         {"date": "2026-10-10", "uefn": "41.10", "state": "unchanged"}]
+_s = _R.stale(_rec, _rows)
+assert sorted((k, w) for k, w, _, _ in _s) == [("A.B/Make", "tool changed"), ("A.B/Old", "tool removed")], _s
+assert _R.stale(_rec, _rows, since="2026-10-01") == [], "a retest stamp hides older changes"
+print("PASS stale recipes: changed and removed tools are listed, retest stamp hides old changes")
 print("ALL PASS" if not fails else "%d FAIL" % len(fails))
 sys.exit(1 if fails else 0)

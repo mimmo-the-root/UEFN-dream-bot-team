@@ -52,6 +52,10 @@ The coder, the QA agent and the bootstrap agent are told: before doing something
 
 The map refreshes itself, so the news arrive the next time you open a session after UEFN was open. `/mcp-snapshot` does the same right away if you do not want to wait. `/kit-doctor` adds a note when there is no map yet, or when UEFN has not been open for a month. It is a note, never a problem.
 
+## Recipes after a new UEFN
+
+When UEFN changes a tool, the recipes that use it are no longer proven. `python Claude/hooks/recipes_status.py --stale` lists the recipes whose tool changed or was removed since the last retest, from the saved map history. Replay them with the lab guard, then run `--retested` to stamp today: from then on only newer changes are listed.
+
 ## What happens with the news
 
 1. The agent tells you what is new and what it could be used for. Nothing changes because of it without your yes.

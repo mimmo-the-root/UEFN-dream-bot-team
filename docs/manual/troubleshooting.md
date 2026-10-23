@@ -22,6 +22,16 @@ The copy in `~/.claude/` updates itself too: at most once every 6 hours the sess
 
 `/restore-point` makes a snapshot of your Verse code and documents, shows what changed since, or undoes a change. Run it without arguments to see what changed. A restore always shows what would change before it does anything, and never deletes files.
 
+## What the agents changed in the editor
+
+`/editor-changes` lists what the agents wrote to the open editor, session by session (created, set, moved, deleted; reading calls are left out). `/editor-changes undo-plan` prints the steps that would undo the newest session. It never touches the editor: a creation can be undone by deleting what it created, but a changed value, a move or a rename cannot, because the old value was not recorded. For those it says "manual": use the editor's own Undo, or a restore point for the Verse code. Deleting in a real project always waits for your yes.
+
+Only one session at a time may write to the editor. If a second Claude session tries, its write is refused with a message that names the first session; reading is never blocked. The lock goes stale after ten minutes without a write. `python Claude/hooks/editor_lock.py status` shows who holds it, `release` removes it, and `UEFN_KIT_LOCK=0` switches it off for a session.
+
+## Checking Verse before a build
+
+`python Claude/hooks/verse_static.py` reads the Verse files without the editor and reports the mistakes that are certain from the text: unbalanced brackets, mixed tabs and spaces, `@editable` on a `var`, `OnBegin` without `<override>`, the same class defined in two files, and missing imports (a warning). A clean result does not mean the code compiles: only `/verse-check` (it needs the open editor) says that.
+
 ## The console shows a red status
 
 The page cannot reach its local server. In order:

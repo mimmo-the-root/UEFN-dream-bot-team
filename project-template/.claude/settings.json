@@ -8,6 +8,9 @@
       "Bash(py -3 Claude/hooks/devlog.py *)",
       "Bash(python Claude/hooks/devlog.py *)",
       "Bash(python3 Claude/hooks/devlog.py *)",
+      "Bash(py -3 Claude/hooks/delivery.py *)",
+      "Bash(python Claude/hooks/delivery.py *)",
+      "Bash(python3 Claude/hooks/delivery.py *)",
       "Bash(py -3 Claude/hooks/score.py *)",
       "Bash(python Claude/hooks/score.py *)",
       "Bash(python3 Claude/hooks/score.py *)",
@@ -44,6 +47,15 @@
       "Bash(py -3 Claude/hooks/mcp_map.py --find *)",
       "Bash(python Claude/hooks/mcp_map.py --find *)",
       "Bash(python3 Claude/hooks/mcp_map.py --find *)",
+      "Bash(py -3 Claude/hooks/editor_changes.py *)",
+      "Bash(python Claude/hooks/editor_changes.py *)",
+      "Bash(python3 Claude/hooks/editor_changes.py *)",
+      "Bash(py -3 Claude/hooks/editor_lock.py *)",
+      "Bash(python Claude/hooks/editor_lock.py *)",
+      "Bash(python3 Claude/hooks/editor_lock.py *)",
+      "Bash(py -3 Claude/hooks/verse_static.py *)",
+      "Bash(python Claude/hooks/verse_static.py *)",
+      "Bash(python3 Claude/hooks/verse_static.py *)",
       "Bash(git status *)",
       "Bash(git diff *)",
       "Bash(git log *)"
@@ -111,6 +123,11 @@
         "_comment": "Feeds the optional real-time Agent Console's 'MCP Server' node — logs the moment a call to the UEFN MCP server starts, and who made it (a bot's agent_type, or the main/chief-of-staff session). Same matcher as the PostToolUse after-playtest.ps1 block below, but a separate independent hook — MCP calls are synchronous, so PreToolUse/PostToolUse (not SubagentStop) is the right pair here. Safe to remove if you don't use the console.",
         "matcher": "mcp__unreal-mcp__call_tool",
         "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/editor_lock.py\"",
+            "timeout": 10
+          },
           {
             "type": "command",
             "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-mcp.ps1\"",

@@ -21,8 +21,12 @@ def new_map_context(base):
     kind = ki.get_kind(root)
     inst = 'python "%s"' % os.path.join(here, "kit_install.py")
     if kind == "fab":
+        fp = os.path.join(here, "fab_pack.py")
         return ("This UEFN project is registered as a FAB PRODUCT. Do NOT install the kit's project-template in it "
-                "(its components are added to the customer's project later). Work on it normally.")
+                "(its components are added to the customer's project later). Work on it normally. For the Fab package use "
+                "the skill fab-product and the helper `python \"%s\" check|docs|zip \"%s\"` (check = Epic's upload rules, "
+                "docs --apply = Documentation/ and FabListing/, zip = the archive Fab wants). Run `check` before you say the package is ready."
+                % (fp, root))
     return ("NEW UEFN PROJECT WITHOUT THE KIT (%s). Before anything else, in your first reply: "
             "1) ask ONE question with AskUserQuestion: 'Is this a map (island) or a Fab product?' "
             "(skip it only if the owner already said which). "

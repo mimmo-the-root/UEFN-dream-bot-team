@@ -48,7 +48,7 @@ def row_from_payload(p):
     low = text[:300].lower()
     if not bad and ('"iserror": true' in low or low.startswith("error") or '"error"' in low[:40]):
         bad = True
-    rec = {"t": time.strftime("%H:%M:%S"), "toolset": str(ti.get("toolset_name", ""))[:120], "tool": str(ti["tool_name"])[:120],
+    rec = {"d": time.strftime("%Y-%m-%d"), "sid": str(p.get("session_id") or "")[:40], "t": time.strftime("%H:%M:%S"), "toolset": str(ti.get("toolset_name", ""))[:120], "tool": str(ti["tool_name"])[:120],
            "args": clip_args(ti.get("arguments") or {}), "r": "rejected" if bad else "ok",
            "src": "work", "peek": text[:200]}
     if bad:

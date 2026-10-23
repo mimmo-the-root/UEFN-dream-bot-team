@@ -15,6 +15,8 @@ Skills are small folders of knowledge that Claude reads only when the task needs
 | `game-ui-designer` | A style guide for in-game screens such as shops, missions or teleporters. Still a draft that grows as you add reference examples. |
 | `verse-ui-kit` | How to build and wire screens with Epic's free Verse UI Kit: focus, gamepad, Back, shared click events, and what to do when Epic updates its guide. Still a draft. |
 | `project-scoring` | How the console's Score page measures the project against its plan: what each criterion counts, how tasks are linked to criteria, and how a new criterion is proposed and approved. |
+| `fab-product` | Prepares a Fab product: checks the package against Epic's rules, creates the Documentation and FabListing texts from the code, and writes a clean zip. |
+| `economy-sim` | Plans a tycoon or arena economy with numbers: how long each milestone takes, which generator is never worth buying. Pure arithmetic, no editor needed. |
 | `genre` | Your genre skills, filled from your real maps. See [Skills and lessons](ch:skills-and-lessons). |
 
 ## Keeping token use down
