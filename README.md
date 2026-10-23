@@ -56,8 +56,9 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.108)
+## What's new (v1.102 - v1.108.1)
 
+- **Score page (1.108.1).** A new console tab that measures the project against its own plan, release by release: a chart of plan, built and proven with a forecast, and a green, yellow or red light per criterion so you see where to act first. It reads ROADMAP, BUGS and the readiness verdict by itself; new criteria are proposed on the Skills page and need your approval.
 - **Ready for the jam (1.108).** A new project asks whether it is a map or a Fab product (a map gets the kit, a Fab product never does). Verse headers keep only the present and every change goes to a log. `/concept-card` scores an idea, `/devlog` writes the dev log from the logs, `/jam-check` checks the entry before you hand it in.
 - **The MCP, mapped, learned and proven (1.107).** The Console is now a small solar system: five planets around the chief of staff, the other agents as moons, token arcs, a detail card, pinned agents and switches to show or hide each part. 14 UEFN MCP skills and 5 MCP sub-agents ship in the kit; recipes are marked `tool-ok` or `proven`, and what you prove can be shared with the community (counts only). UEFN can be restarted after a crash if you opt in; a running editor is never closed.
 - **Flow page as a U-shaped board (1.106).** Twelve stations along a U, one card and one agent icon per station, zone progress bars, the Control Tower and a Pipeline pulse. Tokens, time and verdicts come from the real log and `/agent-costs`; a missing number is shown as a dash, never invented.
@@ -134,8 +135,8 @@ names are hashed, and only generalized patterns can be shared, after a privacy c
   `local/` layer that is never exported or committed. Only generalized patterns (`pack/`) can be
   shared, and only after a privacy check. Incoming community packs are merged by pattern ID into a
   proposal you review; your own evidence always wins.
-- **Everything is English and looks the same**: all six consoles (Console, Stats, Docs, Flow,
-  Skills, What's new) share one header, theme and menu, and show an update notice when a newer GitHub Release
+- **Everything is English and looks the same**: all seven consoles (Console, Stats, Docs, Flow,
+  Skills, What's new, Score) share one header, theme and menu, and show an update notice when a newer GitHub Release
   exists.
 - **Docs & Status console redesigned** around what is still open: roadmap grouped by release with
   progress, open bugs sorted by severity, priorities and owner actions, and a live activity rail.

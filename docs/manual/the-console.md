@@ -111,6 +111,8 @@ Nothing is typed by hand. The page reads ROADMAP, BUGS and the release-readiness
 
 **Why it is there.** To see at a glance what is missing in an advanced project, and to compare one release with the previous one.
 
+![The Score page (demo data)](shot-score.png)
+
 ## Update banner
 
 When your computer holds a newer kit version than the project you are in, the console says so. Run `/kit-update`, open a new session, and reload the page.
