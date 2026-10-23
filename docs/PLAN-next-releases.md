@@ -1,6 +1,6 @@
-# Piano delle prossime release - stato al 2026-10-23
+# Piano delle prossime release - stato al 2026-10-23 (sera)
 
-Repo: mimmo-the-root/UEFN-dream-bot-team (locale C:\UEFNDreamTeamBot). Pubblicate fino alla 1.107.5 (SEO + badge); la 1.107.5 è committata, publish.cmd lanciato o da lanciare dall'utente. L'utente possiede commit, tag e release.
+Repo: mimmo-the-root/UEFN-dream-bot-team (locale C:\UEFNDreamTeamBot). Pubblicate fino alla 1.107.5; 1.107.6 e 1.108.0 sono committate (61d9296), publish.cmd da lanciare dall'utente (assorbono tutto il lavoro 1.107.7). L'utente possiede commit, tag e release.
 
 Come usare questo file: ripartire dalla prima riga con stato "da fare". Aggiornare lo stato qui (e nella copia della pagina di progetto `claude/PLAN-next-releases.md`) a ogni passo. Fonti: lista idee dei competitor (`claude/competitor-ideas-2026-10.md`) e richieste dell'utente del 23 ottobre.
 
@@ -10,9 +10,9 @@ Scadenza che guida l'ordine: Epic jam "Vibe your way to $50k", annuncio del tema
 
 | # | Richiesta | Stato |
 |---|---|---|
-| U1 | File Verse: niente più storico delle modifiche nell'intestazione, solo la descrizione in inglese di cosa fa il codice, sempre aggiornata (data e versione restano). Modifiche ed errori vanno nei log come tracciatura per l'apprendimento | da fare (R2) |
-| U2 | Mappa nuova: il kit chiede di installare i componenti (= `project-template`, oggi copiato a mano) - automazione per chi userà il kit nel jam | da fare (R2) |
-| U3 | Il kit chiede se è una mappa o un prodotto Fab | da fare (R2) |
+| U1 | File Verse: niente più storico delle modifiche nell'intestazione, solo la descrizione in inglese di cosa fa il codice, sempre aggiornata (data e versione restano). Modifiche ed errori vanno nei log come tracciatura per l'apprendimento | fatto (1.108.0) |
+| U2 | Mappa nuova: il kit chiede di installare i componenti (= `project-template`, oggi copiato a mano) - automazione per chi userà il kit nel jam | fatto (1.108.0) |
+| U3 | Il kit chiede se è una mappa o un prodotto Fab | fatto (1.108.0) |
 | U4 | Prodotto Fab (piccolo progetto UEFN i cui componenti il cliente aggiunge al suo): niente `project-template` nel progetto; solo un set di `.md` con le info per la pubblicazione, che diventano manuale utente/istruzioni | da fare (R3) |
 | U5 | Genera gli screenshot necessari per la pubblicazione | da fare (R3) |
 
@@ -42,7 +42,7 @@ Cosa ne ricavo per il modo Fab:
 
 ## Baseline di rilascio proposte
 
-### R1 - 1.107.6 "Chiamate più sicure" (PREPARATA il 23 ottobre: versione, CHANGELOG, test 47/47; da committare e pubblicare dall'utente)
+### R1 - 1.107.6 "Chiamate più sicure" (committata; pubblicazione insieme alla 1.108.0)
 
 | # | Voce | Stato |
 |---|---|---|
@@ -50,7 +50,7 @@ Cosa ne ricavo per il modo Fab:
 | R1.2 | Guardia: rifiutare `save_assets` senza elenco di asset | fatto (guardia + test) |
 | R1.3 | Crash noti + alternative sicure (tag `Triangles`, `static_materials`, bounding box, Nanite) nella nota di `get_lod_count`; test che fallisce se una skill/agente/ricetta nomina un tool `avoid` | fatto (note, alternative sicure, test `test_avoid_tools`) |
 | R1.4 | Manuale e doctor: "Load on Startup = Most Recent Project"; confronto stati di `recover` | fatto: il manuale c'era già; aggiunto il controllo nel doctor; gli stati di `recover` sono già coperti (crash_dialog, hub, opening, open_failed, other_project_open) |
-| R1.5 | Trappola CPU ridotta in background (Code prova col timeout di SelectAssets) | trappola scritta; prova affidata a Code (`to-cod-lab-19.md` nel lab): in attesa del suo rapporto |
+| R1.5 | Trappola CPU ridotta in background (Code prova col timeout di SelectAssets) | fatto: lab-19 chiuso, la guardia funziona; SelectAssets risponde in 1,4-1,7 s anche con UEFN dietro, quindi il background non è la causa; testi corretti; la ricetta resta `unverified` |
 | R1.6 | Trappole: Rotator per nome, richieste che bloccano UEFN 42.40 | fatto |
 | R1.7 | Limiti MVVM nelle ricette di `uefn-ui-widgets` | fatto nella skill (come limiti riportati da altri); da confermare con un vero legame quando capita |
 | R1.8 | Nota in `uefn-verse-build`: nessuna compilazione su cartella di prova | fatto |
@@ -58,7 +58,7 @@ Cosa ne ricavo per il modo Fab:
 | R1.10 | Cartella `docs/adr`, scansione segreti (gitleaks), CODEOWNERS | fatto (`docs/adr` con 3 pagine, workflow `security.yml` con gitleaks; CODEOWNERS c'era già) |
 | R1.11 | Pulizia: `project-template/Claude/KIT-VERSION.tmp` è un file tracciato in git per errore (8 byte); toglierlo con `git rm` dall'utente | fatto (`git rm --cached` + `.gitignore`) |
 
-### R2 - 1.108.0 "Pronto per il jam" (obiettivo: pubblicata entro il 9 novembre)
+### R2 - 1.108.0 "Pronto per il jam" (COMPLETA e committata il 23 ottobre; in più: timer Epic AI MegaJam e tile Changes nella pagina What's new, tutto in inglese; da pubblicare entro il 9 novembre)
 
 | # | Voce | Stato |
 |---|---|---|
@@ -100,4 +100,4 @@ Ipotesi di lavoro per il punto 3 (da confermare quando arriviamo a R3): due grup
 
 ## Come ripartire dopo la chiusura della sessione
 
-Aprire la pagina di progetto `claude/PLAN-next-releases.md`, rileggere le "Decisioni dell'utente", poi R1 (piccola) o R2 (jam). Prima di modificare file: `git status` pulito, test 45/45. Nessuna domanda aperta al 23 ottobre.
+Aprire la pagina di progetto `claude/PLAN-next-releases.md`, rileggere le "Decisioni dell'utente", poi R1 (piccola) o R2 (jam). Prima di modificare file: `git status` pulito, test 50/50. Prossimo passo: R3 (modo Fab). Da confermare con l'utente: l'ipotesi `Documentation/` + `FabListing/`, le regole del jam (controllare l'elenco di `/jam-check` sul regolamento ufficiale), le date del timer.
