@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.108.0"
+   "tag": "v1.108.1"
   },
   "state": {
    "genres": [],
@@ -24,13 +24,12 @@
  "release": {
   "date": "2026-10-23",
   "items": [
-   "`/concept-card` scores an idea on Epic's seven jam criteria (ambition, theme, fun, gameplay, visuals, level design, audio: 70 points) plus our feasibility and scope (30 points) and gives a verdict out of 100.",
-   "Score page in the console (new tab \"Score\"): how far the project is against its own plan, release by release. A chart of plan, built and proven with a forecast, a traffic light per criterion (red act now, yellow watch, green fine) and a priority number. Primary criteria are the contest's own (70 points), additional ones are ours (30 points). It is computed live by `score.py` from ROADMAP, BUGS and the release-readiness verdict, so it moves when you close tasks or bugs in the docs; a snapshot is saved when a release closes. New criteria are proposed through the Skills page (new skill `project-scoring`, no new agent).",
-   "`robots.txt` and a sitemap badge: the manual publishes a `robots.txt` that points to its `sitemap.xml`, and the README badge row links to the sitemap.",
-   "Manual: three new chapters: *2026 Epic AI MegaJam* (how the kit helps and what we added), *A UEFN map project* and *A Fab product project* (what is installed and which documents each produces; the Fab documents are marked as planned for 1.109). Repo: `sync-skills.ps1` and one message in `mcp_lessons.py` are now in English (the confirmation answer is `y`)."
+   "The manual covers the Score page: the console chapter now says seven pages and shows the Score page with demo data; the README lists it in the console menu and in What's new.",
+   "Score page legend: the traffic-light note no longer quotes example release names.",
+   "Jam release video and posts: `docs/release-videos/release-1.108.1-jam.mp4` (our own neon temple graphics, no Epic artwork) and the X and Discord texts."
   ],
-  "tag": "v1.108.1",
-  "title": "v1.108.1 \u2014 Score page and jam tools"
+  "tag": "v1.108.2",
+  "title": "v1.108.2 \u2014 Score page in the manual"
  },
  "schema": 1,
  "skills": [],
