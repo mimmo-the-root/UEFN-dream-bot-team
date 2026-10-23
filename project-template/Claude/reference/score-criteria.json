@@ -1,0 +1,18 @@
+{
+  "_comment": "Scoring criteria for the Score page. g = primary (the contest's quality criteria) | additional (ours) | bonus (optional track, not in the 100). w = points of the 100 for additional criteria (primary criteria share 70 equally). depth = how many mapped tasks mean a full 5/5. kind = tasks (from ROADMAP tasks matched by keywords) | scope | feasibility | ship | docs. New criteria are proposed through the Skills page (skill project-scoring), never edited by hand; approved ones are saved in Claude/docs/score-criteria-extra.json.",
+  "criteria": [
+    {"id": "ambition", "n": "Ambition and innovation", "g": "primary", "w": 10, "kind": "tasks", "depth": 3, "keywords": ["innovat", "twist", "unique", "original", "concept", "hook"], "tip": "Make the one twist obvious in the first 30 seconds."},
+    {"id": "brief", "n": "Fit to the brief", "g": "primary", "w": 10, "kind": "tasks", "depth": 2, "keywords": ["theme", "brief", "contest"], "tip": "Is the central idea visible without explanation?"},
+    {"id": "fun", "n": "Fun factor", "g": "primary", "w": 10, "kind": "tasks", "depth": 4, "keywords": ["fun", "playtest", "game feel", "juice", "polish", "feedback"], "tip": "Playtest with a stranger and watch where they smile."},
+    {"id": "gameplay", "n": "Gameplay", "g": "primary", "w": 10, "kind": "tasks", "depth": 5, "keywords": ["gameplay", "mechanic", "loop", "round", "combat", "score", "objective", "match", "rule"], "tip": "Add one layer of progression so round 3 is not round 1."},
+    {"id": "visuals", "n": "Visuals", "g": "primary", "w": 10, "kind": "tasks", "depth": 4, "keywords": ["visual", "art", "vfx", "material", "lighting", "style", "hud", "ui ", "widget", "decor", "prop"], "tip": "Pick one style and keep it: a coherent small look beats a mixed rich one."},
+    {"id": "level", "n": "Level design", "g": "primary", "w": 10, "kind": "tasks", "depth": 4, "keywords": ["level", "layout", "terrain", "landmark", "route", "arena", "spawn", "zone", "island"], "tip": "Landmarks, a clear route, one memorable place."},
+    {"id": "audio", "n": "Audio", "g": "primary", "w": 10, "kind": "tasks", "depth": 2, "keywords": ["audio", "sound", "music", "sfx", "ambien"], "tip": "Music loop, hit and reward sounds, one ambience: cheap points."},
+    {"id": "feas", "n": "Feasibility in UEFN", "g": "additional", "w": 7, "kind": "feasibility", "tip": "Check the risky parts with the MCP recipes before building them; fix open bugs."},
+    {"id": "scope", "n": "Scope vs the plan", "g": "additional", "w": 6, "kind": "scope", "tip": "Tasks were added since the plan was first measured. Cut one or move the release."},
+    {"id": "ret", "n": "Retention", "g": "additional", "w": 7, "kind": "tasks", "depth": 3, "keywords": ["retention", "daily", "unlock", "leaderboard", "reward", "return", "streak", "save progress", "persist", "rank"], "tip": "A reason to come back tomorrow: daily goal, unlock, leaderboard."},
+    {"id": "ship", "n": "Publishing readiness", "g": "additional", "w": 6, "kind": "ship", "depth": 3, "keywords": ["publish", "rating", "thumbnail", "discovery", "island settings", "checklist", "submission", "release notes"], "tip": "The publishing checklist: ratings, thumbnails, island settings."},
+    {"id": "docs", "n": "Documentation", "g": "additional", "w": 4, "kind": "docs", "tip": "Keep ROADMAP/BUGS in the fixed format and STATUS fresh."},
+    {"id": "bonus", "n": "LLM characters", "g": "bonus", "w": 0, "kind": "tasks", "depth": 2, "keywords": ["llm", "conversation", "walkie", "ai npc", "talking npc"], "tip": "Optional track: a talking NPC with the UEFN conversations feature."}
+  ]
+}

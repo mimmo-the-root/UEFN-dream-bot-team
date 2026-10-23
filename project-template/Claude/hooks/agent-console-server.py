@@ -67,6 +67,7 @@ DOCS_HTML_PATH = os.path.join(ROOT, "agent-console-docs.html")
 FLOW_HTML_PATH = os.path.join(ROOT, "agent-console-flow.html")
 SKILLS_HTML_PATH = os.path.join(ROOT, "agent-console-skills.html")
 NEWS_HTML_PATH = os.path.join(ROOT, "agent-console-news.html")
+SCORE_HTML_PATH = os.path.join(ROOT, "agent-console-score.html")
 MANUAL_DIR = os.path.join(ROOT, "manual")  # the HTML manual (v1.100): /manual/ and /manual/<chapter>.html
 MANUAL_FILE_RE = re.compile(r"/manual/([a-z0-9-]+\.(?:html|css|png))")
 # Skill Harness (v1.81+): the Skills page reads/writes the genre skills under ~/.claude/skills/genre
@@ -452,6 +453,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self._send_json_bytes(json.dumps(agent_cost.summary(PROJECT_DIR, 30, 4.0)).encode("utf-8"))
             except Exception as e:
                 self._send_json_bytes(json.dumps({"available": False, "reason": "could not read the transcripts (%s)" % e.__class__.__name__}).encode("utf-8"))
+        elif self.path.startswith("/score-data"):
+            # Score page data, computed live from ROADMAP / BUGS / RELEASE-READINESS (score.py); never an error status.
+            try:
+                import score
+                self._send_json_bytes(json.dumps(score.compute(PROJECT_DIR)).encode("utf-8"))
+            except Exception as e:
+                self._send_json_bytes(json.dumps({"available": False, "reason": "could not compute the score (%s)" % e.__class__.__name__}).encode("utf-8"))
         elif self.path.startswith("/skills-data"):
             # Real data only, computed from the local genre-skill files by skills_lib.summary().
             if skills_lib is None:
@@ -465,6 +473,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._serve_manual()
         elif self.path.startswith("/news") or self.path.startswith("/agent-console-news.html"):
             self._serve_html_file(NEWS_HTML_PATH)
+        elif self.path.startswith("/score") or self.path.startswith("/agent-console-score.html"):
+            self._serve_html_file(SCORE_HTML_PATH)
         elif self.path.startswith("/skills") or self.path.startswith("/agent-console-skills.html"):
             self._serve_html_file(SKILLS_HTML_PATH)
         elif self.path.startswith("/stats") or self.path.startswith("/agent-console-stats.html"):

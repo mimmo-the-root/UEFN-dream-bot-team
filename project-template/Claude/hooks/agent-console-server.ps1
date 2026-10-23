@@ -98,6 +98,7 @@ $docsHtmlPath = Join-Path $root "agent-console-docs.html"
 $flowHtmlPath = Join-Path $root "agent-console-flow.html"
 $skillsHtmlPath = Join-Path $root "agent-console-skills.html"
 $newsHtmlPath = Join-Path $root "agent-console-news.html"
+$scoreHtmlPath = Join-Path $root "agent-console-score.html"
 $manualDir = Join-Path $root "manual"
 $skillsLibPath = Join-Path $root "skills_lib.py"
 $metricsCacheFile = Join-Path $logsDir "fortnite-metrics-cache.json"
@@ -141,6 +142,7 @@ $State = [hashtable]::Synchronized(@{
     FlowHtmlPath        = $flowHtmlPath
     SkillsHtmlPath      = $skillsHtmlPath
     NewsHtmlPath        = $newsHtmlPath
+    ScoreHtmlPath       = $scoreHtmlPath
     ManualDir           = $manualDir
     SkillsLibPath       = $skillsLibPath
     MetricsCacheFile    = $metricsCacheFile
@@ -459,7 +461,7 @@ $RequestHandler = {
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)
             }
-        } elseif ($request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm" -or $request.Url.AbsolutePath -eq "/community-state" -or $request.Url.AbsolutePath -eq "/community-act" -or $request.Url.AbsolutePath -eq "/community-summary" -or $request.Url.AbsolutePath -eq "/agent-costs" -or $request.Url.AbsolutePath -eq "/uefn-mcp-map") {
+        } elseif ($request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm" -or $request.Url.AbsolutePath -eq "/community-state" -or $request.Url.AbsolutePath -eq "/community-act" -or $request.Url.AbsolutePath -eq "/community-summary" -or $request.Url.AbsolutePath -eq "/agent-costs" -or $request.Url.AbsolutePath -eq "/uefn-mcp-map" -or $request.Url.AbsolutePath -eq "/score-data") {
             $sk = { param($Lib, $CliArgs)
                 foreach ($cand in @(@("py","-3"), @("python"), @("python3"))) {
                     $exe = Get-Command $cand[0] -ErrorAction SilentlyContinue
@@ -478,6 +480,8 @@ $RequestHandler = {
                 $json = & $sk $State.SkillsLibPath @("summary")
             } elseif ($path -eq "/agent-costs") {
                 $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "agent_cost.py") @($State.ProjectDir, "--budget", "2")
+            } elseif ($path -eq "/score-data") {
+                $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "score.py") @($State.ProjectDir, "--json")
             } elseif ($path -eq "/uefn-mcp-map") {
                 $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "mcp_map.py") @("--summary")
             } elseif ($path -eq "/learning-data") {
@@ -544,6 +548,15 @@ $RequestHandler = {
                 $response.StatusCode = 404
             } else {
                 $bytes = [System.IO.File]::ReadAllBytes($State.NewsHtmlPath)
+                $response.ContentType = "text/html; charset=utf-8"
+                $response.ContentLength64 = $bytes.Length
+                $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            }
+        } elseif ($request.Url.AbsolutePath -eq "/score" -or $request.Url.AbsolutePath -eq "/agent-console-score.html") {
+            if (-not (Test-Path $State.ScoreHtmlPath)) {
+                $response.StatusCode = 404
+            } else {
+                $bytes = [System.IO.File]::ReadAllBytes($State.ScoreHtmlPath)
                 $response.ContentType = "text/html; charset=utf-8"
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)

@@ -2,7 +2,7 @@
 
 A local web page that shows what your team is doing, what the kit has learned, and what changed.
 
-The console runs on your own computer. It starts by itself when you open a session in a project, at `http://127.0.0.1:8765/`. Nothing in it is sent anywhere. Six pages share one menu at the top.
+The console runs on your own computer. It starts by itself when you open a session in a project, at `http://127.0.0.1:8765/`. Nothing in it is sent anywhere. Seven pages share one menu at the top.
 
 > **Tip** Open it as that web address, not as a file from your disk, and reload the page after a kit update.
 
@@ -102,6 +102,14 @@ The last release in plain words, the skills that improved, the top contributors,
 **Why it is there.** After an update, to know what changed and whether it concerns you, and to see the community's part in it.
 
 ![The What's new page (demo data)](shot-news.png)
+
+## Score
+
+How far the project is against its own plan, release by release. A chart shows the plan, what is built and what is proven, with a forecast at the current pace. Under it, every criterion has a traffic light (red act now, yellow watch, green fine) and a number saying where to work first. The primary criteria are the quality criteria of the contest or genre (70 points); the additional ones are ours (feasibility, scope, retention, publishing readiness, documentation; 30 points); a bonus track is shown but not counted.
+
+Nothing is typed by hand. The page reads ROADMAP, BUGS and the release-readiness verdict of the project, so closing a task or a bug in the docs moves the score by itself. Tasks the page cannot link to a criterion are listed, and the team classifies them. New criteria are proposed on the Skills page and need your approval.
+
+**Why it is there.** To see at a glance what is missing in an advanced project, and to compare one release with the previous one.
 
 ## Update banner
 

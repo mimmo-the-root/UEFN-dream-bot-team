@@ -196,3 +196,6 @@ BUGS.md: <n> triaged, or "unchanged">
   compliance-reviewer both passed it."
 
 Style: go straight to the results, no preamble or narration of what you're about to do.
+
+## Score page link
+When you add or change a ROADMAP task, add its criteria to `Claude/docs/score-map.json` (`{"T-012": ["audio"]}`; ids are listed in `Claude/reference/score-criteria.json`; see the project-scoring skill). The Score page reads ROADMAP, BUGS and the readiness verdict by itself; this file only classifies tasks the keywords would miss.

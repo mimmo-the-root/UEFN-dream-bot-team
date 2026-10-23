@@ -4,7 +4,7 @@ root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 hooks = os.path.join(root, "project-template", "Claude", "hooks")
 ok = lambda c, m: (print(("PASS " if c else "FAIL ") + m), c or sys.exit(1))
 rd = lambda n: open(os.path.join(hooks, n), encoding="utf-8-sig").read()
-for page in ("agent-console.html", "agent-console-stats.html", "agent-console-docs.html", "agent-console-flow.html", "agent-console-skills.html", "agent-console-news.html"):
+for page in ("agent-console.html", "agent-console-stats.html", "agent-console-docs.html", "agent-console-flow.html", "agent-console-skills.html", "agent-console-news.html", "agent-console-score.html"):
     ok('href="agent-console-news.html"' in rd(page), "%s links to the What's new page" % page)
 news = rd("agent-console-news.html")
 ok('"/community-summary"' in news and '"/community-state"' in news, "the page reads the shipped summary and the local community state")

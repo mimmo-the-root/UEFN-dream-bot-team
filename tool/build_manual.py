@@ -300,6 +300,8 @@ def build(out_dir):
             f.write(page(cfg, titles, slug, ver, t, inner))
     with open(os.path.join(out_dir, "sitemap.xml"), "w", encoding="utf-8", newline="\n") as f:
         f.write(sitemap(order))
+    with open(os.path.join(out_dir, "robots.txt"), "w", encoding="utf-8", newline="\n") as f:
+        f.write("User-agent: *\nAllow: /\n\nSitemap: %ssitemap.xml\n" % SITE)
     shutil.copyfile(os.path.join(SRC, "manual.css"), os.path.join(out_dir, "manual.css"))
     for f in shots:
         shutil.copyfile(os.path.join(SRC, "images", f), os.path.join(out_dir, f))

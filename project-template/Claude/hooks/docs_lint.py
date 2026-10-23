@@ -118,6 +118,12 @@ def post_edit():
     if not re.search(r"/Claude/docs/(ROADMAP|BUGS)\.md$", f):
         return 0
     problems = lint(os.environ.get("CLAUDE_PROJECT_DIR") or data.get("cwd") or os.getcwd())
+    if not problems:
+        try:  # a closed release gets its Score snapshot (never blocks the edit)
+            import score
+            score.snapshot(os.environ.get("CLAUDE_PROJECT_DIR") or data.get("cwd") or os.getcwd())
+        except Exception:
+            pass
     if problems:
         sys.stderr.write("Docs format check failed after your edit. The Agent Console reads a FIXED format; fix the "
                          "file (do not change the format, do not add sections or tables):\n" + "\n".join(problems[:15]) + "\n")

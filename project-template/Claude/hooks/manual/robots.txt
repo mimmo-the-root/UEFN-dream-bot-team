@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mimmo-the-root.github.io/UEFN-dream-bot-team/sitemap.xml

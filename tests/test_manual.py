@@ -28,7 +28,7 @@ for f in sorted(os.listdir(man)):
         ok(os.path.isfile(os.path.join(man, href)), "%s: link %s resolves" % (f, href))
     for href, anchor in re.findall(r'href="([^"#:]+\.html)#([^"]+)"', t):
         ok('id="%s"' % anchor in rd(os.path.join(man, href)), "%s: anchor %s#%s exists" % (f, href, anchor))
-for page in ("agent-console.html", "agent-console-stats.html", "agent-console-docs.html", "agent-console-flow.html", "agent-console-skills.html", "agent-console-news.html"):
+for page in ("agent-console.html", "agent-console-stats.html", "agent-console-docs.html", "agent-console-flow.html", "agent-console-skills.html", "agent-console-news.html", "agent-console-score.html"):
     t = rd(os.path.join(hooks, page))
     m = re.search(r'href="/manual/([a-z-]+\.html)(#[^"]*)?" data-manual-help', t)
     ok(m is not None, "%s links to its manual chapter" % page)
