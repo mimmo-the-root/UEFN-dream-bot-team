@@ -56,7 +56,7 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.108.1)
+## What's new (v1.102 - v1.108.2)
 
 - **Score page (1.108.1).** A new console tab that measures the project against its own plan, release by release: a chart of plan, built and proven with a forecast, and a green, yellow or red light per criterion so you see where to act first. It reads ROADMAP, BUGS and the readiness verdict by itself; new criteria are proposed on the Skills page and need your approval.
 - **Ready for the jam (1.108).** A new project asks whether it is a map or a Fab product (a map gets the kit, a Fab product never does). Verse headers keep only the present and every change goes to a log. `/concept-card` scores an idea, `/devlog` writes the dev log from the logs, `/jam-check` checks the entry before you hand it in.

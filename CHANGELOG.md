@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.108.2 — Score page in the manual
+
+- **The manual covers the Score page:** the console chapter now says seven pages and shows the Score page with demo data; the README lists it in the console menu and in What's new.
+- **Score page legend:** the traffic-light note no longer quotes example release names.
+- **Jam release video and posts:** `docs/release-videos/release-1.108.1-jam.mp4` (our own neon temple graphics, no Epic artwork) and the X and Discord texts.
+
 ## v1.108.1 — Score page and jam tools
 
 - **`/concept-card`** scores an idea on Epic's seven jam criteria (ambition, theme, fun, gameplay, visuals, level design, audio: 70 points) plus our feasibility and scope (30 points) and gives a verdict out of 100.
