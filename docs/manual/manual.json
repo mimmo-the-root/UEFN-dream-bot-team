@@ -54,5 +54,71 @@
     "about": "Who made the kit, how to follow along, the license.",
     "mcp-engine": "Mapping everything UEFN's MCP offers, and noticing what Epic adds.",
     "mcp-tool-reference": "Every tool the kit knows, by toolset, with its parameters and how far it is proven."
+  },
+  "seo": {
+    "index": [
+      "Dream Bot Team for UEFN: AI agents and MCP tools for Fortnite maps",
+      "Free, open-source manual for Dream Bot Team: a Claude Code kit with AI agents, skills and proven UEFN MCP recipes to build, test and improve Fortnite maps."
+    ],
+    "welcome": [
+      "What is Dream Bot Team? AI agents for UEFN maps",
+      "A team of AI agents for Unreal Editor for Fortnite (UEFN): safe Verse coding, plan-first workflow, two reviewers, and a kit that learns from your maps."
+    ],
+    "quick-start": [
+      "Quick start: UEFN AI agents with Claude Code in 15 minutes",
+      "Install Claude Code, add the Dream Bot Team kit and run your first working session on a UEFN project in about 15 minutes."
+    ],
+    "install": [
+      "Install the UEFN AI agent kit for Claude Code",
+      "Full installation guide for the Dream Bot Team kit: plugins, upgrades, and how to update a UEFN project safely."
+    ],
+    "your-team": [
+      "The AI agents for UEFN and Verse: who does what",
+      "Meet the specialist AI agents for UEFN: which model each one runs on, what each one does, and when to call it."
+    ],
+    "daily-work": [
+      "A working day with AI agents in UEFN: plan, code, review",
+      "How to work with the agents day to day: calling them, the plan-first flow, base rules, and what runs after every playtest."
+    ],
+    "the-console": [
+      "Agent Console: watch AI agents build your UEFN map",
+      "The local Agent Console shows each agent working, the pipeline, token use, MCP activity and the map blueprint, page by page."
+    ],
+    "skills-and-lessons": [
+      "UEFN skills and lessons: how the AI learns from your maps",
+      "The kit reads your Verse code, devices and documents, proposes lessons for your genre, and only saves what you approve."
+    ],
+    "mcp-engine": [
+      "UEFN MCP explained: tools, toolsets and how the kit uses them",
+      "How the kit maps every tool of the UEFN MCP, tests them on a lab island, proves recipes, and notices what Epic adds."
+    ],
+    "mcp-tool-reference": [
+      "UEFN MCP tool reference: every tool and its parameters",
+      "Every UEFN MCP tool the kit knows, grouped by toolset, with its parameters, whether it writes, and how far its recipe is proven."
+    ],
+    "skill-catalog": [
+      "Catalog of UEFN AI skills: Verse, devices, UI, Niagara, materials",
+      "Every skill in the kit, what it does and when it is used: Verse, level devices, UI widgets, Niagara, materials, physics and growth."
+    ],
+    "community": [
+      "Share UEFN lessons with the community, privately",
+      "How sharing lessons works, what stays private on your computer, and how you get everyone else's lessons in return."
+    ],
+    "troubleshooting": [
+      "Troubleshooting the UEFN AI agent kit: updates and the doctor",
+      "Fix the most common problems with the Dream Bot Team kit: updates, the doctor check, Claude Code and UEFN MCP connection issues."
+    ],
+    "faq": [
+      "FAQ: Claude Code, UEFN MCP and the Dream Bot Team",
+      "Short answers to the questions people ask first about using Claude Code and AI agents with UEFN."
+    ],
+    "glossary": [
+      "Glossary: UEFN, Verse, MCP, agents and skills",
+      "Plain-language definitions of the words used in the manual: UEFN, Verse, MCP, agent, skill, recipe, lesson."
+    ],
+    "about": [
+      "About Dream Bot Team: author, license and updates",
+      "Who made the Dream Bot Team kit for UEFN, how to follow updates, and the MIT license."
+    ]
   }
 }

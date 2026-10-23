@@ -204,10 +204,58 @@ def icon_b64():
         return base64.b64encode(fh.read()).decode()
 
 
+SITE = "https://mimmo-the-root.github.io/UEFN-dream-bot-team/"
+
+
+def seo_for(cfg, slug, fallback_title):
+    """(title, description) for search results: from manual.json "seo", else the chapter title and summary."""
+    t = cfg.get("seo", {}).get(slug)
+    if t:
+        return t[0], t[1]
+    return fallback_title + " | Dream Bot Team", cfg.get("summaries", {}).get(slug, cfg.get("intro", ""))
+
+
+def seo_head(cfg, current, ver, inner_title):
+    title, desc = seo_for(cfg, current, inner_title)
+    url = SITE if current == "index" else SITE + current + ".html"
+    img = SITE + "logo.png"
+    home = {"@type": "SoftwareApplication", "name": "Dream Bot Team for UEFN", "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Windows", "softwareVersion": ver, "description": desc, "url": SITE, "image": img,
+            "license": "https://opensource.org/licenses/MIT", "isAccessibleForFree": True,
+            "codeRepository": REPO, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+            "author": {"@type": "Person", "name": "mimmo_the_root", "url": X_URL}}
+    if current == "index":
+        ld = dict(home, **{"@context": "https://schema.org"})
+    else:
+        ld = {"@context": "https://schema.org", "@graph": [
+            {"@type": "TechArticle", "headline": title, "description": desc, "url": url, "image": img, "inLanguage": "en",
+             "author": {"@type": "Person", "name": "mimmo_the_root", "url": X_URL},
+             "isPartOf": {"@type": "WebSite", "name": "Dream Bot Team Manual", "url": SITE}},
+            {"@type": "BreadcrumbList", "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Manual", "item": SITE},
+                {"@type": "ListItem", "position": 2, "name": inner_title, "item": url}]}]}
+    meta = ('<meta name="description" content="%s"><link rel="canonical" href="%s">'
+            '<meta property="og:type" content="website"><meta property="og:site_name" content="Dream Bot Team Manual">'
+            '<meta property="og:title" content="%s"><meta property="og:description" content="%s"><meta property="og:url" content="%s">'
+            '<meta property="og:image" content="%s"><meta name="twitter:card" content="summary_large_image">'
+            '<meta name="twitter:title" content="%s"><meta name="twitter:description" content="%s"><meta name="twitter:image" content="%s">'
+            '<script type="application/ld+json">%s</script>') % (
+        esc(desc), esc(url), esc(title), esc(desc), esc(url), esc(img), esc(title), esc(desc), esc(img),
+        json.dumps(ld, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/"))
+    return title, meta
+
+
+def sitemap(order):
+    urls = [SITE] + [SITE + s + ".html" for s in order]
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+            + "".join("<url><loc>%s</loc></url>\n" % u for u in urls) + "</urlset>\n")
+
+
 def page(cfg, titles, current, ver, inner_title, inner):
+    title, meta = seo_head(cfg, current, ver, inner_title)
     return ('<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            '<title>%s &middot; Dream Bot Team Manual</title><link rel="icon" href="data:image/png;base64,%s"><link rel="stylesheet" href="manual.css"></head><body>'
-            '<div class="shell">%s<main class="page">%s%s</main></div></body></html>\n') % (esc(inner_title), icon_b64(), rail(cfg, titles, current, ver), inner, FOOT)
+            '<title>%s</title>%s<link rel="icon" href="data:image/png;base64,%s"><link rel="stylesheet" href="manual.css"></head><body>'
+            '<div class="shell">%s<main class="page">%s%s</main></div></body></html>\n') % (esc(title), meta, icon_b64(), rail(cfg, titles, current, ver), inner, FOOT)
 
 
 def build(out_dir):
@@ -225,9 +273,9 @@ def build(out_dir):
     for f in shots:
         if not re.fullmatch(r"[a-z0-9-]+\.png", f):
             raise ValueError("images/%s: use lowercase letters, digits and dashes, and .png" % f)
-    keep = set(["index.html", "manual.css"] + [slug + ".html" for slug in order] + shots)
+    keep = set(["index.html", "manual.css", "sitemap.xml"] + [slug + ".html" for slug in order] + shots)
     for f in os.listdir(out_dir):  # a chapter that was removed or renamed must not linger; files that stay are simply overwritten below
-        if f.endswith((".html", ".css", ".png")) and f not in keep:
+        if f.endswith((".html", ".css", ".png", ".xml")) and f not in keep:
             os.remove(os.path.join(out_dir, f))
     # home
     home = ['<img class="hero" src="logo.png" alt="Dream Bot Team: build, innovate, inspire" width="720" height="483"><div class="crumb">Manual</div><h1>%s</h1><p class="lede">%s</p>' % (esc(cfg.get("title", "Manual")), esc(cfg.get("intro", "")))]
@@ -250,6 +298,8 @@ def build(out_dir):
         inner = '<div class="crumb"><a href="index.html">Manual</a> / Chapter %02d</div><div class="chapter-num">%02d</div><h1>%s</h1>%s\n%s\n%s' % (idx + 1, idx + 1, inline(t, set(order)), lede, body, nav)
         with open(os.path.join(out_dir, slug + ".html"), "w", encoding="utf-8", newline="\n") as f:
             f.write(page(cfg, titles, slug, ver, t, inner))
+    with open(os.path.join(out_dir, "sitemap.xml"), "w", encoding="utf-8", newline="\n") as f:
+        f.write(sitemap(order))
     shutil.copyfile(os.path.join(SRC, "manual.css"), os.path.join(out_dir, "manual.css"))
     for f in shots:
         shutil.copyfile(os.path.join(SRC, "images", f), os.path.join(out_dir, f))

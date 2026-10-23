@@ -18,7 +18,12 @@ for f in sorted(os.listdir(man)):
     if not f.endswith(".html"):
         continue
     t = rd(os.path.join(man, f))
-    ok("<script" not in t and not re.search(r'(src="https?://|<link[^>]*href="https?://|url\(https?://)', t), "%s: no script and no external assets" % f)
+    blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', t)
+    ok(all(json.loads(b) for b in blocks) and len(blocks) == 1, "%s: one JSON-LD block for search engines, valid JSON" % f)
+    t2 = re.sub(r'<script type="application/ld\+json">.*?</script>', "", t)
+    t2 = re.sub(r'<link rel="canonical"[^>]*>', "", t2)  # a canonical link points at the public page; it loads nothing
+    ok("<script" not in t2 and not re.search(r'(src="https?://|<link[^>]*href="https?://|url\(https?://)', t2), "%s: no script and no external assets" % f)
+    ok(re.search(r'<meta name="description" content="[^"]{60,200}">', t) and '<link rel="canonical"' in t, "%s: has a description of 60-200 characters and a canonical link" % f)
     for href in re.findall(r'href="([^"#:]+\.html)(?:#[^"]*)?"', t):
         ok(os.path.isfile(os.path.join(man, href)), "%s: link %s resolves" % (f, href))
     for href, anchor in re.findall(r'href="([^"#:]+\.html)#([^"]+)"', t):

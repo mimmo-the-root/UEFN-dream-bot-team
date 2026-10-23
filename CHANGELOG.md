@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.107.5 — Easier to find on Google
+
+- **SEO for the manual:** every page has a search title, a description, a canonical link, social-card tags and structured data (JSON-LD), plus a `sitemap.xml`. Titles and descriptions live in `docs/manual/manual.json` under `seo`.
+- **README:** it now opens with the main search terms (UEFN, Verse, UEFN MCP, Claude Code, AI agents) and badges: licence, release, tests, stars, the keywords and live numbers (MCP tools mapped, proven recipes, agents, skills).
+- **Numbers that stay true:** the badges read `docs/kit-stats.json`, written by `tool/build_kit_stats.py`; a test fails if the file is out of date.
+
 ## v1.107.4 — Skills point to the proven recipes
 
 - **Skills check:** every skill and agent that calls UEFN MCP tools now sends the AI to the proven recipes (14 of 35 skills and 11 of 22 agents; the others do not use MCP tools). Two were missing: `verse-ui-kit` now points to `uefn-ui-widgets` and the recipes, and `planner-docs` reads the level devices through the level-devices recipes instead of an old tool name.

@@ -1,15 +1,29 @@
-<p align="center"><img src="docs/images/logo.jpg" alt="Dream Bot Team: build, innovate, inspire" width="640"></p>
+<p align="center"><img src="docs/images/logo.jpg" alt="Dream Bot Team for UEFN: AI agents for Fortnite maps" width="640"></p>
 
-# UEFN Dream Bot Team
+# UEFN Dream Bot Team: AI agents and MCP tools for Fortnite maps
 
-A Claude Code multi-agent starter kit for building UEFN (Unreal Editor for Fortnite) experiences —
-seventeen specialized subagents, each with one narrow job, instead of one general-purpose assistant
-trying to do everything and stepping on its own toes.
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE) [![Latest release](https://img.shields.io/github/v/release/mimmo-the-root/UEFN-dream-bot-team?style=flat-square)](https://github.com/mimmo-the-root/UEFN-dream-bot-team/releases) [![Tests](https://img.shields.io/github/actions/workflow/status/mimmo-the-root/UEFN-dream-bot-team/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mimmo-the-root/UEFN-dream-bot-team/actions/workflows/tests.yml) [![GitHub stars](https://img.shields.io/github/stars/mimmo-the-root/UEFN-dream-bot-team?style=flat-square)](https://github.com/mimmo-the-root/UEFN-dream-bot-team/stargazers)
+![UEFN: Unreal Editor for Fortnite](https://img.shields.io/badge/UEFN-Unreal_Editor_for_Fortnite-blueviolet?style=flat-square&logo=fortnite&logoColor=white) ![Verse code](https://img.shields.io/badge/Verse-code-informational?style=flat-square) ![Claude Code kit](https://img.shields.io/badge/Claude_Code-kit-orange?style=flat-square) ![Fortnite maps](https://img.shields.io/badge/Fortnite-maps-blue?style=flat-square)
+![UEFN MCP tools mapped](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmimmo-the-root%2FUEFN-dream-bot-team%2Fmain%2Fdocs%2Fkit-stats.json&query=%24.mcp_tools&label=UEFN%20MCP%20tools%20mapped&color=informational&style=flat-square) ![proven UEFN MCP recipes](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmimmo-the-root%2FUEFN-dream-bot-team%2Fmain%2Fdocs%2Fkit-stats.json&query=%24.recipes_proven&label=proven%20MCP%20recipes&color=success&style=flat-square) ![AI agents](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmimmo-the-root%2FUEFN-dream-bot-team%2Fmain%2Fdocs%2Fkit-stats.json&query=%24.agents&label=AI%20agents&color=success&style=flat-square) ![skills](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmimmo-the-root%2FUEFN-dream-bot-team%2Fmain%2Fdocs%2Fkit-stats.json&query=%24.skills&label=skills&color=informational&style=flat-square)
 
-Built by someone juggling ~50 UEFN islands at once. Free, fully documented, works for one island or
-fifty.
 
-**[Read the manual](https://mimmo-the-root.github.io/UEFN-dream-bot-team/)**: quick start, the team, the console, troubleshooting.
+**Dream Bot Team** is a free, open-source Claude Code kit for building, testing and improving
+**UEFN** (Unreal Editor for Fortnite) maps with AI. It gives you seventeen specialized AI agents,
+each with one narrow job, instead of one general-purpose assistant trying to do everything and
+stepping on its own toes. It writes and fixes **Verse** code in a plan-first loop, and it drives the
+**UEFN MCP** (Epic's Model Context Protocol server for the editor) with recipes that were proven on a
+live editor.
+
+- **AI agents** with a plan-first workflow: no task counts as done until two independent reviewers sign off.
+- **Skills** for Verse, level devices, UI widgets, Niagara VFX, materials, physics, performance and map growth (titles, thumbnails, trailers, launch plans).
+- **Every UEFN MCP tool mapped, recipes proven on a live editor**: arguments, prerequisites, cleanup and known traps for each tool.
+- **Learns from your maps** and keeps your data on your computer; sharing lessons is optional and private by default.
+- **Agent Console**: a local dashboard that shows each agent working, MCP activity and token use.
+- **MIT license**, works for one island or fifty.
+
+Built by someone juggling ~50 UEFN islands at once.
+
+**[Read the manual](https://mimmo-the-root.github.io/UEFN-dream-bot-team/)**: quick start, the team, the console, the UEFN MCP tool reference, troubleshooting.
 
 ## Screenshots
 
