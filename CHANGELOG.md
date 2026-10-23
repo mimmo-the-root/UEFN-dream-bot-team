@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.107.6 — Safer calls to UEFN
+
+- **A call that changes something and times out is never repeated blindly.** The five MCP sub-agents, the lab guard skill and the manual now say it: the call may have worked, so the agent reads the editor state first (no second device, entity, file or session).
+- **`save_assets` without a list of assets is refused** by the lab guard: it would save every unsaved asset of the project. Name the assets, or pass `allow_save_all: true` on purpose.
+- **Known crashers, with safe ways out.** The `get_lod_count` entry now says what to read instead (the `Triangles` tag, `static_materials`, the bounding box, Nanite settings). New in the traps: `EDIT COPY` with no world, opening asset editors from Python, the editor throttled in the background, rotators by name, and the two new questions of UEFN 42.40. A new test fails if a skill, agent or command names a tool marked `avoid`.
+- **The doctor checks "Load on Startup".** If UEFN opens on the home screen, a relaunch after a crash cannot reopen your project; the doctor says how to change it.
+- **Skills:** binding limits for UI (`uefn-ui-widgets`), the Verse build compiles only the open project (`uefn-verse-build`), and agents tag what they create with `kit:<run id>` (`uefn-level-devices`).
+- **Repo:** a `docs/adr` folder with the decisions, a secret scan (gitleaks) on every push, and `KIT-VERSION.tmp` is no longer tracked.
+
 ## v1.107.5 — Easier to find on Google
 
 - **SEO for the manual:** every page has a search title, a description, a canonical link, social-card tags and structured data (JSON-LD), plus a `sitemap.xml`. Titles and descriptions live in `docs/manual/manual.json` under `seo`.

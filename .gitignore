@@ -39,3 +39,6 @@ _private/
 user-level-skills/mcp-tool-contracts/references/map/
 
 _spike/
+
+# temporary file written while the version is updated
+project-template/Claude/KIT-VERSION.tmp

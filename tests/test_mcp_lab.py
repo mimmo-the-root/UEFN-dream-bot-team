@@ -101,3 +101,8 @@ with tempfile.TemporaryDirectory() as _e:
     ok(not LX._explore_ok("import_file", os.path.join(LX.EXPLORE, "..", "x.csv")), "P2: a `..` escape is refused")
     ok(not LX._explore_ok("import_file", os.path.join(_e, "other.csv")), "P2: a file outside _explore is refused")
 print("mcp_lab ok")
+ok("save_assets without" in L.refusal(A, "save_assets", {}), "save_assets with no asset_paths is refused (it would save everything)")
+ok("save_assets without" in L.refusal(A, "save_assets", {"asset_paths": []}), "save_assets with an empty list is refused")
+ok("save_assets without" in L.refusal(A, "save_assets", {"arguments": "{\"asset_paths\": []}"}), "an empty list inside a JSON text is refused too")
+ok("save_assets without" not in L.refusal(A, "save_assets", {"asset_paths": ["/root_pillars/KitTest/DT_X"]}), "save_assets with named assets passes this check")
+ok("save_assets without" not in L.refusal(A, "save_assets", {"allow_save_all": True}), "allow_save_all is the deliberate way out")

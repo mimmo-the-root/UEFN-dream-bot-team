@@ -21,6 +21,9 @@ Source: `Claude/docs/mcp/level-devices.md`, recipes in `recipes.json`. Before ev
 - Device Verse: `PlaceDevice {assetPath:{refPath:"/<guid>/_Verse.<progetto>-<classe>"}, transform}` ok (T-011/T-015); `ListDeviceProperties`/`SetDeviceProperty` camelCase, with a verification read and restore. Events from/to Verse devices: not possible (`GetBindingOptions` empty).
 - Entities: `EntityToolset/CreateEntity` (`NPCInteropEntity_C` under `/Game`; `#simulation_entity` removed via `find_actors` + `remove_from_scene`, `DeleteEntity` fails on the root), `FindEntities`, `ListEntityClasses`.
 
+## Tag what you create
+- Right after placing or creating something, tag it (`ActorTools/add_tag` with `kit:<run id>`), so a clean-up or a second run finds exactly your objects and never makes a duplicate; check `has_tag` before removing.
+
 ## Pitfalls
 - Class of a Verse device: `/Script/VerseDevices.ScriptDevice`; to place it you need the path `/_Verse.` of the compiled class.
 - Outliner folders disappear with the last actor.

@@ -208,6 +208,30 @@ def _explore_ok(tool, s):
     return real.startswith(base + os.sep)
 
 
+def _find_arg(o, key, depth=0):
+    """The value of `key` found anywhere in the arguments (also inside a JSON text); None when it is absent."""
+    if isinstance(o, dict):
+        if key in o:
+            return o[key]
+        for v in o.values():
+            r = _find_arg(v, key, depth)
+            if r is not None:
+                return r
+    elif isinstance(o, str) and depth < 4 and o.strip()[:1] == "{":
+        try:
+            return _find_arg(json.loads(o), key, depth + 1)
+        except Exception:  # noqa
+            return None
+    return None
+
+
+def _save_all(tool, args):
+    """save_assets with no list of assets saves EVERY unsaved asset of the project."""
+    if not tool.endswith("save_assets"):
+        return False
+    return not _find_arg(args, "asset_paths") and _find_arg(args, "allow_save_all") is not True
+
+
 def refusal(ts, tool, args):
     global _checked
     if AGGR and not _checked:
@@ -218,6 +242,8 @@ def refusal(ts, tool, args):
     strs = list(_strings(args))
     if HARD_NEVER.search(tool):
         return "never: quitting or restarting the editor ends the MCP server"
+    if _save_all(tool, args):
+        return "refused: save_assets without asset_paths would save every unsaved asset; name the assets you changed"
     if any(DISK_PATH.match(s) and not _explore_ok(tool, s) for s in strs) and not _is_read(ts, tool):
         return "refused: a path on the disk outside the project"
     if AGGR:

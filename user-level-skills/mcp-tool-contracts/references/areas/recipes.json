@@ -4700,7 +4700,7 @@
     "writes": false,
     "cleanup": "",
     "status": "avoid",
-    "note": "known editor crasher on a static mesh (uefn-mcp-lab-guard \"Known editor traps\"); a ledger row exists but it is not replayed on purpose"
+    "note": "known editor crasher on a static mesh (uefn-mcp-lab-guard \"Known editor traps\"); a ledger row exists but it is not replayed on purpose; to get mesh numbers read instead: the asset-registry tag Triangles, static_materials, get_bounding_box(), nanite_settings (or StaticMeshTools/get_triangle_count, which is proven)"
   },
   "editor_toolset.toolsets.material.MaterialTools/create_function": {
     "args": {

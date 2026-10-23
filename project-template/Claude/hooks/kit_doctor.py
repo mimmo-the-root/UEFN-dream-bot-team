@@ -12,6 +12,24 @@ sys.path.insert(0, HERE)
 import kit_sync  # noqa: E402
 
 
+def load_on_startup_check(path=None):
+    """UEFN opens on the home screen unless 'Load on Startup' is 'Most Recent Project'; then a relaunch after a crash cannot reopen the project.
+    Returns (status, text), or None when the UEFN settings file is not there (UEFN not installed or never started)."""
+    try:
+        import uefn_session as us
+        path = path or us.settings_file()
+        if not os.path.isfile(path):
+            return None
+        text = us.read_text(path)
+        val = us.ini_get(text, us.SECTION, us.LOAD_KEY)
+    except Exception:  # noqa: BLE001  the doctor must never fail because of this
+        return None
+    if (val or "").strip().lower() in ("lastproject", "mostrecentproject", "true", "1"):
+        return ("OK", "UEFN opens the most recent project at start, so a relaunch after a crash can reopen it.")
+    return ("NOTE", "UEFN opens on the home screen at start, so the kit cannot reopen your project after a crash. "
+            "Set Editor Preferences > Loading & Saving > Load on Startup to Most Recent Project (or, with UEFN closed: python Claude/hooks/uefn_session.py set-load-on-startup LastProject).")
+
+
 def check(project, fix=False):
     out = []  # (status, text)
     add = lambda s, t: out.append((s, t))
@@ -144,6 +162,9 @@ def check(project, fix=False):
             add("NOTE", "The MCP map is %d days old: UEFN has not been open at a session start since. Open UEFN and start a session, or run /mcp-snapshot." % int(age))
         else:
             add("OK", "MCP map is recent (%d days)." % int(age))
+    ls = load_on_startup_check()
+    if ls:
+        add(*ls)
     return out
 
 

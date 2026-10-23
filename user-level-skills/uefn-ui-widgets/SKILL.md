@@ -36,5 +36,10 @@ Toolset: `UMGToolSet.UMGToolSet`, `VerseFieldsToolset.VerseFieldsToolset`, `MVVM
 - `ObjectTools/set_properties` / `get_properties` on the text (`values` = JSON string, camelCase): described in ui-widgets.md R2, non verified in recipes.json for this toolset.
 - `MoveWidget`, `RenameWidgetAnimation` (resets `displayLabel`): unverified in recipes.json. Animation playback: unverified (needs a play session).
 
+## Binding limits (reported by community tools; confirm with the compile result)
+- A binding needs the same type on both sides: no implicit conversion for `int` to `float`, `logic` to `Visibility`, `texture` or `material` to `Brush` (those need a conversion function or node; do them in the editor UI, then bind field to field).
+- Works as is: `message`/`string` to `Text`, `color` to `ColorAndOpacity`, `float` to `RenderOpacity`, `logic` to `IsEnabled`, and a parent field to a child widget's field of the same type.
+- The UEFN buttons expose only `Text` as a bindable property. Category order of Verse fields cannot be changed.
+
 ## Don't
 Do not use AddWidget with `TextBlock`/`UEFN_TextBlock_C` (not allowed); do not declare it "done" if only `save_assets` is true; do not touch assets outside the lab folder.

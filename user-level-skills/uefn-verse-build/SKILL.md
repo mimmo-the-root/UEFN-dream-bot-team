@@ -40,6 +40,7 @@ Answers are `{"returnValue": ...}`. `R` = lab mount above.
 | execute_tool_script `#verse_edit_build` | one script: Replace + BuildAll, returns diagnostics | cleanup as Replace; see skill `uefn-scripting-batch` |
 
 ## Traps
+- The build takes no arguments and compiles only the project that is open; there is no compile of a snippet or of a copy in another folder, and the module identity comes from the folder path. Test new code in the project itself, in a new file, not in a staging folder.
 - Required bools are not optional: `bCreateIfMissing`, `bRecursive`; `Grep` needs `pathGlob`.
 - A syntax error (e.g. 3100 S71) hides semantic errors: rebuild after every single fix.
 - Deliberate type error gives code 3509; unknown identifier 3506; duplicate definition 3532.

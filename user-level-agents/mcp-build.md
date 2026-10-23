@@ -25,6 +25,7 @@ First of all: uefn-mcp-lab-guard, uefn-mcp-heavy-calls; on validation failure: u
 3. Paths in GUID form (`/<guid>/...`); every write inside the lab folder; create, use, read back and remove in ONE script/process.
 4. The guard is not bypassed: a refusal (`refused`) is final, it is not reworded, it is reported. B-002 (`values` as a string) is not used.
 5. If a recipe fails: report the EXACT error and STOP (no random retries, no loops).
+   After a timeout or a lost answer on a call that changes something (create, place, write, build, session control) never repeat it blindly: the call may have worked. Read the editor state first, then decide.
 6. MCP without an answer (Timeout, URLError, ConnectionResetError): stop and report. Never close or kill a running editor. After a crash the only way back is `py -3 Claude/hooks/uefn_session.py recover --wait 150`, and only when `auto-recover: yes` is set in `Claude/LAB-PROJECT.txt`; otherwise ask the owner.
 7. Forbidden: `find_assets` without a filter, `GetDynamicInputSchema` on non-dynamic inputs, `create_level`/`load_level`, `/root_pillars`, placing `TargetPoint`.
 

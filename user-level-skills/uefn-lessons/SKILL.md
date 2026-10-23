@@ -53,6 +53,8 @@ device-specific behavior. Keep this category for genuinely generic device-handli
 don't fit a single device type.
 
 ## MCP / tooling quirks
+- Python `unreal.Rotator` takes (roll, pitch, yaw): always pass the three by keyword. Positional `0, 90, 0` pitches an actor 90 degrees instead of turning it.
+- UEFN 42.40 shows a project trust prompt and a notice to enable Python Editor Scripting; both block the editor (and the MCP) until someone answers them.
 - (example — replace) `mcp__unreal-mcp__call_tool` is a single dispatcher tool for every
   action — if a call behaves unexpectedly, check the JSON payload you're sending, not just the
   tool name.
