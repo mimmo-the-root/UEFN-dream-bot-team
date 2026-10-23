@@ -1,10 +1,28 @@
-# Piano delle prossime release - stato al 2026-10-23 (sera)
+# Piano delle prossime release - stato al 2026-10-23 (notte)
 
-Repo: mimmo-the-root/UEFN-dream-bot-team (locale C:\UEFNDreamTeamBot). Pubblicate fino alla 1.107.5; 1.107.6 e 1.108.0 sono committate (61d9296), publish.cmd da lanciare dall'utente (assorbono tutto il lavoro 1.107.7). L'utente possiede commit, tag e release.
+Repo: mimmo-the-root/UEFN-dream-bot-team (locale C:\UEFNDreamTeamBot). Pubblicate fino alla 1.108.3 (1.107.6 e 1.108.0 uscite insieme; 1.108.1 Score e strumenti jam; 1.108.2 Score nel manuale; 1.108.3 aggiornamento automatico). In preparazione, non ancora pubblicata: 1.108.4 (contatore installazioni con `kit.zip`, Score scura). L'utente possiede commit, tag e release.
 
 Come usare questo file: ripartire dalla prima riga con stato "da fare". Aggiornare lo stato qui (e nella copia della pagina di progetto `claude/PLAN-next-releases.md`) a ogni passo. Fonti: lista idee dei competitor (`claude/competitor-ideas-2026-10.md`) e richieste dell'utente del 23 ottobre.
 
 Scadenza che guida l'ordine: Epic jam "Vibe your way to $50k", annuncio del tema 11 novembre, costruzione 12-15 novembre (consegna entro il 15 novembre 17:59 PST). Chi usa il kit nel jam può preparare strumenti e agenti prima del 12, ma non iniziare il gioco.
+
+## Fatto dopo la 1.108.0 (23 ottobre)
+
+| Voce | Stato |
+|---|---|
+| Pagina **Score** della console (`score.py`, criteri primary/additional, semaforo, previsione, storico alla chiusura di una release, skill `project-scoring`, nessun nuovo agente) | fatto (1.108.1); manuale e README (1.108.2); tema scuro come le altre pagine (1.108.4) |
+| `robots.txt` del manuale e badge sitemap nel README | fatto (1.108.1) |
+| Video della release dedicato al jam (grafica nostra, tempio neon "Antiquated Future", senza immagini di Epic) + 5 post per X + annuncio Discord (`docs/release-videos/`) | fatto |
+| **Aggiornamento automatico da GitHub**: controllo ogni 6 ore in background (hook di progetto e hook globale), `kit_fetch --auto`; chi ha un kit precedente alla 1.108.3 deve lanciare `/kit-update --fetch` una volta (nota in README e manuale) | fatto (1.108.3) |
+| **Contatore installazioni**: ogni release allega `kit.zip`, l'aggiornamento scarica quello e GitHub conta i download; `python tool/installs.py` mostra i numeri (il conteggio parte con chi ha già la 1.108.4) | pronto, da pubblicare (1.108.4) |
+| Errore di pubblicazione: la 1.108.0 era già uscita quando ho continuato a lavorarci; da ora si controlla `git tag` prima di dire "da pubblicare" | chiuso |
+
+## Da decidere / possibili prossimi passi
+
+- Contatore con chiamata a un servizio esterno (GoatCounter o simile) per più dettagli: solo se vuoi, richiede un tuo account e una nota di trasparenza.
+- Screenshot del README rifatti con la pagina Score (opzionale).
+- Cartella `docs/release-videos/_old` con due video superati: da cancellare a mano.
+- Jam: tema annunciato l'11 novembre, costruzione 12-15 novembre; provare `/concept-card`, `/devlog`, `/jam-check` su una mappa vera prima del 12.
 
 ## Richieste dell'utente (23 ottobre)
 

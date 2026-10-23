@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.108.4 — Counting installs, dark Score page
+
+- **A way to see how many machines take each release.** Every release now carries a `kit.zip` file and the automatic update downloads that file, so GitHub counts its downloads (shown on the Releases page next to the file). Nothing is sent from your computer and no one is identified; a download is roughly one machine taking that version. `python tool/installs.py` prints the numbers per release. The count starts with the machines that already run this version or later, because a kit downloads with the code it already has.
+- **Score page is dark like the other console pages**, also when the system uses a light theme (the manual screenshot was light before).
+
 ## v1.108.3 — The kit updates itself from GitHub
 
 - **Automatic profile update.** Until now only the step "profile to project" was automatic; the step "GitHub to your profile" needed `/kit-update --fetch` or `update-my-profile.cmd`, so a new release never arrived by itself. Now the global SessionStart hook starts, at most once every 6 hours, a background check of the newest GitHub release (`kit_fetch.py --auto`). A newer release is downloaded into `~/.claude` without delaying the session, and the project picks it up at its next session start ("KIT UPDATED"). The check writes one line to `~/.claude/kit-auto-update.log`. Switch it off with `UEFN_KIT_AUTOUPDATE=0` or an empty file `~/.claude/kit-auto-update.off`.

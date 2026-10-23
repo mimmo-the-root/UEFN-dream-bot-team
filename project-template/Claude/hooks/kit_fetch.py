@@ -23,15 +23,28 @@ PARTS = {"project-template": "kit-template", "user-level-agents": "agents", "use
 SKIP_DIRS = {"local", "pack", "__pycache__"}  # skills' private/learned data and caches are never replaced
 
 
-def _get(url):
+def _get(url, accept="application/vnd.github+json"):
     if not url.startswith("https://api.github.com/"):
         raise ValueError("refusing non-GitHub URL")
-    req = urllib.request.Request(url, headers={"User-Agent": "uefn-kit-fetch", "Accept": "application/vnd.github+json"})
+    req = urllib.request.Request(url, headers={"User-Agent": "uefn-kit-fetch", "Accept": accept})
     with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
         data = r.read(CAP + 1)
     if len(data) > CAP:
         raise ValueError("download larger than %d MB" % (CAP // 1048576))
     return data
+
+
+def release_zip(tag, repo=REPO):
+    """The release file kit.zip when the release has one (GitHub counts its downloads: that is how we know roughly how many
+    machines took each version; nothing is sent from your computer), else GitHub's automatic source zip."""
+    try:
+        rel = json.loads(_get("https://api.github.com/repos/%s/releases/tags/%s" % (repo, tag)))
+        for a in rel.get("assets", []):
+            if a.get("name") == "kit.zip" and a.get("url", "").startswith("https://api.github.com/"):
+                return _get(a["url"], "application/octet-stream")
+    except Exception:  # noqa: BLE001
+        pass
+    return _get("https://api.github.com/repos/%s/zipball/%s" % (repo, tag))
 
 
 def latest_tag(repo=REPO):
@@ -136,7 +149,7 @@ def auto():
         import tempfile
         tmp = tempfile.mkdtemp(prefix="kitfetch-")
         try:
-            new = extract(_get("https://api.github.com/repos/%s/zipball/%s" % (REPO, tag)), tmp)
+            new = extract(release_zip(tag), tmp)
             n, _backup = apply(tmp, home)
             say("profile %s -> %s (%s): %d file(s)" % (cur or "none", new, tag, n))
         finally:
@@ -172,7 +185,7 @@ def main():
         if "--check" in argv:
             print("installed %s, latest release %s" % (cur or "none", tag))
             return 0
-        zbytes = _get("https://api.github.com/repos/%s/zipball/%s" % (REPO, tag))
+        zbytes = release_zip(tag)
     import tempfile
     tmp = tempfile.mkdtemp(prefix="kitfetch-")
     try:

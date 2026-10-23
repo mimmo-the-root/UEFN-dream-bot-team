@@ -8,7 +8,7 @@ Every time you start `claude` in a project, the kit compares that project's file
 
 > **Note** Kits older than v1.108.3 do not update themselves: run `/kit-update --fetch` once (see [Installing](ch:install)).
 
-The copy in `~/.claude/` updates itself too: at most once every 6 hours the session start checks GitHub in the background and, if a newer release exists, downloads it without slowing the session. The project then updates at its next session start. The check logs one line in `~/.claude/kit-auto-update.log`. To switch it off, create an empty file `~/.claude/kit-auto-update.off`. Both the project hook and the global hook start the check. The very first time, run `/kit-update --fetch` (or `update-my-profile.cmd`) once, so that the new files are in place.
+The copy in `~/.claude/` updates itself too: at most once every 6 hours the session start checks GitHub in the background and, if a newer release exists, downloads it without slowing the session. The project then updates at its next session start. The update downloads the release file `kit.zip`; GitHub counts those downloads, which is how the author knows roughly how many machines take each version (nothing is sent from your computer). The check logs one line in `~/.claude/kit-auto-update.log`. To switch it off, create an empty file `~/.claude/kit-auto-update.off`. Both the project hook and the global hook start the check. The very first time, run `/kit-update --fetch` (or `update-my-profile.cmd`) once, so that the new files are in place.
 
 - `/kit-update` updates the current project now.
 - `/kit-update --fetch` first downloads the latest release from GitHub into `~/.claude/kit-template/`, then updates the project.

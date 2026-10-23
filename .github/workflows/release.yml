@@ -19,6 +19,8 @@ jobs:
         run: |
           v=$(tr -d '[:space:]' < project-template/Claude/KIT-VERSION)
           [ "v$v" = "${{ github.ref_name }}" ] || { echo "tag ${{ github.ref_name }} != KIT-VERSION v$v"; exit 1; }
+      - name: Build kit.zip (what kit_fetch downloads; GitHub counts its downloads)
+        run: git archive --prefix=kit/ HEAD project-template user-level-agents user-level-skills user-level-hooks -o kit.zip
       - name: Create or update the Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -32,3 +34,4 @@ jobs:
           else
             gh release create "$TAG" --title "$(cat /tmp/title.txt)" --notes-file /tmp/notes.md --latest --verify-tag
           fi
+          gh release upload "$TAG" kit.zip --clobber

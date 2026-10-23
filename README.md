@@ -56,7 +56,7 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.108.3)
+## What's new (v1.102 - v1.108.4)
 
 - **The kit updates itself (1.108.3).** A background check of the newest GitHub release runs at session start, at most every 6 hours, and downloads a newer one into your profile; the project follows at its next session. **If you have an older version, do this once:** run `/kit-update --fetch` in a session (or `update-my-profile.cmd` from the repo), then open a new session. Older kits cannot update themselves because nothing in them looks at GitHub. Off switch: an empty file `~/.claude/kit-auto-update.off`.
 - **Score page (1.108.1).** A new console tab that measures the project against its own plan, release by release: a chart of plan, built and proven with a forecast, and a green, yellow or red light per criterion so you see where to act first. It reads ROADMAP, BUGS and the readiness verdict by itself; new criteria are proposed on the Skills page and need your approval.

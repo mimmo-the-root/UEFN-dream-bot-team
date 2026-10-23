@@ -57,5 +57,19 @@ try:
         except OSError: pass
     ok(kit_sync.auto_update_check() is True and len(calls) == 1 and kit_sync.auto_update_check() is False, "kit_sync (project hook) starts the check once per 6 hours")
     subprocess.Popen = real_popen
+    # release_zip: prefers the kit.zip asset (GitHub counts its downloads), falls back to the source zip
+    import json
+    seen = []
+    def fake(url, accept="application/vnd.github+json"):
+        seen.append((url, accept))
+        if "/releases/tags/" in url:
+            return json.dumps({"assets": [{"name": "kit.zip", "url": "https://api.github.com/repos/o/r/releases/assets/7"}]}).encode()
+        return b"ZIP"
+    kit_fetch._get = fake
+    ok(kit_fetch.release_zip("v9.9.9") == b"ZIP" and seen[-1] == ("https://api.github.com/repos/o/r/releases/assets/7", "application/octet-stream"), "the update downloads the kit.zip asset when the release has one")
+    kit_fetch._get = lambda url, accept="": json.dumps({"assets": []}).encode() if "/releases/tags/" in url else url.encode()
+    ok(b"/zipball/v9.9.9" in kit_fetch.release_zip("v9.9.9"), "without the asset it falls back to the source zip")
+    wf = open(os.path.join(root, ".github", "workflows", "release.yml")).read()
+    ok("kit.zip" in wf and "gh release upload" in wf, "the release workflow builds and uploads kit.zip")
 finally:
     shutil.rmtree(d, ignore_errors=True)
