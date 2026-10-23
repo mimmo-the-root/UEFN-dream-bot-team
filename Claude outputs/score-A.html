@@ -1,0 +1,91 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Score console - prototype A</title><style>
+:root{--bg:#070b14;--panel:#0d1424;--panel2:#111b30;--line:#1c2944;--text:#d7e2f7;--dim:#7f8fb0;--plan:#3b4d78;--built:#4b8bff;--proven:#39ff88;--gap:#ff5c6a;--amber:#ffb454}
+@media (prefers-color-scheme:light){:root{--bg:#f3f6fc;--panel:#fff;--panel2:#eef2fa;--line:#d5dded;--text:#1b2740;--dim:#5b6b8c;--plan:#9db0d6;--built:#2f6fe0;--proven:#14a85a;--gap:#d93a4a;--amber:#c77a0a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 Consolas,ui-monospace,monospace}
+.wrap{max-width:1240px;margin:0 auto;padding:14px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}
+.logo{font-size:13px;letter-spacing:2px;color:var(--built);font-weight:bold}.logo small{color:var(--dim);font-weight:normal;letter-spacing:0;margin-left:6px}
+nav{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:10.5px;letter-spacing:1px;text-transform:uppercase}nav span{padding:6px 11px;color:var(--dim)}nav span.on{background:rgba(75,139,255,.16);color:var(--text)}
+.ttl{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 12px}h1{font-size:15px;letter-spacing:2px;text-transform:uppercase;margin:0;color:var(--text)}
+.sub{color:var(--dim);font-size:11.5px;font-family:'Segoe UI',system-ui,sans-serif;margin-top:2px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}select{font:inherit;font-size:11.5px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:6px 9px}
+.snaps{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 12px;align-items:center}.snaps .lb{font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;margin-right:4px}
+.snaps button{font:inherit;font-size:11px;padding:5px 10px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);cursor:pointer}.snaps button.on{color:var(--text);border-color:var(--built);background:rgba(75,139,255,.14)}.snaps button.fut{border-style:dashed;opacity:.7}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.tile .k{font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase}.tile .n{font-size:26px;font-weight:bold;margin:3px 0 0}.tile small{font-size:11px;color:var(--dim);font-weight:normal}
+.tile.plan .n{color:var(--dim)}.tile.built .n{color:var(--built)}.tile.proven .n{color:var(--proven)}.tile .st{font-size:11px;margin-top:2px}
+.leg{display:flex;gap:14px;font-size:11px;color:var(--dim);margin:0 0 10px;flex-wrap:wrap}.leg i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.i-plan{border:1.5px dashed var(--plan)}.i-built{background:var(--built)}.i-proven{background:var(--proven)}.i-gap{background:var(--gap);opacity:.5}
+.tag{display:inline-block;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid var(--line);color:var(--dim);margin-left:6px}
+.tag.ours{color:var(--amber);border-color:rgba(255,180,84,.5)}.tag.bonus{color:var(--built);border-color:rgba(75,139,255,.5)}
+.b{display:inline-block;font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding:1px 8px;border-radius:20px;white-space:nowrap}
+.b.ahead{background:rgba(57,255,136,.14);color:var(--proven)}.b.on{background:rgba(75,139,255,.16);color:var(--built)}.b.behind{background:rgba(255,92,106,.15);color:var(--gap)}.b.na{background:var(--panel2);color:var(--dim)}
+.plus{color:var(--amber);font-weight:bold}.dim{color:var(--dim)}.up{color:var(--proven)}.dn{color:var(--gap)}.tip{font-family:'Segoe UI',system-ui,sans-serif;font-size:12px;color:var(--dim)}
+.gh{font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;margin:14px 0 2px}.gh:first-child{margin-top:0}
+.trk{position:relative;height:14px;background:var(--panel2);border-radius:4px;overflow:hidden}.trk .pl{position:absolute;left:0;top:0;bottom:0;border-right:2.5px solid var(--amber)}.trk .gp{position:absolute;top:0;bottom:0;background:var(--gap);opacity:.28}
+.trk .bt{position:absolute;left:0;top:0;height:55%;background:var(--built);opacity:.8}.trk .pv{position:absolute;left:0;bottom:0;height:45%;background:var(--proven)}
+.foot{margin-top:16px;font-size:11px;color:var(--dim);font-family:'Segoe UI',system-ui,sans-serif}
+svg text{fill:var(--dim);font-size:10px;font-family:Consolas,monospace}
+@media (max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.row{display:grid;grid-template-columns:210px 1fr 74px 62px 116px 92px 70px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.row:last-child{border:none}.row .nm{font-size:12.5px}.row .v{text-align:right;font-size:12px}.row .d{font-size:11.5px;text-align:right}.row .g{text-align:right}
+.rh{display:grid;grid-template-columns:210px 1fr 74px 62px 116px 92px 70px;gap:10px;font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid var(--line)}
+@media (max-width:900px){.row,.rh{grid-template-columns:120px 1fr 60px 70px}.row .sp,.row .d,.row .g,.rh span:nth-child(n+5){display:none}}</style></head><body><div class="wrap">
+<script>
+var SNAP=["Sep 17","Sep 24","Oct 1","Oct 8","Oct 15","Oct 22","Oct 29","Nov 5"],LAST=5; // snapshots 0..5 are history, 6..7 are only in the plan
+var PROFILES={map:{name:"Map",ship:"Publishing readiness",docs:"Release notes",bonus:"LLM characters",sub:"A map you publish on Discovery. The primary criteria are the seven quality criteria; retention and publishing readiness are additional."},
+ jam:{name:"Game jam",ship:"Rules readiness",docs:"Dev log (Glass Box)",bonus:"LLM characters (Walkie-Talkie)",sub:"A jam entry. The primary criteria are the seven the judges score; the additional ones are the rules and the deadline."},
+ fab:{name:"Fab product",ship:"Package check",docs:"Manual and listing",bonus:"Screenshots and overview grid",sub:"A Fab product: the package rules, the manual and the listing texts."}};
+var PROF="map";
+// T = target set by the plan at each snapshot; B = built; V = proven. (made-up numbers)
+var C=[
+{id:"ambition",n:"Ambition and innovation",g:"primary",w:10,T:[2,2.5,3,3.5,3.5,4,4,4],B:[.5,1.5,2.5,3,3.5,3.5],V:[0,1,1.5,2.5,3,3.5],tip:"Make the one twist obvious in the first 30 seconds."},
+{id:"brief",n:"Fit to the brief",g:"primary",w:10,T:[2,3,3.5,3.5,4,4,4,4],B:[.5,2,3,3.5,3.5,4],V:[0,1.5,2.5,3,3,3.5],tip:"Re-read the brief: is the central idea visible without explanation?"},
+{id:"fun",n:"Fun factor",g:"primary",w:10,T:[1,2,3,3.5,4,4,4.5,4.5],B:[0,1,2,3,3.5,4],V:[0,.5,1.5,2.5,3,3.5],tip:"Playtest with a stranger and watch where they smile."},
+{id:"gameplay",n:"Gameplay",g:"primary",w:10,T:[2,3,3.5,4,4,4.5,4.5,4.5],B:[1,2,3,3.5,3.5,4],V:[.5,1.5,2.5,3,3.5,3.5],tip:"Add one layer of progression so round 3 is not round 1."},
+{id:"visuals",n:"Visuals",g:"primary",w:10,T:[.5,1,2,3,3.5,4,4,4],B:[0,.5,1,1.5,2,2.5],V:[0,0,.5,1,1.5,2],tip:"Pick one style and keep it: a coherent small look beats a mixed rich one."},
+{id:"level",n:"Level design",g:"primary",w:10,T:[1,2,3,3.5,4,4,4,4],B:[.5,1.5,2.5,3,3.5,3.5],V:[0,1,2,2.5,3,3.5],tip:"Landmarks, a clear route, one memorable place."},
+{id:"audio",n:"Audio",g:"primary",w:10,T:[0,0,0,1,2,3,3.5,3.5],B:[0,0,0,0,.5,1],V:[0,0,0,0,0,.5],tip:"Entered the plan on Oct 8 and nothing is proven yet: music loop, hit and reward sounds."},
+{id:"feas",n:"Feasibility in UEFN",g:"additional",w:7,T:[3,3.5,4,4,4,4,4,4],B:[1,2,3,3.5,4,4],V:[.5,1.5,2.5,3.5,4,4],tip:"Risky parts are checked with the MCP recipes before they are built."},
+{id:"scope",n:"Scope vs the plan",g:"additional",w:6,T:[4,4,4,4,4,4.5,5,5],B:[3,3.5,3,3,3.5,4],V:[3,3,3,2.5,3,3.5],tip:"Two features were added since Oct 1. Cut or move the deadline."},
+{id:"ret",n:"Retention",g:"additional",w:7,T:[0,.5,1.5,2,3,3.5,4,4],B:[0,0,1,1.5,2.5,3],V:[0,0,.5,1,2,2.5],tip:"A reason to come back tomorrow: daily goal, unlock, leaderboard."},
+{id:"ship",n:"Ship readiness",g:"additional",w:6,T:[0,.5,1,2,3,3.5,4.5,5],B:[0,.5,1,2,3,3.5],V:[0,0,.5,1.5,2.5,3],tip:"The checklist for this kind of project: /jam-check or the package check."},
+{id:"docs",n:"Documentation",g:"additional",w:4,T:[1,2,3,3.5,4,4.5,5,5],B:[1,1.5,3,3.5,4,4.5],V:[1,1.5,3,3.5,4,4.5],tip:"Written by the kit from the logs; you read and correct."},
+{id:"bonus",n:"Bonus track",g:"bonus",w:0,T:[0,0,0,1,2,3,3,3],B:[0,0,0,0,.5,1],V:[0,0,0,0,0,.5],tip:"Optional: a track you choose to chase."}
+];
+function lab(c,pf){var p=PROFILES[pf||PROF];return c.id=="ship"?p.ship:(c.id=="docs"?p.docs:(c.id=="bonus"?p.bonus:c.n));}
+function calc(now,rows0){
+ var rows=(rows0||C).map(function(c){var t=c.T[now],b=c.B[Math.min(now,LAST)],v=c.V[Math.min(now,LAST)],d=now>0&&now<=LAST?c.V[now]-c.V[now-1]:0,df=v-t;
+  return {c:c,t:t,b:b,v:v,d:d,df:df,st:c.w==0&&t==0?"na":(df<-0.7?"behind":(df>0.5?"ahead":"on")),pts:c.w?Math.max(0,t-v)/5*c.w:0};});
+ function tot(f){var e=0,o=0;rows.forEach(function(r){if(r.c.g=="primary")e+=f(r);else if(r.c.g=="additional")o+=f(r)/5*r.c.w;});return Math.round(e/35*70+o);}
+ return {rows:rows,plan:tot(function(r){return r.t;}),built:tot(function(r){return r.b;}),proven:tot(function(r){return r.v;})};}
+function totalsAt(k,rows0){return calc(k,rows0);}
+var NOW=LAST;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function fmt(x){return (Math.round(x*10)/10).toString();}
+function tagOf(c){return c.g=="bonus"?'<span class="tag bonus">bonus</span>':"";}
+var GT={primary:"Primary criteria (70 points)",additional:"Additional criteria (30 points)",bonus:"Bonus track (not in the 100)"};
+var STL={ahead:"ahead",on:"on plan",behind:"behind",na:"not planned"};
+function badge(r){return '<span class="b '+r.st+'">'+STL[r.st]+'</span>';}
+function snaps(){var h='<span class="lb">As of</span>';SNAP.forEach(function(t,i){h+='<button class="'+(i==NOW?"on":"")+(i>LAST?" fut":"")+'" onclick="NOW='+i+';draw()">'+t+(i>LAST?" (plan)":"")+'</button>';});document.getElementById("snaps").innerHTML=h;}
+function setProf(v){PROF=v;draw();}
+function tiles(S){var gap=S.proven-S.plan;document.getElementById("tiles").innerHTML=
+ '<div class="tile plan"><div class="k">Plan says, as of '+SNAP[NOW]+'</div><div class="n">'+S.plan+' <small>/ 100</small></div></div>'+
+ '<div class="tile built"><div class="k">Built</div><div class="n">'+(NOW>LAST?"-":S.built)+' <small>/ 100</small></div></div>'+
+ '<div class="tile proven"><div class="k">Proven</div><div class="n">'+(NOW>LAST?"-":S.proven)+' <small>/ 100</small></div></div>'+
+ '<div class="tile"><div class="k">Against the plan</div><div class="n" style="font-size:20px;margin-top:6px;color:var('+(NOW>LAST?"--dim":(gap<-8?"--gap":(gap>3?"--proven":"--built")))+')">'+(NOW>LAST?"future":(gap>=0?"+":"")+gap+" pts")+'</div><div class="st dim">'+(NOW>LAST?"only the plan exists":(gap<-8?"behind the plan":(gap>3?"ahead of the plan":"close to the plan")))+'</div></div>';}
+function legend(){return '<div class="leg"><span><i class="i-plan" style="border-right:3px solid var(--amber);border-style:solid;border-width:0 3px 0 0"></i>where the plan says we should be</span><span><i class="i-built"></i>built</span><span><i class="i-proven"></i>proven</span><span><i class="i-gap"></i>behind the plan</span></div>';}
+function bar(r){var gap=Math.max(0,r.t-r.v);return '<div class="trk"><div class="gp" style="left:'+(r.v/5*100)+'%;width:'+(gap/5*100)+'%"></div><div class="pl" style="width:'+(r.t/5*100)+'%"></div><div class="bt" style="width:'+(r.b/5*100)+'%"></div><div class="pv" style="width:'+(r.v/5*100)+'%"></div></div>';}
+function spark(c,w,h,upto){w=w||110;h=h||26;var X=function(i){return 2+i*(w-4)/7;},Y=function(v){return h-2-v/5*(h-4);};
+ var t=c.T.map(function(v,i){return X(i)+","+Y(v);}).join(" "),v=[];for(var i=0;i<=Math.min(upto,LAST);i++)v.push(X(i)+","+Y(c.V[i]));
+ return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'"><polyline points="'+t+'" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="3 3"/><polyline points="'+v.join(" ")+'" fill="none" stroke="var(--proven)" stroke-width="2"/></svg>';}
+function head(title,sub){return '<div class="top"><div class="logo">&gt; DREAM BOT TEAM AGENT CONSOLE FOR UEFN <small>v1.108.0</small></div><nav><span>Console</span><span>Stats</span><span>Docs</span><span>Flow</span><span>Skills</span><span>What\'s new</span><span class="on">Score</span></nav></div>'+
+ '<div class="ttl"><div><h1>'+title+'</h1><div class="sub" id="psub"></div></div><div class="tools"><select><option>root_rank_system</option><option>root_FAB_rainbow</option><option>Epic AI MegaJam entry</option></select><select id="prof" onchange="setProf(this.value)"><option value="map">Profile: Map</option><option value="jam">Profile: Game jam</option><option value="fab">Profile: Fab product</option></select></div></div><div id="snaps" class="snaps"></div><div id="tiles" class="tiles"></div>';}
+function chrome(){document.getElementById("psub").textContent=PROFILES[PROF].sub+" The score follows the plan over time; the numbers here are made up.";document.getElementById("prof").value=PROF;snaps();}
+
+document.write(head("Project score &middot; prototype A: Bars with trend"))</script>
+<div class="card"><div id="leg"></div><div class="rh"><span>Criterion</span><span>Progress against the plan</span><span style="text-align:right">proven / plan</span><span style="text-align:right">since last</span><span>trend</span><span style="text-align:right">status</span><span style="text-align:right">gain</span></div><div id="rows"></div></div>
+<div class="foot">Prototype with made-up numbers. The kit would take the targets from the plan (ROADMAP and spec), "built" from the project files and "proven" from the checks and playtests, and save a snapshot every day or at the end of a session.</div>
+</div><script>function rowsList(S,opt){opt=opt||{};var h="",last="";S.rows.forEach(function(r){if(r.c.g!=last){h+='<div class="gh">'+GT[r.c.g]+'</div>';last=r.c.g;}h+=opt.row(r);});return h;}function draw(){chrome();var S=calc(NOW);tiles(S);document.getElementById("leg").innerHTML=legend();
+ document.getElementById("rows").innerHTML=rowsList(S,{row:function(r){var f=NOW>LAST;return '<div class="row"><div class="nm">'+esc(lab(r.c))+tagOf(r.c)+'</div>'+bar(r)+'<div class="v">'+(f?"-":fmt(r.v))+' / '+fmt(r.t)+'</div><div class="d '+(r.d>0?"up":(r.d<0?"dn":"dim"))+'">'+(f||!NOW?"":(r.d>0?"&#9650; +":(r.d<0?"&#9660; ":"&#9644; "))+fmt(r.d))+'</div><div class="sp">'+spark(r.c,110,26,NOW)+'</div><div class="g">'+(f?'<span class="b na">plan</span>':badge(r))+'</div><div class="g">'+(r.pts>0.3&&!f?'<span class="plus">+'+fmt(r.pts)+'</span>':'<span class="dim">-</span>')+'</div></div>';}});}
+draw();</script></body></html>

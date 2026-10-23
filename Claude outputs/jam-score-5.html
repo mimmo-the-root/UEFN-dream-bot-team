@@ -1,0 +1,88 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Jam score - prototype 5</title><style>
+:root{--bg:#070b14;--panel:#0d1424;--panel2:#111b30;--line:#1c2944;--text:#d7e2f7;--dim:#7f8fb0;--plan:#3b4d78;--built:#4b8bff;--proven:#39ff88;--gap:#ff5c6a;--amber:#ffb454}
+@media (prefers-color-scheme:light){:root{--bg:#f3f6fc;--panel:#fff;--panel2:#eef2fa;--line:#d5dded;--text:#1b2740;--dim:#5b6b8c;--plan:#9db0d6;--built:#2f6fe0;--proven:#14a85a;--gap:#d93a4a;--amber:#c77a0a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 Consolas,ui-monospace,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:15px;letter-spacing:2px;text-transform:uppercase;margin:0 0 2px;color:var(--built)}
+.sub{color:var(--dim);font-size:11.5px;margin-bottom:14px;font-family:'Segoe UI',system-ui,sans-serif}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.days{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.days button{font:inherit;font-size:11px;padding:6px 12px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);cursor:pointer}
+.days button.on{color:var(--text);border-color:var(--built);background:rgba(75,139,255,.14)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.tile .k{font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase}.tile .n{font-size:26px;font-weight:bold;margin:3px 0 0}.tile small{font-size:11px;color:var(--dim);font-weight:normal}
+.tile.plan .n{color:var(--dim)}.tile.built .n{color:var(--built)}.tile.proven .n{color:var(--proven)}
+.leg{display:flex;gap:14px;font-size:11px;color:var(--dim);margin:0 0 10px;flex-wrap:wrap}.leg i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.i-plan{background:transparent;border:1.5px dashed var(--plan)}.i-built{background:var(--built)}.i-proven{background:var(--proven)}.i-gap{background:var(--gap)}
+.tag{display:inline-block;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid var(--line);color:var(--dim);margin-left:6px}
+.tag.ours{color:var(--amber);border-color:rgba(255,180,84,.5)}.tag.bonus{color:var(--built);border-color:rgba(75,139,255,.5)}
+.plus{color:var(--amber);font-weight:bold}.dim{color:var(--dim)}.tip{font-family:'Segoe UI',system-ui,sans-serif;font-size:12px;color:var(--dim)}
+.foot{margin-top:16px;font-size:11px;color:var(--dim);font-family:'Segoe UI',system-ui,sans-serif}
+@media (max-width:720px){.tiles{grid-template-columns:repeat(2,1fr)}}
+
+.pips{display:inline-flex;gap:3px;vertical-align:middle}.pip{position:relative;width:26px;height:12px;border-radius:3px;border:1.5px solid transparent;background:var(--panel2);overflow:hidden}
+.pip.pl{border:1.5px dashed var(--plan)}.pip i{position:absolute;left:0;top:0;bottom:0}.pip .b{background:var(--built);opacity:.75}.pip .v{background:var(--proven);height:55%;top:auto}
+.g5{display:grid;grid-template-columns:1.25fr 1fr;gap:14px}.st{width:100%;border-collapse:collapse}.st td{padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:middle}.st tr:last-child td{border:none}.st .sc{text-align:right;width:84px;white-space:nowrap}.st th{text-align:left;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);padding:12px 6px 4px}
+.ring{display:flex;align-items:center;gap:16px}.coach{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px}.coach li{margin:0 0 7px}.ck{list-style:none;padding:0;margin:0;font-size:12px}.ck li{padding:3px 0}.ck .y{color:var(--proven)}.ck .n{color:var(--dim)}
+svg text{fill:var(--text);font-family:Consolas,monospace}@media (max-width:820px){.g5{grid-template-columns:1fr}}</style></head><body><div class="wrap">
+<h1>Jam score &middot; prototype 5: Judge's sheet</h1>
+<div class="sub">Example data for an invented jam game. Epic's seven criteria plus our own checks, from the plan on day 0 to proof on the last day. Click a day.</div>
+<div id="days" class="days"></div><div id="tiles" class="tiles"></div>
+<div class="g5"><div class="card"><div id="leg"></div><table class="st" id="st"></table></div><div><div class="card" style="margin-bottom:14px"><div class="ring"><svg id="rg" viewBox="0 0 120 120" width="120"></svg><div><div class="dim" style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase">Outlook</div><div id="vd" style="font-size:15px;font-weight:bold;margin:2px 0 4px"></div><div class="tip" id="vs"></div></div></div></div><div class="card" style="margin-bottom:14px"><div class="dim" style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px">The coach says</div><ol class="coach" id="co" style="margin:0;padding-left:18px"></ol></div><div class="card"><div class="dim" style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px">Ready to submit <span id="rc"></span></div><ul class="ck" id="ck"></ul></div></div></div>
+<div class="foot">Prototype with made-up numbers. In the kit the layers come from the spec (plan), the project files (built) and the checks and playtests (proven).</div>
+</div><script>
+var DAYS=["Day 0 · Spec analysis","Day 1 · Core loop","Day 2 · Content and art","Day 3 · Polish and audio","Day 4 · Submit"];
+var JOURNAL=["Spec read. The kit scored the plan and listed what is missing. Nothing built yet.","Core loop playable. Two risky devices checked with the MCP recipes.","Arena blocked out, first art pass. Theme wired in.","Audio added (it was missing from the plan). Polish pass, two reviews passed.","Build frozen, private version code made, video recorded, dev log filled in."];
+// layers per day: P = in the plan (spec), B = built in the project, V = proven (verse-check, playtest, video). null = unknown yet.
+var C=[
+{id:"ambition",n:"Ambition and Innovation",g:"epic",w:10,P:[3,3,3.5,4,4],B:[0,1,2.5,3.5,4],V:[0,0,1.5,3,4],tip:"Make the one twist obvious in the first 30 seconds and in the video."},
+{id:"theme",n:"Use of Contest Theme",g:"epic",w:10,P:[null,4,4,4,4],B:[0,1,3,4,4],V:[0,0,2,3.5,4],tip:"Announced on 12 Nov: re-score the moment you know it. Required by the rules."},
+{id:"fun",n:"Fun Factor",g:"epic",w:10,P:[4,4,4,4.5,4.5],B:[0,2,3,4,4.5],V:[0,1,2.5,3.5,4.5],tip:"Tie-breaker: counts double. Playtest with a stranger and watch where they smile."},
+{id:"gameplay",n:"Gameplay",g:"epic",w:10,P:[4,4,4,4,4.5],B:[0,3,3.5,4,4.5],V:[0,2,3,4,4.5],tip:"Add one layer of progression so round 3 is not round 1."},
+{id:"visuals",n:"Visuals",g:"epic",w:10,P:[2,3,3.5,4,4],B:[0,0,2,3.5,4],V:[0,0,1,3,4],tip:"Pick ONE style and keep it: a coherent small look beats a mixed rich one."},
+{id:"level",n:"Level Design",g:"epic",w:10,P:[2,3,3.5,4,4],B:[0,1,3,3.5,4],V:[0,0,2,3.5,4],tip:"Landmarks, a clear route, one memorable place. Walk it with the camera low."},
+{id:"audio",n:"Audio",g:"epic",w:10,P:[0,0,0,3,3],B:[0,0,0,1.5,3],V:[0,0,0,1,3],tip:"Not in the spec = 0 points. Music loop, hit and reward sounds, one ambience: cheap points."},
+{id:"feasibility",n:"Feasibility in UEFN",g:"ours",w:8,P:[3,4,4,4,4],B:[0,2,3.5,4,4],V:[0,1,3,4,4],tip:"Run the risky parts through the MCP recipes before you commit to them."},
+{id:"scope",n:"Scope vs days left",g:"ours",w:8,P:[2,3,3,4,5],B:[0,2,3,4,5],V:[0,2,3,4,5],tip:"Cut features, not polish. Three cuts on day 0 save the last day."},
+{id:"rules",n:"Rules readiness",g:"ours",w:8,P:[1,1,2,3,5],B:[0,0,1,3,5],V:[0,0,0,2,5],tip:"Private code, 1080p video, English, Teen, sourced assets listed: /jam-check."},
+{id:"devlog",n:"Dev log (Glass Box)",g:"ours",w:6,P:[1,2,3,4,5],B:[0,1,2,3.5,5],V:[0,1,2,3.5,5],tip:"/devlog writes the numbers; you write how AI was used. Start on day 1."},
+{id:"llm",n:"LLM characters (Walkie-Talkie)",g:"bonus",w:0,P:[0,0,2,3,3],B:[0,0,1,2.5,3],V:[0,0,0,2,3],tip:"Optional prize track: a talking NPC with the UEFN conversations feature. New: try it early."}
+];
+function val(c,L,d){var v=c[L][d];return v;}
+function calc(d){
+ var rows=C.map(function(c){var p=c.P[d],b=c.B[d],v=c.V[d];return {c:c,p:p==null?0:p,b:b,v:v,unk:p==null};});
+ function tot(L){var e=rows.filter(function(r){return r.c.g=="epic"&&!(r.unk&&L=="p");});var es=0,n=0;rows.forEach(function(r){if(r.c.g!="epic")return;if(r.unk)return;es+=r[L];n++;});
+  var epic=n?es/(5*n)*70:0,ours=0;rows.forEach(function(r){if(r.c.g=="ours")ours+=r[L]/5*r.c.w;});return Math.round(epic+ours);}
+ rows.forEach(function(r){r.gap=Math.max(0,r.p-r.v);r.pts=r.c.w?r.gap/5*r.c.w:0;r.free=(!r.unk&&r.c.w&&r.p<2.5)?(3.5-r.p)/5*r.c.w:0;r.gain=Math.max(r.pts,r.free);});
+ return {rows:rows,plan:tot("p"),built:tot("b"),proven:tot("v")};
+}
+function verdict(t){return t>=75?"build it":(t>=55?"build it with a smaller scope":"pick another idea");}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function tagOf(c){return c.g=="ours"?'<span class="tag ours">ours</span>':(c.g=="bonus"?'<span class="tag bonus">bonus track</span>':"");}
+var DAY=0;
+function pills(){var h="";DAYS.forEach(function(t,i){h+='<button class="'+(i==DAY?"on":"")+'" onclick="DAY='+i+';draw()">'+esc(t)+'</button>';});document.getElementById("days").innerHTML=h;}
+function tiles(S){document.getElementById("tiles").innerHTML=
+ '<div class="tile plan"><div class="k">Potential (the plan)</div><div class="n">'+S.plan+' <small>/ 100</small></div></div>'+
+ '<div class="tile built"><div class="k">Built in the project</div><div class="n">'+S.built+' <small>/ 100</small></div></div>'+
+ '<div class="tile proven"><div class="k">Proven (checks, playtest)</div><div class="n">'+S.proven+' <small>/ 100</small></div></div>'+
+ '<div class="tile"><div class="k">Outlook</div><div class="n" style="font-size:15px;margin-top:9px">'+verdict(S.plan)+'</div></div>';}
+function legend(){return '<div class="leg"><span><i class="i-plan"></i>planned in the spec</span><span><i class="i-built"></i>built</span><span><i class="i-proven"></i>proven</span><span><i class="i-gap"></i>missing</span></div>';}
+
+function pip(r){var h='<span class="pips">';for(var i=0;i<5;i++){var f=function(x){return Math.max(0,Math.min(1,x-i))*100;};
+ h+='<span class="pip'+(r.p>i?" pl":"")+'"><i class="b" style="width:'+f(r.b)+'%"></i><i class="v" style="width:'+f(r.v)+'%"></i></span>';}return h+'</span>';}
+function fmt(x){return (Math.round(x*10)/10).toString();}
+var CK=["Private version code made from the final build","Video 30-60 s, 1920x1080 or higher","Everything in English","Theme visible in the game","Made during the jam (only the AI setup is older)","Sourced assets listed, licences cleared","Suitable for 13+, no stray trademarks","Team and owner filled in","Dev log submitted (Glass Box)"];
+function draw(){pills();var S=calc(DAY);tiles(S);document.getElementById("leg").innerHTML=legend();var h="",last="";
+ var T={epic:"Epic's judging criteria",ours:"Our checks",bonus:"Bonus track"};
+ S.rows.forEach(function(r){if(r.c.g!=last){h+='<tr><th colspan="3">'+T[r.c.g]+'</th></tr>';last=r.c.g;}
+  h+='<tr><td>'+esc(r.c.n)+(r.unk?' <span class="tag">theme not announced</span>':"")+(r.p==0&&!r.unk&&r.c.w?' <span class="tag" style="color:var(--gap);border-color:var(--gap)">not in the plan</span>':"")+'</td><td>'+pip(r)+'</td><td class="sc">'+(r.unk?"?":fmt(r.v)+" / 5")+'</td></tr>';});
+ document.getElementById("st").innerHTML=h;
+ var pc=S.proven/100,C2=2*Math.PI*46,pl=S.plan/100;
+ document.getElementById("rg").innerHTML='<circle cx="60" cy="60" r="46" fill="none" stroke="var(--line)" stroke-width="10"/><circle cx="60" cy="60" r="46" fill="none" stroke="var(--plan)" stroke-width="10" stroke-dasharray="'+C2*pl+' '+C2+'" transform="rotate(-90 60 60)" opacity=".6"/><circle cx="60" cy="60" r="46" fill="none" stroke="var(--proven)" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+C2*pc+' '+C2+'" transform="rotate(-90 60 60)"/><text x="60" y="65" text-anchor="middle" font-size="24" font-weight="bold">'+S.proven+'</text><text x="60" y="80" text-anchor="middle" font-size="9" style="fill:var(--dim)">proven / 100</text>';
+ document.getElementById("vd").textContent=verdict(S.plan);document.getElementById("vs").textContent="The ring shows the plan ("+S.plan+") and what is proven so far ("+S.proven+"). At the end, proven is your score.";
+ var M=S.rows.slice().sort(function(a,b){return b.gain-a.gain;}).filter(function(r){return r.gain>0.3;}).slice(0,3),c="";
+ M.forEach(function(r){c+='<li><b>'+esc(r.c.n)+'</b> <span class="plus">+'+fmt(r.gain)+'</span><br>'+esc(r.c.tip)+'</li>';});document.getElementById("co").innerHTML=c||"<li>Nothing big is missing. Prove what is built, then submit.</li>";
+ var rules=C.filter(function(x){return x.id=="rules";})[0],n=Math.round(rules.V[DAY]/5*9),k="";CK.forEach(function(t,i){k+='<li class="'+(i<n?"y":"n")+'">'+(i<n?"&#10003; ":"&#9744; ")+esc(t)+'</li>';});
+ document.getElementById("ck").innerHTML=k;document.getElementById("rc").textContent=n+" of 9";}
+draw();</script></body></html>

@@ -1,19 +1,24 @@
 # Changelog
 
+## v1.108.1 — Score page and jam tools
+
+- **`/concept-card`** scores an idea on Epic's seven jam criteria (ambition, theme, fun, gameplay, visuals, level design, audio: 70 points) plus our feasibility and scope (30 points) and gives a verdict out of 100.
+- **Score page in the console (new tab "Score"):** how far the project is against its own plan, release by release. A chart of plan, built and proven with a forecast, a traffic light per criterion (red act now, yellow watch, green fine) and a priority number. Primary criteria are the contest's own (70 points), additional ones are ours (30 points). It is computed live by `score.py` from ROADMAP, BUGS and the release-readiness verdict, so it moves when you close tasks or bugs in the docs; a snapshot is saved when a release closes. New criteria are proposed through the Skills page (new skill `project-scoring`, no new agent).
+- **`robots.txt` and a sitemap badge:** the manual publishes a `robots.txt` that points to its `sitemap.xml`, and the README badge row links to the sitemap.
+- **Manual:** three new chapters: *2026 Epic AI MegaJam* (how the kit helps and what we added), *A UEFN map project* and *A Fab product project* (what is installed and which documents each produces; the Fab documents are marked as planned for 1.109). **Repo:** `sync-skills.ps1` and one message in `mcp_lessons.py` are now in English (the confirmation answer is `y`).
+
 ## v1.108.0 — Ready for the jam
 
 - **A new project asks: map or Fab product?** Open a session from the `Content` folder of a UEFN project with no kit: for a map the kit shows a dry run (how many files), asks for a yes, copies `project-template/` without overwriting anything and runs the setup steps. For a Fab product it installs nothing (its components are added to the customer's project later) and remembers the answer outside the project. New `kit_install.py` in your user profile.
 - **Verse headers keep only the present.** An English summary that is always up to date, the real date and the version; no change history in the file. Every change is one line in the new `Claude/logs/verse-changes.jsonl` (file, summary, reason, outcome), next to `verse-errors.jsonl`. Old history lines are moved out of existing headers into `Claude/docs/archive/` on the first session, code untouched. The reviewer now blocks a header with history or a change without a log line.
-- **`/concept-card`** scores an idea on Epic's seven jam criteria (ambition, theme, fun, gameplay, visuals, level design, audio: 70 points) plus our feasibility and scope (30 points) and gives a verdict out of 100.
+- **`/concept-card`** scores an idea from 1 to 5 on six criteria (feasibility, scope, hook, showability, retention, originality) and gives a verdict out of 100.
 - **`/devlog`** builds `Claude/docs/devlog.md` day by day from the two logs; your "How AI was used" text is kept.
 - **`/jam-check`** checks Verse headers, asset names, path length (140 with the project folder name), dev log and concept card, then lists what only you can confirm (private version code, 30-60 s video, licences, Fortnite rules).
 - **What's new page:** a "Changes" tile shows how many things the release changed, so the top row is never all zeros.
 - **Epic AI MegaJam timer on the What's new page (with a link to the jam page):** days, hours, minutes and seconds to the start of the jam, then to the deadline, shown in your local time. The dates are one line (`JAM`) at the top of the page script.
-- **Score page in the console (new tab "Score"):** how far the project is against its own plan, release by release. A chart of plan, built and proven with a forecast, a traffic light per criterion (red act now, yellow watch, green fine) and a priority number. Primary criteria are the contest's own (70 points), additional ones are ours (30 points). It is computed live by `score.py` from ROADMAP, BUGS and the release-readiness verdict, so it moves when you close tasks or bugs in the docs; a snapshot is saved when a release closes. New criteria are proposed through the Skills page (new skill `project-scoring`, no new agent).
-- **`robots.txt` and a sitemap badge:** the manual publishes a `robots.txt` that points to its `sitemap.xml`, and the README badge row links to the sitemap.
 - **One number for the agents: 22** (17 team agents plus the 5 UEFN MCP sub-agents) in the README, the manual, the badge and `docs/kit-stats.json`.
 - **Lab test of 1.107.6:** the guard refuses `save_assets` with no list and lets one with named assets pass; `SelectAssets` answers in 1.4-1.7 s whether UEFN is in front or not, so the earlier timeouts did not come from the editor running in the background. Texts corrected in the guard skill and the manual.
-- **Manual:** three new chapters: *2026 Epic AI MegaJam* (how the kit helps and what we added), *A UEFN map project* and *A Fab product project* (what is installed and which documents each produces; the Fab documents are marked as planned for 1.109). **Repo:** `sync-skills.ps1` and one message in `mcp_lessons.py` are now in English (the confirmation answer is `y`).
+- **Manual:** new chapter "Kit for the jam". **Repo:** `sync-skills.ps1` and one message in `mcp_lessons.py` are now in English (the confirmation answer is `y`).
 
 ## v1.107.6 — Safer calls to UEFN
 
