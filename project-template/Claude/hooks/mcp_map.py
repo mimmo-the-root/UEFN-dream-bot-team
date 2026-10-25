@@ -31,6 +31,11 @@ STRICT_READ = ("get", "list", "find", "describe", "query", "search", "count", "i
 INTERVAL_HOURS = 6.0
 
 
+# The MCP server is on this computer: never go through a proxy configured in Windows or in the environment (a proxy answered 404 for 127.0.0.1
+# and the map was reported as "odd reply" instead of "UEFN closed").
+_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
 class Unreachable(Exception):
     pass
 
@@ -95,7 +100,7 @@ class Client:
             h["MCP-Protocol-Version"] = self.proto
         req = urllib.request.Request(self.url, data=json.dumps(msg).encode("utf-8"), headers=h, method="POST")
         try:
-            resp = urllib.request.urlopen(req, timeout=self.timeout)
+            resp = _OPENER.open(req, timeout=self.timeout)
             body = resp.read().decode("utf-8", "replace")
             ctype = resp.headers.get("Content-Type", "")
             sid = resp.headers.get("Mcp-Session-Id")

@@ -98,9 +98,26 @@ ok(res["tests"]["tried"] >= 3 and "Widgets.AddWidget" not in S["called"], "serve
 out = subprocess.run([sys.executable, os.path.join(hooks, "mcp_map.py"), "--find", "widget", "--dir", d2], capture_output=True, text=True).stdout
 ok("GetWidgets" in out and "read" in out and "tested ok" in out, "--find searches the saved map")
 # not reachable / odd: the saved map stays
-dead = "http://127.0.0.1:1/mcp"
+import socket as _sk
+_s = _sk.socket(); _s.bind(("127.0.0.1", 0)); _dead_port = _s.getsockname()[1]; _s.close()   # a port that is free right now (port 1 can be answered by a security program on Windows)
+dead = "http://127.0.0.1:%d/mcp" % _dead_port
+# a proxy in the environment (common on Windows) must not be used for the local MCP server
+import http.server, threading
+class _Proxy404(http.server.BaseHTTPRequestHandler):
+    def do_POST(self):
+        self.send_response(404); self.end_headers()
+    do_GET = do_POST
+    def log_message(self, *a):
+        pass
+_px = http.server.HTTPServer(("127.0.0.1", 0), _Proxy404)
+threading.Thread(target=_px.serve_forever, daemon=True).start()
+_old = {k: os.environ.get(k) for k in ("http_proxy", "HTTP_PROXY")}
+os.environ["http_proxy"] = os.environ["HTTP_PROXY"] = "http://127.0.0.1:%d" % _px.server_address[1]
 res, code = mcp_map.now(url=dead, dirpath=d2, timeout=1)
-ok(code == 2 and res["state"] == "not_reachable", "UEFN closed -> not_reachable, nothing written")
+for _k, _v in _old.items():
+    os.environ.pop(_k, None) if _v is None else os.environ.__setitem__(_k, _v)
+_px.shutdown()
+ok(code == 2 and res["state"] == "not_reachable", "UEFN closed -> not_reachable, nothing written (got code %s: %s)" % (code, str(res)[:300]))
 class Junk(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def do_POST(self):
@@ -118,7 +135,7 @@ ok(mcp_map.find_url(p) == "http://127.0.0.1:8123/mcp", "the MCP address is read 
 # the session-start hook (kit_sync) hands the news to the agent end to end
 mp = fresh(); proj = fresh(); tpl = fresh()
 open(os.path.join(mp, "NEWS.md"), "w").write("# UEFN MCP news\n\n2026-10-15. 5 tools in 2 toolsets.\n"); open(os.path.join(mp, "NEWS.pending"), "w").write("x")
-env = dict(os.environ, CLAUDE_PROJECT_DIR=proj, UEFN_KIT_MCP_DIR=mp, UEFN_KIT_TEMPLATE=tpl, UEFN_MCP_URL="http://127.0.0.1:1/mcp", HOME=tpl, USERPROFILE=tpl)
+env = dict(os.environ, CLAUDE_PROJECT_DIR=proj, UEFN_KIT_MCP_DIR=mp, UEFN_KIT_TEMPLATE=tpl, UEFN_MCP_URL=dead, HOME=tpl, USERPROFILE=tpl)
 r = subprocess.run([sys.executable, os.path.join(hooks, "kit_sync.py")], capture_output=True, text=True, env=env)
 ok("MCP news" in r.stdout and "additionalContext" in r.stdout, "kit_sync (session start) carries the MCP news to the agent")
 # the Console: summary numbers, the server route, the Skills page section
@@ -151,7 +168,7 @@ res, code = mcp_map.now(url=URL, dirpath=d3)
 ok(res["state"] == "first_snapshot" and res["count"] == 7, "a strict server (negotiated version header required, notification refused) is still mapped")
 S["strict"] = False
 # a failed attempt is remembered and told, never hidden
-res, code = mcp_map.now(url="http://127.0.0.1:1/mcp", dirpath=d3, timeout=1)
+res, code = mcp_map.now(url=dead, dirpath=d3, timeout=1)
 err = json.load(open(os.path.join(d3, "auto.json")))["last_error"]
 ok("not_reachable" in err["text"], "a failed attempt is remembered in auto.json")
 d4 = fresh(); mcp_map._note_error(d4, "odd_reply: HTTP 400")

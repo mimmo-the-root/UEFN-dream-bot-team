@@ -34,18 +34,18 @@ try:
     lg = fl.ledger_path(fab)
     ok(lg.startswith(base) and os.path.isfile(lg) and not lg.startswith(fab), "the ledger lives outside the project")
     ok(sorted(os.listdir(fab)) == before and not os.path.exists(os.path.join(fab, "Claude")), "nothing was written in the project")
-    rows = [json.loads(x) for x in open(lg)]
+    rows = [json.loads(x) for x in open(lg, encoding="utf-8").read().splitlines()]
     ok([r["r"] for r in rows] == ["ok", "ok", "rejected"] and rows[0]["sid"] == "s1", "rows have the normal ledger shape")
     ok(fl.record({"cwd": fab, "tool_input": {"command": "ls"}}) is None, "calls that are not UEFN MCP are ignored")
     a = fl.record({"cwd": fab, "hook_event_name": "PreToolUse", "tool_name": "Agent", "tool_input": {"subagent_type": "materials-expert", "description": "audit materials"}})
     b = fl.record({"cwd": fab, "hook_event_name": "SubagentStop", "agent_type": "materials-expert"})
-    ag = [json.loads(x) for x in open(os.path.join(fl.lab_dir(fab), "Claude", "logs", "agent-console.jsonl"))]
+    ag = [json.loads(x) for x in open(os.path.join(fl.lab_dir(fab), "Claude", "logs", "agent-console.jsonl"), encoding="utf-8").read().splitlines()]
     ok(a and b and [x["event"] for x in ag] == ["start", "stop"] and ag[0]["agent"] == "materials-expert" and "ts" in ag[0], "subagent start and stop are logged for the console")
     ok(sorted(os.listdir(fab)) == before, "still nothing in the project")
     big = payload(fab, "RunScript")
     big["tool_input"]["arguments"] = {"script": "x" * 2500}
     fl.record(big)
-    last = json.loads(open(lg).read().strip().split("\n")[-1])
+    last = json.loads(open(lg, encoding="utf-8").read().splitlines()[-1])
     ok(len(json.loads(last["args"])["script"]) == 2500, "scripts are kept whole in the lab ledger (the map ledger cuts them at 60 characters)")
     mp = project("Island", "map")
     ok(fl.record(payload(mp, "CreateMaterial")) is None, "a map keeps its own hooks: not recorded here")
@@ -69,9 +69,9 @@ try:
             % (os.path.join(ROOT, "project-template", "Claude", "hooks"), os.path.join(ROOT, "project-template", "Claude", "hooks", "agent-console-server.py")))
     lab = fl.lab_dir(fab)
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=dict(os.environ, UEFN_FAB_LAB=lab))
-    lines = r.stdout.split("\n")
+    lines = r.stdout.splitlines()
     ok(r.returncode == 0 and lines[0] == lab and lines[1] == os.path.join(lab, "Claude", "logs"), "console server uses the lab folder when UEFN_FAB_LAB is set")
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env={k: v for k, v in os.environ.items() if k != "UEFN_FAB_LAB"})
-    ok(r.returncode == 0 and r.stdout.split("\n")[0].endswith("UEFNDreamTeamBot") or "project-template" in r.stdout.split("\n")[0], "without it the server keeps using the project")
+    ok(r.returncode == 0 and r.stdout.splitlines()[0].endswith("UEFNDreamTeamBot") or "project-template" in r.stdout.splitlines()[0], "without it the server keeps using the project")
 finally:
     shutil.rmtree(base, ignore_errors=True)
