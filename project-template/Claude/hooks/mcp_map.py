@@ -665,8 +665,20 @@ def find(words, dirpath=None, limit=25):
     try:
         tools = json.load(open(os.path.join(d, "latest.json"), encoding="utf-8"))["tools"]
     except (OSError, ValueError, KeyError):
-        print("No MCP map yet. With UEFN open run: mcp_map.py --now")
-        return 2
+        lab = lab_known()
+        if not lab:
+            print("No MCP map yet. With UEFN open run: mcp_map.py --now")
+            return 2
+        # no live map on this computer yet: search the names the kit already knows (388 tools, name + area + lab status)
+        ws = [w.lower() for w in words]
+        hits = sorted(((-sum(1 for w in ws if w in (k + " " + str(e.get("a", ""))).lower()), k) for k, e in lab.items()))
+        hits = [h for h in hits if h[0]]
+        print("(no live map yet: names known to the kit; run mcp_map.py --now with UEFN open for descriptions)")
+        for _, k in hits[:limit]:
+            print("%s | %s%s" % (k, lab[k].get("a", "?"), lab_text(lab[k])))
+        if not hits:
+            print("No known tool matches %s." % " ".join(words))
+        return 0
     try:
         tested = json.load(open(os.path.join(d, "tests.json"), encoding="utf-8")).get("results", {})
     except (OSError, ValueError):

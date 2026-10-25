@@ -21,8 +21,22 @@ LASTMOD = re.compile(r"^\s*#\s*Last modified:\s*(\d{4}-\d{2}-\d{2})\s*[-—–]+
 SUMMARY = re.compile(r"^\s*#\s*Summary:\s*\S", re.I)
 
 
+def project_root(start):
+    """The folder that holds Claude/hooks (the project's Content folder). A sub-agent may run from a deeper folder (for example
+    Content/Claude), where the plain working directory would create Claude/Claude/logs: walk up a few levels instead."""
+    d = os.path.abspath(start)
+    for _ in range(5):
+        if os.path.isfile(os.path.join(d, "Claude", "hooks", "kit_sync.py")):
+            return d
+        up = os.path.dirname(d)
+        if up == d:
+            break
+        d = up
+    return os.path.abspath(start)
+
+
 def log_path(project=None):
-    base = project or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
+    base = project or os.environ.get("CLAUDE_PROJECT_DIR") or project_root(os.getcwd())
     return os.path.join(base, "Claude", "logs", "verse-changes.jsonl")
 
 

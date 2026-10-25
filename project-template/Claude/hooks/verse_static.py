@@ -6,7 +6,7 @@ Catches the mistakes that are certain from the text alone, so a build is not was
   error    unbalanced { } ( ) [ ]               mixed tabs and spaces in the indentation of one file
   error    @editable on a `var` declaration     the same top-level class or struct name defined in two files
   error    OnBegin / OnEnd declared without <override> in a creative_device class
-  warning  Print( used but /UnrealEngine.com/Temporary/Diagnostics is not imported
+  warning  Print( used outside a device class but /UnrealEngine.com/Temporary/Diagnostics is not imported
   warning  creative_device used but /Fortnite.com/Devices is not imported
   warning  Sleep( or spawn used but /Verse.org/Simulation is not imported
 
@@ -87,7 +87,7 @@ def check_text(text, name="file"):
             cls = None
         if cls and re.match(r"^\s+(OnBegin|OnEnd)\s*(<[^>]*>)*\s*\(", l) and "<override>" not in l:
             res.append(("error", ln, "%s in a creative_device class needs <override>" % re.match(r"^\s+(\w+)", l).group(1)))
-    if re.search(r"\bPrint\s*\(", code) and "/UnrealEngine.com/Temporary/Diagnostics" not in code and "/UnrealEngine.com/Temporary/Diagnostics" not in text:
+    if re.search(r"\bPrint\s*\(", code) and "/UnrealEngine.com/Temporary/Diagnostics" not in text and not re.search(r"\bcreative_device\b", code):  # inside a device class Print is inherited
         res.append(("warning", 1, "Print( is used but /UnrealEngine.com/Temporary/Diagnostics is not imported here"))
     if re.search(r"\bcreative_device\b", code) and "/Fortnite.com/Devices" not in text:
         res.append(("warning", 1, "creative_device is used but /Fortnite.com/Devices is not imported here"))

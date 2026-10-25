@@ -56,7 +56,7 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.109)
+## What's new (v1.102 - v1.109.1)
 
 - **Safe editing (1.109).** `/editor-changes` and an undo plan for what the agents wrote to the editor, one writer at a time (a real lock), recipes flagged for replay when UEFN changes a tool, a static Verse check, and a console proof with screenshots.
 - **Fab products, economy, log signals (1.109).** The `fab-product` skill and the `fab_pack.py` helper check a Fab package against Epic's rules, create `Documentation/` and `FabListing/` texts from your Verse code, make a panoramic image grid and write a clean zip; nothing is installed in the product. `economy-sim` plans a tycoon economy with numbers, `[SIGNAL]` log lines let `qa-regression` check what happened in a playtest, and `delivery.py` writes a delivery document for a map.

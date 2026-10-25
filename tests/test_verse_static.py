@@ -23,8 +23,8 @@ ok(any("@editable cannot" in m for _, _, m in v.check_text("a := class():\n    @
 ok(any("@editable cannot" in m for _, _, m in v.check_text("a := class():\n    @editable\n    var X : int = 0\n")), "@editable var (two lines) is an error")
 ok(any("needs <override>" in m for _, _, m in v.check_text(CLEAN.replace("OnBegin<override>", "OnBegin"))), "OnBegin without <override> is an error")
 ok(v.check_text("b := class():\n    OnBegin()<suspends> : void =\n        Sleep(1.0)\n") and not any("override" in m for _, _, m in v.check_text("b := class():\n    OnBegin()<suspends> : void =\n        Sleep(1.0)\n")), "OnBegin in a plain class is not flagged")
-w = v.check_text(CLEAN.replace("using { /UnrealEngine.com/Temporary/Diagnostics }\n", ""))
-ok([s for s, _, _ in w] == ["warning"] and "Diagnostics" in w[0][2], "missing Diagnostics import is a warning")
+w = v.check_text("using { /Verse.org/Simulation }\nf():void=\n    Print(\"x\")\n")
+ok([s for s, _, _ in w] == ["warning"] and "Diagnostics" in w[0][2], "missing Diagnostics import is a warning outside a device class")
 d = tempfile.mkdtemp()
 try:
     os.makedirs(os.path.join(d, "Content", "A")); os.makedirs(os.path.join(d, "Content", "VerseUIKit"))
@@ -36,3 +36,7 @@ try:
     ok(v.main([d]) == 1, "exit code 1 on errors")
 finally:
     shutil.rmtree(d, ignore_errors=True)
+# Print inside a creative_device class is inherited: no import needed (a real published map builds without it)
+dev = "using { /Fortnite.com/Devices }\nusing { /Verse.org/Simulation }\nd := class(creative_device):\n    OnBegin<override>()<suspends> : void =\n        Print(\"x\")\n"
+ok(v.check_text(dev) == [], "Print in a device class is not flagged")
+ok(any("Print(" in m for _, _, m in v.check_text("f():void=\n    Print(\"x\")\n")), "Print outside a device class without the import is still a warning")

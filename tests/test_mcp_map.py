@@ -185,3 +185,11 @@ ok(all(open(os.path.join(d6, n), "rb").read() == v for n, v in snap.items()), "l
 ok(os.path.isfile(os.path.join(d6, "deep-tests.json")) and os.path.isfile(os.path.join(d6, "DEEP-TESTS.md")), "results go to their own files")
 ok(mcp_map.sample_args({"properties": {"a": {"type": "integer"}, "b": {"enum": ["x", "y"]}, "folderPath": {"type": "string"}, "c": {"type": "boolean"}}, "required": ["a", "b", "folderPath", "c"]}) == {"a": 0, "b": "x", "folderPath": "/Game", "c": False}, "made-up arguments follow the schema")
 ok(mcp_map.sample_args({"properties": {"category": {"type": "string", "default": "LogsToolset"}}, "required": ["category"]}, "GetLogEntries", "EditorToolset.LogsToolset") == {"category": "LogTemp"}, "a placeholder default equal to the toolset class name is not used")
+
+# no live map yet (e.g. a Fab product on a computer where the map was never made): --find still answers from the tool names the kit knows
+import io, contextlib, tempfile as _tf
+_empty = _tf.mkdtemp()
+_buf = io.StringIO()
+with contextlib.redirect_stdout(_buf):
+    _code = mcp_map.find(["asset", "move"], _empty)
+ok(_code == 0 and "AssetTools/move" in _buf.getvalue(), "find without a live map falls back to the known tool names (move an asset = AssetTools/move)")

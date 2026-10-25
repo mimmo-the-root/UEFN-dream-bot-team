@@ -22,11 +22,18 @@ def new_map_context(base):
     inst = 'python "%s"' % os.path.join(here, "kit_install.py")
     if kind == "fab":
         fp = os.path.join(here, "fab_pack.py")
+        lab = os.path.join(here, "fab_lab.py")
         return ("This UEFN project is registered as a FAB PRODUCT. Do NOT install the kit's project-template in it "
                 "(its components are added to the customer's project later). Work on it normally. For the Fab package use "
                 "the skill fab-product and the helper `python \"%s\" check|docs|zip \"%s\"` (check = Epic's upload rules, "
-                "docs --apply = Documentation/ and FabListing/, zip = the archive Fab wants). Run `check` before you say the package is ready."
-                % (fp, root))
+                "docs --apply = Documentation/ and FabListing/ inside Content/<Product>/, zip = the archive Fab wants). Run `check` before you say the package is ready. "
+                "SCRIPTS: this project has no Claude/hooks, so every kit command that names `Claude/hooks/<script>.py` (skills_lib.py recipes / recipe-add, mcp_map.py, ...) is run from the profile copy in `%s` instead; the data they use is global. "
+                "TOOL NAMES: never guess one: search the tool map with `py -3 <that folder>/mcp_map.py --find <keywords>` (renaming or moving an asset = AssetTools/move). "
+                "MATERIALS: when the owner confirms a material works, save it with `skills_lib.py recipe-add materials <file.json> \"<product name>\"` so the materials skill learns it. "
+                "LESSONS: your UEFN MCP calls are recorded OUTSIDE the project (hook in the profile, folder ~/.claude/fab-lab/<Product>/), never inside it. "
+                "When a material or mechanic is finished, run `python \"%s\" card \"%s\"`, fill in the TODO parts of the draft card and ask the owner whether to promote it into a skill or recipe. "
+                "The owner opens the console on this data with `python \"%s\" console \"%s\"`."
+                % (fp, root, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "kit-template", "Claude", "hooks")), lab, root, lab, root))
     return ("NEW UEFN PROJECT WITHOUT THE KIT (%s). Before anything else, in your first reply: "
             "1) ask ONE question with AskUserQuestion: 'Is this a map (island) or a Fab product?' "
             "(skip it only if the owner already said which). "

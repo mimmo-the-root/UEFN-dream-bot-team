@@ -2009,6 +2009,24 @@ def _genres():
                   if SLUG_RE.fullmatch(d) and _isdir(os.path.join(root, d)))
 
 
+def recipes_overview():
+    """Recipes of every skill (official + learned) for the Skills page: name, what for, parent, tier, maps that used it. Never raises."""
+    out = []
+    try:
+        for s in _genres():
+            has = os.path.isfile(os.path.join(gdir(s), "official", "recipes-official.json")) or os.path.isfile(os.path.join(ldir(s), "recipes.json"))
+            if not has:
+                continue
+            for r in recipes_list(s).get("recipes", []):
+                owner = r.get("origin") == "owner"
+                out.append({"skill": s, "name": r.get("name", ""), "use": (r.get("use") or "")[:200], "parent": r.get("parent", ""),
+                            "source": "yours" if owner else "official", "tier": r.get("tier", "official"), "maps": len(r.get("maps", [])),
+                            "steps": len(r.get("steps", [])), "added": r.get("added", "")})
+    except Exception:
+        pass
+    return out
+
+
 def summary():
     """Everything the Skills page shows — computed only from real local files."""
     genres, pending = [], list_proposals()
@@ -2060,7 +2078,7 @@ def summary():
     oldest = min((p["created"] for p in pending), default=None)
     return {"root": genre_root(), "root_exists": _isdir(genre_root()), "genres": genres, "totals": totals,
             "pending": pending, "pending_lessons": len(pending) - community, "pending_packs": community,
-            "oldest_pending": oldest, "variants": len(variants_seen), "last_learned": last_learned,
+            "recipes": recipes_overview(), "oldest_pending": oldest, "variants": len(variants_seen), "last_learned": last_learned,
             "usage_week": [week[d] for d in days], "usage_week_total": sum(week.values()),
             "never_used": sum(1 for g in genres if g["patterns"] and g["consulted"] == 0),
             "privacy": {"checked": check_ts is not None, "ok": check_ok, "ts": check_ts}}

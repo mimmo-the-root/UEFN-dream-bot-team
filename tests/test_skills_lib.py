@@ -74,3 +74,12 @@ r=S.propose("llm-test2",map_name="Own Map B",**OP); S.act("llm-test2",r["proposa
 ok(S.load_pack("llm-test2")["patterns"][0]["tier"]=="proven","2 owner maps -> proven")
 shutil.rmtree(d3)
 shutil.rmtree(d); shutil.rmtree(d2); print("ALL OK")
+
+# the Skills page lists the recipes the skills know, including the ones learned from the owner's work (v1.109.1)
+S.init_genre("materials")
+S.recipe_add("materials", {"name": "barrier-color-variants", "parent": "M_Barrier", "use": "one master, one instance per colour", "steps": ["a", "b"]}, "Product One")
+ro = S.summary()["recipes"]
+mine = [r for r in ro if r["name"] == "barrier-color-variants"]
+ok(len(mine) == 1 and mine[0]["source"] == "yours" and mine[0]["tier"] == "hypothesis" and mine[0]["steps"] == 2, "summary lists a learned recipe (hypothesis, yours)")
+S.recipe_add("materials", {"name": "barrier-color-variants", "parent": "M_Barrier", "steps": ["a"]}, "Product Two")
+ok([r for r in S.summary()["recipes"] if r["name"] == "barrier-color-variants"][0]["tier"] == "confirmed", "used in a second map: confirmed")

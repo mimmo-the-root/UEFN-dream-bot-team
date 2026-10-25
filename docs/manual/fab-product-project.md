@@ -12,6 +12,8 @@ So, in a new project, answer **Fab product** when the kit asks. It installs noth
 
 Works: the agents, skills and the connection to the open editor, because they live in your user profile, not in the project.
 
+Also works: **lessons**. The kit installs nothing in the project, so it records your editor work in your profile instead (`~/.claude/fab-lab/<Product>/`): every MCP call, worked or failed, as in a map. `fab_lab.py status <project>` shows what was recorded, `fab_lab.py card <project>` writes a draft closing card for a finished material or mechanic (what changed, what failed, TODO for the final recipe and third-party assets), and `fab_lab.py console <project> --foreground` opens the Agent Console on that data (port 8766, so it does not clash with a map console; run it in your own PowerShell window and leave that window open, close it to stop the console). The console also shows the agents (for example `materials-expert`) working while they run. A card becomes a skill or recipe only with your yes. Needs the profile update (`update-my-profile.cmd`) and a new session.
+
 Does not work: the commands that come with the project scaffold (`/verse-check`, `/handoff`, `/devlog`, `/jam-check`, `/concept-card`) and the `Claude/docs/` memory between sessions. Those belong to a map.
 
 ## What Epic asks of a Fab upload
@@ -37,16 +39,20 @@ Ask in the chat for the **fab-product** skill, or run the helper yourself. It li
 | `python fab_pack.py check "<project>"` | Checks the package against Epic's rules and lists what blocks the upload, warnings and notes. Paths are counted as `<ProjectName>/Content/<path>`. |
 | `python fab_pack.py docs "<project>"` | Shows which documents it would create. Add `--apply` to write them. |
 | `python fab_pack.py grid "<images folder>" [out.png]` | Puts the images of a folder (the captures for the listing) in a panoramic grid on a plain background. Options `--cols`, `--size`, `--bg`. Needs Pillow. |
-| `python fab_pack.py zip "<project>"` | Writes `<ProjectName>.zip` next to the project, one top folder, without `.py`, `Saved`, `Intermediate`, `FabListing` or kit files. It refuses while names or paths are wrong. |
+| `python fab_pack.py zip "<project>"` | Writes `<ProjectName>.zip` next to the project, one top folder, without `.py`, `Saved`, `Intermediate`, or kit files. It refuses while names or paths are wrong. |
 
 ### Verse file style
 
 In a Fab product every Verse file starts with a manual header (what it does, why it is useful, quick setup, good to know, version and date) and ends the header with your signature block: author, ASCII art and links. Save the block once from a finished file with `python fab_pack.py signature save <file>` (it is kept in your profile, never in a project); `python fab_pack.py header <Name>` prints a new header with it, and `check` warns when a header misses a part or the signature. This applies to Fab products only, not to maps.
 
+### Where the files go
+
+Fab wants the **whole project zipped**, so every generated file lives inside `Content`, in the folder that holds the product's assets (`Content/<Product>/`). The helper picks the Content folder with the most files (never `Collections`, `Developers` or a third-party library such as `VerseUIKit`); use `--product NAME` to choose another. If an older version left `Documentation/` or `FabListing/` next to `Content`, `docs --apply` moves them in (nothing is overwritten) and renames `third-party.md` to `third_party.md`, because names inside the archive may not contain a hyphen.
+
 ### The two folders
 
-- **`Documentation/`** (inside the project, travels with the product): `README.md` (setup and usage, with TODO fields for you), `SETTINGS.md` (generated from the `@editable` settings, their defaults and the `#` note above each, plus each Verse file's Summary; regenerated only while it still carries the generated marker, so your hand edits are kept).
-- **`FabListing/`** (outside the archive): `listing.md` (title, description, tags, technical details), `third-party.md` (assets and libraries to declare, for example Epic's Verse UI Kit) and `screenshots.md` (list of images to make).
+- **`Documentation/`** (inside `Content/<Product>/`, travels with the product): `README.md` (setup and usage, with TODO fields for you), `SETTINGS.md` (generated from the `@editable` settings, their defaults and the `#` note above each, plus each Verse file's Summary; regenerated only while it still carries the generated marker, so your hand edits are kept).
+- **`FabListing/`** (inside `Content/<Product>/` too: Fab takes the whole project, so the listing texts travel in the archive; copy them into the portal): `listing.md` (title, description, tags, technical details), `third_party.md` (assets and libraries to declare, for example Epic's Verse UI Kit) and `screenshots.md` (list of images to make).
 
 Existing documents are never overwritten. Nothing is written without `--apply`.
 

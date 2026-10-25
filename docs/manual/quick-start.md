@@ -42,6 +42,10 @@ claude mcp add --transport http unreal-mcp --scope user http://127.0.0.1:8000/mc
 
 > **Tip** Open the console as that web address, not as a file from your disk, or it cannot talk to the local server.
 
+## Your first idea
+
+A new game starts from an idea. Tell Claude what you want to make, or ask it for ideas ("give me 5 game ideas I can finish in a few days"), then score them with `/concept-card` and ask for **project-bootstrap** to turn the best one into a plan. The steps are in [A working day](ch:daily-work), section "Starting a new game: from the idea"; for the contest, see [the jam chapter](ch:epic-ai-megajam).
+
 ## And then
 
 Work as usual. Ask the coder agent for a feature, let the checks run, and ask the planner to update `STATUS.md` before you close. The next chapter, [Your team](ch:your-team), says who does what.

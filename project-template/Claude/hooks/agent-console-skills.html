@@ -127,6 +127,7 @@ details.kproj{margin:26px 0 0;}details.kproj>summary{cursor:pointer;color:var(--
  <div id="kLearning"></div>
  <div class="ktwo"><div id="kBlueprint"></div><div><div id="kLog"></div><div id="kPatterns"></div></div></div>
  <div id="kWaiting"></div>
+ <div id="kRecipes"></div>
  <div class="ksec"><h2>UEFN MCP</h2><span>the engine under the kit: mapped and tested by itself, on this computer</span></div>
  <div id="kMcp"></div>
  <div class="ksec"><h2>Community</h2><span>share what you learned, only from a published map</span></div>
@@ -382,7 +383,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.109.0";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.109.1";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -603,10 +604,20 @@ function loadMcp(){
   h+='<div class="ksub" style="margin-top:8px">Refreshed by itself at session start when UEFN is open. Agents search it before working through UEFN. <a href="/manual/mcp-engine.html" style="color:var(--cyan)">How it works</a></div></div>';
   box.innerHTML=h;});
 }
+function renderRecipes(){
+ var el=$("kRecipes");if(!el)return;
+ var rs=(SD&&SD.recipes)||[];
+ if(!rs.length){el.innerHTML="";return;}
+ var mine=rs.filter(function(r){return r.source==="yours";}).length;
+ el.innerHTML='<div class="kcard"><div class="klabel">Recipes the skills know<span class="r" style="color:var(--dim)">'+rs.length+' in total · '+mine+' learned from your work</span></div>'+
+  rs.map(function(r){return '<div class="kprop"><div style="line-height:1.5"><b>'+esc(r.name)+'</b> <span style="color:var(--dim)">('+esc(r.skill)+')</span></div>'+
+   (r.use?'<div style="margin-top:4px;font-size:12px">'+esc(r.use)+'</div>':"")+
+   '<div style="margin-top:6px;font-size:10.5px;color:var(--dim)">'+(r.source==="yours"?"learned from your work · "+(r.tier==="confirmed"?"confirmed":"hypothesis")+" · used in "+r.maps+" map(s)":"official")+(r.parent?" · starts from "+esc(r.parent):"")+" · "+r.steps+" step(s)"+(r.added?" · "+esc(r.added):"")+'</div></div>';}).join("")+'</div>';
+}
 function load(){
  loadMcp();
  if(!CS)loadCommunity();
- Promise.all([fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})]).then(function(a){var sig=JSON.stringify(a);if(sig===LAST)return;LAST=sig;SD=a[0];LD=a[1];renderKit();renderMap();renderCommunity();});
+ Promise.all([fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})]).then(function(a){var sig=JSON.stringify(a);if(sig===LAST)return;LAST=sig;SD=a[0];LD=a[1];renderKit();renderMap();renderCommunity();renderRecipes();});
 }
 load();setInterval(load,15000);
 })();

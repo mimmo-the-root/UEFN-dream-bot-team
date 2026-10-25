@@ -77,19 +77,23 @@ try:
     import skills_lib
 except Exception:  # pragma: no cover - missing/broken module must never take the console down
     skills_lib = None
-PROJECT_DIR = os.path.dirname(os.path.dirname(ROOT))
+# Fab lab (v1.109.1): a Fab product holds no kit files, so its learning data lives in ~/.claude/fab-lab/<Product>/ (laid out like a project).
+# fab_lab.py console starts this server with UEFN_FAB_LAB pointing at that folder.
+FAB_LAB = os.environ.get("UEFN_FAB_LAB") or ""
+PROJECT_DIR = FAB_LAB if FAB_LAB else os.path.dirname(os.path.dirname(ROOT))
+_DATA = os.path.join(FAB_LAB, "Claude") if FAB_LAB else os.path.dirname(ROOT)
 SERVER_STARTED_AT = datetime.now(timezone.utc).isoformat()
 try:
     with open(os.path.join(os.path.dirname(ROOT), "KIT-VERSION"), encoding="utf-8") as _kv:
         KIT_VERSION_AT_START = _kv.read().strip()
 except OSError:
     KIT_VERSION_AT_START = ""
-LOGS_DIR = os.path.join(os.path.dirname(ROOT), "logs")
+LOGS_DIR = os.path.join(_DATA, "logs")
 LOG_FILE = os.path.join(LOGS_DIR, "agent-console.jsonl")
 TOKENS_FILE = os.path.join(LOGS_DIR, "agent-console-tokens.json")
 MCP_FILE = os.path.join(LOGS_DIR, "agent-console-mcp.jsonl")
 SESSION_FILE = os.path.join(LOGS_DIR, "agent-console-session.json")
-DOCS_DIR = os.path.join(os.path.dirname(ROOT), "docs")
+DOCS_DIR = os.path.join(_DATA, "docs")
 ACTIVE_TASK_FILE = os.path.join(DOCS_DIR, ".active-task")
 # Whitelist of the real project docs the Docs & Status console (agent-console-docs.html) is
 # allowed to read via /doc?name=<key> — deliberately NOT an arbitrary-path read. Added v1.78.0:

@@ -10,6 +10,20 @@ Inside a session opened in the project's `Content/` folder you can:
 - name the agent to be certain it is the one that answers: `@"coder (agent)" implement the respawn checkpoint`;
 - or just describe the task and let Claude pick the agent from each agent's description.
 
+## Starting a new game: from the idea
+
+A new game starts from an idea, yours or Claude's. You do not need a design document: a few sentences are enough.
+
+1. **Make a new, empty UEFN project.** Open a session from its `Content` folder. The kit asks whether it is a map or a Fab product; answer **map**, give your yes, and wait for the setup to finish.
+2. **Give Claude the idea.** There are two ways, and you can mix them.
+   - *You have an idea.* Say it in plain words: what the player does, where, and why it is fun. For example: "a 4-player race through a collapsing temple, last one standing wins, rounds of three minutes".
+   - *You do not have one yet.* Ask for some: "give me 5 game ideas for UEFN that two people can finish in 4 days", and add what you care about (a genre, a theme, solo or team, mobile or not). Claude uses the genre skills and what the kit knows about retention and about what UEFN can really do. Do not take the first answer: ask for variations, for a smaller version, or for a mix of two.
+3. **Test the idea before you build it.** `/concept-card` scores it out of 100 (seven quality criteria, plus whether UEFN can do it and whether it fits the time you have). Run it on two or three ideas and compare. Below 55 pick another idea; between 55 and 74 shrink it. In a normal project, with no contest theme, the theme score is left out and the card says so. It writes the card file only after you say yes.
+4. **Turn the winner into a plan.** Ask for **project-bootstrap**. On an empty project it asks you a few questions (the goal, the audience, the two or three main mechanics, references you like, limits of time or devices, and what the very first playable version must contain) and writes your answers into `ROADMAP.md` and `STATUS.md`. It never invents what you did not say. Read `ROADMAP.md` and cut it down: the first playable version needs the fewest tasks that make the game fun.
+5. **Build the first playable version.** Ask the coder for the first task of the plan, and let the checks run (`/verse-check` and the playtest). Then the normal flow below takes over.
+
+If you change your mind, say so in the chat and ask the planner to update `ROADMAP.md`: the plan follows you, not the other way round.
+
 ## The first session on a project
 
 Ask for **project-bootstrap**. With code already there it writes, in a few minutes, a map of the project (`SPEC.md`), a list of bugs with a fixing order (`BUGS.md`) and retention ideas (`RETENTION-NOTES.md`). With an empty project it asks you questions and writes the answers into `ROADMAP.md` and `STATUS.md`. It never invents what you did not say. Use it once; later sessions use the normal flow below.

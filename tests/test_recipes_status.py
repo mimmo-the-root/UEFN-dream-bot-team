@@ -80,5 +80,14 @@ _s = _R.stale(_rec, _rows)
 assert sorted((k, w) for k, w, _, _ in _s) == [("A.B/Make", "tool changed"), ("A.B/Old", "tool removed")], _s
 assert _R.stale(_rec, _rows, since="2026-10-01") == [], "a retest stamp hides older changes"
 print("PASS stale recipes: changed and removed tools are listed, retest stamp hides old changes")
+# a project without Claude/logs (a Fab product) must not get one from progress()
+import tempfile as _t
+_d = _t.mkdtemp(); _cwd = os.getcwd()
+try:
+    os.chdir(_d)
+    R.progress()
+    check("progress() does not create Claude/logs in a folder that has none", not os.path.exists(os.path.join(_d, "Claude")))
+finally:
+    os.chdir(_cwd)
 print("ALL PASS" if not fails else "%d FAIL" % len(fails))
 sys.exit(1 if fails else 0)

@@ -11,6 +11,7 @@ Sources: `Claude/docs/mcp/ui-widgets.md`, entry B1 of `SKILLS-PROPOSAL.md`, `rec
 Cross-cutting skills to always follow: `uefn-mcp-lab-guard` (lab guard) e `uefn-create-use-remove-one-script` (create, use, remove in ONE script).
 
 ## Rules
+- Asset names: copy the EXACT spelling (upper and lower case) from a listing of the project (`find_assets`, the Content Browser path), never from the docs or from memory. The editor accepts a wrong-case path when it loads, but a later save can rewrite the file name with that case, and the project's version control (Lore) then reports "Node name ... does not match file system name". After a write call, check that the file name on disk did not change.
 - Paths always in GUID form: `{lab}` = `/<guid>/<project>` (e.g. `/09e4e8d3-.../root_ai_lab`). `/root_ai_lab/...` is refused by the editor.
 - `{bp}` = `{lab}/UI_X/WBP_X.WBP_X`; widget parts: `{bp}:WidgetTree.<Name>`.
 - The guard is not bypassed: a refusal is reported as is. If a recipe fails: report the exact error and STOP (no creative retries).

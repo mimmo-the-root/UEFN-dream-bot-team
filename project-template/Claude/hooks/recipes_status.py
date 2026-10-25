@@ -227,8 +227,9 @@ def _history(path, proven, tool_ok):
     else:
         h[-1].update(proven=proven, tool_ok=tool_ok)
     try:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        json.dump(h[-60:], open(path, "w", encoding="utf-8", newline="\n"))
+        # never create Claude/logs: a project without the kit (a Fab product) must not get a Claude/ folder from a script run in its folder
+        if os.path.isdir(os.path.dirname(path)):
+            json.dump(h[-60:], open(path, "w", encoding="utf-8", newline="\n"))
     except OSError:
         pass
     return h[-7:]

@@ -58,6 +58,17 @@ Per category, one main prize and one modifier prize per entry. UEFN main prizes 
 - A **team of 1 to 5**, with names and emails and one team owner, and one entry per team. Entrants must be 18 or older, with an Epic account, living in an eligible country.
 - **Sourced (non-original) assets** noted in the submission, with licences you cleared yourself. They are not scored, and AI-generated content does not count as sourced.
 
+## Your first hours on theme day
+
+The steps are the ones in *A working day*, section "Starting a new game: from the idea", with the jam's own rules on top.
+
+1. **Before 12 November**: install the kit and try it on a throwaway test map. If you create the empty project you will use for the jam, keep it empty: no gameplay, level or art, because all game content must be made during the contest. If you are unsure, read the rules.
+2. **When the theme is announced**, open the empty project from its `Content` folder, answer **map** and let the setup finish.
+3. **Get ideas** and give Claude the theme with them: either your own ("a rhythm game inside a living museum") or "give me 5 ideas that use the theme '...', small enough for a team of two in three days". Ask for variations until two or three feel right.
+4. **Score them** with `/concept-card`. Now the theme counts. Pick one that scores 75 or more, or shrink the best one until it does.
+5. **Make the plan**: ask for **project-bootstrap**, answer its questions in a few lines, then read `ROADMAP.md` and keep only what the first playable version needs. Put the extras under "out of scope".
+6. **Build**, with `/verse-check` often. Spend one hour at most on steps 3 to 5: the days you have are for the game.
+
 ## A suggested path through the jam
 
 1. **Before the theme** (now to 11 November). Install the kit, run `/kit-doctor`, try it on a throwaway test map so you know how the agents and the console behave. Do not start the game.

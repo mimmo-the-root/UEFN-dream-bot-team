@@ -26,6 +26,7 @@ copy /Y "%SRC%user-level-hooks\kit_install.py" "%DST%\hooks\kit_install.py" >nul
 copy /Y "%SRC%user-level-hooks\fab_pack.py" "%DST%\hooks\fab_pack.py" >nul
 copy /Y "%SRC%user-level-hooks\economy_sim.py" "%DST%\hooks\economy_sim.py" >nul
 copy /Y "%SRC%user-level-hooks\log_signals.py" "%DST%\hooks\log_signals.py" >nul
+copy /Y "%SRC%user-level-hooks\fab_lab.py" "%DST%\hooks\fab_lab.py" >nul
 py -3 "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py" || python "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py"
 echo.
 echo Done. Now open a project session: the kit updates the project by itself and the

@@ -22,3 +22,14 @@ try:
     print("verse_changes tests OK")
 finally:
     shutil.rmtree(d, ignore_errors=True)
+
+# the log goes to the project's own Claude/logs even when started from a deeper folder (v1.109.1)
+import tempfile as _tf, shutil as _sh
+_d = _tf.mkdtemp()
+try:
+    os.makedirs(os.path.join(_d, "Claude", "hooks")); open(os.path.join(_d, "Claude", "hooks", "kit_sync.py"), "w").close()
+    _deep = os.path.join(_d, "Claude", "docs"); os.makedirs(_deep)
+    assert os.path.normcase(v.project_root(_deep)) == os.path.normcase(_d), v.project_root(_deep)
+    print("PASS project_root walks up to the folder that holds Claude/hooks")
+finally:
+    _sh.rmtree(_d, ignore_errors=True)
