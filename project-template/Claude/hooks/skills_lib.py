@@ -1621,7 +1621,8 @@ def mark_shared(slug, pattern_id):
 def mark_recipe_shared(slug, name):
     """The owner sent this recipe to GitHub: it leaves the "to send" list."""
     rid = recipe_id(name)
-    data = _read_json(os.path.join(ldir(_slug(slug)), "recipes.json"), {"recipes": []})
+    slug = resolve_genre(slug)
+    data = _read_json(os.path.join(ldir(slug), "recipes.json"), {"recipes": []})
     if not any(_norm(x.get("name", "")) == _norm(name or "") for x in data["recipes"]):
         return {"ok": False, "error": "unknown recipe"}
     st = community_state()
@@ -1934,7 +1935,10 @@ def _fab_map_keys():
 
 
 def recipes_list(slug, query=""):
-    slug = _slug(slug)
+    try:
+        slug = resolve_genre(slug)
+    except ValueError:   # a skill that does not exist yet has no recipes
+        return {"ok": True, "recipes": []}
     out = []
     op = os.path.join(gdir(slug), "official", "recipes-official.json")
     for r in (_read_json(op, {"recipes": []}).get("recipes", []) if os.path.isfile(op) else []):
@@ -1990,7 +1994,7 @@ def recipe_add(slug, recipe, map_name):
 def recipe_share(slug, name, decision):
     """The owner decides whether a learned recipe goes into the kit for everyone: 'approved', 'declined' or 'pending' (back to undecided).
     Only approved ones are collected at release time (tool/collect_recipes.py)."""
-    slug = _slug(slug)
+    slug = resolve_genre(slug)
     if decision not in ("approved", "declined", "pending"):
         return {"ok": False, "error": "decision must be approved, declined or pending"}
     lp = os.path.join(ldir(slug), "recipes.json")
@@ -2016,7 +2020,7 @@ def recipe_export(slug, name):
     """The exact JSON that would leave this computer for ONE recipe you approved, plus the GitHub page to propose it. Refused while the switch is off."""
     if not community_state()["share"]:
         return {"ok": False, "error": "sharing with the community is switched off"}
-    slug = _slug(slug)
+    slug = resolve_genre(slug)
     data = _read_json(os.path.join(ldir(slug), "recipes.json"), {"recipes": []})
     r = next((x for x in data["recipes"] if _norm(x.get("name", "")) == _norm(name or "")), None)
     if not r or r.get("origin") != "owner":
@@ -2103,7 +2107,7 @@ def recipe_inbox_act(rid, decision):
         import recipe_screen as RS
         if not RS.check(it["recipe"])["ok"]:
             return {"ok": False, "error": "the recipe does not pass the check"}
-        slug = _slug(it["skill"])
+        slug = resolve_genre(it["skill"])
         lp = os.path.join(ldir(slug), "recipes.json")
         os.makedirs(ldir(slug), exist_ok=True)
         data = _read_json(lp, {"recipes": []})
