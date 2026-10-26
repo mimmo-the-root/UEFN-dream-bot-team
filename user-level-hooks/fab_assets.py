@@ -20,7 +20,7 @@ class Bad(Exception):
 # Mounts that belong to Epic (plugins every UEFN project can depend on). Anything else that is imported and does not exist in this
 # project is reported as "check it": a mount of another of your projects is NOT allowed in a Fab package.
 EPIC_EXACT = {"Script", "Engine", "Game", "FortniteGame", "FortUILibrary", "ContentHall", "Itemization", "FortWater", "VerseColors",
-              "Verse", "VerseDevices", "VerseEngine", "VerseUIStarterKit", "CreativeCoreDevices", "Niagara", "Paper2D", "Fortnite", "FNE_UI"}
+              "Verse", "VerseDevices", "VerseEngine", "VerseUIStarterKit", "CreativeCoreDevices", "Niagara", "Paper2D", "Fortnite", "FNE_UI", "EntityFramework"}
 EPIC_PREFIX = ("CRD_", "Creative", "Fort", "Verse", "UEFN", "Athena", "BR", "Valkyrie")
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.110.2 — Fab: Checklist and documents, rules for the agent
+
+- **The Checklist tab appears once.** On the Checklist page the server added a second tab next to the one the page already has.
+- **`/EntityFramework` is an Epic library.** Its imports no longer raise "No reference to assets of another project".
+- **Documents of a Fab product.** `docs` always creates `Documentation/AUTHOR.md` with your saved signature (never overwritten); `SETTINGS.md` only when the product has Verse code; the listing template has no Price and no Subcategory section; `zip` no longer tells you to test the archive in a clean project.
+- **Rules in the skill fab-product.** Blocks, warnings and notes are counted apart (a note is never a warning); `Collections` and `Developers/<user>` belong to the project; price, subcategory, licences and `third_party.md` are the owner's (the agent writes nothing there); no zip unless asked; no screenshots or thumbnails by the agent; tags only among the portal's suggested ones (`fab_checklist.py tags`).
+
 ## v1.110.1 — Security: recipe endpoints
 
 - **Fixed the 5 CodeQL alerts (path injection) in `skills_lib.py`.** The recipe buttons of the Skills page (send, export, approve from the inbox, list) took the skill name from the request through a text check. They now look the name up among the skills that exist on disk, like every other console endpoint, so the request can never steer a file path. A skill that does not exist has an empty recipe list instead of an error.

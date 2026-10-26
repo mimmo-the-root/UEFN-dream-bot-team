@@ -118,6 +118,9 @@ try:
     sk = op.open(url + "/skills").read().decode("utf-8")
     ok('<a href="agent-console-fab.html">Checklist</a>' in sk, "the server adds the real Checklist link to the other pages of a Fab product (not only the script)")
     ok("Checklist" in page and "Epic" not in page, "the Checklist page is served and does not name Epic")
+    import re as _re
+    tabs = lambda t: len(_re.findall(r'<a\b[^>]*href="agent-console-fab\.html"[^>]*>Checklist</a>', t))
+    ok(tabs(page) == 1 and tabs(sk) == 1, "the Checklist tab appears once on the Checklist page and once on the other pages (never twice)")
 
     def act(body, hdr=True):
         h = {"Content-Type": "application/json"}
@@ -136,7 +139,7 @@ try:
     code, j = act({"action": "validation", "text": "0 errors, 0 warnings", "skip_fixup": True})
     ok(code == 200 and j["ok"], "a validation log is recorded")
     fl = data["listing"].get("files") or []
-    ok([f["key"] for f in fl] == ["readme", "settings", "listing", "third_party"], "the listing card lists the four documents the kit creates")
+    ok([f["key"] for f in fl] == ["readme", "author", "settings", "listing", "third_party"], "the listing card lists the documents the kit creates (the signature file always, SETTINGS.md because this product has Verse)")
     fp = os.path.join(root, "Content", "Prod", "Documentation"); os.makedirs(fp, exist_ok=True)
     open(os.path.join(fp, "README.md"), "w", encoding="utf-8").write("# Hello\nsetup text")
     rd = json.loads(op.open(url + "/fab-file?key=readme").read())

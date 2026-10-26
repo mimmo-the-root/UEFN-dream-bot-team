@@ -753,7 +753,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if FAB_LAB:  # a Fab product: the Checklist tab is added here, on the server, so it never depends on the browser cache or a script
             real = b'<a href="agent-console-fab.html">Checklist</a>'  # the REAL link: the fallback script also contains the text href="agent-console-fab.html"
             m = re.search(rb'<a\b[^>]*href="agent-console-score\.html"[^>]*>Score</a>', body)
-            if m and real not in body:
+            has = re.search(rb'<a\b[^>]*href="agent-console-fab\.html"[^>]*>Checklist</a>', body)  # the Checklist page carries its own tab (with class="on")
+            if m and not has:
                 body = body[:m.end()] + real + body[m.end():]
         self.send_response(200)
         if FAB_LAB:

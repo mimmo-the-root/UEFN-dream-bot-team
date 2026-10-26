@@ -80,5 +80,6 @@ try:
     zn = zipfile.ZipFile(out).namelist() if out else []
     ok(out and not probs and not any(".lore" in n or ".urcignore" in n or "code-workspace" in n for n in zn) and any(n.endswith("Proj.uefnproject") for n in zn),
        "the archive leaves out lore, urc and code-workspace files and keeps the project")
+    ok(FA.is_epic_mount("EntityFramework") and not FA.is_epic_mount("pilars"), "EntityFramework (Epic's own Verse module) is not reported as another project")
 finally:
     shutil.rmtree(base, ignore_errors=True)

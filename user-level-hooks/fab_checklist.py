@@ -4,6 +4,7 @@
 Lives in ~/.claude/hooks, next to fab_pack.py and fab_assets.py. Writes only in the lab folder (~/.claude/fab-lab/<Product>/), never in the project.
 
   fab_checklist.py [project folder]        print the verdict and the items that are not green
+  fab_checklist.py tags                    the tags the portal suggests, by category (choose the listing tags only among these)
 
 Data: build(root, lab) -> {name, stations:[{id, n, d, items:[{id, t, s, w, ev, fix}]}], counts, pct, verdict, message, listing, validation}
 Item state s: pass | fail | warn | todo | manual | na.  Who w: kit (done by the kit) | ed (needs a record from UEFN) | you | x (added after a rejection).
@@ -341,9 +342,12 @@ def product_files(root):
     """The documents `fab_pack.py docs` creates inside Content/<Product>/ : key, label, path, exists, size, what it is for."""
     base = fab_pack.product_folder(root)
     rows = [("readme", "README.md", "Documentation/README.md", "Setup and usage for the customer: what is inside, requirements, setup steps, usage, known limits"),
+            ("author", "AUTHOR.md", "Documentation/AUTHOR.md", "Your signature (ASCII art and links), the same one as in the Verse headers"),
             ("settings", "SETTINGS.md", "Documentation/SETTINGS.md", "Every setting of the devices (generated from the Verse code)"),
             ("listing", "listing.md", "FabListing/listing.md", "Texts for the portal: title, short description, description, tags, technical details"),
             ("third_party", "third_party.md", "FabListing/third_party.md", "Third-party content with author and licence")]
+    if not fab_pack.verse_files(root):  # no Verse code: no settings to document, so no SETTINGS.md
+        rows = [r for r in rows if r[0] != "settings"]
     out = []
     for key, label, rel, what in rows:
         p = os.path.join(base, *rel.split("/"))
@@ -582,6 +586,10 @@ def reread_zip(root, lab):
 
 
 def main(argv):
+    if argv and argv[0] == "tags":  # the portal's suggested tags, by category: the only ones a listing should use
+        for k, v in TAG_CATALOG.items():
+            print("%s: %s" % (k, ", ".join(v)))
+        return 0
     import fab_lab
     base = argv[0] if argv else os.getcwd()
     root = fab_pack.find_root(base)

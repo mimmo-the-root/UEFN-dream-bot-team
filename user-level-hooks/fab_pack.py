@@ -273,6 +273,15 @@ def settings_md(root):
     return "\n".join(parts) + "\n"
 
 
+def author_md():
+    """Documentation/AUTHOR.md: the owner's signature block (the one kept for the Verse headers), written for every Fab product, Verse or not."""
+    sig = saved_signature()
+    if not sig:
+        return "# Author\n\nTODO: no signature saved yet. Run `fab_pack.py signature save <a finished verse file>`, then `docs --apply` again after deleting this file.\n"
+    lines = [re.sub(r"^#\s?", "", l.rstrip()) for l in sig.splitlines()]
+    return "# Author\n\n```\n" + "\n".join(lines).strip("\n") + "\n```\n"
+
+
 def third_party_md(root):
     found = [d for d in THIRD_PARTY_DIRS if os.path.isdir(os.path.join(root, "Content", d))]
     rows = ["| What | Where | Licence | Declared |", "|---|---|---|---|"]
@@ -288,7 +297,8 @@ def files_to_make(root):
     name = os.path.basename(root.rstrip("/\\"))
     return {
         "Documentation/README.md": "# %s\n\nTODO: one paragraph: what the product is and who it is for.\n\n## What is inside\n\nTODO: list the devices, widgets, materials and Verse files the customer receives.\n\n## Requirements\n\n- UEFN version: TODO\n- Other plugins or Epic libraries: TODO\n\n## Setup\n\n1. TODO: copy the content into your project.\n2. TODO: place the device in the level.\n3. TODO: set the options (see SETTINGS.md).\n\n## Usage\n\nTODO\n\n## Known limits\n\nTODO\n" % name,
-        "FabListing/listing.md": "# Fab listing texts (copy them into the Fab portal)\n\nTitle: TODO (about 30 characters or fewer)\n\nShort description: TODO\n\n## Description\n\nTODO: what it does, what is included, how it is used. Declare third-party software and assets (see third_party.md).\n\n## Category and subcategories\n\nTODO\n\n## Tags\n\nTODO\n\n## Price\n\nTODO\n\n## Technical details\n\nThese are the fields of the portal form (format UEFN Source, category Game Systems). Allowed values are in brackets.\n\n- Modular / extensible: TODO (yes or no)\n- Includes UI components: TODO (yes or no)\n- Network integration ready: TODO (yes or no)\n- AI features: TODO (yes or no)\n- Code framework: TODO (Blueprint, C++ or Other: Verse is Other)\n- Projects: TODO (number)\n- C++ classes: TODO (number, 0 for a Verse product)\n- Input methods: TODO (any of Gamepad, Keyboard, Mouse, Other)\n- Additional information: TODO\n- Verse files: %d\n" % len(verse_files(root)),
+        "FabListing/listing.md": "# Fab listing texts (copy them into the Fab portal)\n\nTitle: TODO (about 30 characters or fewer)\n\nShort description: TODO\n\n## Description\n\nTODO: what it does, what is included, how it is used. Declare third-party software and assets (see third_party.md).\n\n## Tags\n\nTODO\n\n## Technical details\n\nThese are the fields of the portal form (format UEFN Source, category Game Systems). Allowed values are in brackets.\n\n- Modular / extensible: TODO (yes or no)\n- Includes UI components: TODO (yes or no)\n- Network integration ready: TODO (yes or no)\n- AI features: TODO (yes or no)\n- Code framework: TODO (Blueprint, C++ or Other: Verse is Other)\n- Projects: TODO (number)\n- C++ classes: TODO (number, 0 for a Verse product)\n- Input methods: TODO (any of Gamepad, Keyboard, Mouse, Other)\n- Additional information: TODO\n- Verse files: %d\n" % len(verse_files(root)),
+        "Documentation/AUTHOR.md": author_md(),
         "FabListing/third_party.md": third_party_md(root),
     }
 
@@ -331,13 +341,14 @@ def docs(root, apply, product=None):
         if apply and not os.path.exists(p):
             os.makedirs(os.path.dirname(p), exist_ok=True)
             open(p, "w", encoding="utf-8", newline="\n").write(text)
-    regen = (not os.path.exists(gen)) or GEN_MARK in open(gen, encoding="utf-8", errors="replace").read()
+    has_verse = bool(verse_files(root))  # a product with no Verse code has no settings to document: no SETTINGS.md
+    regen = has_verse and ((not os.path.exists(gen)) or GEN_MARK in open(gen, encoding="utf-8", errors="replace").read())
     if regen:
         (made if not os.path.exists(gen) else kept).append("%s/Documentation/SETTINGS.md (generated)" % brel)
         if apply:
             os.makedirs(os.path.dirname(gen), exist_ok=True)
             open(gen, "w", encoding="utf-8", newline="\n").write(settings_md(root))
-    else:
+    elif has_verse:
         kept.append("%s/Documentation/SETTINGS.md (yours: not regenerated)" % brel)
     return made, kept
 
@@ -542,7 +553,7 @@ def main(argv):
         for x in problems:
             print("BLOCKS: " + x)
         if out:
-            print("written: %s (the whole project; no .py, Saved, Intermediate or kit files inside). Test it in a clean project before you upload." % out)
+            print("written: %s (the whole project; no .py, Saved, Intermediate or kit files inside)." % out)
         return 0 if out else 1
     apply = "--apply" in argv
     made, kept = docs(root, apply, product)
