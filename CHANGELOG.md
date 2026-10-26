@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.110.1 — Security: recipe endpoints
+
+- **Fixed the 5 CodeQL alerts (path injection) in `skills_lib.py`.** The recipe buttons of the Skills page (send, export, approve from the inbox, list) took the skill name from the request through a text check. They now look the name up among the skills that exist on disk, like every other console endpoint, so the request can never steer a file path. A skill that does not exist has an empty recipe list instead of an error.
+- **The tests of the Fab Checklist no longer depend on the kit installed in your profile.** One test failed on GitHub (where no profile exists) and turned the release red; it now uses the kit files of the checkout.
+
 ## v1.110.0 — Fab: the Checklist page and the asset checks
 
 - **The Skills page by tabs, for maps and for Fab products.** Four cards on top (Waiting for you, Lessons, Recipes, Learning from, with rings), a LEARN block, and tabs in groups: To approve, To share, Lessons, Recipes, Skills, Maps & products, This map / This product, UEFN MCP, Community. Every list has a filter row and five items per page, the counters of the tabs match the lists, and what you approve or send leaves its queue. The Classic view is gone: editing a lesson, approving a pack and *Approve all* now live in To approve.

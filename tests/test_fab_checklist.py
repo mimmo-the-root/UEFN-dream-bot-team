@@ -3,6 +3,7 @@ import json, os, shutil, socket, subprocess, sys, tempfile, time, urllib.error, 
 HERE = os.path.dirname(os.path.abspath(__file__))
 UL = os.path.join(HERE, "..", "user-level-hooks")
 sys.path.insert(0, UL)
+os.environ["UEFN_KIT_TEMPLATE"] = os.path.join(HERE, "..", "project-template")   # the kit files of this checkout, not the ones installed in the profile (CI has none)
 import fab_checklist as FC
 import fab_pack
 ok = lambda c, m: (print(("PASS " if c else "FAIL ") + m), c or sys.exit(1))

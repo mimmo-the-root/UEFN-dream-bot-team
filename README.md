@@ -56,7 +56,7 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.110.0)
+## What's new (v1.102 - v1.110.1)
 
 - **Skills page by tabs, LEARN, recipes (1.110).** One page for maps and Fab products: queues (To approve, To share), knowledge (Lessons, Recipes, Skills), sources (Maps & products, This map / product), UEFN MCP and Community. A LEARN button for maps and for Fab products, recipes prepared by the kit from your Verse code and shared both ways through the community, a folder called FAB is a Fab product by itself, and the assets are cleaned of user and project names before `check` and `zip`.
 - **Fab Checklist (1.110).** A console page for Fab products: six stations with every check in plain language, a verdict with bar and percentage, tickable items for what only you can judge, a recorded UEFN validation, and a scan of the assets for traces of other projects (the cause of two rejections). Nothing is written in the project.
