@@ -243,6 +243,46 @@ def _quit_console(port):
         pass
 
 
+def autostart(root, port=8766, open_browser=True):
+    """Session start of a Fab product: make sure the console of THIS product is running (a newer one replaces an older one) and open it in the
+    browser when it was not running yet. Started through PowerShell's Start-Process on Windows (it outlives the hook and the agent's own shell,
+    which a plain background command does not). Returns the URL or None."""
+    lab = ensure_lab(root)
+    here = os.path.normcase(os.path.abspath(lab))
+    def find():
+        for p in range(port, port + 4):
+            w = _whoami(p)
+            if w and os.path.normcase(os.path.abspath(w.get("project", ""))) == here:
+                return p, w
+        return None, None
+    p, w = find()
+    if w and w.get("kit_version") == _current_kit_version() and "fab_product" in (w.get("caps") or []):
+        return "http://127.0.0.1:%d/" % p
+    me = os.path.abspath(__file__)
+    if os.name == "nt":
+        q = lambda x: "'" + x.replace("'", "''") + "'"
+        ps = "Start-Process -WindowStyle Hidden -FilePath %s -ArgumentList @(%s,'console',%s,'%d','--foreground')" % (q(sys.executable), q('"' + me + '"'), q('"' + root + '"'), port)
+        subprocess.Popen(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL, creationflags=0x08000000)
+    else:
+        console(root, port)
+    for _ in range(24):
+        time.sleep(0.5)
+        p, w = find()
+        if w and w.get("kit_version") == _current_kit_version():
+            break
+    if not w:
+        return None
+    url = "http://127.0.0.1:%d/" % p
+    if open_browser:
+        try:
+            import webbrowser
+            webbrowser.open(url)
+        except Exception:
+            pass
+    return url
+
+
 def console(root, port=8766, foreground=False):
     """Start the Agent Console on the lab data. foreground=True keeps it running in THIS terminal (close the window to stop it): use it
     when a background start is killed together with the program that launched it. Returns (ok, message)."""

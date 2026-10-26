@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dream Bot Team - Checklist</title>
+<style>
+:root{--bg:#060810;--panel:#0d121c;--panel2:#0a0e17;--line:#1c2740;--text:#c9d6f0;--dim:#5a7088;--built:#4b8bff;--ok:#39ff88;--bad:#ff5c6a;--warn:#ffb454;--todo:#8a96b3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 Consolas,ui-monospace,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:14px 16px 50px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px}
+.logo{font-size:13px;letter-spacing:2px;color:var(--built);font-weight:bold}.logo img{vertical-align:middle;border-radius:6px;margin-right:8px}.logo small{color:var(--dim);font-weight:normal;letter-spacing:0;margin-left:6px}
+nav{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:10.5px;letter-spacing:1px;text-transform:uppercase}nav a{padding:6px 11px;color:var(--dim);text-decoration:none}nav a.on{color:var(--text);background:#101a30}nav a:hover{color:var(--text)}
+h1{font-size:15px;letter-spacing:2px;text-transform:uppercase;margin:0}.sub{color:var(--dim);font:12px 'Segoe UI',system-ui,sans-serif;margin-top:2px}
+.ttl{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.lb{font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+.g2{display:grid;grid-template-columns:1.55fr 1fr;gap:12px}@media (max-width:860px){.g2{grid-template-columns:1fr}}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:8px;vertical-align:-1px;flex:none;margin-top:4px}
+.s-pass{background:var(--ok)}.s-fail{background:var(--bad)}.s-warn{background:var(--warn);border-radius:2px;transform:rotate(45deg) scale(.85)}.s-todo{background:none;border:2px solid var(--todo)}.s-manual{background:none;border:2px dashed var(--built)}.s-na{background:var(--line)}
+.t-pass{color:var(--ok)}.t-fail{color:var(--bad)}.t-warn{color:var(--warn)}.t-todo{color:var(--todo)}.t-manual{color:var(--built)}
+.it{display:flex;gap:2px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}.it:last-child{border:none}.it .tx{flex:1}.it .ev{color:var(--dim);font:12px 'Segoe UI',system-ui,sans-serif;margin-top:1px;word-break:break-word}.it .fix{font:12px 'Segoe UI',system-ui,sans-serif;margin-top:3px;color:var(--warn)}.it .fix b{color:var(--text)}
+.it input[type=checkbox]{margin:4px 8px 0 0;accent-color:var(--built);cursor:pointer}
+.src{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;border:1px solid var(--line);border-radius:20px;padding:1px 8px;color:var(--dim);white-space:nowrap;align-self:flex-start;margin-left:6px}
+.src.kit{color:var(--ok);border-color:rgba(57,255,136,.35)}.src.you{color:var(--built);border-color:rgba(75,139,255,.4)}.src.ed{color:var(--warn);border-color:rgba(255,180,84,.4)}.src.x{color:#c58bff;border-color:rgba(197,139,255,.4)}
+.big{font-size:30px;font-weight:bold;letter-spacing:1px}.pct{font-size:40px;font-weight:bold;line-height:1}
+.bar{display:flex;height:14px;border-radius:6px;overflow:hidden;background:var(--panel2);margin:8px 0 4px}.bar i{display:block;height:100%}
+.legendbar{display:flex;gap:12px;flex-wrap:wrap;font-size:10.5px;color:var(--dim)}.legendbar i{display:inline-block;width:10px;height:8px;border-radius:2px;margin-right:4px}
+.msg{font:13px/1.55 'Segoe UI',system-ui,sans-serif;margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(255,92,106,.09);border:1px solid rgba(255,92,106,.35)}.msg.ok{background:rgba(57,255,136,.07);border-color:rgba(57,255,136,.35)}.msg.mid{background:rgba(255,180,84,.07);border-color:rgba(255,180,84,.35)}
+.btn{font:inherit;font-size:11px;padding:5px 11px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer}.btn.pri{border-color:var(--built);color:var(--built)}.btn[disabled]{opacity:.45;cursor:not-allowed}
+.steps{display:flex;gap:0;margin:2px 0 14px;flex-wrap:wrap}.step{flex:1;min-width:140px;border:1px solid var(--line);background:var(--panel);padding:10px 12px;cursor:pointer;margin-left:-1px}.step:first-child{border-radius:10px 0 0 10px;margin-left:0}.step:last-child{border-radius:0 10px 10px 0}.step.cur{border-color:var(--built);background:#101a30;position:relative;z-index:1}.step .sn{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase}.step .sv{margin-top:3px;display:flex;align-items:center}.step .sv .dot{margin-top:0}.step .mini{height:4px;background:var(--panel2);border-radius:3px;margin-top:7px;overflow:hidden}.step .mini i{display:block;height:100%;background:var(--ok)}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:1px 9px;font-size:11px;color:var(--text);margin:0 4px 4px 0}.tag.x{color:var(--bad);border-color:rgba(255,92,106,.4)}
+.fld{margin-bottom:10px}.fld .v{font:13px 'Segoe UI',system-ui,sans-serif;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:7px 10px;min-height:32px;white-space:pre-wrap;word-break:break-word}.fld .h{font-size:10.5px;color:var(--dim);display:flex;justify-content:space-between;margin-bottom:3px}
+details{border-top:1px solid var(--line);margin-top:6px}summary{cursor:pointer;padding:9px 0;color:var(--dim)}
+textarea{width:100%;min-height:110px;font:12px Consolas,monospace;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px}
+.kitfoot{margin-top:24px;font:11px/1.9 'Segoe UI',system-ui,sans-serif;color:var(--dim);text-align:center;border-top:1px solid var(--line);padding-top:10px}.kitfoot .dot{margin-top:0}
+.kitfoot a{color:#4bd8ff;text-decoration:none}
+#err{color:var(--bad);font:12px 'Segoe UI',system-ui,sans-serif;margin:4px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><div class="logo">%%LOGO%%DREAM BOT TEAM <small>Agent Console</small> <small id="kitVersion"></small></div>
+<nav><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a><a href="agent-console-news.html">What&#39;s new</a><a href="agent-console-score.html">Score</a><a href="agent-console-fab.html" class="on">Checklist</a></nav></div>
+<div class="ttl"><div><h1 id="title">Checklist</h1><div class="sub" id="sub">reading the project...</div></div>
+<div><button class="btn" id="bScan">Run all checks</button> <button class="btn pri" id="bZip">Make the zip</button> <button class="btn" id="bRe">Re-read the zip</button></div></div>
+<div id="err"></div>
+<div id="steps" class="steps"></div>
+<div class="g2"><div id="detail"></div><div id="side"></div></div>
+<div class="kitfoot"><span class="dot s-pass"></span>passed &nbsp;<span class="dot s-warn"></span>warning &nbsp;<span class="dot s-fail"></span>blocks the upload &nbsp;<span class="dot s-todo"></span>not done yet &nbsp;<span class="dot s-manual"></span>only you can confirm (tick it) &nbsp;<span class="dot s-na"></span>not applicable<br>
+Who checks it: <span class="src kit">kit</span> done by the kit &middot; <span class="src ed">editor</span> needs a record from UEFN &middot; <span class="src you">you</span> you confirm &middot; <span class="src x">extra</span> added by the kit after a rejection<br>
+Dream Bot Team for UEFN &middot; <a href="/manual/the-console.html" data-manual-help>Help</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; MIT License</div>
+</div>
+<script>
+var D=null,cur=0,WHO={kit:"kit",ed:"editor",you:"you",x:"extra"},STATE={fail:"blocks",warn:"warnings",todo:"to do",manual:"you confirm",pass:"done"};
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function $(id){return document.getElementById(id)}
+function dot(k){return '<span class="dot s-'+k+'"></span>'}
+function stState(c){return c.fail?"fail":(c.warn?"warn":(c.todo?"todo":(c.manual?"manual":"pass")))}
+function pctOf(c){var t=c.pass+c.fail+c.warn+c.todo+c.manual;return t?Math.round(100*c.pass/t):100}
+function post(body){return fetch("/fab-act",{method:"POST",headers:{"Content-Type":"application/json","X-Skills-Action":"1"},body:JSON.stringify(body)}).then(function(r){return r.json()}).then(function(j){if(!j.ok){$("err").textContent=j.error||"did not work"}else{$("err").textContent=""}return j})}
+function load(){var v=$("vtext");if(v&&(v.value||document.activeElement===v))return Promise.resolve();return fetch("/fab-data").then(function(r){return r.json()}).then(function(d){if(d.error){$("sub").textContent="This page is for a Fab product: "+d.error;return}D=d;draw()}).catch(function(){$("sub").textContent="the console server does not answer"})}
+function item(x){
+  var box=x.tickable?'<input type="checkbox" '+(x.tick?'checked ':'')+'onchange="tick(\''+x.id+'\',this.checked)">':dot(x.s);
+  return '<div class="it">'+box+(x.tickable?dot(x.s):'')+'<div class="tx">'+esc(x.t)+(x.ev?'<div class="ev">'+esc(x.ev)+'</div>':'')+(x.fix&&x.s!=="pass"?'<div class="fix"><b>What to do:</b> '+esc(x.fix)+'</div>':'')+'</div><span class="src '+x.w+'">'+WHO[x.w]+'</span></div>'}
+function steps(){$("steps").innerHTML=D.stations.map(function(s,k){var c=s.counts,ss=stState(c);return '<div class="step'+(k==cur?' cur':'')+'" onclick="cur='+k+';draw()"><div class="sn">'+esc(s.n)+'</div><div class="sv">'+dot(ss)+'<span class="t-'+ss+'">'+STATE[ss]+'</span></div><div class="mini"><i style="width:'+pctOf(c)+'%"></i></div></div>'}).join("")}
+function validBox(){
+  return '<div style="margin-top:10px"><div class="lb">Record the UEFN validation</div><div class="sub" style="margin:0 0 6px">In UEFN run the project validation, choose Skip Fix-up (the fix-up resets references to default), copy the output and paste it here.</div><textarea id="vtext" placeholder="paste the validation output"></textarea><div style="margin-top:6px"><label><input type="checkbox" id="vskip" checked> I chose Skip Fix-up</label> &nbsp;<button class="btn pri" onclick="recVal()">Record it</button></div></div>'}
+function detail(){var s=D.stations[cur],live=s.items.filter(function(x){return x.s!=="na"}),na=s.items.filter(function(x){return x.s==="na"});var o={fail:0,warn:1,todo:2,manual:3,pass:4};live=live.slice().sort(function(a,b){return o[a.s]-o[b.s]});
+  $("detail").innerHTML='<div class="card"><div class="lb">Station '+esc(s.n)+' &middot; '+esc(s.d)+'</div><div class="sub" style="margin:0 0 8px">'+s.counts.pass+' of '+live.length+' checks passed</div>'+live.map(item).join("")+(na.length?'<details><summary>Not applicable to this product ('+na.length+')</summary>'+na.map(item).join("")+'</details>':'')+(s.id==="build"?validBox():'')+'</div>'}
+function listing(){var l=D.listing||{};if(!l.has_file)return '';
+  function f(h,v,st,note){return '<div class="fld"><div class="h"><span>'+h+'</span><span class="'+st+'">'+esc(note)+'</span></div><div class="v"'+(v?'':' style="color:var(--dim)"')+'>'+(v?esc(v):'Not written yet')+'</div></div>'}
+  var tags=(l.tags||[]).map(function(t){return '<span class="tag">'+esc(t)+'</span>'}).join("")||'<span style="color:var(--dim)">Not written yet</span>';
+  return '<div class="card"><div class="lb">Listing - what you type in the portal</div>'+f("Title",l.title,l.title&&l.title.length<=30?"t-pass":"t-warn",l.title?l.title.length+" characters":"TODO")+f("Short description",l.short,l.short?"t-pass":"t-warn",l.short?l.short.length+" characters":"TODO")+f("Description",l.desc.length>300?l.desc.slice(0,300)+"...":l.desc,l.desc?"t-pass":"t-warn",l.desc?l.desc.length+" characters":"TODO")+'<div class="fld"><div class="h"><span>Tags</span><span>'+(l.tags||[]).length+'</span></div><div class="v">'+tags+'</div></div></div>'}
+function side(){var c=D.counts,T=D.total||1,w=function(k){return (100*c[k]/T).toFixed(1)+"%"},bad=D.verdict==="NOT READY",ok=D.verdict==="READY";
+  $("side").innerHTML='<div class="card" style="border-color:'+(bad?'rgba(255,92,106,.55)':ok?'rgba(57,255,136,.5)':'rgba(255,180,84,.5)')+'"><div class="lb">Verdict</div><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px"><div class="big '+(bad?'t-fail':ok?'t-pass':'t-warn')+'">'+D.verdict+'</div><div style="text-align:right"><div class="pct">'+D.pct+'%</div><div class="sub" style="margin:0">'+c.pass+' of '+D.total+' checks passed</div></div></div>'+
+  '<div class="bar"><i style="width:'+w("pass")+';background:var(--ok)"></i><i style="width:'+w("warn")+';background:var(--warn)"></i><i style="width:'+w("fail")+';background:var(--bad)"></i><i style="width:'+w("manual")+';background:var(--built);opacity:.6"></i><i style="width:'+w("todo")+';background:var(--todo);opacity:.5"></i></div>'+
+  '<div class="legendbar"><span><i style="background:var(--ok)"></i>'+c.pass+' passed</span><span><i style="background:var(--warn)"></i>'+c.warn+' warnings</span><span><i style="background:var(--bad)"></i>'+c.fail+' blocks</span><span><i style="background:var(--built);opacity:.6"></i>'+c.manual+' you confirm</span><span><i style="background:var(--todo);opacity:.5"></i>'+c.todo+' to do</span></div>'+
+  '<div class="msg '+(bad?'':ok?'ok':'mid')+'">'+esc(D.message)+'</div></div>'+listing()}
+function draw(){$("title").textContent="Checklist - "+D.name;$("sub").textContent="Fab product - every check the kit can do before you upload - last scan "+(D.scanned_at||"-");$("bZip").disabled=!D.can_zip;$("bZip").title=D.can_zip?"":"Locked until stations 1 to 4 have no block";steps();detail();side()}
+function tick(id,on){post({action:"tick",id:id,on:on}).then(load)}
+function recVal(){var t=$("vtext").value;if(!t.trim()){$("err").textContent="Paste the validation output first.";return}post({action:"validation",text:t,skip_fixup:$("vskip").checked}).then(load)}
+$("bScan").onclick=function(){$("bScan").disabled=true;post({action:"scan"}).then(load).then(function(){$("bScan").disabled=false})};
+$("bZip").onclick=function(){post({action:"zip"}).then(function(j){if(j.ok)$("err").textContent="Zip made: "+j.zip;return load()})};
+$("bRe").onclick=function(){post({action:"reread"}).then(load)};
+fetch("/whoami").then(function(r){return r.json()}).then(function(w){$("kitVersion").textContent=w.kit_version?"v"+w.kit_version:""}).catch(function(){});
+load();setInterval(load,20000);
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FAB page - 5 mockups</title>
+<style>
+:root{--bg:#060810;--panel:#0d121c;--panel2:#0a0e17;--line:#1c2740;--text:#c9d6f0;--dim:#5a7088;--built:#4b8bff;--ok:#39ff88;--bad:#ff5c6a;--warn:#ffb454;--todo:#8a96b3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 Consolas,ui-monospace,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:14px 16px 50px}
+.note{font:12px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--dim);margin:0 0 10px}
+.picker{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}.picker button{font:inherit;font-size:11.5px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);cursor:pointer}.picker button.on{color:var(--text);border-color:var(--built);background:#101a30}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px}
+.logo{font-size:13px;letter-spacing:2px;color:var(--built);font-weight:bold}.logo small{color:var(--dim);font-weight:normal;letter-spacing:0;margin-left:6px}
+nav{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:10.5px;letter-spacing:1px;text-transform:uppercase}nav span{padding:6px 11px;color:var(--dim)}nav span.on{color:var(--text);background:#101a30}
+h1{font-size:15px;letter-spacing:2px;text-transform:uppercase;margin:0}.sub{color:var(--dim);font:12px 'Segoe UI',system-ui,sans-serif;margin-top:2px}
+.ttl{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.lb{font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+.g2{display:grid;grid-template-columns:1.5fr 1fr;gap:12px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:860px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:8px;vertical-align:-1px;flex:none}
+.s-pass{background:var(--ok)}.s-fail{background:var(--bad)}.s-warn{background:var(--warn);border-radius:2px;transform:rotate(45deg) scale(.85)}.s-todo{background:none;border:2px solid var(--todo)}.s-manual{background:none;border:2px dashed var(--built)}.s-na{background:var(--line)}
+.t-pass{color:var(--ok)}.t-fail{color:var(--bad)}.t-warn{color:var(--warn)}.t-todo{color:var(--todo)}.t-manual{color:var(--built)}
+.it{display:flex;gap:6px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line)}.it:last-child{border:none}.it .tx{flex:1}.it .nt{color:var(--dim);font:11.5px 'Segoe UI',system-ui,sans-serif;margin-top:1px}
+.src{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;border:1px solid var(--line);border-radius:20px;padding:1px 8px;color:var(--dim);white-space:nowrap;align-self:flex-start}
+.src.kit{color:var(--ok);border-color:rgba(57,255,136,.35)}.src.you{color:var(--built);border-color:rgba(75,139,255,.4)}.src.ed{color:var(--warn);border-color:rgba(255,180,84,.4)}
+.big{font-size:30px;font-weight:bold;letter-spacing:1px}.pill{display:inline-block;font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding:2px 9px;border-radius:20px}
+.pill.fail{background:rgba(255,92,106,.15);color:var(--bad)}.pill.warn{background:rgba(255,180,84,.15);color:var(--warn)}.pill.pass{background:rgba(57,255,136,.14);color:var(--ok)}.pill.todo{background:rgba(138,150,179,.15);color:var(--todo)}.pill.manual{background:rgba(75,139,255,.15);color:var(--built)}
+.bar{display:flex;height:12px;border-radius:5px;overflow:hidden;background:var(--panel2);margin:6px 0}.bar i{display:block;height:100%}
+details{border-top:1px solid var(--line)}details:first-of-type{border-top:none}summary{cursor:pointer;padding:9px 0;list-style:none;display:flex;gap:10px;align-items:center}summary::-webkit-details-marker{display:none}summary .n{flex:1}summary .c{color:var(--dim);font-size:11.5px}
+.btn{font:inherit;font-size:11px;padding:5px 11px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer}.btn.pri{border-color:var(--built);color:var(--built)}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:1px 9px;font-size:11px;color:var(--text);margin:0 4px 4px 0}.tag.x{color:var(--bad);border-color:rgba(255,92,106,.4)}
+.fld{margin-bottom:10px}.fld .v{font:13px 'Segoe UI',system-ui,sans-serif;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:7px 10px;min-height:32px}.fld .h{font-size:10.5px;color:var(--dim);display:flex;justify-content:space-between;margin-bottom:3px}
+.steps{display:flex;gap:0;margin:2px 0 14px;flex-wrap:wrap}.step{flex:1;min-width:130px;border:1px solid var(--line);background:var(--panel);padding:10px 12px;position:relative}.step:first-child{border-radius:10px 0 0 10px}.step:last-child{border-radius:0 10px 10px 0}.step.cur{border-color:var(--built);background:#101a30}.step .sn{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase}.step .sv{margin-top:3px}
+.tile{border:1px solid var(--line);background:var(--panel2);border-radius:9px;padding:10px 12px;cursor:default}.tile .tn{font-size:11px;color:var(--dim);letter-spacing:.6px;text-transform:uppercase}.tile .tc{font-size:22px;font-weight:bold;margin:2px 0}.tile.f{border-color:rgba(255,92,106,.55)}.tile.w{border-color:rgba(255,180,84,.45)}.tile.p{border-color:rgba(57,255,136,.3)}
+.tl{position:relative;margin-left:8px;border-left:2px solid var(--line);padding-left:16px}.tl .ev{position:relative;margin-bottom:14px}.tl .ev:before{content:"";position:absolute;left:-23px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--line)}.tl .ev.f:before{background:var(--bad)}.tl .ev.p:before{background:var(--ok)}.tl .ev.n:before{background:var(--built)}
+.view{display:none}.view.on{display:block}
+.kitfoot{margin-top:24px;font:11px/1.7 'Segoe UI',system-ui,sans-serif;color:var(--dim);text-align:center;border-top:1px solid var(--line);padding-top:10px}
+</style></head><body><div class="wrap">
+<p class="note"><b>Mockups - invented data</b> (they mirror the Rank System case, nothing is read from a real project). The FAB page appears only when the project is registered as a Fab product. Pick a proposal:</p>
+<div class="picker" id="picker"></div>
+<div class="top"><div class="logo">DREAM BOT TEAM <small>Agent Console</small></div><nav><span>Agents</span><span>Skills</span><span>Score</span><span>Docs</span><span class="on">Fab</span></nav></div>
+<div class="ttl"><div><h1>Fab - competitive rank system</h1><div class="sub">Epic's Technical Review Checklist, checked by the kit before you upload · last check today 14:02</div></div><div><button class="btn">Run check</button> <button class="btn pri">Make the zip</button></div></div>
+<div id="views"></div>
+<div class="kitfoot">Legend: <span class="dot s-pass"></span>passed <span class="dot s-warn"></span>warning <span class="dot s-fail"></span>blocks the upload <span class="dot s-todo"></span>not done yet <span class="dot s-manual"></span>only you can check it (editor) &nbsp;·&nbsp; source: <span class="src kit">kit</span> checked by fab_pack / asset scan <span class="src ed">editor</span> needs a record from UEFN <span class="src you">you</span> manual</div>
+</div>
+<script>
+var G=[
+{n:"General",i:[["All text accurate and relevant","manual","you","Read the listing once more before sending."],["English version of every text field","pass","kit","listing.md has English text."]]},
+{n:"Media",i:[["Media shows the real functionality","warn","kit","3 of 5 listing images present (screenshots.md)."]]},
+{n:"Technical Information",i:[["All Technical Information fields filled","warn","kit","3 fields still TODO in listing.md (engine version, supported platforms, number of assets)."],["Dependencies and prerequisites declared","pass","kit","Epic libraries listed: CreativeCoreDevices, FortUILibrary."]]},
+{n:"Project Files",i:[["One .uefnproject, complete project in the archive","pass","kit",""],["Not password protected","pass","kit",""],["lore / loreignore / urcignore / codeworkspace removed","pass","kit","The zip leaves them out."]]},
+{n:"Compiling & Validation",i:[["Verse compiles with no errors","pass","kit","Static check clean; last build 14:00."],["UEFN validation: no errors or warnings","fail","ed","No clean validation record yet. Run it in UEFN and paste the output."],["No imports from other projects (asset scan)","pass","kit","185 assets read, 0 foreign imports."],["Custom Inventory: level and Project Settings agree","manual","you","Check Island Settings against Project Settings."]]},
+{n:"Files",i:[["Single pack folder named after the project","warn","kit","Rank_System, the project is root_rank_system."],["No unused folders or assets","warn","kit","2 empty folders (Collections, Developers/me/Collections)."],["Paths under 140 characters","pass","kit","Longest: 96."],["Redirectors cleaned up","pass","kit",""],["Names: English, alphanumeric, consistent","pass","kit",""]]},
+{n:"Documentation",i:[["Setup documentation included","pass","kit","Documentation/README.md, SETTINGS.md."]]},
+{n:"Legal",i:[["Third-party content declared","warn","kit","5 asset(s) keep another user's import path: declare author and licence in third_party.md."]]},
+{n:"Art and Audio",i:[["Textures: power of 2, 2k at most","todo","ed","Needs the editor: not checked yet."],["Audio: .wav, no distortion","manual","you","Listen once."]]},
+{n:"Smart assets and maps",i:[["Devices and map load with no errors","manual","you","Play-in-editor once, read the log."]]}];
+var LAB={pass:"passed",fail:"blocks",warn:"warning",todo:"not done",manual:"only you"};
+function all(){var a=[];G.forEach(function(g){g.i.forEach(function(x){a.push({g:g.n,t:x[0],s:x[1],src:x[2],nt:x[3]})})});return a}
+function cnt(){var c={pass:0,fail:0,warn:0,todo:0,manual:0};all().forEach(function(x){c[x.s]++});return c}
+function dot(s){return '<span class="dot s-'+s+'"></span>'}
+function item(x,showG){return '<div class="it">'+dot(x.s)+'<div class="tx">'+x.t+(showG?' <span style="color:var(--dim)">· '+x.g+'</span>':'')+(x.nt?'<div class="nt">'+x.nt+'</div>':'')+'</div><span class="src '+x.src+'">'+x.src+'</span></div>'}
+function bar(c){var T=all().length,w=function(k){return (100*c[k]/T).toFixed(1)+'%'};return '<div class="bar"><i style="width:'+w('pass')+';background:var(--ok)"></i><i style="width:'+w('warn')+';background:var(--warn)"></i><i style="width:'+w('fail')+';background:var(--bad)"></i><i style="width:'+w('manual')+';background:var(--built);opacity:.6"></i><i style="width:'+w('todo')+';background:var(--todo);opacity:.5"></i></div>'}
+function listing(){return '<div class="card"><div class="lb">Listing - what you type in the Fab portal</div>'+
+'<div class="fld"><div class="h"><span>Title</span><span class="t-pass">26 / 100 · ok</span></div><div class="v">Competitive Rank System</div></div>'+
+'<div class="fld"><div class="h"><span>Short description</span><span class="t-warn">TODO</span></div><div class="v" style="color:var(--dim)">Not written yet</div></div>'+
+'<div class="fld"><div class="h"><span>Description</span><span class="t-pass">1,420 chars · ok</span></div><div class="v">Ranked ladder for your island: 7 tiers, XP, leaderboard and rank-up toast. Drop-in Verse device, UI included…</div></div>'+
+'<div class="fld"><div class="h"><span>Tags</span><span class="t-warn">9 of 12 · 2 look too generic</span></div><div class="v"><span class="tag">rank</span><span class="tag">ranked</span><span class="tag">leaderboard</span><span class="tag">xp</span><span class="tag">ui</span><span class="tag">verse</span><span class="tag">competitive</span><span class="tag x">game</span><span class="tag x">system</span></div></div>'+
+'<div class="fld"><div class="h"><span>Open the files</span><span></span></div><div><button class="btn">listing.md</button> <button class="btn">third_party.md</button> <button class="btn">screenshots.md</button></div></div></div>'}
+var V={};
+V[0]=function(){var c=cnt();return '<div class="g2"><div>'+
+'<div class="card"><div class="lb">Epic checklist - every item, grouped like the PDF</div>'+G.map(function(g,gi){var f=g.i.filter(function(x){return x[1]=="fail"}).length,w=g.i.filter(function(x){return x[1]=="warn"}).length;return '<details'+(f||w?' open':'')+'><summary><span class="n">'+g.n+'</span>'+(f?'<span class="pill fail">'+f+' blocks</span>':'')+(w?'<span class="pill warn">'+w+' warning</span>':'')+(!f&&!w?'<span class="pill pass">ok</span>':'')+'</summary>'+g.i.map(function(x){return item({g:g.n,t:x[0],s:x[1],src:x[2],nt:x[3]})}).join('')+'</details>'}).join('')+'</div></div>'+
+'<div><div class="card"><div class="lb">Ready to upload?</div><div class="big t-fail">NOT YET</div><div class="sub">'+c.fail+' blocks · '+c.warn+' warnings · '+c.manual+' only you · '+c.todo+' not done</div>'+bar(c)+'</div>'+listing()+'</div></div>'};
+V[1]=function(){var c=cnt(),a=all(),f=a.filter(function(x){return x.s=="fail"}),w=a.filter(function(x){return x.s=="warn"}),m=a.filter(function(x){return x.s=="manual"||x.s=="todo"});return '<div class="g2"><div>'+
+'<div class="card" style="border-color:rgba(255,92,106,.5)"><div class="lb">Verdict</div><div class="big t-fail">DO NOT UPLOAD</div><div class="sub">Epic rejected this type of project twice for the same reason: validation.</div>'+bar(c)+'</div>'+
+'<div class="card"><div class="lb">1 · Fix first (blocks the upload)</div>'+f.map(function(x){return item(x,1)}).join('')+'</div>'+
+'<div class="card"><div class="lb">2 · Then clean up (warnings, go to BUGS.md)</div>'+w.map(function(x){return item(x,1)}).join('')+'</div>'+
+'<div class="card"><div class="lb">3 · Only you can confirm</div>'+m.map(function(x){return item(x,1)}).join('')+'</div>'+
+'<details class="card"><summary><span class="n">Everything that passed ('+c.pass+')</span><span class="c">show</span></summary>'+a.filter(function(x){return x.s=="pass"}).map(function(x){return item(x,1)}).join('')+'</details></div>'+
+'<div>'+listing()+'</div></div>'};
+V[2]=function(){var st=[["1 Check","fail","3 warnings"],["2 Docs","pass","made"],["3 Validation","fail","no record"],["4 Listing","warn","short text TODO"],["5 Zip","todo","locked"],["6 Submit","todo","you, on Fab"]];return '<div class="steps">'+st.map(function(s,i){return '<div class="step'+(i==2?' cur':'')+'"><div class="sn">'+s[0]+'</div><div class="sv">'+dot(s[1])+s[2]+'</div></div>'}).join('')+'</div>'+
+'<div class="g2"><div class="card"><div class="lb">Station 3 · Validation (the one Epic failed)</div>'+all().filter(function(x){return x.g=="Compiling & Validation"}).map(function(x){return item(x)}).join('')+
+'<div style="margin-top:12px"><div class="lb">How to close this station</div><ol style="margin:0;padding-left:18px" class="sub"><li>In UEFN run the project validation.</li><li>Choose "Skip Fix-up" and save the output log.</li><li><button class="btn">Paste or pick the log</button> and the kit reads it.</li></ol></div></div>'+listing()+'</div>'};
+V[3]=function(){var tiles=G.map(function(g){var f=g.i.filter(function(x){return x[1]=="fail"}).length,w=g.i.filter(function(x){return x[1]=="warn"||x[1]=="todo"||x[1]=="manual"}).length;return '<div class="tile '+(f?'f':w?'w':'p')+'"><div class="tn">'+g.n+'</div><div class="tc '+(f?'t-fail':w?'t-warn':'t-pass')+'">'+(f?f+' ✗':w?w+' !':'✓')+'</div><div class="sub">'+g.i.length+' item'+(g.i.length>1?'s':'')+'</div></div>'}).join('');var c=cnt();return '<div class="g4" style="margin-bottom:12px">'+
+'<div class="tile f"><div class="tn">Blocks</div><div class="tc t-fail">'+c.fail+'</div></div><div class="tile w"><div class="tn">Warnings</div><div class="tc t-warn">'+c.warn+'</div></div><div class="tile"><div class="tn">Only you / not done</div><div class="tc t-manual">'+(c.manual+c.todo)+'</div></div><div class="tile p"><div class="tn">Passed</div><div class="tc t-pass">'+c.pass+'</div></div></div>'+
+'<div class="g3" style="margin-bottom:12px">'+tiles+'</div><div class="g2"><div class="card"><div class="lb">Open items</div>'+all().filter(function(x){return x.s!="pass"}).map(function(x){return item(x,1)}).join('')+'</div>'+listing()+'</div>'};
+V[4]=function(){return '<div class="g2"><div><div class="card"><div class="lb">Review history - what Epic said, what we had said before</div><div class="tl">'+
+'<div class="ev f"><b>Submit 1</b> · Oct 22 · Epic: FAIL<div class="sub">Validation: Disallowed reference /pilars/…/S_Point (Sound cue SC_S) · Custom Inventory warning · recommended: remove lore files.<br><span class="t-todo">Kit at that time: 0 of these checks existed.</span></div></div>'+
+'<div class="ev f"><b>Submit 2</b> · Oct 24 · Epic: FAIL<div class="sub">Validation failed again (no log lines in the report).<br><span class="t-todo">Kit at that time: same gap.</span></div></div>'+
+'<div class="ev n"><b>Today</b> · kit 1.110 check<div class="sub">Asset scan added: foreign imports, copied package names, user names in import paths, lore files left out of the zip.<br><span class="t-pass">Now caught before upload: foreign import (block), copied names (warning).</span></div></div>'+
+'<div class="ev"><b>Submit 3</b> · not sent<div class="sub">Needs: validation record, listing complete, zip made by the kit.</div></div></div></div>'+
+'<div class="card"><div class="lb">Rules the kit learned from Epic\'s reports</div><div class="it">'+dot('pass')+'<div class="tx">Imports of assets outside the project<div class="nt">added after submit 1 · blocks</div></div></div><div class="it">'+dot('pass')+'<div class="tx">Lore / urc / code-workspace files<div class="nt">recommended by Epic in submit 1 · zip leaves them out</div></div></div><div class="it">'+dot('todo')+'<div class="tx">Validation record before zip<div class="nt">proposed · not built yet</div></div></div></div></div>'+
+'<div>'+(function(){var c=cnt();return '<div class="card"><div class="lb">Now</div><div class="big t-fail">NOT YET</div><div class="sub">'+c.fail+' block · '+c.warn+' warnings</div>'+bar(c)+all().filter(function(x){return x.s=="fail"||x.s=="warn"}).map(function(x){return item(x,1)}).join('')+'</div>'})()+listing()+'</div></div>'};
+var names=["1 · Epic checklist, grouped","2 · Verdict + what to do first","3 · Stations to the zip","4 · Heat tiles per group","5 · Review history + learning"];
+var pk=document.getElementById("picker"),vs=document.getElementById("views");
+names.forEach(function(n,i){var b=document.createElement("button");b.textContent=n;b.onclick=function(){show(i)};pk.appendChild(b);var d=document.createElement("div");d.className="view";d.innerHTML=V[i]();vs.appendChild(d)});
+function show(i){Array.prototype.forEach.call(pk.children,function(b,k){b.className=k==i?"on":""});Array.prototype.forEach.call(vs.children,function(d,k){d.className="view"+(k==i?" on":"")})}
+show(0);
+</script></body></html>

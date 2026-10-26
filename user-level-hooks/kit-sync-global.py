@@ -30,6 +30,18 @@ def new_map_context(base, fab_only=False):
     if kind == "fab":
         fp = os.path.join(here, "fab_pack.py")
         lab = os.path.join(here, "fab_lab.py")
+        console_url = None
+        try:   # the console of this product starts by itself and opens in the browser (never fails the session)
+            import fab_lab
+            console_url = fab_lab.autostart(root)
+        except Exception:
+            console_url = None
+        if console_url:
+            console_msg = "CONSOLE: it is already running at " + console_url + " (the kit started it and opened it in the browser): do not start a second one."
+        else:
+            console_msg = ("CONSOLE: the kit could not start it. At the START of your first reply, before anything else, start it yourself: "
+                           "run in the background `python \"" + lab + "\" console \"" + root + "\"` (use `py -3` if `python` is not found), "
+                           "and tell the owner the address it prints. If the owner already has a console open, do not start another.")
         return (("The folder name says FAB, so the kit registered this project as a Fab product by itself: tell the owner in one line (if it is a map: `%s --kind \"%s\" map`). " % (inst, root) if auto_fab else "") + "This UEFN project is registered as a FAB PRODUCT. Do NOT install the kit's project-template in it "
                 "(its components are added to the customer's project later). Work on it normally. For the Fab package use "
                 "the skill fab-product and the helper `python \"%s\" check|docs|zip \"%s\"` (check = Epic's upload rules, "
@@ -42,8 +54,8 @@ def new_map_context(base, fab_only=False):
                 "MECHANICS: before building a stand-alone device, a mechanic or a map template, look for a recipe: `skills_lib.py recipes mechanics <keyword>` and follow it (devices, settings, wiring, Verse files, assets, verify). When the owner confirms one works, run `fab_lab.py draft-recipe <project> \"<name>\"`, fill every TODO and save it with `skills_lib.py recipe-add mechanics <file.json> \"<product name>\"`. "
                 "LESSONS: your UEFN MCP calls are recorded OUTSIDE the project (hook in the profile, folder ~/.claude/fab-lab/<Product>/), never inside it. "
                 "When a material or mechanic is finished, run `python \"%s\" card \"%s\"`, fill in the TODO parts of the draft card and ask the owner whether to promote it into a skill or recipe. "
-                "The owner opens the console on this data with `python \"%s\" console \"%s\"`."
-                % (fp, root, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "kit-template", "Claude", "hooks")), lab, root, lab, root))
+                "%s"
+                % (fp, root, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "kit-template", "Claude", "hooks")), lab, root, console_msg))
     return ("NEW UEFN PROJECT WITHOUT THE KIT (%s). Before anything else, in your first reply: "
             "1) ask ONE question with AskUserQuestion: 'Is this a map (island) or a Fab product?' "
             "(skip it only if the owner already said which). "

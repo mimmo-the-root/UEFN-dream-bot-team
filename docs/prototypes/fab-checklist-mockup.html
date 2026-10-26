@@ -1,0 +1,110 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Checklist - mockup</title>
+<style>
+:root{--bg:#060810;--panel:#0d121c;--panel2:#0a0e17;--line:#1c2740;--text:#c9d6f0;--dim:#5a7088;--built:#4b8bff;--ok:#39ff88;--bad:#ff5c6a;--warn:#ffb454;--todo:#8a96b3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 Consolas,ui-monospace,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:14px 16px 50px}
+.note{font:12px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--dim);margin:0 0 10px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px}
+.logo{font-size:13px;letter-spacing:2px;color:var(--built);font-weight:bold}.logo small{color:var(--dim);font-weight:normal;letter-spacing:0;margin-left:6px}
+nav{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:10.5px;letter-spacing:1px;text-transform:uppercase}nav span{padding:6px 11px;color:var(--dim)}nav span.on{color:var(--text);background:#101a30}
+h1{font-size:15px;letter-spacing:2px;text-transform:uppercase;margin:0}.sub{color:var(--dim);font:12px 'Segoe UI',system-ui,sans-serif;margin-top:2px}
+.ttl{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.lb{font-size:10px;color:var(--dim);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+.g2{display:grid;grid-template-columns:1.55fr 1fr;gap:12px}@media (max-width:860px){.g2{grid-template-columns:1fr}}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:8px;vertical-align:-1px;flex:none;margin-top:4px}
+.s-pass{background:var(--ok)}.s-fail{background:var(--bad)}.s-warn{background:var(--warn);border-radius:2px;transform:rotate(45deg) scale(.85)}.s-todo{background:none;border:2px solid var(--todo)}.s-manual{background:none;border:2px dashed var(--built)}.s-na{background:var(--line)}
+.t-pass{color:var(--ok)}.t-fail{color:var(--bad)}.t-warn{color:var(--warn)}.t-todo{color:var(--todo)}.t-manual{color:var(--built)}
+.it{display:flex;gap:2px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}.it:last-child{border:none}.it .tx{flex:1}.it .ev{color:var(--dim);font:12px 'Segoe UI',system-ui,sans-serif;margin-top:1px}.it .fix{font:12px 'Segoe UI',system-ui,sans-serif;margin-top:3px;color:var(--warn)}.it .fix b{color:var(--text)}
+.src{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;border:1px solid var(--line);border-radius:20px;padding:1px 8px;color:var(--dim);white-space:nowrap;align-self:flex-start;margin-left:6px}
+.src.kit{color:var(--ok);border-color:rgba(57,255,136,.35)}.src.you{color:var(--built);border-color:rgba(75,139,255,.4)}.src.ed{color:var(--warn);border-color:rgba(255,180,84,.4)}.src.x{color:#c58bff;border-color:rgba(197,139,255,.4)}
+.big{font-size:30px;font-weight:bold;letter-spacing:1px}.pct{font-size:40px;font-weight:bold;line-height:1}
+.bar{display:flex;height:14px;border-radius:6px;overflow:hidden;background:var(--panel2);margin:8px 0 4px}.bar i{display:block;height:100%}
+.legendbar{display:flex;gap:12px;flex-wrap:wrap;font-size:10.5px;color:var(--dim)}.legendbar i{display:inline-block;width:10px;height:8px;border-radius:2px;margin-right:4px}
+.msg{font:13px/1.55 'Segoe UI',system-ui,sans-serif;margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(255,92,106,.09);border:1px solid rgba(255,92,106,.35)}
+.btn{font:inherit;font-size:11px;padding:5px 11px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer}.btn.pri{border-color:var(--built);color:var(--built)}.btn[disabled]{opacity:.45;cursor:not-allowed}
+.steps{display:flex;gap:0;margin:2px 0 14px;flex-wrap:wrap}.step{flex:1;min-width:140px;border:1px solid var(--line);background:var(--panel);padding:10px 12px;cursor:pointer;margin-left:-1px}.step:first-child{border-radius:10px 0 0 10px;margin-left:0}.step:last-child{border-radius:0 10px 10px 0}.step.cur{border-color:var(--built);background:#101a30;position:relative;z-index:1}.step .sn{font-size:10px;color:var(--dim);letter-spacing:1px;text-transform:uppercase}.step .sv{margin-top:3px;display:flex;align-items:center}.step .sv .dot{margin-top:0}.step .mini{height:4px;background:var(--panel2);border-radius:3px;margin-top:7px;overflow:hidden}.step .mini i{display:block;height:100%;background:var(--ok)}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:1px 9px;font-size:11px;color:var(--text);margin:0 4px 4px 0}.tag.x{color:var(--bad);border-color:rgba(255,92,106,.4)}
+.fld{margin-bottom:10px}.fld .v{font:13px 'Segoe UI',system-ui,sans-serif;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:7px 10px;min-height:32px}.fld .h{font-size:10.5px;color:var(--dim);display:flex;justify-content:space-between;margin-bottom:3px}
+details{border-top:1px solid var(--line);margin-top:6px}summary{cursor:pointer;padding:9px 0;color:var(--dim)}
+.kitfoot{margin-top:24px;font:11px/1.9 'Segoe UI',system-ui,sans-serif;color:var(--dim);text-align:center;border-top:1px solid var(--line);padding-top:10px}.kitfoot .dot{margin-top:0}
+</style></head><body><div class="wrap">
+<p class="note"><b>Mockup v2 - invented data</b> (the Rank System case; nothing is read from a real project). Click a station to see its checks. The page appears only for projects registered as a Fab product.</p>
+<div class="top"><div class="logo">DREAM BOT TEAM <small>Agent Console</small></div><nav><span>Agents</span><span>Skills</span><span>Score</span><span>Docs</span><span class="on">Checklist</span></nav></div>
+<div class="ttl"><div><h1>Checklist - competitive rank system</h1><div class="sub">Fab product · every check the kit can do before you upload · last run today 14:02</div></div><div><button class="btn">Run all checks</button> <button class="btn pri" disabled title="Locked until the first four stations are green">Make the zip</button></div></div>
+<div id="steps" class="steps"></div>
+<div class="g2"><div id="detail"></div><div id="side"></div></div>
+<div class="kitfoot"><span class="dot s-pass"></span>passed &nbsp;<span class="dot s-warn"></span>warning &nbsp;<span class="dot s-fail"></span>blocks the upload &nbsp;<span class="dot s-todo"></span>not done yet &nbsp;<span class="dot s-manual"></span>only you can confirm &nbsp;<span class="dot s-na"></span>not applicable<br>
+Who checks it: <span class="src kit">kit</span> done by the kit · <span class="src ed">editor</span> needs a record from UEFN · <span class="src you">you</span> you confirm · <span class="src x">extra</span> added by the kit after a rejection</div>
+</div>
+<script>
+/* item: [title, state, who, what we looked at, what to do] */
+var S=[
+{n:"1 Project",d:"Is it one clean, complete project?",i:[
+["One project, complete (project file, plugin file, all content)","pass","kit","root_rank_system.uefnproject + plugin file + Content found."],
+["Not password-protected or encrypted","pass","kit","The zip is made by the kit: no password."],
+["No version-control or workspace files in the archive","pass","kit",".lore, .loreignore, .urcignore, *.code-workspace are left out of the zip.","" ],
+["No dependency on private reference modules","pass","kit","Only the official libraries and your own plugin are imported."],
+["One pack folder, named like the project","warn","kit","The folder is Rank_System, the project is root_rank_system.","Rename the folder in the editor (keeps references) or accept the risk."],
+["Folders named by asset type or by asset; each type in its own folder","pass","kit","Rank_UI, Sound, Materials, Textures, Verse…"],
+["No unused folders or assets","warn","kit","2 empty folders: Collections and Developers/me/Collections.","Delete them in the editor."],
+["File paths shorter than 140 characters","pass","kit","Longest: 96 characters."],
+["Names in English, letters/digits/underscore, consistent","pass","kit","185 assets checked."],
+["Redirectors cleaned up","pass","kit","No redirector assets found."],
+["Extra files: at most 3, 6 GB each, 18 GB in total","na","kit","No extra files."]]},
+{n:"2 Content",d:"Do the assets belong to this project and look right?",i:[
+["No reference to assets of another project","pass","x","185 assets read, 0 foreign imports.","" ],
+["No name of another project saved inside the assets","pass","x","All internal names use this project's plugin."],
+["No Windows user name left in the import paths","warn","x","5 users found in 8 assets (ibane, marcio.coronetti, …).","Clean the import path in the editor; declare the source in station 4."],
+["Textures: width and height are powers of 2, 2k at most","todo","ed","Needs the editor to read the texture sizes.","Run the texture check from the editor."],
+["Audio: .wav source, no distortion or hitching","manual","you","SC_S and S_Point are the only sounds.","Listen to both once."],
+["Assets complete, work as intended, no visual defects","manual","you","","Play the map and look at every screen."],
+["Scale in cm and Z up (3D models)","na","kit","This product has no 3D models."],
+["Nanite requirements","na","kit","No Nanite meshes."],
+["Animations, characters, visual effects, MetaSounds","na","kit","Not present in this product."]]},
+{n:"3 Build",d:"Does it compile and validate with no errors?",i:[
+["Verse compiles with no errors or warnings","pass","kit","Static check clean; last build 14:00."],
+["UEFN validation: no errors or consequential warnings","fail","ed","No clean validation record yet.","In UEFN run the project validation, choose Skip Fix-up, save the output and give it to the kit."],
+["Custom Inventory: level and Project Settings agree","manual","x","Island Settings declare an inventory configuration.","Check both places; disable it in the level if you do not use it."],
+["Devices are clean: clear names, no loose nodes, no errors","manual","you","","Open the widget graphs and the level once."],
+["Map loads with no errors or warnings in a play session","manual","you","","Start a play session, read the log."]]},
+{n:"4 Listing",d:"Are texts, images and licences ready?",i:[
+["Title, short description, description, tags","warn","kit","Short description missing; 2 of 9 tags too generic."],
+["Every text field has an English version","pass","kit","listing.md is in English."],
+["Images show the real product","warn","kit","3 of 5 listing images present.","Take two more screenshots (screenshots.md has the grid)."],
+["Technical information: all fields filled","warn","kit","3 fields still TODO (engine version, platforms, number of assets).","Fill them in listing.md."],
+["Dependencies and prerequisites are declared","pass","kit","CreativeCoreDevices and FortUILibrary listed."],
+["Setup documentation is included","pass","kit","Documentation/README.md and SETTINGS.md."],
+["Third-party content is declared with author and licence","warn","kit","8 assets come from other people's files.","Write author, source and licence of each one in third_party.md."],
+["Texts are accurate; nothing offensive; no content you may not resell","manual","you","","Read the listing once more before sending."]]},
+{n:"5 Zip",d:"The archive the portal wants",i:[
+["Make the zip with the kit (whole project, one folder)","todo","kit","Locked until stations 1 to 4 have no blocks.",""],
+["Re-read the finished zip: files, names, paths, forbidden files, asset scan","todo","kit","The kit unzips it in a temporary folder and runs the same checks again on the copy.",""]]},
+{n:"6 Submit",d:"On the portal",i:[
+["Upload and send for review","manual","you","","Do it on the Fab portal, then record the answer here."]]}];
+var cur=0;
+function st(s){return s.i.map(function(x){return x[1]})}
+function cnt(list){var c={pass:0,fail:0,warn:0,todo:0,manual:0,na:0};list.forEach(function(x){c[x]++});return c}
+function stationState(s){var c=cnt(st(s));return c.fail?"fail":(c.warn?"warn":(c.todo?"todo":(c.manual?"manual":"pass")))}
+function pctOf(c){var tot=c.pass+c.fail+c.warn+c.todo+c.manual;return tot?Math.round(100*c.pass/tot):100}
+function all(){var a=[];S.forEach(function(s){a=a.concat(st(s))});return a}
+function dot(k){return '<span class="dot s-'+k+'"></span>'}
+function item(x){return '<div class="it">'+dot(x[1])+'<div class="tx">'+x[0]+(x[3]?'<div class="ev">'+x[3]+'</div>':'')+(x[4]?'<div class="fix"><b>What to do:</b> '+x[4]+'</div>':'')+'</div><span class="src '+x[2]+'">'+({kit:"kit",ed:"editor",you:"you",x:"extra"}[x[2]])+'</span></div>'}
+function steps(){document.getElementById("steps").innerHTML=S.map(function(s,k){var c=cnt(st(s)),p=pctOf(c),ss=stationState(s);return '<div class="step'+(k==cur?' cur':'')+'" onclick="cur='+k+';draw()"><div class="sn">'+s.n+'</div><div class="sv">'+dot(ss)+'<span class="t-'+ss+'">'+({fail:"blocks",warn:"warnings",todo:"to do",manual:"you confirm",pass:"done"}[ss])+'</span></div><div class="mini"><i style="width:'+p+'%"></i></div></div>'}).join('')}
+function detail(){var s=S[cur],c=cnt(st(s));var live=s.i.filter(function(x){return x[1]!="na"}),na=s.i.filter(function(x){return x[1]=="na"});var order={fail:0,warn:1,todo:2,manual:3,pass:4};live=live.slice().sort(function(a,b){return order[a[1]]-order[b[1]]});
+document.getElementById("detail").innerHTML='<div class="card"><div class="lb">Station '+s.n+' · '+s.d+'</div><div class="sub" style="margin:0 0 8px">'+c.pass+' of '+(live.length)+' checks passed</div>'+live.map(item).join('')+(na.length?'<details><summary>Not applicable to this product ('+na.length+')</summary>'+na.map(item).join('')+'</details>':'')+'</div>'}
+function listing(){return '<div class="card"><div class="lb">Listing - what you type in the Fab portal</div>'+
+'<div class="fld"><div class="h"><span>Title</span><span class="t-pass">26 / 100</span></div><div class="v">Competitive Rank System</div></div>'+
+'<div class="fld"><div class="h"><span>Short description</span><span class="t-warn">TODO</span></div><div class="v" style="color:var(--dim)">Not written yet</div></div>'+
+'<div class="fld"><div class="h"><span>Description</span><span class="t-pass">1,420 chars</span></div><div class="v">Ranked ladder for your island: 7 tiers, XP, leaderboard and rank-up toast…</div></div>'+
+'<div class="fld"><div class="h"><span>Tags</span><span class="t-warn">9 of 12 · 2 too generic</span></div><div class="v"><span class="tag">rank</span><span class="tag">ranked</span><span class="tag">leaderboard</span><span class="tag">xp</span><span class="tag">ui</span><span class="tag">verse</span><span class="tag">competitive</span><span class="tag x">game</span><span class="tag x">system</span></div></div>'+
+'<button class="btn">listing.md</button> <button class="btn">third_party.md</button> <button class="btn">screenshots.md</button></div>'}
+function side(){var a=all(),c=cnt(a),p=pctOf(c),T=c.pass+c.fail+c.warn+c.todo+c.manual,w=function(k){return (100*c[k]/T).toFixed(1)+'%'};
+var blocked=c.fail>0;var firstBad=null;S.forEach(function(s){if(!firstBad&&cnt(st(s)).fail)firstBad=s});
+document.getElementById("side").innerHTML='<div class="card" style="border-color:'+(blocked?'rgba(255,92,106,.55)':'rgba(57,255,136,.5)')+'"><div class="lb">Verdict</div><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px"><div class="big '+(blocked?'t-fail':'t-pass')+'">'+(blocked?'NOT READY':'READY')+'</div><div style="text-align:right"><div class="pct">'+p+'%</div><div class="sub" style="margin:0">'+c.pass+' of '+T+' checks passed</div></div></div>'+
+'<div class="bar"><i style="width:'+w('pass')+';background:var(--ok)"></i><i style="width:'+w('warn')+';background:var(--warn)"></i><i style="width:'+w('fail')+';background:var(--bad)"></i><i style="width:'+w('manual')+';background:var(--built);opacity:.6"></i><i style="width:'+w('todo')+';background:var(--todo);opacity:.5"></i></div>'+
+'<div class="legendbar"><span><i style="background:var(--ok)"></i>'+c.pass+' passed</span><span><i style="background:var(--warn)"></i>'+c.warn+' warnings</span><span><i style="background:var(--bad)"></i>'+c.fail+' blocks</span><span><i style="background:var(--built);opacity:.6"></i>'+c.manual+' you confirm</span><span><i style="background:var(--todo);opacity:.5"></i>'+c.todo+' to do</span></div>'+
+'<div class="msg">'+(blocked?'<b>'+c.fail+' check blocks the upload:</b> the project validation has no clean record. Open <b>station 3</b>, run the validation in UEFN and give the log to the kit. After that, '+c.warn+' warnings are left to clean up; they do not stop the upload.':'No blocks. Clean up the warnings and make the zip.')+'</div></div>'+listing()}
+function draw(){steps();detail();side()}
+draw();
+</script></body></html>
