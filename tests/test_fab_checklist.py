@@ -1,5 +1,7 @@
 """Fab checklist: stations, verdict, manual ticks, UEFN validation record, zip re-read, and the console endpoints (real server, temp profile)."""
 import json, os, shutil, socket, subprocess, sys, tempfile, time, urllib.error, urllib.request
+import tempfile as _tf
+os.environ["UEFN_FAB_LAB_DIR"] = _tf.mkdtemp(prefix="fablab-test-")   # never write in the real ~/.claude/fab-lab
 HERE = os.path.dirname(os.path.abspath(__file__))
 UL = os.path.join(HERE, "..", "user-level-hooks")
 sys.path.insert(0, UL)

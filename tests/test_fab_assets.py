@@ -1,5 +1,7 @@
 """Fab asset scan: another project's names and imports inside .uasset files (synthetic packages, no real assets)."""
 import os, shutil, struct, sys, tempfile
+import tempfile as _tf
+os.environ["UEFN_FAB_LAB_DIR"] = _tf.mkdtemp(prefix="fablab-test-")   # never write in the real ~/.claude/fab-lab
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "user-level-hooks"))
 import fab_assets as FA, fab_pack
 ok = lambda c, m: (print(("PASS " if c else "FAIL ") + m), c or sys.exit(1))

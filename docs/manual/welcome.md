@@ -16,7 +16,7 @@ Dream Bot Team is a setup for [Claude Code](https://claude.com/claude-code) made
 ## What it does not do
 
 - It does not replace UEFN or Claude Code. It runs inside Claude Code, in a terminal opened in your project's `Content/` folder.
-- It does not send anything to anyone by itself. Sharing lessons with the community is off by default, lessons only, and only after you press a button. See [Community](ch:community).
+- It does not send anything to anyone by itself. Sharing lessons with the community is on by default but nothing leaves until you press a button, lessons only, and only after you press a button. See [Community](ch:community).
 - Every real change still goes through you. The console says it plainly: *every real change still waits on you*.
 
 > **Note** The kit is free and open source under the MIT License. It is not affiliated with Epic Games.

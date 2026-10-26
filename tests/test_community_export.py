@@ -1,4 +1,4 @@
-"""Sharing a lesson with the community: switch off by default, only approved own lessons, only from a PUBLISHED map, the JSON passes the schema."""
+"""Sharing a lesson with the community: switch on by default, only approved own lessons, only from a PUBLISHED map, the JSON passes the schema."""
 import json, os, sys, tempfile, urllib.parse
 d = tempfile.mkdtemp(); os.environ["UEFN_SKILLS_DIR"] = os.path.join(d, "skills")
 root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -16,7 +16,8 @@ ok(r["ok"], "lesson queued")
 pid = S.list_proposals("survival")[0]["pattern_id"]
 ok(S.act("survival", S.list_proposals("survival")[0]["id"], "approve")["ok"], "approved")
 
-ok(S.community_state()["share"] is False, "the switch is OFF by default")
+ok(S.community_state()["share"] is True, "the switch is ON by default (nothing leaves without pressing the button)")
+S.set_community(False)
 e = S.contribution_export("survival", pid)
 ok(not e["ok"] and "switched off" in e["error"], "nothing can be exported while the switch is off")
 ok(S.set_community(True)["share"] is True and S.community_state()["share"] is True, "the switch can be turned on")

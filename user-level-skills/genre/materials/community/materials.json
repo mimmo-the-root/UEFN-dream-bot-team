@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "genre": "materials",
+  "pack_version": 6,
+  "patterns": [
+    {
+      "id": "p-246d3ba6197f",
+      "variant": "*",
+      "statement": "Epic provides a comprehensive UI material library in the engine — check it first before authoring new UI materials",
+      "condition": "Before building a HUD or UI material from scratch",
+      "action": "Check the FNE_UI Systems folder for existing material collections and create an instance rather than building one",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    },
+    {
+      "id": "p-017f1c70c37b",
+      "variant": "*",
+      "statement": "Choose the parent material by the widget's display purpose, not by generic properties",
+      "condition": "When creating a UI widget material",
+      "action": "Select the parent material by widget type: rectangles use M_UI_Rectangle, bars use M_UI_LinearMeter, rings use M_UI_RadialMeter, icons use M_UI_SDFTexture, clipped images use M_UI_TextureMask",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    },
+    {
+      "id": "p-edb5dcdcc672",
+      "variant": "*",
+      "statement": "All Epic meter materials share a common parameter interface — drive them with one Verse call per widget and keep visual customization on the instance",
+      "condition": "When driving a meter widget from Verse code",
+      "action": "Call a single Verse update per widget targeting shared parameters: Progress, ProgressRangeMin/Max, ProgressIsNormalized, FillDirection, Snapping; keep color and shape on the material instance",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    },
+    {
+      "id": "p-dc4079c85ce8",
+      "variant": "*",
+      "statement": "Organize material instances by family with consistent naming and a showcase widget per family",
+      "condition": "When creating a set of UI materials for the same widget family",
+      "action": "Name instances as MI_UI_FamilyName_NN, store each family in its own folder, create a UW_FamilyName showcase widget, and do not duplicate the Epic collection folder",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    },
+    {
+      "id": "p-e6a377e67c90",
+      "variant": "*",
+      "statement": "SDF textures with stroke/shadow/glow parameters scale better than pre-baked icon sets",
+      "condition": "When choosing between baked icon textures and parameterized icon rendering for the HUD",
+      "action": "Use a single SDF texture with configurable stroke, shadow, and glow parameters instead of maintaining multiple pre-baked icon textures",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    }
+  ]
+}

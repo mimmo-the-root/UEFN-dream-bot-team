@@ -643,6 +643,13 @@ def summary(dirpath=None):
     try:
         import recipes_status
         out["recipes"] = recipes_status.progress(tools=list(tools)) or None
+        out["pending"] = recipes_status.pending(tools=list(tools))
+        try:
+            import skills_lib
+            out["pending"]["held"] = skills_lib.load_hold()["mcp"]
+            out["pending"]["maintainer"] = skills_lib.is_maintainer()
+        except Exception:
+            pass
     except Exception:
         out["recipes"] = None
     return out

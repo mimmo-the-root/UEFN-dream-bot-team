@@ -27,6 +27,15 @@ if ($LASTEXITCODE -ne 0) { throw "community_summary.py failed: nothing was publi
 if ($hasPy) { py -3 tool/collect_recipes.py } else { python tool/collect_recipes.py }
 if ($LASTEXITCODE -ne 0) { throw "collect_recipes.py refused a recipe (see above): nothing was published" }
 
+# 1b3. the lessons you approved join the kit as community packs, and a NEW skill that has something to ship goes in whole (genre/<skill>/community/*.json): users get them as ONE proposal per skill
+# in "To approve" and nothing changes until they approve. Privacy checked per file (a file with findings is skipped and reported). Needs the repo, not the profile, to change.
+if ($hasPy) { py -3 tool/promote-genre-skills.py --apply --all --auto } else { python tool/promote-genre-skills.py --apply --all --auto }
+if ($LASTEXITCODE -ne 0) { throw "promote-genre-skills.py failed: nothing was published" }
+
+# 1b4. the UEFN MCP recipes your own work proved (any project of this computer) become "proven" in the kit's recipes.json (status only, never arguments or names)
+if ($hasPy) { py -3 tool/collect_mcp_evidence.py } else { python tool/collect_mcp_evidence.py }
+if ($LASTEXITCODE -ne 0) { throw "collect_mcp_evidence.py failed: nothing was published" }
+
 # 1c. the HTML manual: rebuild it from docs/manual so the shipped copy (and GitHub Pages) is never stale
 if ($hasPy) { py -3 tool/build_manual.py } else { python tool/build_manual.py }
 if ($LASTEXITCODE -ne 0) { throw "build_manual.py failed: nothing was published" }

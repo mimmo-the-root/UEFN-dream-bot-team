@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "genre": "sports-racing",
+  "pack_version": 12,
+  "patterns": [
+    {
+      "id": "p-beea332b0abd",
+      "variant": "*",
+      "statement": "In a racing map with a pregame lobby, an unwired hidden island-start spawner is the lobby spawner, so audits should not flag it as a leftover.",
+      "condition": "When a racing map has a pregame lobby or pre-race waiting area, and its Player Spawner devices are reviewed or audited",
+      "action": "Treat an unwired hidden island-start spawner in the higher priority group as the pre-lobby spawner, not a leftover. Flag only unwired spawners on the default priority group or not island starts.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-1802fbb032ec",
+      "variant": "*",
+      "statement": "An @editable device field that resolves to an internal default object of the Verse device means it was never assigned to a placed device.",
+      "condition": "When reviewing a placed Verse device whose @editable device references read back as paths inside the Verse device itself",
+      "action": "Treat those references as unassigned defaults, not as placed devices: check the Details panel assignments before trusting that accolades, triggers or timers are wired.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-ac6e287ab244",
+      "variant": "*",
+      "statement": "Stacked pre-race waits above about a minute hurt first-minute retention; keeping them near 30 s is the adopted default.",
+      "condition": "When a racing map has an auto-start timer plus a game-start countdown plus timed-objective countdowns before the first checkpoint",
+      "action": "Add the stacked waits and cut them to roughly 30 s total before the first checkpoint (for example auto start 20 s, countdown 10 s), then re-check bounce rate.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "launch-checklist",
+      "support": 1
+    },
+    {
+      "id": "p-72aa97cd7606",
+      "variant": "*",
+      "statement": "Per-player Verse state needs pruning on leave plus a session-id guard on long coroutines, otherwise maps grow and a leave/rejoin double-runs the tracker.",
+      "condition": "When a Verse device keeps per-player state (maps, widgets, trackers) and players can leave and rejoin",
+      "action": "Prune every per-player map on the player-removed event and give each tracker coroutine a session id that it re-checks each tick, so a quick rejoin cannot leave two trackers for the same player.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-9c8ffa92dcd5",
+      "variant": "*",
+      "statement": "A forward-only per-player award index on a real-clock session timer pays each playtime tier once per cycle, never twice and never skipped after a hitch or wrap.",
+      "condition": "When a map pays timed playtime rewards per player (e.g. 5/10/15/30/45/60 min) and the schedule repeats",
+      "action": "Keep one forward-only award counter per player session (tier = index mod tiers, cycle = index div tiers) and pay in a catch-up loop, not per-tier timers or flags.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-d4ba019ada95",
+      "variant": "checkpoint-race",
+      "statement": "A checkpoint race with native Race Manager and numbered checkpoints needs no custom race logic; Verse is reserved for meta layers.",
+      "condition": "When a racing map is built for up to 4 players who race one lap over about 20 numbered checkpoints",
+      "action": "Let native devices run the race (Race Manager, numbered Racing Checkpoints, Timed Objectives for start and win, Score Manager) and use Verse only for meta layers such as playtime XP and HUD.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "loop",
+      "support": 1
+    },
+    {
+      "id": "p-bd6c72361fb6",
+      "variant": "checkpoint-race",
+      "statement": "Accolade XP is a relative size, so progression is tuned by choosing sizes, not by numeric amounts.",
+      "condition": "When setting XP on Accolade devices and the real amount per award is not visible in the device",
+      "action": "Treat an Accolade's XP as a relative size (Small to VeryLarge), not a number; map playtime or collectible tiers to rising sizes and compare by size, never invent an XP figure.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-28c0ed3be1ea",
+      "variant": "checkpoint-race",
+      "statement": "Native round settings with most-round-wins cover a multi-round race; a few hundred seconds per round fits a one-lap track.",
+      "condition": "When a racing map plays several short rounds with a winner by round wins",
+      "action": "Use the Experience Settings rounds (about 3 rounds, about 300 s each, most round wins) with a short timed objective for the winner, instead of custom round logic.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "rounds",
+      "support": 1
+    },
+    {
+      "id": "p-9596f6e688de",
+      "variant": "checkpoint-race",
+      "statement": "One team-indexed spawner and one vehicle per player, with an exit-event trigger that re-assigns the driver, keeps every racer in a vehicle without Verse.",
+      "condition": "When a racing map gives each player a vehicle and players can leave it",
+      "action": "Give each vehicle its own Player Spawner with a team index and a vehicle spawner that assigns the driver on spawn, plus a per-vehicle trigger fired by the exit event that assigns the driver again.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-53d1ddfeb7e8",
+      "variant": "checkpoint-race",
+      "statement": "Stacked pre-race waits above about a minute hurt first-minute retention; keeping them near 30 s is the adopted default.",
+      "condition": "When a racing map has an auto-start timer plus a game-start countdown plus timed-objective countdowns before the first checkpoint",
+      "action": "Add the stacked waits and cut them to roughly 30 s total before the first checkpoint (for example auto start 20 s, countdown 10 s), then re-check bounce rate.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "launch-checklist",
+      "support": 1
+    },
+    {
+      "id": "p-9fc2d0cbe29d",
+      "variant": "checkpoint-race",
+      "statement": "One checkpoint-completed event feeding both the score and the tracker keeps race progress and bonus objectives consistent with no extra logic.",
+      "condition": "When a racing map has numbered checkpoints and bonus objectives such as total checkpoints or playtime",
+      "action": "Wire each checkpoint-completed event to one Score Manager activation and one Tracker increment, so score and objectives are fed by the same event.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "loop",
+      "support": 1
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Sharing lessons with the community
 
-The genre skills get better when creators share what their maps taught them. Sharing is **voluntary**, **off by default**, and limited to lessons.
+The genre skills get better when creators share what their maps taught them. Sharing is **voluntary**, **on by default (you can switch it off), and nothing leaves until you press a button**, and limited to lessons.
 
 ## What is shared, and what never is
 

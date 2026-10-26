@@ -102,8 +102,8 @@ textarea.edit{width:100%;font:inherit;font-size:12px;background:var(--panel2);co
 .kgp{border:1px solid var(--amber);background:rgba(255,180,84,.06);border-radius:10px;padding:14px 16px;margin-bottom:16px;}
 .kwhy{font-size:11.5px;color:var(--dim);line-height:1.6;margin-top:6px;}.kwhy b{color:var(--text);}
 .krow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;}
-.kbtn{border:1px solid var(--line-soft);border-radius:6px;padding:4px 11px;font-size:11.5px;color:var(--text);background:var(--panel2);cursor:pointer;font-family:inherit;}
-.kbtn.ok{color:var(--green);border-color:rgba(57,255,136,.5);}.kbtn.no{color:var(--red);border-color:rgba(255,77,94,.4);}
+.kbtn{border:1px solid #3b5380;border-radius:6px;padding:4px 11px;font-size:11.5px;color:var(--text);background:var(--panel2);cursor:pointer;font-family:inherit;}
+.kbulk{display:inline-flex;gap:6px;margin-right:10px}.kbtn:hover{border-color:var(--blue)}.kbtn:disabled{opacity:.45;cursor:default}.kbtn.ok{color:var(--green);border-color:rgba(57,255,136,.5);}.kbtn.no{color:var(--red);border-color:rgba(255,77,94,.4);}
 .kgp select,.kgp input{background:var(--panel2);color:var(--text);border:1px solid var(--line-soft);border-radius:6px;padding:4px 8px;font:inherit;font-size:11.5px;}
 .klog div{padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:12px;}.klog div:last-child{border:none;}.klog time{color:var(--dim);margin-right:10px;}
 .kk{font-size:9px;border-radius:3px;padding:0 5px;margin-right:6px;background:rgba(75,139,255,.15);color:var(--blue);}
@@ -383,7 +383,7 @@ function patternsCard(sel){
     }).join("");
   var h = '<div class="lab">' + esc(sel.slug) + ' — lessons <span class="cnt">' + all.length + '</span></div><div class="card">' +
     '<div class="pgbar">' + chips + '<input id="pgq" class="pgq" type="search" placeholder="search…" value="' + esc(PG.q) + '" oninput="pgQuery(this.value)"></div>' +
-    '<table><tr><th>Pattern</th><th>Confidence</th><th>Support</th></tr>' +
+    '<table><tr><th>Pattern</th><th>Confidence</th><th>Support</th><th>In the kit</th></tr>' +
     (slice.length ? slice.map(function(p){
       return '<tr><td>' + esc(p.statement) + '<div class="sub">[' + esc(p.variant) + '] when ' + esc(p.condition) + ' → ' + esc(p.action) + '</div></td><td>' + tierPill(p) + '</td><td class="sub">' +
         (p.support || 0) + ' for' + (p.against ? ' · ' + p.against + ' against' : '') + (p.community_support ? ' · community ' + p.community_support : '') + '</td></tr>';
@@ -412,7 +412,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.110.2";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.111.0";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -507,7 +507,8 @@ function counts(c){return (c.proven||0)+" proven · "+(c.confirmed||0)+" confirm
 function pill(t,cls){return '<span class="kpill '+cls+'">'+esc(t)+'</span>';}
 function tierPill(p){if(p.status==="contested")return pill("contested","kp-r");var m={proven:"kp-g",confirmed:"kp-a",hypothesis:"kp-d",reference:"kp-b"};return pill(p.tier,m[p.tier]||"kp-d");}
 
-var GPAGE=0;
+function bindHold(root){if(!root)return;Array.prototype.forEach.call(root.querySelectorAll("input[data-hold]"),function(c){c.onchange=function(){var k=c.getAttribute("data-hold"),key=c.getAttribute("data-key"),held=!c.checked;post("/release-hold",{kind:k,key:key,hold:held}).then(function(r){if(!r||!r.ok){c.checked=!c.checked;return;}(SD.genres||[]).forEach(function(g){if(k==="skill"&&g.slug===key)g.hold=held;g.patterns.forEach(function(p){if(k==="lesson"&&p.id===key)p.hold=held;});});});};});}
+var GPAGE=0,GF="all";
 function renderKit(){
  if(!SD||SD.error||!SD.totals){$("kHero").innerHTML='<div class="khc" style="grid-column:1/-1"><div class="k">Skills</div><div class="s">'+esc((SD&&SD.error)||"Could not read the genre skills.")+'</div></div>';return;}
  var t=SD.totals,mx=Math.max.apply(null,SD.usage_week.concat([1]));
@@ -516,10 +517,12 @@ function renderKit(){
   '<div class="khc"><div class="k">Learning from</div><div class="n">'+t.maps+' <small>map'+(t.maps===1?"":"s")+' · '+SD.genres.length+' genre'+(SD.genres.length===1?"":"s")+' · '+SD.variants+' type'+(SD.variants===1?"":"s")+'</small></div><div class="s">'+(SD.last_learned?"last learned: "+esc(ago(SD.last_learned)):"nothing learned yet")+'</div></div>'+
   '<div class="khc"><div class="k">Lesson confidence</div><div class="n">'+t.patterns+' <small>lesson'+(t.patterns===1?"":"s")+'</small></div>'+stack(t)+'<div class="s">'+esc(counts(t))+'</div></div>'+
   '<div class="khc"><div class="k">Used by coder — last 7 days</div><div class="n">'+SD.usage_week_total+' <small>consultation'+(SD.usage_week_total===1?"":"s")+'</small></div><div class="kspark">'+SD.usage_week.map(function(v){return '<i style="height:'+Math.max(8,Math.round(100*v/mx))+'%"></i>';}).join("")+'</div><div class="s">'+(SD.privacy.checked?(SD.privacy.ok?'<span style="color:var(--green)">✓ privacy check passed</span>':'<span style="color:var(--red)">✗ privacy check FAILED</span>'):'privacy check not run yet')+' · '+SD.never_used+' genre'+(SD.never_used===1?"":"s")+' never used</div></div>';
- var _gp=Math.max(0,Math.ceil(((SD&&SD.genres)||[]).length/5)-1);if(GPAGE>_gp)GPAGE=_gp;
+ var GM=stMaps(),gsr=((SD&&SD.genres)||[]).map(function(g){return [g,skillSt(GM,g)];}),gl=gsr.filter(function(x){return GF==="all"||(GF.indexOf("st:")===0&&x[1].st===GF.slice(3));}),gitems=gsr.map(function(x){return {kind:"skill",key:x[0].slug,st:x[1].st};});
+ var _gp=Math.max(0,Math.ceil(gl.length/5)-1);if(GPAGE>_gp)GPAGE=_gp;
  var cur=(LD&&LD.genre_state&&LD.genre_state.genre)||"";
- $("kGenres").innerHTML='<div class="kcard"><div class="klabel">Genre skills — what the kit has learned</div><table class="ktable"><tr><th>Genre</th><th>Maps</th><th>Lessons</th><th>Used by coder</th></tr>'+
-  SD.genres.slice(GPAGE*5,GPAGE*5+5).map(function(g){var n=g.patterns.length;return '<tr'+(g.slug===cur?' style="background:rgba(185,139,255,.07)"':'')+'><td><b>'+esc(g.slug)+'</b>'+(g.variants.filter(function(v){return v!=="*";}).length?'<div style="font-size:10px;color:var(--dim)">types: '+esc(g.variants.filter(function(v){return v!=="*";}).join(", "))+'</div>':'')+'<div style="font-size:10px;color:var(--dim)">'+(g.last_learned?"updated "+esc(ago(g.last_learned)):"no maps yet")+'</div></td><td>'+g.maps+'</td><td>'+(n?stack(g.counts)+'<div style="font-size:10px;color:var(--dim)">'+esc(counts(g.counts))+'</div>':'<span style="color:var(--dim)">— nothing learned yet</span>')+'</td><td>'+(g.consulted?g.consulted+"×":"—")+'</td></tr>';}).join("")+'</table>'+(SD.genres.length>5?'<div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="kbtn" id="gPrev"'+(GPAGE?'':' disabled')+'>Prev</button><span class="ksub">page '+(GPAGE+1)+' of '+Math.ceil(SD.genres.length/5)+'</span><button class="kbtn" id="gNext"'+((GPAGE+1)*5<SD.genres.length?'':' disabled')+'>Next</button></div>':'')+'</div>';
+ $("kGenres").innerHTML='<div class="kcard"><div class="klabel">Genre skills — what the kit has learned</div><div class="kfilters" id="gfbar">'+fil("gf",GF,[["all","All",gsr.length]].concat(stFilters("st",GF,gitems)))+'<span class="grow"></span>'+bulkBtns()+'</div><table class="ktable"><tr><th>Genre</th><th>Maps</th><th>Lessons</th><th>State</th><th></th><th>Used by coder</th></tr>'+
+  gl.slice(GPAGE*5,GPAGE*5+5).map(function(gx){var g=gx[0],gs=gx[1],n=g.patterns.length;return '<tr'+(g.slug===cur?' style="background:rgba(185,139,255,.07)"':'')+'><td><b>'+esc(g.slug)+'</b>'+(g.variants.filter(function(v){return v!=="*";}).length?'<div style="font-size:10px;color:var(--dim)">types: '+esc(g.variants.filter(function(v){return v!=="*";}).join(", "))+'</div>':'')+'<div style="font-size:10px;color:var(--dim)">'+(g.last_learned?"updated "+esc(ago(g.last_learned)):"no maps yet")+'</div></td><td>'+g.maps+'</td><td>'+(n?stack(g.counts)+'<div style="font-size:10px;color:var(--dim)">'+esc(counts(g.counts))+'</div>':'<span style="color:var(--dim)">— nothing learned yet</span>')+'</td><td>'+stChip(gs,GM.m.mt)+'</td><td class="kact">'+stBtns(gs,"skill",g.slug)+'</td><td>'+(g.consulted?g.consulted+"×":"—")+'</td></tr>';}).join("")+'</table>'+(gl.length>5?'<div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="kbtn" id="gPrev"'+(GPAGE?'':' disabled')+'>Prev</button><span class="ksub">page '+(GPAGE+1)+' of '+Math.ceil(gl.length/5)+'</span><button class="kbtn" id="gNext"'+((GPAGE+1)*5<gl.length?'':' disabled')+'>Next</button></div>':'')+'</div>';
+ bindCommon($("gfbar"),renderKit);bindKp($("kGenres"),function(){return gl.map(function(x){return {kind:"skill",key:x[0].slug,st:x[1].st};});});
  var gp=$("gPrev"),gn=$("gNext");if(gp)gp.onclick=function(){GPAGE--;renderKit();};if(gn)gn.onclick=function(){GPAGE++;renderKit();};
  var other=SD.pending.filter(function(p){return p.kind==="pack_update"||p.genre!==cur;});
  $("kSide").innerHTML='<div class="kcard"><div class="klabel">Waiting in other genres / packs</div>'+(other.length?other.map(function(p){return '<div style="margin:4px 0;font-size:12px">'+pill(p.kind==="pack_update"?"community pack":(p.kind==="contradiction"?"contradiction":"lesson"),p.kind==="contradiction"?"kp-r":"kp-b")+' '+esc(p.genre)+' <a href="#" data-gotab="approve" style="color:var(--blue)">open in To approve →</a></div>';}).join(""):'<div class="kempty">nothing waiting outside this genre</div>')+'</div>'+
@@ -604,7 +607,7 @@ function renderMap(){
  Array.prototype.forEach.call(document.querySelectorAll("#kWaiting .kbtn:not(#kApproveAll)"),function(e){e.onclick=function(){post("/skills-act",{genre:e.getAttribute("data-g"),proposal:e.getAttribute("data-p"),action:e.getAttribute("data-a"),exclude:[]}).then(function(){LAST="";load();});};});
 }
 var CS=null,CEXP=null,RI=null,FQ=null;
-var TAB="approve",AF="all",APG=0,SF="todo",SK="all",SPG=0,LF="all",LQ="",LPG=0,RF="all",RQ="",RPAGE=0,MF="all",MQ="",MPG=0,CRP=null;
+var TAB="approve",AF="all",APG=0,SF="all",SK="all",SPG=0,LF="all",LQ="",LPG=0,RF="all",RQ="",RPAGE=0,MF="all",MQ="",MPG=0,CRP=null;
 var SECS=["run-loop","architecture","devices","progression","death-strategies","persistence","performance","launch-checklist"];
 function chipB(t,c){return '<span class="kchip2 '+(c||"")+'">'+esc(t)+'</span>';}
 function rg(p,col,txt,size){p=Math.max(0,Math.min(100,Math.round(p)||0));var C=2*Math.PI*26,cl={green:"#39ff88",amber:"#ffb454",violet:"#b98bff",blue:"#4d8dff",red:"#ff5c5c",gray:"#8fa5c0"}[col]||"#4d8dff";
@@ -616,20 +619,45 @@ function lessonsP(){return (SD&&SD.pending||[]).filter(function(p){return p.kind
 function packsP(){return (SD&&SD.pending||[]).filter(function(p){return p.kind==="pack_update";});}
 function fabP(){return (FQ&&FQ.proposals||[]).filter(function(x){return x.status==="pending";});}
 function isFab(){return !!(LD&&LD.fab_product)||(SD&&SD.current_kind==="fab");}
+/* ---- one state workflow, one set of buttons, everywhere: collected -> ready -> shared, or private ---- */
+function stMaps(){var m=shareModel(),L={},R={};m.rows.forEach(function(x){if(x.kind==="lesson")L[x.p.id]=x;else if(x.kind==="recipe")R[x.r.skill+"|"+x.r.name]=x;});return {m:m,L:L,R:R};}
+function lessonSt(M,p){if(M.L[p.id])return M.L[p.id];if(p.origin==="official"||p.origin==="community")return {st:"done",done:"in the kit",why:""};return {st:"collected",why:"no map has confirmed it yet",done:""};}
+function recipeSt(M,r){if(r.source==="official")return {st:"done",done:"in the kit",why:""};if(r.source==="community")return {st:"done",done:"from the community",why:""};return M.R[r.skill+"|"+r.name]||{st:"collected",why:"",done:""};}
+function skillSt(M,g){var mt=M.m.mt;if(g.hold)return {st:"private",why:"",done:""};if(g.kit==="in")return {st:"done",done:mt?"released":"in the kit",why:""};if(g.kit==="new")return mt?{st:"ready",why:"",done:""}:{st:"collected",why:"its lessons go out one by one with Contribute",done:""};return {st:"collected",why:"nothing to ship yet",done:""};}
+function stChip(r,mt){var t=r.st==="ready"?(mt?"ready: next release":"ready to send"):(r.st==="done"?(r.done||"shared"):r.st);return chipB(t,{collected:"d",ready:"g",done:"b","private":"v"}[r.st]||"d")+(r.why?'<div class="ksub" style="color:var(--amber)">waiting: '+esc(r.why)+'</div>':'');}
+function stBtns(r,kind,key,skill,name){var a=' data-kp="'+kind+'" data-key="'+esc(key)+'" data-skill="'+esc(skill||"")+'" data-name="'+esc(name||"")+'"';
+ if(r.st==="private")return '<button class="kbtn"'+a+' data-hold="0">Make shareable</button>';
+ if(r.st==="ready"||r.st==="collected")return '<button class="kbtn"'+a+' data-hold="1">Keep private</button>';return "";}
+function bulkBtns(){return '<span class="kbulk"><button class="kbtn" data-bulk="promote" title="Make every item of the list on screen shareable">Promote all</button><button class="kbtn" data-bulk="private" title="Keep every item of the list on screen private">Keep all private</button></span>';}
+var MCPITEMS=[];
+function doBulk(items,held){items=items.filter(function(i){return held?(i.st==="ready"||i.st==="collected"):i.st==="private";});if(!items.length)return;
+ var ch=Promise.resolve();["lesson","skill","mcp"].forEach(function(k){var keys=items.filter(function(i){return i.kind===k;}).map(function(i){return i.key;});if(keys.length)ch=ch.then(function(){return post("/release-hold",{kind:k,keys:keys,hold:held});});});
+ items.filter(function(i){return i.kind==="recipe";}).forEach(function(i){ch=ch.then(function(){return post("/recipe-share",{skill:i.skill,name:i.name,decision:held?"declined":"approved"});});});
+ ch.then(function(){refresh();});}
+function bindKp(root,getItems){if(!root)return;
+ Array.prototype.forEach.call(root.querySelectorAll("button[data-kp]"),function(b){b.onclick=function(){var k=b.getAttribute("data-kp"),held=b.getAttribute("data-hold")==="1";
+  if(k==="recipe")post("/recipe-share",{skill:b.getAttribute("data-skill"),name:b.getAttribute("data-name"),decision:held?"declined":"approved"}).then(function(){refresh();});
+  else post("/release-hold",{kind:k,key:b.getAttribute("data-key"),hold:held}).then(function(){refresh();});};});
+ Array.prototype.forEach.call(root.querySelectorAll("button[data-bulk]"),function(b){b.onclick=function(){doBulk(getItems(),b.getAttribute("data-bulk")==="private");};});}
+var STF=[["collected","Collected"],["ready","Ready"],["done","Shared"],["private","Private"]];
+function stFilters(key,cur,items){return STF.map(function(f){return [key+":"+f[0],f[1],items.filter(function(i){return i.st===f[0];}).length];});}
 function shareModel(){
- var shared=(CS&&CS.shared)||[],on=!!(CS&&CS.share),les=[];
+ /* One life for every item: collected -> ready -> shared (sent, or released by the maintainer); or kept private at any point before that. */
+ var shared=(CS&&CS.shared)||[],on=!!(CS&&CS.share),les=[],mt=!!(SD&&SD.maintainer);
  (SD&&SD.genres||[]).forEach(function(g){g.patterns.forEach(function(p){if(p.origin==="local"&&(p.support||0)>=1&&p.status!=="superseded")les.push([g.slug,p]);});});
  var rows=[];
- les.forEach(function(x){var g=x[0],p=x[1],has=SECS.indexOf(p.section)>=0,sent=shared.indexOf(p.id)>=0;
-  rows.push({kind:"lesson",st:sent?"sent":(!has?"stay":(p.published===false?"stay":(on?"ready":"stay"))),g:g,p:p,has:has});});
- (SD&&SD.recipes||[]).filter(function(r){return r.source==="yours";}).forEach(function(r){var sent=shared.indexOf(r.rid)>=0;
-  var st=r.share==="declined"?"private":(r.share==="pending"?"decide":(sent?"sent":(on?"ready":"kit")));rows.push({kind:"recipe",st:st,r:r});});
- rows.push({kind:"mcp",st:on?"ready":"stay"});
- return {rows:rows,on:on};
+ les.forEach(function(x){var g=x[0],p=x[1],sent=shared.indexOf(p.id)>=0,why="";
+  if(!mt&&!on)why="Contribute is off";else if(!mt&&p.published===false)why="its map is not published yet; it becomes ready by itself when it is";
+  rows.push({kind:"lesson",st:p.hold?"private":((sent||p.in_kit)?"done":(why?"collected":"ready")),done:mt?"released":"sent",why:why,g:g,p:p});});
+ var offi={};(SD&&SD.recipes||[]).forEach(function(r){if(r.source==="official")offi[String(r.name||"").toLowerCase()]=1;});
+ (SD&&SD.recipes||[]).filter(function(r){return r.source==="yours";}).forEach(function(r){var sent=shared.indexOf(r.rid)>=0,inKit=!!offi[String(r.name||"").toLowerCase()],why=(!mt&&!on)?"Contribute is off":"";
+  rows.push({kind:"recipe",st:r.share==="declined"?"private":((sent||inKit)?"done":(why?"collected":"ready")),done:(inKit||mt)?"released":"sent",why:why,r:r});});
+ rows.push({kind:"mcp",st:(!mt&&!on)?"collected":"ready",done:"",why:(!mt&&!on)?"Contribute is off":""});
+ return {rows:rows,on:on,mt:mt};
 }
 function queueCounts(){
  var A=lessonsP().length+packsP().length+inboxL().length+fabP().length,m=shareModel(),dec=0,rdy=0;
- m.rows.forEach(function(x){if(x.st==="decide")dec++;else if(x.st==="ready"&&x.kind!=="mcp")rdy++;});
+ m.rows.forEach(function(x){if(x.st==="ready"&&x.kind!=="mcp"&&!m.mt)rdy++;});   /* the maintainer has nothing to do: ready items go out at the release */
  return {approve:A,share:dec+rdy,decide:dec,ready:rdy,les:lessonsP().length,packs:packsP().length,rin:inboxL().length,fab:fabP().length};
 }
 function refresh(){LAST="";load();}
@@ -637,7 +665,7 @@ function renderStrip(){
  var el=$("kStrip");if(!el||!SD||SD.error||!SD.totals){if(el)el.innerHTML='<div class="kcard" style="grid-column:1/-1"><div class="kempty">'+esc((SD&&SD.error)||"Could not read the skills.")+'</div></div>';return;}
  var q=queueCounts(),t=SD.totals,all=SD.recipes||[],yrs=all.filter(function(r){return r.source==="yours";}),dec=yrs.filter(function(r){return r.share==="pending";}).length;
  var inKit=all.filter(function(r){return r.source==="official";}).length+yrs.filter(function(r){return r.share==="approved";}).length,priv=yrs.filter(function(r){return r.share==="declined";}).length;
- var rel=t.patterns?100*((t.proven||0)+(t.confirmed||0))/t.patterns:0,decided=all.length?100*(all.length-dec)/all.length:100;
+ var rel=t.patterns?100*((t.proven||0)+(t.confirmed||0))/t.patterns:0,RM=stMaps(),rcs={done:0,ready:0,priv:0};all.forEach(function(r){var z=recipeSt(RM,r).st;if(z==="done")rcs.done++;else if(z==="ready")rcs.ready++;else if(z==="private")rcs.priv++;});
  var pr=SD.projects||[],maps=pr.filter(function(p){return p.kind==="map";}).length,fabs=pr.filter(function(p){return p.kind==="fab";}).length,done=pr.filter(function(p){return p.pct>=100;}).length;
  var skills=(SD.genres||[]).filter(function(g){return g.patterns.length;}).length;
  var tot=q.approve+q.share,oldest=SD.oldest_pending;
@@ -648,7 +676,7 @@ function renderStrip(){
   '<div class="kcard2'+(tot?" warn":"")+'"><h3>Waiting for you &middot; '+tot+' thing'+(tot===1?"":"s")+'</h3>'+wl("approve","To approve",q.approve,pa.join(" &middot; ")||"nothing to approve")+wl("share","To share",q.share,ps.join(" &middot; ")||"nothing to share")+
    '<div class="sub" style="margin-top:6px">'+(tot&&oldest?"oldest waiting: "+esc(ago(oldest))+" &middot; ":"")+'click a line to open it</div></div>'+
   '<div class="kcard2 rc"><div class="l"><h3>Lessons</h3><div class="nums"><div><b>'+t.patterns+'</b><span>in your skills</span></div><div><b>'+(t.proven||0)+'</b><span>proven</span></div><div><b>'+(t.confirmed||0)+'</b><span>confirmed</span></div><div><b>'+(t.hypothesis||0)+'</b><span>hypothesis</span></div></div><div class="pct">ring = reliable (confirmed or proven) / all</div></div>'+rg(rel,"green")+'</div>'+
-  '<div class="kcard2 rc"><div class="l"><h3>Recipes</h3><div class="nums"><div><b>'+all.length+'</b><span>total</span></div><div><b>'+inKit+'</b><span>in the kit</span></div><div><b>'+priv+'</b><span>private</span></div><div><b>'+dec+'</b><span>to decide</span></div></div><div class="pct">ring = decided (in the kit or private) / all</div></div>'+rg(decided,"violet")+'</div>'+
+  '<div class="kcard2 rc"><div class="l"><h3>Recipes</h3><div class="nums"><div><b>'+all.length+'</b><span>total</span></div><div><b>'+rcs.done+'</b><span>shared</span></div><div><b>'+rcs.ready+'</b><span>ready</span></div><div><b>'+rcs.priv+'</b><span>private</span></div></div><div class="pct">ring = shared / all</div></div>'+rg(all.length?100*rcs.done/all.length:100,"violet")+'</div>'+
   '<div class="kcard2 rc"><div class="l"><h3>Learning from</h3><div class="nums"><div><b>'+maps+'</b><span>map'+(maps===1?"":"s")+'</span></div><div><b>'+fabs+'</b><span>Fab product'+(fabs===1?"":"s")+'</span></div><div><b>'+skills+'</b><span>skill'+(skills===1?"":"s")+'</span></div></div><div class="pct">ring = projects with the learning complete</div></div>'+rg(pr.length?100*done/pr.length:0,"blue")+'</div>';
  Array.prototype.forEach.call(el.querySelectorAll(".wl"),function(w){w.onclick=function(){setTab(w.getAttribute("data-go"));};});
 }
@@ -681,7 +709,7 @@ function renderTabs(){var el=$("kTabs");if(!el)return;
 function showPane(){["approve","share","lessons","recipes","skills","maps","this","mcp","comm"].forEach(function(t){var e=$("pn-"+t);if(e)e.className="kpane"+(t===TAB?" on":"");});}
 function bindCommon(box,rerender){
  Array.prototype.forEach.call(box.querySelectorAll("button[data-f]"),function(b){b.onclick=function(){var k=b.getAttribute("data-f"),v=b.getAttribute("data-v");
-  if(k==="af"){AF=v;APG=0;}else if(k==="sf"){SF=v;SPG=0;}else if(k==="sk"){SK=v;SPG=0;}else if(k==="lf"){LF=v;LPG=0;}else if(k==="rf"){RF=v;RPAGE=0;}else if(k==="mf"){MF=v;MPG=0;}
+  if(k==="af"){AF=v;APG=0;}else if(k==="sf"){SF=v;SPG=0;}else if(k==="sk"){SK=v;SPG=0;}else if(k==="lf"){LF=v;LPG=0;}else if(k==="rf"){RF=v;RPAGE=0;}else if(k==="mf"){MF=v;MPG=0;}else if(k==="gf"){GF=v;GPAGE=0;}
   rerender();};});
  Array.prototype.forEach.call(box.querySelectorAll("button[data-pg]"),function(b){b.onclick=function(){var k=b.getAttribute("data-pg"),d=+b.getAttribute("data-d");
   if(k==="ap")APG+=d;else if(k==="sp")SPG+=d;else if(k==="lp")LPG+=d;else if(k==="rp")RPAGE+=d;else if(k==="mp")MPG+=d;rerender();};});
@@ -741,30 +769,25 @@ function renderApprove(){
 /* ---- To share ---- */
 function renderShare(){
  var box=$("kQShare");if(!box)return;if(!SD||SD.error){box.innerHTML='<div class="kempty">Reading…</div>';return;}
- var m=shareModel(),rows=m.rows.filter(function(x){return (SK==="all"||x.kind===SK)&&(SF==="all"||(SF==="todo"&&(x.st==="decide"||x.st==="ready"))||(SF==="stay"&&(x.st==="stay"||x.st==="kit"))||(SF==="sent"&&x.st==="sent")||(SF==="private"&&x.st==="private"));});
- var order={decide:0,ready:1,kit:2,stay:3,sent:4,private:5};rows.sort(function(a,b){return order[a.st]-order[b.st];});
+ var m=shareModel(),rows=m.rows.filter(function(x){return (SK==="all"||x.kind===SK)&&(SF==="all"||(SF===x.st));});
+ var order={ready:0,collected:1,done:2,"private":3};rows.sort(function(a,b){return order[a.st]-order[b.st];});
  var c=function(f){return m.rows.filter(function(x){return f(x);}).length;};
  var pg=Math.min(SPG,Math.max(0,Math.ceil(rows.length/5)-1));SPG=pg;
  var h='';
- if(!m.on)h+='<div class="knote">Contribute to the community is off. You can still decide what goes into the kit; to send things to the community turn it on in the Community tab.</div>';
- h+='<div id="kcResult"></div><div class="kfilters">'+fil("sf",SF,[["todo","To do",c(function(x){return x.st==="decide"||x.st==="ready";})],["stay","Staying here",c(function(x){return x.st==="stay"||x.st==="kit";})],["sent","Sent",c(function(x){return x.st==="sent";})],["private","Kept private",c(function(x){return x.st==="private";})],["all","All",m.rows.length]])+
-  '<span class="ksep"></span><span class="ksub">Kind</span>'+fil("sk",SK,[["all","All"],["lesson","Lessons"],["recipe","Recipes"],["mcp","MCP evidence"]])+'</div>';
+ if(!m.on)h+='<div class="knote">Contribute to the community is off, so nothing is offered to send. Turn it on in the Community tab.</div>';
+ h+='<div id="kcResult"></div><div class="kfilters">'+fil("sf",SF,[["all","All",m.rows.length],["collected","Collected",c(function(x){return x.st==="collected";})],["ready","Ready",c(function(x){return x.st==="ready";})],["done","Shared",c(function(x){return x.st==="done";})],["private","Private",c(function(x){return x.st==="private";})],])+
+  '<span class="ksep"></span><span class="ksub">Kind</span>'+fil("sk",SK,[["all","All"],["lesson","Lessons"],["recipe","Recipes"],["mcp","MCP evidence"]])+'<span class="grow"></span>'+bulkBtns()+'</div>';
  h+='<table class="ktable"><tr><th>What</th><th>Text</th><th>State</th><th></th></tr>';
  if(!rows.length)h+='<tr><td colspan="4" class="kempty">Nothing here.</td></tr>';
- var chipSt={decide:["to decide","a"],ready:["ready to send","g"],kit:["goes into the kit at the next release","g"],stay:["stays here","d"],sent:["sent","b"],"private":["kept private","d"]};
- rows.slice(pg*5,pg*5+5).forEach(function(x){var st=chipSt[x.st]||["",""],act="",txt="",what="";
+ var chipSt={collected:["collected","d"],ready:[m.mt?"ready: next release":"ready to send","g"],done:["shared","b"],"private":["private","v"]};
+ rows.slice(pg*5,pg*5+5).forEach(function(x){var st=(x.st==="done"&&x.done)?[x.done,"b"]:(chipSt[x.st]||["",""]),act="",txt="",what="";
   if(x.kind==="lesson"){var g=x.g,p=x.p;what=chipB("Lesson","b");txt=esc(p.statement)+'<div class="ksub">skill '+esc(g)+'</div>';
-   if(!x.has)act='<select data-sec="1" data-g="'+esc(g)+'" data-id="'+esc(p.id)+'"><option value="">choose a section&hellip;</option>'+SECS.map(function(z){return '<option>'+z+'</option>';}).join("")+'</select>';
-   else if(p.published===false)txt+='<div class="ksub" style="color:var(--amber)">stays here: its map is not published</div>';
-   else if(x.st==="ready")act='<button class="kbtn ok" data-g="'+esc(g)+'" data-id="'+esc(p.id)+'">Contribute</button>';
-   else if(x.st==="stay"&&!m.on)txt+='<div class="ksub">turn on Contribute to send it</div>';}
+   if(x.why)txt+='<div class="ksub" style="color:var(--amber)">waiting: '+esc(x.why)+'</div>';
+   act=(x.st==="ready"&&!m.mt?'<button class="kbtn ok" data-g="'+esc(g)+'" data-id="'+esc(p.id)+'">Contribute</button>':'')+stBtns(x,"lesson",p.id);}
   else if(x.kind==="recipe"){var r=x.r;what=chipB("Recipe","g");txt='<b>'+esc(r.name)+'</b> <span class="ksub">'+esc(r.skill)+(r.kind?" &middot; "+esc(r.kind):"")+'</span><div class="ksub">'+esc(r.use)+'</div>';
-   if(x.st==="decide")act='<button class="kbtn ok" data-share="approved" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Share in the kit</button><button class="kbtn" data-share="declined" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Keep private</button>';
-   else if(x.st==="ready")act='<button class="kbtn ok" data-rs="'+esc(r.skill)+'" data-rn="'+esc(r.name)+'">Send to the community</button><button class="kbtn" data-share="pending" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Undo</button>';
-   else if(x.st==="kit"||x.st==="sent")act='<button class="kbtn" data-share="pending" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Undo</button>';
-   else if(x.st==="private")act='<button class="kbtn" data-share="pending" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Undo</button>';
-   if(x.st==="decide")txt+='<div class="ksub">shared = public in the kit, MIT licence, with its Verse code</div>';}
-  else{what=chipB("MCP evidence","v");txt='Which editor tools worked (counts only, no arguments or paths)';if(x.st==="ready")act='<button class="kbtn" id="kcRec">Contribute</button>';}
+   if(x.why)txt+='<div class="ksub" style="color:var(--amber)">waiting: '+esc(x.why)+'</div>';
+   act=(x.st==="ready"&&!m.mt?'<button class="kbtn ok" data-rs="'+esc(r.skill)+'" data-rn="'+esc(r.name)+'">Send to the community</button>':'')+stBtns(x,"recipe",r.name,r.skill,r.name);}
+  else{what=chipB("MCP evidence","v");txt='Which editor tools worked (counts only, no arguments or paths)';if(x.st==="ready"&&!m.mt)act='<button class="kbtn" id="kcRec">Contribute</button>';if(x.why)txt+='<div class="ksub" style="color:var(--amber)">waiting: '+esc(x.why)+'</div>';}
   h+='<tr><td>'+what+'</td><td>'+txt+'</td><td>'+chipB(st[0],st[1])+'</td><td class="kact">'+act+'</td></tr>';});
  h+='</table>'+pgr("sp",pg,rows.length);
  var cx="";
@@ -774,7 +797,7 @@ function renderShare(){
  Array.prototype.forEach.call(box.querySelectorAll("select[data-sec]"),function(sl){sl.onchange=function(){if(!sl.value)return;post("/community-act",{action:"section",genre:sl.getAttribute("data-g"),id:sl.getAttribute("data-id"),section:sl.value}).then(function(r){if(r&&r.ok)refresh();else{CEXP={ok:false,error:(r&&r.error)||"could not set the section"};renderShare();}});};});
  Array.prototype.forEach.call(box.querySelectorAll("button[data-id]:not([data-ls])"),function(b){if(b.hasAttribute("data-share"))return;b.onclick=function(){var g=b.getAttribute("data-g"),id=b.getAttribute("data-id");post("/community-act",{action:"export",genre:g,id:id}).then(function(r){CEXP=r;CEXP._g=g;CEXP._id=id;renderShare();});};});
  Array.prototype.forEach.call(box.querySelectorAll("button[data-rs]"),function(b){b.onclick=function(){var g=b.getAttribute("data-rs"),n=b.getAttribute("data-rn");post("/community-act",{action:"export-recipe",genre:g,name:n}).then(function(r){CEXP=r;CEXP._rg=g;CEXP._rn=n;renderShare();});};});
- Array.prototype.forEach.call(box.querySelectorAll("button[data-share]"),function(b){b.onclick=function(){post("/recipe-share",{skill:b.getAttribute("data-sk"),name:b.getAttribute("data-nm"),decision:b.getAttribute("data-share")}).then(refresh);};});
+ bindKp(box,function(){return rows.filter(function(x){return x.kind!=="mcp";}).map(function(x){return x.kind==="lesson"?{kind:"lesson",key:x.p.id,st:x.st}:{kind:"recipe",skill:x.r.skill,name:x.r.name,key:x.r.name,st:x.st};});});
  var rb=$("kcRec");if(rb)rb.onclick=function(){post("/community-act",{action:"export-recipes"}).then(function(r){CEXP=r;CEXP._rec=true;renderShare();});};
  var o=$("kcOpen");if(o)o.onclick=function(){window.open(CEXP.url,"_blank","noopener");if(CEXP._rec){CEXP=null;renderShare();return;}
    if(CEXP._rn){post("/community-act",{action:"recipe-shared",genre:CEXP._rg,name:CEXP._rn}).then(function(){CEXP=null;loadCommunity();refresh();});return;}
@@ -785,35 +808,35 @@ function renderShare(){
 /* ---- Lessons (all skills) ---- */
 function renderLessons(){
  var box=$("kLessonsAll");if(!box)return;if(!SD||SD.error||!SD.totals){box.innerHTML="";return;}
- var all=[];(SD.genres||[]).forEach(function(g){g.patterns.forEach(function(p){if(p.status!=="superseded")all.push([g.slug,p]);});});
+ var M=stMaps(),all=[];(SD.genres||[]).forEach(function(g){g.patterns.forEach(function(p){if(p.status!=="superseded")all.push([g.slug,p,lessonSt(M,p)]);});});
  var tier=function(p){return p.status==="contested"?"contested":p.tier;},cnt=function(t){return all.filter(function(x){return tier(x[1])===t;}).length;};
- var rel=all.filter(function(x){return tier(x[1])!=="reference";}).length;
- box.innerHTML='<div class="kfilters" id="lfbar">'+fil("lf",LF,[["all","All",all.length],["relevant","Relevant",rel],["proven","Proven",cnt("proven")],["confirmed","Confirmed",cnt("confirmed")],["hypothesis","Hypothesis",cnt("hypothesis")],["reference","Reference",cnt("reference")],["contested","Contested",cnt("contested")]])+
-  '<span class="grow"></span><input id="lq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(LQ)+'"></div><div id="lsTbl"></div>';
- var draw=function(){var q=LQ.trim().toLowerCase(),list=all.filter(function(x){var p=x[1],t=tier(p);return (LF==="all"||(LF==="relevant"&&t!=="reference")||t===LF)&&(!q||(x[0]+" "+p.statement+" "+p.condition+" "+p.action+" "+p.variant).toLowerCase().indexOf(q)>=0);});
+ var rel=all.filter(function(x){return tier(x[1])!=="reference";}).length,items=all.map(function(x){return {kind:"lesson",key:x[1].id,st:x[2].st};});
+ box.innerHTML='<div id="lfbar"><div class="kfilters">'+fil("lf",LF,[["all","All",all.length],["relevant","Relevant",rel],["proven","Proven",cnt("proven")],["confirmed","Confirmed",cnt("confirmed")],["hypothesis","Hypothesis",cnt("hypothesis")],["reference","Reference",cnt("reference")],["contested","Contested",cnt("contested")]])+'</div><div class="kfilters" style="margin-top:6px"><span class="ksub">State</span>'+fil("lf",LF,stFilters("st",LF,items))+
+  '<span class="grow"></span>'+bulkBtns()+'<input id="lq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(LQ)+'"></div></div><div id="lsTbl"></div>';
+ var draw=function(){var q=LQ.trim().toLowerCase(),list=all.filter(function(x){var p=x[1],t=tier(p);return (LF==="all"||(LF==="relevant"&&t!=="reference")||(LF.indexOf("st:")===0&&x[2].st===LF.slice(3))||t===LF)&&(!q||(x[0]+" "+p.statement+" "+p.condition+" "+p.action+" "+p.variant).toLowerCase().indexOf(q)>=0);});
   var order={contested:0,proven:1,confirmed:2,hypothesis:3,reference:4};list.sort(function(a,b){return (order[tier(a[1])]-order[tier(b[1])])||((b[1].support||0)-(a[1].support||0));});
   var pg=Math.min(LPG,Math.max(0,Math.ceil(list.length/5)-1));LPG=pg;
-  var h='<table class="ktable"><tr><th>Lesson</th><th>Skill</th><th>Confidence</th><th>Support</th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(x){var p=x[1];return '<tr><td>'+esc(p.statement)+'<div class="ksub">['+esc(p.variant)+'] when '+esc(p.condition)+' &rarr; '+esc(p.action)+'</div></td><td>'+esc(x[0])+'</td><td>'+tierPill(p)+(p.origin==="community"?' '+chipB("community","v"):(p.origin==="official"?' '+chipB("official","b"):''))+'</td><td class="ksub">'+(p.support||0)+' for'+(p.against?' &middot; '+p.against+' against':'')+(p.community_support?' &middot; community '+p.community_support:'')+'</td></tr>';}).join(""):'<tr><td colspan="4" class="kempty">'+(all.length?"Nothing matches this filter.":"No approved lessons yet.")+'</td></tr>')+'</table>'+pgr("lp",pg,list.length);
-  $("lsTbl").innerHTML=h;bindCommon($("lsTbl"),draw);};
- draw();bindCommon($("lfbar"),renderLessons);
+  var h='<table class="ktable"><tr><th>Lesson</th><th>Skill</th><th>Confidence</th><th>Support</th><th>State</th><th></th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(x){var p=x[1],r=x[2];return '<tr><td>'+esc(p.statement)+'<div class="ksub">['+esc(p.variant)+'] when '+esc(String(p.condition||"").replace(/^when\s+/i,""))+' &rarr; '+esc(p.action)+'</div></td><td>'+esc(x[0])+'</td><td>'+tierPill(p)+'</td><td class="ksub">'+(p.support||0)+' for'+(p.against?' &middot; '+p.against+' against':'')+(p.community_support?' &middot; community '+p.community_support:'')+'</td><td>'+stChip(r,M.m.mt)+'</td><td class="kact">'+stBtns(r,"lesson",p.id)+'</td></tr>';}).join(""):'<tr><td colspan="6" class="kempty">'+(all.length?"Nothing matches this filter.":"No approved lessons yet.")+'</td></tr>')+'</table>'+pgr("lp",pg,list.length);
+  $("lsTbl").innerHTML=h;bindCommon($("lsTbl"),draw);bindKp($("lsTbl"),function(){return list.map(function(x){return {kind:"lesson",key:x[1].id,st:x[2].st};});});};
+ draw();bindCommon($("lfbar"),renderLessons);bindKp(box,function(){var q=LQ.trim().toLowerCase();return all.filter(function(x){var p=x[1],t=tier(p);return (LF==="all"||(LF==="relevant"&&t!=="reference")||(LF.indexOf("st:")===0&&x[2].st===LF.slice(3))||t===LF)&&(!q||(x[0]+" "+p.statement+" "+p.condition+" "+p.action+" "+p.variant).toLowerCase().indexOf(q)>=0);}).map(function(x){return {kind:"lesson",key:x[1].id,st:x[2].st};});});
  $("lq").oninput=function(){LQ=this.value;LPG=0;draw();};
 }
 /* ---- Recipes ---- */
 function renderRecipes(){
  var box=$("kRecipes");if(!box)return;if(!SD||SD.error){box.innerHTML="";return;}
- var all=SD.recipes||[],mine=all.filter(function(r){return r.source==="yours";});
- var cnt=function(f){return all.filter(f).length;};
- box.innerHTML='<div class="kfilters" id="rfbar">'+fil("rf",RF,[["all","All",all.length],["yours","Mine",mine.length],["official","In the kit",cnt(function(r){return r.source==="official";})],["community","From the community",cnt(function(r){return r.source==="community";})],["decide","To decide",cnt(function(r){return r.source==="yours"&&r.share==="pending";})],["private","Kept private",cnt(function(r){return r.source==="yours"&&r.share==="declined";})]])+
-  '<span class="grow"></span><input id="rq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(RQ)+'"></div><div id="rcTbl"></div><div class="khint">A recipe is how to rebuild something, step by step: devices, settings, wiring, Verse code, assets, how to verify. The kit prepares them by itself from the Verse code of a map or a Fab product. A lesson is a short rule; they are not the same thing. Deciding what goes into the kit happens in <a href="#" id="rcGo">To share</a>.</div>';
+ var M=stMaps(),all=(SD.recipes||[]).map(function(r){return [r,recipeSt(M,r)];}),mine=all.filter(function(x){return x[0].source==="yours";});
+ var items=all.map(function(x){return {kind:"recipe",skill:x[0].skill,name:x[0].name,key:x[0].name,st:x[1].st};});
+ var match=function(x){var r=x[0],q=RQ.trim().toLowerCase();return (RF==="all"||(RF==="yours"&&r.source==="yours")||(RF==="community"&&r.source==="community")||(RF.indexOf("st:")===0&&x[1].st===RF.slice(3)))&&(!q||(r.name+" "+r.skill+" "+(r.use||"")+" "+(r.kind||"")).toLowerCase().indexOf(q)>=0);};
+ box.innerHTML='<div class="kfilters" id="rfbar">'+fil("rf",RF,[["all","All",all.length],["yours","Mine",mine.length],["community","From the community",all.filter(function(x){return x[0].source==="community";}).length]].concat(stFilters("st",RF,items)))+
+  '<span class="grow"></span>'+bulkBtns()+'<input id="rq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(RQ)+'"></div><div id="rcTbl"></div><div class="khint">A recipe is how to rebuild something, step by step: devices, settings, wiring, Verse code, assets, how to verify. The kit prepares them by itself from the Verse code of a map or a Fab product. A lesson is a short rule; they are not the same thing. A recipe goes into the kit unless you keep it private.</div>';
  var draw=function(){var q=RQ.trim().toLowerCase(),filtered=RF!=="all"||q;
-  var list=all.filter(function(r){return (RF==="all"||(RF==="yours"&&r.source==="yours")||(RF==="official"&&(r.source==="official"||(r.source==="yours"&&r.share==="approved")))||(RF==="community"&&r.source==="community")||(RF==="decide"&&r.source==="yours"&&r.share==="pending")||(RF==="private"&&r.source==="yours"&&r.share==="declined"))&&(!q||(r.name+" "+r.skill+" "+(r.use||"")+" "+(r.kind||"")).toLowerCase().indexOf(q)>=0);});
-  list=list.map(function(r,i){return [r,i];}).sort(function(x,y){return (y[0].added||"").localeCompare(x[0].added||"")||x[1]-y[1];}).map(function(x){return x[0];});
+  var list=all.filter(match);
+  list=list.map(function(r,i){return [r,i];}).sort(function(x,y){return (y[0][0].added||"").localeCompare(x[0][0].added||"")||x[1]-y[1];}).map(function(x){return x[0];});
   var total=list.length;if(!filtered)list=list.slice(0,20);
   var pg=Math.min(RPAGE,Math.max(0,Math.ceil(list.length/5)-1));RPAGE=pg;
-  var st=function(r){if(r.source==="official")return chipB("in the kit","b");if(r.source==="community")return chipB("from the community","v");return r.share==="approved"?chipB("goes into the kit at the next release","g"):(r.share==="declined"?chipB("kept private","d"):chipB("to decide","a"));};
-  var h='<table class="ktable"><tr><th>Recipe</th><th>Skill</th><th>State</th><th>Steps</th><th>Used in</th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(r){return '<tr><td><b>'+esc(r.name)+'</b>'+(r.use?'<div class="ksub">'+esc(r.use)+'</div>':'')+'<div class="ksub">'+(r.kind?esc(r.kind)+" &middot; ":"")+(r.parent?"starts from "+esc(r.parent)+" &middot; ":"")+(r.source==="yours"?(r.tier==="confirmed"?"confirmed":"hypothesis: used by the agents, confirmed when a second project uses it"):"")+(r.added?" &middot; "+esc(r.added):"")+'</div></td><td>'+esc(r.skill)+'</td><td>'+st(r)+'</td><td>'+r.steps+'</td><td>'+r.maps+' project(s)</td></tr>';}).join(""):'<tr><td colspan="5" class="kempty">'+(all.length?"Nothing matches.":"No recipes yet: the kit prepares them from your Verse code.")+'</td></tr>')+'</table>'+pgr("rp",pg,list.length)+(!filtered&&total>20?'<div class="ksub">latest 20 of '+total+' &middot; use the filters or the search to see the others</div>':'');
-  $("rcTbl").innerHTML=h;bindCommon($("rcTbl"),draw);};
- draw();bindCommon($("rfbar"),renderRecipes);$("rq").oninput=function(){RQ=this.value;RPAGE=0;draw();};$("rcGo").onclick=function(e){e.preventDefault();setTab("share");};
+  var h='<table class="ktable"><tr><th>Recipe</th><th>Skill</th><th>State</th><th>Steps</th><th>Used in</th><th></th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(x){var r=x[0];return '<tr><td><b>'+esc(r.name)+'</b>'+(r.use?'<div class="ksub">'+esc(r.use)+'</div>':'')+'<div class="ksub">'+(r.kind?esc(r.kind)+" &middot; ":"")+(r.parent?"starts from "+esc(r.parent)+" &middot; ":"")+(r.source==="yours"?(r.tier==="confirmed"?"confirmed":"hypothesis: used by the agents, confirmed when a second project uses it"):"")+(r.added?" &middot; "+esc(r.added):"")+'</div></td><td>'+esc(r.skill)+'</td><td>'+stChip(x[1],M.m.mt)+'</td><td>'+r.steps+'</td><td>'+r.maps+' project(s)</td><td class="kact">'+(r.source==="yours"?stBtns(x[1],"recipe",r.name,r.skill,r.name):"")+'</td></tr>';}).join(""):'<tr><td colspan="6" class="kempty">'+(all.length?"Nothing matches.":"No recipes yet: the kit prepares them from your Verse code.")+'</td></tr>')+'</table>'+pgr("rp",pg,list.length)+(!filtered&&total>20?'<div class="ksub">latest 20 of '+total+' &middot; use the filters or the search to see the others</div>':'');
+  $("rcTbl").innerHTML=h;bindCommon($("rcTbl"),draw);bindKp($("rcTbl"),function(){return all.filter(match).filter(function(x){return x[0].source==="yours";}).map(function(x){return {kind:"recipe",skill:x[0].skill,name:x[0].name,key:x[0].name,st:x[1].st};});});};
+ draw();bindCommon($("rfbar"),renderRecipes);bindKp(box,function(){return all.filter(match).filter(function(x){return x[0].source==="yours";}).map(function(x){return {kind:"recipe",skill:x[0].skill,name:x[0].name,key:x[0].name,st:x[1].st};});});$("rq").oninput=function(){RQ=this.value;RPAGE=0;draw();};
 }
 /* ---- Maps & products ---- */
 function renderMaps(){
@@ -822,7 +845,7 @@ function renderMaps(){
  box.innerHTML='<div class="kfilters" id="mfbar">'+fil("mf",MF,[["all","All",all.length],["map","Maps",all.filter(function(p){return p.kind==="map";}).length],["fab","Fab products",all.filter(function(p){return p.kind==="fab";}).length]])+'<span class="grow"></span><input id="mq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(MQ)+'"></div><div id="mpTbl"></div><div class="khint">Every project the kit has learned from or is learning from. A map teaches lessons, a blueprint and recipes; a Fab product teaches recipes and the how-to of its editor work. The bar is how much of the learning is done.</div>';
  var draw=function(){var q=MQ.trim().toLowerCase(),list=all.filter(function(p){return (MF==="all"||p.kind===MF)&&(!q||(p.name+" "+p.genre).toLowerCase().indexOf(q)>=0);});
   var pg=Math.min(MPG,Math.max(0,Math.ceil(list.length/5)-1));MPG=pg;
-  $("mpTbl").innerHTML='<table class="ktable"><tr><th>Project</th><th>Type</th><th>Skill</th><th>Lessons</th><th>Recipes</th><th>Learning</th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(p){var me=p.name.toLowerCase()===cur;return '<tr'+(me?' class="kme"':'')+'><td><b>'+esc(p.name)+'</b>'+(me?' '+chipB("this one","a"):'')+(p.first_seen?'<div class="ksub">first seen '+esc(p.first_seen)+'</div>':'')+'</td><td>'+chipB(p.kind==="fab"?"Fab product":"map",p.kind==="fab"?"v":"b")+'</td><td>'+(p.genre?esc(p.genre):'<span class="ksub">&mdash;</span>')+'</td><td>'+p.lessons+'</td><td>'+p.recipes+'</td><td style="min-width:120px"><div class="pbar" style="margin:2px 0"><i style="width:'+p.pct+'%;background:'+(p.pct>=100?'var(--green)':'var(--amber)')+'"></i></div><div class="ksub">'+p.pct+'%</div></td></tr>';}).join(""):'<tr><td colspan="6" class="kempty">'+(all.length?"Nothing matches.":"No project yet.")+'</td></tr>')+'</table>'+pgr("mp",pg,list.length);
+  $("mpTbl").innerHTML='<table class="ktable"><tr><th>Project</th><th>Type</th><th>Skill</th><th>Lessons</th><th>Recipes</th><th>Learning</th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(p){var me=p.name.toLowerCase()===cur;return '<tr'+(me?' class="kme"':'')+'><td><b>'+esc(p.name)+'</b>'+(me?' '+chipB("this one","a"):'')+(p.first_seen?'<div class="ksub">first seen '+esc(p.first_seen)+'</div>':'')+'</td><td>'+chipB(p.kind==="fab"?"Fab product":"map",p.kind==="fab"?"v":"b")+'</td><td>'+((p.skills&&p.skills.length)?p.skills.map(function(x){return esc(x);}).join(", "):(p.genre?esc(p.genre):'<span class="ksub">nothing learned yet</span>'))+'</td><td>'+p.lessons+'</td><td>'+p.recipes+'</td><td style="min-width:120px"><div class="pbar" style="margin:2px 0"><i style="width:'+p.pct+'%;background:'+(p.pct>=100?'var(--green)':'var(--amber)')+'"></i></div><div class="ksub">'+p.pct+'%</div></td></tr>';}).join(""):'<tr><td colspan="6" class="kempty">'+(all.length?"Nothing matches.":"No project yet.")+'</td></tr>')+'</table>'+pgr("mp",pg,list.length);
   bindCommon($("mpTbl"),draw);};
  draw();bindCommon($("mfbar"),renderMaps);$("mq").oninput=function(){MQ=this.value;MPG=0;draw();};
 }
@@ -837,17 +860,21 @@ function renderCommunity(){
  var m=shareModel(),q=queueCounts(),n=function(f){return m.rows.filter(f).length;};
  var card=function(t,v,s,w){return '<div class="khc'+(w?" warn":"")+'"><div class="k">'+t+'</div><div class="n">'+v+'</div><div class="s">'+s+'</div></div>';};
  var h='<div class="kcard"><div class="klabel">Share with the community, and receive from it</div>'+
-  '<div style="margin:8px 0"><span id="kcSw" class="kcsw'+(CS.share?" on":"")+'" title="Switch"></span><b>Contribute to the community</b> <span class="ksub">'+(CS.share?"on":"off (default)")+'</span></div>'+
-  '<div class="kcnote"><b>How it works.</b> Nothing is sent by the kit: you press a button, see the exact JSON and finish on GitHub with your own account. Map names, devices and blueprints never leave. <b>Only lessons learned from a published map can be shared</b>: if the map is not published they stay on this computer. Lessons also need a section. <b>Recipes</b> (how to rebuild, with Verse code) need your <i>Share in the kit</i> first. What the community shares comes back with kit updates into <i>To approve</i>: nothing is used until you approve it, and an approved item leaves its list. What you can send waits in <i>To share</i>.</div>'+
+  '<div style="margin:8px 0"><span id="kcSw" class="kcsw'+(CS.share?" on":"")+'" title="Switch"></span><b>Contribute to the community</b> <span class="ksub">'+(CS.share?"on (default)":"off")+'</span></div>'+
+  '<div class="kcnote"><b>How it works.</b> Nothing is sent by the kit: you press a button, see the exact JSON and finish on GitHub with your own account. Map names, devices and blueprints never leave. <b>Only lessons learned from a published map can be shared</b>: if the map is not published they stay on this computer. Every lesson and recipe goes through the same states in <i>To share</i>: collected, ready, shared; <b>Keep private</b> takes one out. <b>Recipes</b> (how to rebuild, with Verse code) go out unless you keep them private. What the community shares comes back with kit updates into <i>To approve</i>: nothing is used until you approve it, and an approved item leaves its list.</div>'+
   '<div style="font-size:12px;margin:6px 0">'+pubTxt+'</div>'+
   '<div class="khero" style="grid-template-columns:repeat(4,1fr);margin:12px 0">'+
-   card("Lessons ready to send",n(function(x){return x.kind==="lesson"&&x.st==="ready";}),"approved, with a section, map published",n(function(x){return x.kind==="lesson"&&x.st==="ready";})>0)+
-   card("Recipes ready to send",n(function(x){return x.kind==="recipe"&&x.st==="ready";}),"you approved them to share",n(function(x){return x.kind==="recipe"&&x.st==="ready";})>0)+
+   card(m.mt?"Lessons ready":"Lessons ready to send",n(function(x){return x.kind==="lesson"&&x.st==="ready";}),(m.mt?"they go out with the next release":"map published, ready to send"),n(function(x){return x.kind==="lesson"&&x.st==="ready";})>0)+
+   card(m.mt?"Recipes ready":"Recipes ready to send",n(function(x){return x.kind==="recipe"&&x.st==="ready";}),(m.mt?"they go out with the next release":"not kept private, ready to send"),n(function(x){return x.kind==="recipe"&&x.st==="ready";})>0)+
    card("Sent",n(function(x){return x.st==="sent"&&x.kind!=="mcp";}),"left the list")+
    card("Received, to approve",q.rin+q.packs,q.rin+" recipe(s) &middot; "+q.packs+" lesson pack(s)",q.rin+q.packs>0)+'</div>'+
+  '<div style="margin:6px 0;font-size:12px">GitHub name <input id="kcHandle" class="kq" style="width:160px" placeholder="your GitHub name" value="'+esc(CS.handle||"")+'"> <button class="kbtn" id="kcHandleOk">Save</button> <span class="ksub">asked once: it goes into the file name of what you send, so on GitHub you only click</span></div>'+
+  (SD&&SD.maintainer_available?'<div style="margin:6px 0;font-size:12px"><b>View</b> <button class="kbtn'+(SD.maintainer?' ok':'')+'" id="kcMt">Maintainer</button> <button class="kbtn'+(SD.maintainer?'':' ok')+'" id="kcCt">Contributor</button> <span class="ksub">only on your computer: Contributor shows what a user sees (Contribute buttons, GitHub), Maintainer releases from the console</span></div>':'')+
   '<div class="krow"><button class="kbtn" id="kcGoS">Open To share</button><button class="kbtn" id="kcGoA">Open To approve</button></div></div>';
  box.innerHTML=h;
  var sw=$("kcSw");if(sw)sw.onclick=function(){post("/community-act",{action:CS.share?"off":"on"}).then(function(){CEXP=null;loadCommunity();});};
+ var hk=$("kcHandleOk");if(hk)hk.onclick=function(){post("/community-act",{action:"handle",handle:$("kcHandle").value}).then(function(r){hk.textContent=(r&&r.ok)?"Saved":"Not a GitHub name";loadCommunity();});};
+ [["kcMt","maintainer"],["kcCt","contributor"]].forEach(function(x){var b=$(x[0]);if(b)b.onclick=function(){post("/community-act",{action:"mode",mode:x[1]}).then(function(){LAST="";load();});};});
  $("kcGoS").onclick=function(){setTab("share");};$("kcGoA").onclick=function(){setTab("approve");};
 }
 function ringSvg(n,pct,col){var C=163.4;return '<svg viewBox="0 0 64 64" width="70" height="70"><circle cx="32" cy="32" r="26" fill="none" stroke="#3a4350" stroke-width="5"/><circle cx="32" cy="32" r="26" fill="none" stroke="'+col+'" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+(C*Math.min(100,pct)/100).toFixed(1)+' '+C+'" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" style="fill:'+col+';font:700 17px system-ui">'+esc(n)+'</text></svg>';}
@@ -861,20 +888,29 @@ function recipeRings(rc){var T=Math.max(1,rc.total),pc=function(x){return Math.r
 function loadMcp(){
  fetch("/uefn-mcp-map",{cache:"no-store"}).then(function(r){return r.json();}).catch(function(){return {available:false,reason:"The console server is older than this page. Restart it to see the MCP map."};}).then(function(m){
   var box=$("kMcp");if(!box)return;
-  if(!m.available){box.innerHTML='<div class="kcard"><div class="klabel">UEFN MCP</div><div class="kempty">'+esc(m.reason||"No map yet.")+'</div></div>';return;}
-  var n=m.news||{},h='<div class="kcard"><div class="klabel">UEFN MCP map<span class="r">'+esc(m.saved||"")+(m.uefn_version?" · UEFN "+esc(m.uefn_version):"")+'</span></div>'+
+  if(!m.available){box.innerHTML='<div class="kcard"><div class="klabel">UEFN MCP</div><div class="kempty">'+esc(m.reason||"No list of the UEFN tools yet.")+'</div></div>';return;}
+  var n=m.news||{},h='<div class="kcard"><div class="klabel">UEFN MCP tools<span class="r">'+esc(m.saved||"")+(m.uefn_version?" · UEFN "+esc(m.uefn_version):"")+'</span></div>'+
    '<div style="font-size:15px;line-height:1.7"><b>'+(m.recipes&&m.recipes.tools_covered!=null?'Recipes cover '+esc(m.recipes.tools_covered)+' of '+esc(m.count)+' tools ('+esc(m.recipes.tools_proven)+' proven)':'The kit knows '+esc(m.kit_uses)+' of '+esc(m.count)+' tools')+'</b> <span class="ksub">'+esc(m.kit_uses)+' answered in tests, in '+esc(m.toolsets)+' toolsets: '+esc(m.read)+' read, '+esc(m.write)+' write</span></div>'+
    '<div class="ksub" style="margin-top:6px">'+(m.tests?'Tests: '+esc(m.tests.ok)+' safe tools answered, '+esc(m.tests.failed)+' failed ('+esc(m.tests.date)+'). Only read-only tools are ever called.':'Tests: not run yet.')+'</div>';
   var rc=m.recipes;if(rc&&rc.total){h+=recipeRings(rc);}
+  MCPITEMS=[];var pd=m.pending;if(pd){var np=(pd.proven_local||[]).length,nt=(pd.new_tools||[]).length,ns=pd.stale||0;
+   h+='<div style="margin-top:14px"><b>Not in the kit yet</b> <span class="ksub">what your computer knows and the installed kit does not; it goes out at the next release (publish.ps1 collects it)</span></div>';
+   if(!np&&!nt&&!ns)h+='<div class="ksub" style="margin-top:6px">Nothing waiting. When your work proves a recipe or Epic changes a tool, it appears here with its state and buttons.</div>';
+   else{h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'+
+     [[np,"recipes proven by your work","go in as proven at the next release","var(--green,#3ddc84)"],[nt,"new tools in your UEFN","Epic added them: the kit has never tried them","var(--amber,#ffb454)"],[ns,"recipes to replay","Epic changed or removed their tool","var(--red,#ff6b6b)"]].map(function(x){return '<div style="flex:1;min-width:170px;border:1px solid var(--line,#2a313c);border-radius:8px;padding:8px 10px"><div style="font-size:22px;color:'+(x[0]?x[3]:'var(--dim)')+'">'+x[0]+'</div><div>'+x[1]+'</div><div class="ksub">'+x[2]+'</div></div>';}).join("")+'</div>';
+    if(np){var hd=pd.held||[],mt=!!pd.maintainer,mrows=(pd.proven_local||[]).map(function(k){return {k:k,r:{st:hd.indexOf(k)>=0?"private":"ready",why:"",done:""}};});
+     h+='<div class="kfilters" style="margin-top:10px"><span class="grow"></span>'+bulkBtns()+'</div><table class="ktable" id="mcpTbl"><tr><th>Recipe (tool)</th><th>State</th><th></th></tr>'+mrows.slice(0,50).map(function(x){return '<tr><td>'+esc(x.k)+'</td><td>'+stChip(x.r,mt)+'</td><td class="kact">'+stBtns(x.r,"mcp",x.k)+'</td></tr>';}).join("")+'</table>'+(np>50?'<div class="ksub">first 50 of '+np+'; the buttons above apply to all</div>':'');
+     MCPITEMS=mrows.map(function(x){return {kind:"mcp",key:x.k,st:x.r.st};});}
+    if(nt)h+='<div class="ksub" style="margin-top:4px">New: '+(pd.new_tools||[]).slice(0,6).map(function(k){return esc(k.split("/").pop());}).join(", ")+(nt>6?" and "+(nt-6)+" more":"")+'</div>';}}
   if(n.stopped_working&&n.stopped_working.length)h+='<div style="margin-top:8px;color:var(--red)">Stopped working: '+n.stopped_working.map(esc).join(", ")+'</div>';
-  if(n.date){h+='<div style="margin-top:10px"><b>Latest news ('+esc(n.date)+')</b>: '+(n.state==="first_snapshot"?'first map made.':esc(n.added_total)+' added, '+esc(n.removed_total)+' removed, '+esc(n.changed_total)+' changed.')+'</div>';
+  if(n.date){h+='<div style="margin-top:10px"><b>Latest news ('+esc(n.date)+')</b>: '+(n.state==="first_snapshot"?'first list of the UEFN tools saved ('+esc(m.count)+' tools). From now on you see here what Epic adds, removes or changes.':esc(n.added_total)+' tools added, '+esc(n.removed_total)+' removed, '+esc(n.changed_total)+' changed.')+'</div>';
    (n.added||[]).slice(0,8).forEach(function(a){h+='<div class="ksub">+ '+esc(a.tool)+' ('+esc(a.access)+') '+esc(a.does)+'</div>';});}
   h+='<div class="ksub" style="margin-top:8px">Refreshed by itself at session start when UEFN is open. Agents search it before working through UEFN. <a href="/manual/mcp-engine.html" style="color:var(--cyan)">How it works</a></div></div>';
-  box.innerHTML=h;});
+  box.innerHTML=h;bindKp(box,function(){return MCPITEMS;});});
 }
 function renderThisRecipes(){
  var el=$("kThisRecipes");if(!el)return;var l=(LD&&(LD.fab_product?LD.fab_product.recipe_list:LD.recipe_list))||[];
- el.innerHTML='<div class="kcard"><div class="klabel">Recipes from this '+(LD&&LD.fab_product?"product":"map")+'<span class="r" style="color:var(--dim)">prepared by the kit from its Verse code and your work</span></div>'+(l.length?'<table class="ktable"><tr><th>Recipe</th><th>Skill</th><th>Kind</th></tr>'+l.map(function(r){return '<tr><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.skill)+'</td><td class="ksub">'+esc(r.kind||"")+'</td></tr>';}).join("")+'</table>':'<div class="kempty">No recipe yet. The kit prepares them by itself when the project has Verse code with devices; press LEARN to do it now.</div>')+'</div>';
+ el.innerHTML='<div class="kcard"><div class="klabel">Recipes from this '+(LD&&LD.fab_product?"product":"map")+'<span class="r" style="color:var(--dim)">'+(LD&&LD.fab_product?"written by the agent from the materials and mechanics you confirmed":"prepared by the kit from its Verse code and your work")+'</span></div>'+(l.length?'<table class="ktable"><tr><th>Recipe</th><th>Skill</th><th>Kind</th></tr>'+l.map(function(r){return '<tr><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.skill)+'</td><td class="ksub">'+esc(r.kind||"")+'</td></tr>';}).join("")+'</table>':'<div class="kempty">No recipe yet. '+(LD&&LD.fab_product?"A Fab product has no Verse code to read, so the agent writes the recipes of the materials and mechanics you confirmed: press Learn from this product, and it does it at the end of its next answer.":"The kit prepares them by itself when the project has Verse code with devices; press LEARN to do it now.")+'</div>')+'</div>';
 }
 function bindGo(){Array.prototype.forEach.call(document.querySelectorAll("[data-gotab]"),function(a){a.onclick=function(e){e.preventDefault();setTab(a.getAttribute("data-gotab"));};});}
 function renderAll(){

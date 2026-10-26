@@ -9,6 +9,11 @@ echo Agents...
 robocopy "%SRC%user-level-agents" "%DST%\agents" /E /NFL /NDL /NJH /NJS
 echo Skills (learned data protected)...
 robocopy "%SRC%user-level-skills" "%DST%\skills" /E /XD local pack /NFL /NDL /NJH /NJS
+rem This copy has publish.ps1: it is the maintainer's. The Skills page then releases from the console (no GitHub sending, release boxes).
+if exist "%SRC%publish.ps1" (
+  if not exist "%DST%\skills" mkdir "%DST%\skills"
+  echo {"maintainer": true}> "%DST%\skills\maintainer.json"
+)
 echo Official packs for technique skills...
 if exist "%SRC%user-level-skills\genre\llm-npc-conversations\official" robocopy "%SRC%user-level-skills\genre\llm-npc-conversations\official" "%DST%\skills\genre\llm-npc-conversations\official" /E /NFL /NDL /NJH /NJS
 if exist "%SRC%user-level-skills\genre\materials\official" robocopy "%SRC%user-level-skills\genre\materials\official" "%DST%\skills\genre\materials\official" /E /NFL /NDL /NJH /NJS

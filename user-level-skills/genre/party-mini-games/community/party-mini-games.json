@@ -1,0 +1,293 @@
+{
+  "schema": 1,
+  "genre": "party-mini-games",
+  "pack_version": 27,
+  "patterns": [
+    {
+      "id": "p-792c4eb18855",
+      "variant": "pillars",
+      "statement": "Round lifecycle as enum state machine in one loop",
+      "condition": "a round loops indefinitely with distinct phases",
+      "action": "model the round as an explicit enum state machine (Waiting, InProgress, EndGame) driven by a single server-side loop that resets state and re-enables spawners each cycle",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-e590634bebb6",
+      "variant": "pillars",
+      "statement": "End round with race: last survivor vs timer, draw on timeout",
+      "condition": "a round must end on last survivor or on a time limit",
+      "action": "race a WaitForSingleSurvivor loop against Sleep(RoundDuration) so whichever finishes first ends the round; at timeout with more than one survivor declare a draw",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-d8af37812bec",
+      "variant": "pillars",
+      "statement": "Delegate kill and survival XP to Accolade devices",
+      "condition": "XP/score is awarded per kill and per survival interval",
+      "action": "delegate scoring to Accolade devices fed by Elimination Manager and a Timer, and award survival XP from a snapshot of the alive list taken in a non-suspending handler",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-03a2e0b894ef",
+      "variant": "pillars",
+      "statement": "A Verse manager only runs when an instance is placed in the level; check placement and editable references before playtest.",
+      "condition": "a Verse creative_device exists in code",
+      "action": "verify with find_actors that an instance is placed in the level and its @editable references are filled",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-699c46854166",
+      "variant": "pillars",
+      "statement": "One authoritative Verse manager owns the round state machine and toggles spawners, storm and granters per phase; scoring is delegated to Accolade/Elimination Manager/Timer devices.",
+      "condition": "a round-based map with infinite rounds",
+      "action": "drive Waiting, InProgress and EndGame from one Verse manager that enables/disables spawners, storm and item granters per phase and resets after a delay",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-f7be9b85a4f3",
+      "variant": "pillars",
+      "statement": "Pre-lobby spawners plus teleport into disabled arena spawners, with a guard loop",
+      "condition": "players wait between rounds while arena spawners are only positions",
+      "action": "spawn players in a pre-lobby spawner group; teleport participants to disabled arena spawners at start; a 1s guard returns stray arena players to the pre-lobby",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-914f6feaad33",
+      "variant": "pillars",
+      "statement": "Pool-first weighted drop cycle without duplicates per cycle",
+      "condition": "a periodic drop gives each living player a different item from several granter pools",
+      "action": "pick the pool first by weight/(served+1) plus jitter, then an unused index different from the player's last; keep granters disabled outside the round",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-02f6652718e0",
+      "variant": "pillars",
+      "statement": "Countdown phase cancellable below minimum players",
+      "condition": "a round needs a visible wait before the arena opens",
+      "action": "run a countdown phase between pre-lobby and arena, cancel it if players fall under the minimum, and show the remaining seconds on the HUD",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-e4f7788ca025",
+      "variant": "pillars",
+      "statement": "Clear inventories at every phase boundary via Item Remover",
+      "condition": "items from one round must not leak into the next or into the arena start",
+      "action": "call an Item Remover (all items, apply to player) from Verse on participants at countdown start, right before the arena teleport, and on survivors returning to the pre-lobby",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-81d4b3b87719",
+      "variant": "pillars",
+      "statement": "Exclusive slot assignment with blocked flags and fallback",
+      "condition": "participants are teleported onto a fixed set of arena positions",
+      "action": "keep a per-slot blocked flag array: try the preferred slot then the next free ones, mark a slot blocked when occupied or when the teleport fails, and log duplicates",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-73e3a3fd9279",
+      "variant": "pillars",
+      "statement": "Cleanup damage volume active only between rounds",
+      "condition": "players build structures during a round and the area must be clean for the next one",
+      "action": "enable a damage volume over the build area only while nobody is in the arena (after survivors return, disable a few seconds before the next start)",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-6af8a18c6709",
+      "variant": "pillars",
+      "statement": "Measure Item List size by probing valid indices, with manual override",
+      "condition": "an Item Granter list size is unknown or may exceed a small bound, and drops must feel fair",
+      "action": "probe the list at startup with GetItemGrantCountAtIndex over a wide range (up to 512), keep only valid indices, stop after a run of consecutive empty slots; allow a manual size override",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-848c7e1cf5e5",
+      "variant": "pillars",
+      "statement": "Guarantee a weapon on the first drop, weighted pools with anti-streak",
+      "condition": "the first drop of a round decides whether players can fight at all",
+      "action": "limit the first cycle to weapon pools, then draw pools by weight (about 40/30/15/15) with a per-player anti-streak never repeating a pool",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-c9c0485f48b9",
+      "variant": "pillars",
+      "statement": "Pillar top as a tile aligned to pillar",
+      "condition": "pillars were built from one actor and a floor tile on top must match the spawner",
+      "action": "place a floor tile per pillar and re-align pillars to tiles so spawn height and footprint are consistent",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-cec1dd513d3b",
+      "variant": "pillars",
+      "statement": "Log expected vs observed grant events and cumulative distribution for tuning",
+      "condition": "a granter system must prove grants actually landed",
+      "action": "subscribe to each granter's ItemGrantedEvent, snapshot the agents of the previous cycle and log which agents received no event, with periodic cumulative distribution percentages",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-33d9f050c7fb",
+      "variant": "pillars",
+      "statement": "Measure Item Granter list size once at start with manual override and fallback",
+      "condition": "item pool sizes are unknown to Verse at runtime",
+      "action": "probe GetItemGrantCountAtIndex over indices at start, stop after 16 consecutive zeros, and offer a manual size override with a round-robin fallback",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "performance",
+      "support": 1
+    },
+    {
+      "id": "p-0d99dddb8ecf",
+      "variant": "pillars",
+      "statement": "Weighted pool-first loot with compensated anti-streak weights",
+      "condition": "players must receive random loot from several Item Granter pools without streaks",
+      "action": "pick a weighted pool per player excluding their last pool, and renormalize weights by fixed point to compensate the exclusion",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-e13f8be27af7",
+      "variant": "pillars",
+      "statement": "Numbered single editable fields collected into an array for MCP wiring",
+      "condition": "a Verse device needs a list of many placed devices wired via MCP",
+      "action": "declare numbered single @editable fields (Spawner01..12) and collect them into an array in code, because array wiring is not settable through MCP",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-01202e962039",
+      "variant": "pillars",
+      "statement": "Subscribe once in OnBegin, sweep alive list instead of per-character subscriptions",
+      "condition": "a manager must track players across rounds with events that fire per character",
+      "action": "subscribe to events once in OnBegin (spawners, elimination manager, playspace join/leave) and validate the alive list with a periodic IsActive sweep instead of subscribing per character",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-df8b36b4ba9a",
+      "variant": "pillars",
+      "statement": "Per-player widget map created on join and pruned on leave",
+      "condition": "each player needs a personal HUD widget with per-player counters",
+      "action": "keep a map agent->widget created on join (and lazily in a guard loop), update fields server-side, and rebuild the maps without the agent in PlayerRemovedEvent",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-ec2cccf2bcbf",
+      "variant": "pillars",
+      "statement": "Track per-player UI widgets, mappings and listeners in one helper and clear them together",
+      "condition": "a UI screen needs widgets, input mappings and event listeners that must all be removed when the screen closes",
+      "action": "route every AddWidget, input mapping and event subscription through one helper that records them per player, and clean up with a single ClearAllForPlayer on every exit path",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-5e60d5de1670",
+      "variant": "pillars",
+      "statement": "Trigger widget animations with a brief logic pulse and recreate the widget per visit",
+      "condition": "a UMG widget animation or state must be driven from Verse",
+      "action": "expose a logic field on the widget, set it true, Sleep ~0.1s so the widget notices, then set it false; build a fresh widget instance each time the screen opens",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-d3673f643b8f",
+      "variant": "pillars",
+      "statement": "Guard timed UI messages with a per-player id re-checked after each sleep",
+      "condition": "a transient on-screen message (toast) can be replaced or dismissed while its timer is still running",
+      "action": "give each shown message a monotonically increasing id stored per player and re-check it is still current after every Sleep before animating out or removing",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-dec96a76b20a",
+      "variant": "pillars",
+      "statement": "Lazy per-player UI object map cleaned on PlayerRemoved",
+      "condition": "a per-player menu device must handle players joining and leaving",
+      "action": "keep a [player]menu map created lazily on first open, subscribe PlayerAddedEvent/PlayerRemovedEvent, and on leave close the menu and rebuild the map without that player",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-3fb7ff75c440",
+      "variant": "pillars",
+      "statement": "Per-player relay object carries context into event callbacks",
+      "condition": "a Verse handler needs per-player context inside a Subscribe callback and local lambdas are unavailable",
+      "action": "create a small relay class per player holding manager, player and agent, store it in a per-agent map and subscribe its method; keep the cancelables to cancel on leave",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-ad35d17ae10a",
+      "variant": "pillars",
+      "statement": "Per-player HUD bar with retry and leave race",
+      "condition": "a Verse device must show a map code or favorite prompt HUD to all players",
+      "action": "attach a widget bar per player with a retry loop waiting for player UI, raced against PlayerRemoved, cycling name and favorite prompt on a timer with a minimum interval",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    }
+  ]
+}

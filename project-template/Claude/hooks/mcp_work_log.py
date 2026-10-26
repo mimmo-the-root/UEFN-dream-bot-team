@@ -68,6 +68,15 @@ def main():
             rec["src"] = "replay"
         with open(os.path.join(logs, "explore-ledger.jsonl"), "a", encoding="utf-8") as f:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        if rec["r"] == "ok":   # what works is also kept in your profile, so deleting this project from the disk loses nothing
+            try:
+                sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+                import recipes_status as _rs
+                _a = _rs.parse_args(rec["args"])
+                if _a is not None:
+                    _rs.note_ok("%s/%s" % (rec["toolset"], rec["tool"]), _rs.form(_a))
+            except Exception:
+                pass
     except Exception:
         pass
 

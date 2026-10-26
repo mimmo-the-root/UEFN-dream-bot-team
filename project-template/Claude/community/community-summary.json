@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.110.1"
+   "tag": "v1.110.2"
   },
   "state": {
    "genres": [],
@@ -24,13 +24,17 @@
  "release": {
   "date": "2026-10-26",
   "items": [
-   "The Checklist tab appears once. On the Checklist page the server added a second tab next to the one the page already has.",
-   "`/EntityFramework` is an Epic library. Its imports no longer raise \"No reference to assets of another project\".",
-   "Documents of a Fab product. `docs` always creates `Documentation/AUTHOR.md` with your saved signature (never overwritten); `SETTINGS.md` only when the product has Verse code; the listing template has no Price and no Subcategory section; `zip` no longer tells you to test the archive in a clean project.",
-   "Rules in the skill fab-product. Blocks, warnings and notes are counted apart (a note is never a warning); `Collections` and `Developers/<user>` belong to the project; price, subcategory, licences and `third_party.md` are the owner's (the agent writes nothing there); no zip unless asked; no screenshots or thumbnails by the agent; tags only among the portal's suggested ones (`fab_checklist.py tags`)."
+   "Lessons reach the kit at each release, by themselves. `publish.ps1` runs `promote-genre-skills.py --community-only`: the lessons you approved are written as community packs in the repo (privacy checked per file; a file with findings is skipped and reported) and users receive them as one proposal per skill in To approve. The Lessons tab has an *In the kit* column and a *Not in the kit yet* filter. A recipe of yours that is already in the kit shows *in the kit* on the Recipes tab and leaves To share.",
+   "Skills tab: which skills are new. A *In the kit* column (in the kit / new, with its creation date, goes out at the next release / nothing to ship yet) and a *New, not in the kit* filter. At each release `publish.ps1` runs `promote-genre-skills.py --auto`: a skill already in the kit gets only its lessons pack, a new skill that has lessons of yours or an official pack goes in whole (SKILL.md and references are checked for secrets, personal paths and your private terms, not for markdown); `Claude/community/kit-skills.json` lists what ships.",
+   "Maps & products finds the recipes of a Fab product. A recipe stores only the hash of the name the agent gave to the product, so a product named in other words (without `root_`, with spaces, without FAB) showed 0 recipes. The page now tries those variants.",
+   "Tests no longer leave folders in your profile. Three Fab tests wrote lab folders (`prod`, `Proj`, ...) in `~/.claude/fab-lab`, and they showed up in Maps & products as if they were your projects. They now use a temporary folder; delete the two leftovers by hand.",
+   "Tests no longer write in your project registry either. One Fab test registered temporary projects (`prod`) in `~/.claude/kit-projects.json`, so they appeared in Maps & products. If you see `prod` or `Proj` there, remove those entries by hand.",
+   "This product (Fab): the empty recipes box says what really happens (the agent writes the recipes when you press Learn) instead of promising the kit does it from Verse code.",
+   "Contribute to the community is ON by default. So creators see what their work produces (*ready to send* in To share). Nothing leaves the computer until you press the button and see the exact JSON; the switch in the Community tab turns it off, and an explicit off is kept.",
+   "The same states and the same buttons in every tab. Lessons, Recipes, Skills, To share and the UEFN MCP box all show a *State* column (Collected \u2192 Ready \u2192 Shared, or Private) and the same buttons: Keep private / Make shareable per row, Promote all / Keep all private for the list on screen. No more check boxes or \"not yet\" chips; the filters are the states. The UEFN MCP *Not in the kit yet* box lists the proven recipes with the same buttons (a recipe kept private is not released). *Maps & products* now names the skills each project feeds."
   ],
-  "tag": "v1.110.2",
-  "title": "v1.110.2 \u2014 Fab: Checklist and documents, rules for the agent"
+  "tag": "v1.111.0",
+  "title": "v1.111.0 \u2014 One workflow to share: states, buttons and release"
  },
  "schema": 1,
  "skills": [],

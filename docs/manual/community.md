@@ -1,6 +1,6 @@
 # Community
 
-Share what your maps taught you, and receive what everyone's maps taught. Voluntary, off by default, lessons only.
+Share what your maps taught you, and receive what everyone's maps taught. Voluntary, on by default (nothing is sent until you press a button), lessons only.
 
 ## What is shared, and what never is
 
@@ -14,8 +14,8 @@ A lesson can be shared only if it was learned on a **published** map. The kit ch
 
 ## How to contribute
 
-1. On the Skills page, tab **Community**, switch on *Contribute to the community*.
-2. Open the tab **To share** and press **Contribute** next to a lesson you approved (choose its section first), or **Send to the community** next to a recipe you chose to share in the kit. You see the exact JSON that would leave your computer.
+1. On the Skills page, tab **Community**, check that *Contribute to the community* is on and save your GitHub name once (it goes into the file name, so you never rename anything).
+2. Open the tab **To share** and press **Contribute** next to a lesson or a recipe that is *Ready*. You see the exact JSON that would leave your computer, and GitHub opens with the file name, the title and the description already filled in: you only click. Every item goes through the same states: *Collected* (waiting, the reason is shown) → *Ready* → *Shared*; **Keep private** takes it out at any time before it is shared (**Make shareable** brings it back).
 3. Press **Open GitHub**. The new-file page opens with the lesson filled in. Rename the file to your GitHub handle (for example `ada.json`) and press *Propose new file*. GitHub opens a pull request from your own account.
 
 > **Note** By proposing the file you agree that the anonymized lesson becomes part of the kit under the repository license, and that your handle is credited.
@@ -28,7 +28,11 @@ You receive community lessons and recipes with the kit updates. They wait in the
 
 ## Recipes
 
-A **recipe** is how to rebuild something (a device, a mechanic, a map template, a material), step by step, with its Verse code. The kit prepares your recipes by itself from the Verse code of your maps and Fab products. In **To share** you choose for each one: *Share in the kit* (public, with its code, under the repository license) or *Keep private*. A recipe you shared can be sent to the community the same way as a lesson, and one that arrives from the community is screened for links, secrets and anything that instructs an assistant.
+A **recipe** is how to rebuild something (a device, a mechanic, a map template, a material), step by step, with its Verse code. The kit prepares your recipes by itself from the Verse code of your maps and Fab products. A recipe goes into the kit by itself (public, with its code, under the repository license) unless you press **Keep private** in **To share**. A recipe you shared can be sent to the community the same way as a lesson, and one that arrives from the community is screened for links, secrets and anything that instructs an assistant.
+
+## For the maintainer
+
+The maintainer does not send his own lessons and recipes through GitHub. `publish.ps1` takes them straight from his profile: the recipes he did not keep private join the official recipes, and the lessons he did not keep private become community packs of the repo (`genre/<skill>/community/`). Both are privacy checked, and a file with findings is skipped and reported. A skill of yours that is not in the kit yet goes in whole at the release (the Skills tab marks it *new*); one that is already there gets only its lessons. After the release, users receive them in **To approve**. On the Lessons tab the *In the kit* column and the *Not in the kit yet* filter show what has already gone out.
 
 ## Reputation
 

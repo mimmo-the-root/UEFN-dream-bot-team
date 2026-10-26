@@ -260,6 +260,133 @@ def progress(ledger=None, recipes_path=None, history=None, tools=None):
         return {}
 
 
+def ledger_paths(extra=()):
+    """Every explore ledger on this computer: the projects registered with the kit (maps and Fab products), the Fab lab folders, and `extra`
+    (also UEFN_MCP_LEDGERS, a path list). Only files that exist."""
+    home = os.path.expanduser("~")
+    out = [x for x in extra if x]
+    out += [x for x in os.environ.get("UEFN_MCP_LEDGERS", "").split(os.pathsep) if x]
+    try:
+        with open(os.path.join(home, ".claude", "kit-projects.json"), encoding="utf-8") as f:
+            for path in json.load(f):
+                for sub in ("", "Content"):
+                    out.append(os.path.join(path, sub, "Claude", "logs", "explore-ledger.jsonl"))
+    except (OSError, ValueError, TypeError):
+        pass
+    lab = os.environ.get("UEFN_FAB_LAB_DIR") or os.path.join(home, ".claude", "fab-lab")
+    try:
+        for d in os.listdir(lab):
+            out.append(os.path.join(lab, d, "Claude", "logs", "explore-ledger.jsonl"))
+    except OSError:
+        pass
+    seen, res = set(), []
+    for x in out:
+        k = os.path.normcase(os.path.abspath(x))
+        if k not in seen and os.path.isfile(x):
+            seen.add(k)
+            res.append(x)
+    return res
+
+
+def store_path():
+    return os.environ.get("UEFN_MCP_EVIDENCE") or os.path.join(os.path.expanduser("~"), ".claude", "mcp-evidence.json")
+
+
+def load_store():
+    """What your work proved, kept in YOUR profile (~/.claude/mcp-evidence.json), so deleting a project from the disk loses nothing:
+    {"proven": {"toolset/tool": ["<call form>", ...]}}. Only the names of the argument fields, never values, paths or project names."""
+    try:
+        with open(store_path(), encoding="utf-8") as f:
+            d = json.load(f)
+        if isinstance(d, dict) and isinstance(d.get("proven"), dict):
+            return d
+    except (OSError, ValueError):
+        pass
+    return {"proven": {}}
+
+
+def _save_store(d):
+    p = store_path()
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    tmp = p + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(d, f, indent=1, sort_keys=True)
+    os.replace(tmp, p)
+
+
+def note_ok(tool, f, store=None):
+    """Remember that call form `f` of `tool` worked (real work or a replay). Idempotent: reading the same call twice changes nothing."""
+    d = store if store is not None else load_store()
+    forms = d["proven"].setdefault(tool, [])
+    if f in forms:
+        return False
+    forms.append(f)
+    if store is None:
+        _save_store(d)
+    return True
+
+
+def sync(paths=None):
+    """Move into the store what the ledgers still on disk prove (first run: everything that exists; later: what is new). Safe to repeat."""
+    d = load_store()
+    changed = False
+    for p in (paths if paths is not None else ledger_paths()):
+        for tool, forms in evidence_from_ledger(p).items():
+            for f, v in forms.items():
+                if v[0] and note_ok(tool, f, d):
+                    changed = True
+    if changed:
+        _save_store(d)
+    return d
+
+
+def store_evidence(d=None):
+    """The store in the shape merge() reads."""
+    d = d if d is not None else load_store()
+    return {tool: {f: [1, 0, ""] for f in forms} for tool, forms in d["proven"].items()}
+
+
+def all_evidence(paths):
+    """The evidence of several ledgers added together (same shape as evidence_from_ledger)."""
+    tot = {}
+    for p in paths:
+        for tool, forms in evidence_from_ledger(p).items():
+            for f, v in forms.items():
+                slot = tot.setdefault(tool, {}).setdefault(f, [0, 0, ""])
+                slot[0] += v[0]
+                slot[1] += v[1]
+                slot[2] = v[2] or slot[2]
+    return tot
+
+
+def pending(tools=None, recipes_path=None, extra_ledgers=(), changes=None):
+    """What you know that the kit does not yet: recipes proven by YOUR work (any project of this computer) that the installed kit still has as
+    not proven, recipes whose tool Epic changed or removed, and tools of your UEFN the kit has never heard of. Never raises."""
+    out = {"proven_local": [], "stale": 0, "new_tools": [], "ledgers": 0}
+    try:
+        recipes = load_recipes(recipes_path)
+        paths = ledger_paths(extra_ledgers)
+        out["ledgers"] = len(paths)
+        merged = merge(recipes, store_evidence(sync(paths)))   # the store, not only the ledgers: a project deleted from the disk still counts
+        out["proven_local"] = sorted(k for k, v in merged.items() if v["status"] == "proven" and recipes[k].get("status") != "proven")
+        try:
+            since = ""
+            try:
+                since = json.load(open(os.path.join("Claude", "logs", "recipes-retest.json"), encoding="utf-8")).get("date", "")
+            except (OSError, ValueError):
+                pass
+            out["stale"] = len(stale(recipes, changes if changes is not None else map_changes(), since))
+        except Exception:
+            pass
+        if tools:
+            import mcp_map
+            known = set(mcp_map.lab_known())
+            out["new_tools"] = sorted(t for t in tools if t not in known)
+    except Exception:
+        pass
+    return out
+
+
 def map_changes(d=None):
     """Rows of changes.jsonl (the MCP map's history): [{date, uefn, state, added, removed, changed}]."""
     import toolset_diff as td
@@ -334,7 +461,7 @@ def main(argv=None):
     if a.apply:
         n = apply(recipes, json.load(open(a.apply, encoding="utf-8")), a.min_ok)
         if a.write:
-            json.dump(recipes, open(a.recipes or RECIPES, "w", encoding="utf-8", newline="\n"), indent=1, ensure_ascii=False)
+            json.dump(recipes, open(a.recipes or RECIPES, "w", encoding="utf-8", newline="\n"), indent=2, ensure_ascii=False)
         print("%d recipe(s) %s proven" % (n, "set to" if a.write else "would become"))
         return 0
     if a.stale or a.retested:

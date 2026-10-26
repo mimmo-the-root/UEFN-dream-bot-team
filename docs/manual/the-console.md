@@ -85,7 +85,7 @@ Some steps (task intake, read context, skill match, pre-check, MCP place, sealed
 What the kit has learned, and what waits for you. At the top, four cards (what waits for you, lessons, recipes, the projects the kit learns from), each with a ring, and a **LEARN** block with one button: *Learn from this map* or *Learn from this product*. Under them, the tabs:
 
 - **To approve**: lessons from your work, lesson packs and recipes that came back from the community, and the lessons of a Fab product. One list, five per page, with *Approve all*. What you approve leaves the list.
-- **To share**: recipes you decide to share in the kit or keep private, and what is ready to send to the community.
+- **To share**: everything that can leave your computer (lessons, recipes, the UEFN MCP proof) in one list, with its state (collected, ready, shared, private) and a **Keep private** button. On the maintainer's computer ready items go out with the next release; the Community tab has a *View* switch (Maintainer / Contributor) to see what a user sees.
 - **Lessons**, **Recipes**, **Skills**: everything the kit knows, with filters and a search.
 - **Maps & products**: every project the kit learns from, with a bar for how much is learned.
 - **This map** (or **This product** in a Fab product): the genre and type, the steps of the learning, the blueprint and the recipes of the project you are in.

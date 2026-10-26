@@ -38,7 +38,8 @@ try:
     st = FL.learn_state(root)
     ok(len([x for x in st["proposals"] if x["status"] == "pending"]) == 4 and st["flag"]["state"] == "waiting", "four proposals wait for the owner, and the request waits for the agent")
     os.environ["CLAUDE_PROJECT_DIR"] = root
-    ki = FL._ki(); ki.set_kind(root, "fab") if hasattr(ki, "set_kind") else None
+    ki = FL._ki(); ki.REGISTRY = os.path.join(base, "kit-projects.json")   # never write in the real ~/.claude/kit-projects.json
+    ki.set_kind(root, "fab") if hasattr(ki, "set_kind") else None
     FL.fab_root = lambda b: root
     out = FL.stop_hook({"cwd": root})
     ok(out and out["decision"] == "block" and "fab_lab.py" in out["reason"] and "propose" in out["reason"], "the Stop hook asks the agent to finish the learning")

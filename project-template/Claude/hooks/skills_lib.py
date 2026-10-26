@@ -302,6 +302,22 @@ def _map_key(name):
     return hashlib.sha1(_norm(name).encode("utf-8")).hexdigest()[:10]
 
 
+def name_keys(name):
+    """The map keys under which a project may have been named by an agent: the folder name as it is, with spaces for _ and -, without a
+    leading root_ and without the word FAB. A recipe stores only the hash of the name, so these variants are how it finds its project again."""
+    n = (name or "").strip()
+    if not n:
+        return set()
+    out = {n}
+    sp = re.sub(r"[_\-]+", " ", n).strip()
+    out.add(sp)
+    for v in list(out):
+        w = re.sub(r"^root[ _\-]+", "", v, flags=re.I).strip()
+        out.add(w)
+        out.add(re.sub(r"(^|[ _\-])fab([ _\-]|$)", " ", w, flags=re.I).strip())
+    return {_map_key(x) for x in out if x}
+
+
 def tier_for(n_for, metric_backed=False):
     if n_for >= 3 or (n_for >= 2 and metric_backed):
         return "proven"
@@ -1376,7 +1392,7 @@ def act(slug, proposal_id, action, statement=None, exclude=()):
 
 
 # ----------------------------------------------------------------------------- community packs
-def export_pack(slug, out_dir):
+def export_pack(slug, out_dir, skip=()):
     """Write the SHAREABLE pack, but only if the privacy check passes."""
     chk = check(slug)
     if not chk["ok"]:
@@ -1388,7 +1404,7 @@ def export_pack(slug, out_dir):
     pack = load_pack(slug)
     items = []
     for p in pack["patterns"]:
-        if p.get("status") == "superseded" or p.get("support", 0) < 1:
+        if p.get("status") == "superseded" or p.get("support", 0) < 1 or p.get("id") in skip:
             continue
         item = {k: p[k] for k in ("id", "variant", "statement", "condition", "action", "tier", "status", "section") if k in p}
         item["support"] = p.get("support", 0)
@@ -1492,10 +1508,45 @@ def _community_file():
 
 
 def community_state():
-    """The switch "Contribute to the community" (OFF by default) and which lessons were already shared. Lives next to the skills."""
+    """The switch "Contribute to the community" (ON by default; you can switch it off) and which lessons were already shared. Lives next to the skills."""
     d = _read_json(_community_file(), {})
     shared = [x for x in (d.get("shared") or []) if isinstance(x, str) and re.fullmatch(r"[pr]-[0-9a-f]{12}", x)]
-    return {"share": d.get("share") is True, "shared": shared[-2000:]}
+    h = d.get("handle") if isinstance(d.get("handle"), str) and re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})", d.get("handle")) else ""
+    return {"share": d.get("share") is not False, "shared": shared[-2000:], "handle": h}
+
+
+def set_handle(handle):
+    """Your GitHub name, asked once: it goes into the file name of a proposal (the community check wants it there), so you do not have to rename the file."""
+    h = (handle or "").strip().lstrip("@")
+    if h and not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})", h):
+        return {"ok": False, "error": "that is not a GitHub name (letters, digits and dashes)"}
+    st = community_state()
+    st["handle"] = h
+    _write_json(_community_file(), st)
+    return {"ok": True, "handle": h}
+
+
+_GH_BODY = "Sent from the UEFN Dream Bot Team console. The file holds only the JSON shown there before sending: no paths, no map names."
+
+
+def _gh_url(name, value, title):
+    """GitHub 'new file' page with the file name, the content, the commit title and the description already filled in.
+    Returns (url, prefilled, name). Too long to carry the content: the url keeps the name and the title, the user pastes the JSON."""
+    h = community_state().get("handle")
+    if h:
+        name = name.replace("<your-github-handle>", h.lower())
+    base = "https://github.com/%s/new/main?filename=%s" % (COMMUNITY_REPO, urllib.parse.quote(name, safe="/"))
+    tail = "&message=%s&description=%s" % (urllib.parse.quote(title, safe=""), urllib.parse.quote(_GH_BODY, safe=""))
+    full = base + "&value=" + urllib.parse.quote(value, safe="") + tail
+    if len(full) <= MAX_CONTRIB_URL:
+        return full, True, name
+    return base + tail, False, name
+
+
+def _gh_note(prefilled):
+    h = community_state().get("handle")
+    ren = "" if h else " Rename the file to your GitHub name (set it once in the Community tab and this step disappears)."
+    return ("On GitHub press Propose new file, then Create pull request." if prefilled else "Too long to prefill: press Copy, paste the JSON in the GitHub editor, then press Propose new file.") + ren
 
 
 def set_community(share):
@@ -1531,6 +1582,10 @@ def community_act(data, project=None):
     act_ = (data or {}).get("action")
     if act_ in ("on", "off"):
         return set_community(act_ == "on")
+    if act_ == "handle":
+        return set_handle(data.get("handle"))
+    if act_ == "mode":
+        return set_maintainer_mode(data.get("mode"))
     if act_ == "export":
         return contribution_export(data.get("genre"), data.get("id"))
     if act_ == "shared":
@@ -1570,12 +1625,30 @@ def recipes_export(project):
     doc = {"schema_version": 1, "kind": "mcp-recipes-evidence", "kit_version": _kit_version(), "recipes": rec}
     name = "contributions/mcp-recipes/<your-github-handle>.json"
     value = json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1)
-    url = "https://github.com/%s/new/main?filename=%s&value=%s" % (COMMUNITY_REPO, urllib.parse.quote(name, safe="/"), urllib.parse.quote(value, safe=""))
-    note = "On GitHub rename the file to your GitHub handle (for example ada.json), then press Propose new file."
-    if len(url) > MAX_CONTRIB_URL:
-        url = "https://github.com/%s/new/main?filename=%s" % (COMMUNITY_REPO, urllib.parse.quote(name, safe="/"))
-        note = "Too long to prefill: copy the JSON above, paste it in the GitHub editor, rename the file to your GitHub handle, then press Propose new file."
-    return {"ok": True, "doc": doc, "json": value, "filename": name, "url": url, "note": note, "recipes_kind": True}
+    url, pre, name = _gh_url(name, value, "Community: which UEFN MCP tools worked")
+    return {"ok": True, "doc": doc, "json": value, "filename": name, "url": url, "note": _gh_note(pre), "recipes_kind": True}
+
+
+_SECTION_WORDS = (
+    ("death-strategies", ("death", "die", "dies", "elimination", "respawn", "knocked", "revive")),
+    ("persistence", ("save", "saved", "persist", "persistent", "stored", "load ", "leaves", "returning")),
+    ("performance", ("performance", "lag", "oscillat", "budget", "too many", "spawn limit", "cost", "frame")),
+    ("progression", ("tier", "level", "score", "xp", "unlock", "reward", "upgrade", "progress", "counter")),
+    ("devices", ("device", "spawner", "trigger", "button", "volume", "barrier", "vending")),
+    ("launch-checklist", ("publish", "launch", "release", "checklist", "submission")),
+    ("run-loop", ("round", "match", "timer", "loop", "wave", "restart", "reset")),
+)
+
+
+def guess_section(p):
+    """The section of a lesson, chosen by the kit from its words, so nobody has to choose one (architecture when nothing fits)."""
+    if p.get("section") in CONTRIB_SECTIONS:
+        return p["section"]
+    t = " ".join(str(p.get(k) or "") for k in ("statement", "condition", "action")).lower()
+    for sec, words in _SECTION_WORDS:
+        if any(w in t for w in words):
+            return sec
+    return "architecture"
 
 
 def contribution_export(slug, pattern_id):
@@ -1589,22 +1662,20 @@ def contribution_export(slug, pattern_id):
     p = _find(load_pack(slug), pattern_id)
     if not p or p.get("origin") != "local" or p.get("status") == "superseded" or int(p.get("support", 0)) < 1:
         return {"ok": False, "error": "only a lesson of yours that you approved can be shared"}
+    if pattern_id in load_hold()["lessons"]:
+        return {"ok": False, "error": "you kept this lesson private"}
     if not lesson_published(slug, pattern_id):
         return {"ok": False, "published": False, "error": "this lesson comes from a map that is not published: it stays on this computer until the map is published"}
     if validate_pattern(p, _deny_terms(slug)):
         return {"ok": False, "error": "the lesson does not pass the privacy check"}
-    if p.get("section") not in CONTRIB_SECTIONS:
-        return {"ok": False, "error": "give the lesson a section first"}
-    doc = {"schema_version": 1, "pattern_id": p["id"], "genre": slug, "variant": p["variant"], "section": p["section"],
+    sec = guess_section(p)
+    doc = {"schema_version": 1, "pattern_id": p["id"], "genre": slug, "variant": p["variant"], "section": sec,
            "direction": "for" if int(p.get("support", 0)) >= int(p.get("against", 0)) else "against",
            "statement": p["statement"], "condition": p["condition"], "action": p["action"], "kit_version": _kit_version()}
     name = "contributions/%s/%s/<your-github-handle>.json" % (slug, p["id"])
     value = json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1)
-    url = "https://github.com/%s/new/main?filename=%s&value=%s" % (COMMUNITY_REPO, urllib.parse.quote(name, safe="/"), urllib.parse.quote(value, safe=""))
-    if len(url) > MAX_CONTRIB_URL:
-        return {"ok": False, "error": "the lesson is too long to open on GitHub", "doc": doc}
-    return {"ok": True, "doc": doc, "json": value, "filename": name, "url": url,
-            "note": "On GitHub rename the file to your GitHub handle (for example ada.json), then press Propose new file."}
+    url, pre, name = _gh_url(name, value, "Community lesson: %s (%s)" % (p["id"], slug))
+    return {"ok": True, "doc": doc, "json": value, "filename": name, "url": url, "note": _gh_note(pre)}
 
 
 def mark_shared(slug, pattern_id):
@@ -1931,7 +2002,10 @@ def _fab_products():
 
 def _fab_map_keys():
     """Map keys of the Fab products (a recipe learned in a Fab product is confirmed at once: the owner checks it in the editor)."""
-    return {_map_key(d) for d in _fab_products()}
+    out = set()
+    for d in _fab_products():
+        out |= name_keys(d) | {_map_key(d)}
+    return out
 
 
 def recipes_list(slug, query=""):
@@ -2025,8 +2099,8 @@ def recipe_export(slug, name):
     r = next((x for x in data["recipes"] if _norm(x.get("name", "")) == _norm(name or "")), None)
     if not r or r.get("origin") != "owner":
         return {"ok": False, "error": "only a recipe of yours can be sent"}
-    if r.get("share") != "approved":
-        return {"ok": False, "error": "approve it first with \"Share in the kit\""}
+    if r.get("share") == "declined":
+        return {"ok": False, "error": "you kept this recipe private"}
     import recipe_screen as RS
     rec = {k: r[k] for k in RS.FIELDS if r.get(k) not in (None, "", [])}
     rec.setdefault("kind", "material" if slug == "materials" else "mechanic")
@@ -2036,12 +2110,8 @@ def recipe_export(slug, name):
     doc = {"schema_version": 1, "skill": slug, "recipe": rec, "kit_version": _kit_version()}
     value = json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1)
     path = "contributions/recipes/%s/%s/<your-github-handle>.json" % (slug, recipe_id(name))
-    url = "https://github.com/%s/new/main?filename=%s" % (COMMUNITY_REPO, urllib.parse.quote(path, safe="/"))
-    note = "Too long to prefill: press Copy, paste the JSON in the GitHub editor, rename the file to your GitHub handle, then press Propose new file."
-    full = url + "&value=" + urllib.parse.quote(value, safe="")
-    if len(full) <= MAX_CONTRIB_URL:
-        url, note = full, "On GitHub rename the file to your GitHub handle, then press Propose new file."
-    return {"ok": True, "doc": doc, "json": value, "filename": path, "url": url, "note": note, "recipe_kind": True}
+    url, pre, path = _gh_url(path, value, "Community recipe: %s (%s)" % (rec.get("name", "recipe"), slug))
+    return {"ok": True, "doc": doc, "json": value, "filename": path, "url": url, "note": _gh_note(pre), "recipe_kind": True}
 
 
 def _inbox_path():
@@ -2214,7 +2284,7 @@ def recipes_overview():
                 owner = r.get("origin") == "owner"
                 out.append({"skill": s, "name": r.get("name", ""), "use": (r.get("use") or "")[:200], "parent": r.get("parent", ""),
                             "source": "yours" if owner else ("community" if r.get("origin") == "community" else "official"), "tier": r.get("tier", "official"), "maps": len(r.get("maps", [])),
-                            "steps": len(r.get("steps", [])), "added": r.get("added", ""), "kind": r.get("kind", ""), "share": r.get("share", "pending") if owner else "", "rid": recipe_id(r.get("name", ""))})
+                            "steps": len(r.get("steps", [])), "added": r.get("added", ""), "kind": r.get("kind", ""), "share": ("declined" if r.get("share") == "declined" else "approved") if owner else "", "rid": recipe_id(r.get("name", ""))})
     except Exception:
         pass
     return out
@@ -2229,12 +2299,12 @@ def project_name(project):
 
 def recipes_of(name):
     """Recipes (name, skill, kind) that came from the project called `name`."""
-    key = _map_key(name)
+    keys = name_keys(name) | {_map_key(name)}
     out = []
     try:
         for s in _genres():
             for r in recipes_list(s).get("recipes", []):
-                if key in r.get("maps", []):
+                if keys & set(r.get("maps", [])):
                     out.append({"name": r.get("name", ""), "skill": s, "kind": r.get("kind", "")})
     except Exception:
         pass
@@ -2276,11 +2346,11 @@ def projects_overview():
     rows = {}
     try:
         fabk = _fab_map_keys()
-        rec_keys = {}
+        rec_keys = {}   # key -> the recipes (skill + name) that came from it
         for s in _genres():
             for r in recipes_list(s).get("recipes", []):
                 for k in r.get("maps", []):
-                    rec_keys[k] = rec_keys.get(k, 0) + 1
+                    rec_keys.setdefault(k, set()).add((s, recipe_id(r.get("name", ""))))
         for s in _genres():
             sup = _support(s)
             les = {}
@@ -2304,7 +2374,11 @@ def projects_overview():
         except (OSError, ValueError, AttributeError):
             pass
         for k, r in rows.items():
-            r["recipes"] = rec_keys.get(k, 0)
+            found = set()
+            for kk in name_keys(r["name"]) | {k}:
+                found |= rec_keys.get(kk, set())
+            r["recipes"] = len(found)
+            r["skills"] = sorted({x[0] for x in found} | ({r["genre"]} if r.get("genre") else set()))   # the skills this project feeds
             if r["kind"] == "fab":
                 r["pct"] = 100 if r["recipes"] else 50
             else:
@@ -2312,6 +2386,105 @@ def projects_overview():
     except Exception:
         pass
     return sorted(rows.values(), key=lambda r: (r["kind"], r["name"].lower()))
+
+
+def is_maintainer():
+    """True on the computer of the kit maintainer (update-my-profile.cmd / publish.ps1 leave skills/maintainer.json there). The maintainer releases from the console at publish time, so nothing is sent through GitHub."""
+    if os.environ.get("UEFN_MAINTAINER") == "1":
+        return True
+    return maintainer_available() and _read_json(os.path.join(skills_root(), "maintainer.json"), {}).get("active") is not False
+
+
+def maintainer_available():
+    """This computer belongs to the maintainer (it may still be switched to the contributor view to test what users see)."""
+    return _isfile(os.path.join(skills_root(), "maintainer.json"))
+
+
+def set_maintainer_mode(mode):
+    if not maintainer_available():
+        return {"ok": False, "error": "this computer is not marked as the maintainer's"}
+    if mode not in ("maintainer", "contributor"):
+        return {"ok": False, "error": "mode must be maintainer or contributor"}
+    _write_json(os.path.join(skills_root(), "maintainer.json"), {"maintainer": True, "active": mode == "maintainer"})
+    return {"ok": True, "mode": mode}
+
+
+def hold_path():
+    return os.path.join(skills_root(), "release-hold.json")
+
+
+def load_hold():
+    """What the maintainer keeps out of the next release: {"skills": [slug], "lessons": [id]}. Everything else goes out."""
+    d = _read_json(hold_path(), {})
+    d = d if isinstance(d, dict) else {}
+    return {k: [x for x in d.get(k, []) if isinstance(x, str)] for k in ("skills", "lessons", "mcp")}
+
+
+def hold_set(kind, key, held):
+    """Tick or untick 'release' on a skill or a lesson of the Skills page. Only names that exist on this computer are accepted."""
+    d = load_hold()
+    if kind == "skill":
+        key = resolve_genre(key)
+        lst = d["skills"]
+    elif kind == "mcp":
+        if not re.fullmatch(r"[\w.]{1,120}/\w{1,80}", key or ""):
+            return {"ok": False, "error": "unknown tool"}
+        lst = d["mcp"]
+    elif kind == "lesson":
+        if not any(p.get("id") == key for s in _genres() for p in load_pack(s)["patterns"]):
+            return {"ok": False, "error": "unknown lesson"}
+        lst = d["lessons"]
+    else:
+        return {"ok": False, "error": "kind must be skill or lesson"}
+    if held and key not in lst:
+        lst.append(key)
+    if not held and key in lst:
+        lst.remove(key)
+    _write_json(hold_path(), d)
+    return {"ok": True, "hold": d}
+
+
+def hold_set_many(kind, keys, held):
+    """The same as hold_set for a whole list at once (the Promote all / Keep all private buttons)."""
+    if kind not in ("skill", "lesson", "mcp") or not isinstance(keys, list) or len(keys) > 2000:
+        return {"ok": False, "error": "kind must be skill, lesson or mcp and keys a list"}
+    d = load_hold()
+    lst = d["skills"] if kind == "skill" else (d["mcp"] if kind == "mcp" else d["lessons"])
+    known = set(_genres()) if kind == "skill" else ({p.get("id") for s in _genres() for p in load_pack(s)["patterns"]} if kind == "lesson" else None)
+    n = 0
+    for k in keys:
+        if not isinstance(k, str) or (known is not None and k not in known) or (known is None and not re.fullmatch(r"[\w.]{1,120}/\w{1,80}", k)):
+            continue
+        if held and k not in lst:
+            lst.append(k); n += 1
+        if not held and k in lst:
+            lst.remove(k); n += 1
+    _write_json(hold_path(), d)
+    return {"ok": True, "changed": n, "hold": d}
+
+
+def kit_skills():
+    """Slugs of the genre skills that ship with the kit (Claude/community/kit-skills.json, written by tool/promote-genre-skills.py at each release)."""
+    try:
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "community", "kit-skills.json"), encoding="utf-8") as f:
+            return {x for x in (json.load(f).get("skills") or []) if isinstance(x, str)}
+    except (OSError, ValueError, AttributeError):
+        return set()
+
+
+def kit_lesson_ids(slug):
+    """Ids of the lessons that already ship with the kit for this skill (<genre>/community/*.json: what the maintainer released)."""
+    ids = set()
+    cd = os.path.join(gdir(slug), "community")
+    if not _isdir(cd):
+        return ids
+    for n in _listdir(cd):
+        if n.endswith(".json"):
+            obj = _read_json(os.path.join(cd, n), {})
+            for x in (obj.get("patterns") if isinstance(obj, dict) else None) or []:
+                if isinstance(x, dict) and x.get("id"):
+                    ids.add(x["id"])
+    return ids
 
 
 def summary():
@@ -2331,6 +2504,9 @@ def summary():
         c = {t: 0 for t in TIERS}
         c["contested"] = 0
         pats = []
+        in_kit = kit_lesson_ids(s)
+        shipped = kit_skills()
+        hold = load_hold()
         for p in pack["patterns"]:
             if p.get("status") == "superseded":
                 continue
@@ -2344,6 +2520,8 @@ def summary():
                                                "origin", "support", "against", "community_support", "conflicts_with", "section")})
             if p.get("origin") == "local" and p.get("support", 0) >= 1:
                 pats[-1]["published"] = lesson_published(s, p["id"])
+                pats[-1]["in_kit"] = p["id"] in in_kit
+                pats[-1]["hold"] = p["id"] in hold["lessons"]
         led = _read_jsonl(os.path.join(ldir(s), "ledger.jsonl"))
         ll = led[-1]["ts"] if led else None
         if ll and (not last_learned or ll > last_learned):
@@ -2355,7 +2533,11 @@ def summary():
                 check_ok = False
         for k in maps:
             all_maps.add((s, k))
+        has_own = any(x.get("origin") == "local" and (x.get("support") or 0) >= 1 for x in pats)
         genres.append({"slug": s, "maps": len(maps), "counts": c, "patterns": pats, "last_learned": ll,
+                       "created": led[0]["ts"] if led else None,
+                       "hold": s in hold["skills"],
+                       "kit": "in" if s in shipped else ("new" if has_own else "none"),
                        "consulted": int(usage.get("total", 0)),
                        "pending": sum(1 for p in pending if p["genre"] == s),
                        "variants": sorted({p["variant"] for p in pats}), "blueprints": blueprints_for(s)})
@@ -2365,7 +2547,7 @@ def summary():
     totals["maps"] = len(all_maps)
     community = sum(1 for p in pending if p["kind"] == "pack_update")
     oldest = min((p["created"] for p in pending), default=None)
-    return {"root": genre_root(), "root_exists": _isdir(genre_root()), "genres": genres, "totals": totals,
+    return {"maintainer": is_maintainer(), "maintainer_available": maintainer_available(), "root": genre_root(), "root_exists": _isdir(genre_root()), "genres": genres, "totals": totals,
             "pending": pending, "pending_lessons": len(pending) - community, "pending_packs": community,
             "recipes": recipes_overview(), "projects": projects_overview(), "oldest_pending": oldest, "variants": len(variants_seen), "last_learned": last_learned,
             "usage_week": [week[d] for d in days], "usage_week_total": sum(week.values()),

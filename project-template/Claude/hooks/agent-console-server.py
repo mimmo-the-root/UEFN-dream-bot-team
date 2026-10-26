@@ -616,7 +616,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._map_learn()
         if self.path.startswith("/fab-act"):
             return self._fab_act()
-        if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check") or self.path.startswith("/genre-confirm") or self.path.startswith("/community-act") or self.path.startswith("/recipe-share")):
+        if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check") or self.path.startswith("/genre-confirm") or self.path.startswith("/community-act") or self.path.startswith("/recipe-share") or self.path.startswith("/release-hold")):
             return self._send_json_status(404, {"ok": False, "error": "unknown endpoint"})
         if not self._origin_ok():
             return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
@@ -625,7 +625,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if n > 65536:
                 return self._send_json_status(413, {"ok": False, "error": "body too large"})
             data = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
-            if self.path.startswith("/recipe-share") and data.get("inbox"):
+            if self.path.startswith("/release-hold"):
+                if isinstance(data.get("keys"), list):
+                    res = skills_lib.hold_set_many(str(data.get("kind") or ""), data["keys"], bool(data.get("hold")))
+                else:
+                    res = skills_lib.hold_set(str(data.get("kind") or ""), str(data.get("key") or ""), bool(data.get("hold")))
+            elif self.path.startswith("/recipe-share") and data.get("inbox"):
                 res = skills_lib.recipe_inbox_act(str(data.get("id") or ""), str(data.get("decision") or ""))
             elif self.path.startswith("/recipe-share"):
                 res = skills_lib.recipe_share(str(data.get("skill") or ""), str(data.get("name") or ""), str(data.get("decision") or ""))

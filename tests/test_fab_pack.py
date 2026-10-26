@@ -1,6 +1,8 @@
 """Fab product helper: package check, generated documents, clean zip."""
 import re
 import os, shutil, sys, tempfile, zipfile
+import tempfile as _tf
+os.environ["UEFN_FAB_LAB_DIR"] = _tf.mkdtemp(prefix="fablab-test-")   # never write in the real ~/.claude/fab-lab
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "user-level-hooks"))
 import fab_pack
 ok = lambda c, m: (print(("PASS " if c else "FAIL ") + m), c or sys.exit(1))

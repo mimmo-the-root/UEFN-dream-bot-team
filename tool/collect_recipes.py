@@ -49,7 +49,7 @@ def collect(dry=False, skills=None, repo=None):
                 local = json.load(f).get("recipes", [])
         except (OSError, ValueError):
             continue
-        todo = [r for r in local if r.get("share") == "approved" and r.get("steps")]
+        todo = [r for r in local if r.get("share") != "declined" and r.get("steps")]
         if not todo:
             continue
         op = os.path.join(repo, "user-level-skills", "genre", slug, "official", "recipes-official.json")

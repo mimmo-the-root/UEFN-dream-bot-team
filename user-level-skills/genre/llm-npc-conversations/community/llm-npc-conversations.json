@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "genre": "llm-npc-conversations",
+  "pack_version": 6,
+  "patterns": [
+    {
+      "id": "p-28db0f5d1daf",
+      "variant": "turn-loop",
+      "statement": "This map avoided commit/stop-say events and relied on character-count estimation for timing; speech-UI desync occurred in playtest.",
+      "condition": "Game state or UI timing must stay synchronized with NPC speech",
+      "action": "Subscribe to the persona component's commit-say and stop-say events; apply all pending state changes at the stop-say checkpoint so they follow the spoken line",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    },
+    {
+      "id": "p-2311e4ebdaa3",
+      "variant": "structured-output",
+      "statement": "Required=true guarantees emission on every response, not only relevant turns; spurious payloads are expected and must be discarded.",
+      "condition": "RegisterAction Required parameter is set to true to force model emission",
+      "action": "Accept that Required=true forces output on every response including non-relevant turns; use a state-machine to filter spurious payloads",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    },
+    {
+      "id": "p-68620eda52d6",
+      "variant": "turn-loop",
+      "statement": "This map tried character-count estimation and experienced UI desync with speech; measuring actual latency (3-40s range) was required.",
+      "condition": "Speech duration is estimated from character count to start answer timers",
+      "action": "Discard the estimate and measure real latency via logging instead; character-based estimation causes timer desynchronization with actual speech end",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    }
+  ]
+}

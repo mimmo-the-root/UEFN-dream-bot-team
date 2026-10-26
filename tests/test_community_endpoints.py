@@ -28,7 +28,7 @@ try:
             time.sleep(0.2)
     A = {"X-Skills-Action": "1"}
     c, st = call("/community-state")
-    ok(c == 200 and st.get("share") is False and "published" in st, "GET /community-state: switch off by default, published state reported")
+    ok(c == 200 and st.get("share") is True and "published" in st, "GET /community-state: switch on by default, published state reported")
     c, r = call("/community-act", {"action": "on"})
     ok(c == 403, "POST without the action header is refused")
     c, r = call("/community-act", {"action": "on"}, dict(A, Origin="http://evil.example"))
