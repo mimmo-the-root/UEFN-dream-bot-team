@@ -162,6 +162,27 @@ def check(project, fix=False):
             add("NOTE", "The MCP map is %d days old: UEFN has not been open at a session start since. Open UEFN and start a session, or run /mcp-snapshot." % int(age))
         else:
             add("OK", "MCP map is recent (%d days)." % int(age))
+    # traces of other projects in the assets (v1.110): a warning, never a block
+    try:
+        import importlib.util
+        mp = os.path.join(home, "hooks", "map_trace.py")
+        if os.path.isfile(mp):
+            sp = importlib.util.spec_from_file_location("map_trace", mp)
+            mt = importlib.util.module_from_spec(sp)
+            sp.loader.exec_module(mt)
+            r = mt.find_root(project)
+            kind = ""
+            try:
+                import kit_install
+                kind = kit_install.get_kind(r) if r else ""
+            except Exception:
+                pass
+            if r and kind != "fab":
+                fnd, _n = mt.scan(r)
+                if fnd:
+                    add("NOTE", "%d asset(s) keep traces of other projects (copied by hand). Run  python %s %s --apply  to record it in BUGS.md." % (len(fnd), mp, project))
+    except Exception:
+        pass
     ls = load_on_startup_check()
     if ls:
         add(*ls)

@@ -26,6 +26,140 @@
    "verify_names": true,
    "tier": "reference",
    "maps": []
+  },
+  {
+   "name": "barrier-texture-color-variants",
+   "parent": "Any M_Barrier<Effect> master in <Pack>/<Effect>/Material",
+   "use": "Generic layout and naming for a Barrier material pack (parameter names differ per master, see the per-effect recipes barrier-hex-*, barrier-plasma-*, barrier-laser-*, barrier-shieldbubble-*)",
+   "steps": [
+    "Folders: <Pack>/<Effect>/Material, MaterialInstance[/<Texture>], Texture, MaterialFunction",
+    "Names: MI_<Texture>_<Variant>_<NN>_<Color>, NN 00-09, rainbow Red Orange Yellow Green Mint Cyan Azure Blue Violet Magenta; hue-stepped sets use _H<degrees>",
+    "Always read the master's parameters with MaterialInstanceTools.list_parameters first: the names are NOT shared between masters",
+    "Create each instance with MaterialInstanceTools.create(folder_path, asset_name, parent) inside one execute_tool_script loop (never one MCP call per instance)",
+    "Recompile the master after any change, then save assets",
+    "Check every Barrier in the level uses its own instance and barrierDepth 0.01",
+    "Showcase: one wall per texture, 20 Barrier devices (10 Clear then 10 Dual), see barrier-showcase-layout"
+   ],
+   "params": [
+    "list_parameters on the master"
+   ],
+   "origin": "official"
+  },
+  {
+   "name": "barrier-hex-texture-color-variants",
+   "parent": "M_BarrierHex (exagone/Material)",
+   "use": "Hex/Diamond/Triangle line textures in 10 rainbow colors, Clear (static lines on dark bar) and Dual (animated plasma underlay in the complementary color)",
+   "steps": [
+    "Per texture set HexTexture (T_Hex_*, T_Diamond_*, T_Triangle_*) and LineColor = rainbow color",
+    "Clear: PlasmaAmount 0, BackgroundAmount 0, EmissiveIntensity 20, HexSpeedX 0.1, HexAngle 0, BackgroundColor (0.006,0.007,0.125)",
+    "Dual: PlasmaAmount 1, BackgroundAmount 1, EmissiveIntensity 2, HexSpeedX/Y about +-0.1, HexAngle/PlasmaAngle 0 or -45, PlasmaTexture T_Plasma_Checker, PlasmaTiling 2",
+    "Dual BackgroundColor (0.12 scale) and PlasmaColor (0.3 scale) use the COMPLEMENT of LineColor (cyan line -> red background; red line -> cyan 0,0.12,0.12 / 0,0.3,0.3)",
+    "Name MI_<Texture>_<Clear|Dual>_<NN>_<Color>, folder MaterialInstance/<Texture>",
+    "Create each instance with MaterialInstanceTools.create(folder_path, asset_name, parent) inside one execute_tool_script loop (never one MCP call per instance)",
+    "Recompile the master after any change, then save assets",
+    "Check every Barrier in the level uses its own instance and barrierDepth 0.01"
+   ],
+   "params": [
+    "HexTexture",
+    "LineColor",
+    "BackgroundColor",
+    "PlasmaColor",
+    "PlasmaTexture",
+    "PlasmaAmount",
+    "BackgroundAmount",
+    "EmissiveIntensity",
+    "HexSpeedX",
+    "HexSpeedY",
+    "HexAngle",
+    "PlasmaAngle",
+    "HexTiling",
+    "PlasmaTiling"
+   ],
+   "origin": "official"
+  },
+  {
+   "name": "barrier-plasma-texture-color-variants",
+   "parent": "M_BarrierPlasma (Plasma/Material)",
+   "use": "Dissolve-pattern plasma barrier: 9 dissolve textures (+Shatter) x 10 rainbow colors",
+   "steps": [
+    "Barrier Pattern = T_Shatter_Particles, Barrier Pattern UVs (5,3,0,0.091), Direction (0,1,0,0)",
+    "Dissolve Pattern1 = T_Plasma_Triangles and Dissolve Pattern2 = T_Plasma_Cells for Shatter; other sets swap these two for T_Plasma_Blocks/Checker/Circles/HexLines/HexThick/Squares/Stripes",
+    "Barrier Color = rainbow color (the only value that changes between the 10 instances)",
+    "Defaults used: Barrier Opacity 0.8, Position Mask Radius 300, Hardness 0.8, Final Pattern Contrast 10, Dissolve Glow Intensity 100, Border Opacity 0.1, Scale Min 1.5, Scale Max 2, Pattern Rotation Speed 0.05",
+    "Static switches Use Second Pattern, Enable Pattern Rotation, Enable Dynamic Scale all true (changing one recompiles shaders)",
+    "Name MI_Plasma_<Texture>_<NN>_<Color>, all in Plasma/MaterialInstance",
+    "Create each instance with MaterialInstanceTools.create(folder_path, asset_name, parent) inside one execute_tool_script loop (never one MCP call per instance)",
+    "Recompile the master after any change, then save assets",
+    "Check every Barrier in the level uses its own instance and barrierDepth 0.01"
+   ],
+   "params": [
+    "Barrier Color",
+    "Barrier Pattern",
+    "Dissolve Pattern1",
+    "Dissolve Pattern2",
+    "Barrier Opacity",
+    "Final Pattern Contrast",
+    "Dissolve Glow Intensity",
+    "Use Second Pattern",
+    "Enable Pattern Rotation",
+    "Enable Dynamic Scale"
+   ],
+   "origin": "official"
+  },
+  {
+   "name": "barrier-laser-line-variants",
+   "parent": "M_BarrierLaser (Laser/Material)",
+   "use": "Scrolling laser lines: Filled and Lines in 10 colors, 20 tilt angles, 20 hue-stepped free variations",
+   "steps": [
+    "Lines: Line Width 0.05, Emissive Intensity 100, Speed 0.5, Background Opacity 0.033, Tiling 1, Lines Color = rainbow, Background Color = darker shade of the same color (red: 0.8,0,0)",
+    "Filled: same as Lines but Background Opacity 0.55 and Background Color a light tint (red: 1,0.15,0.15)",
+    "Tilt (20, _00_000 to _19_090): Angle 0..90 in 20 steps (5th is 23.684), Line Width 0.1, Speed 0.6, Tiling 3, Background Opacity 0.03, Lines Color hue by index, Background Color (0.09,0.09,0.9)",
+    "Var (20, _H009 to _H351 step 18 degrees): Line Width 0.1, Speed and Speed X vary (-0.4,-0.3), Angle e.g. -45, Tiling about 5, Background Opacity 0.15",
+    "Name MI_Laser_<Filled|Lines>_<NN>_<Color>, MI_Laser_Tilt_<NN>_<angle>, MI_Laser_Var_<NN>_H<hue>",
+    "Create each instance with MaterialInstanceTools.create(folder_path, asset_name, parent) inside one execute_tool_script loop (never one MCP call per instance)",
+    "Recompile the master after any change, then save assets",
+    "Check every Barrier in the level uses its own instance and barrierDepth 0.01"
+   ],
+   "params": [
+    "Lines Color",
+    "Background Color",
+    "Background Opacity",
+    "Line Width",
+    "Speed",
+    "Speed X",
+    "Angle",
+    "Tiling",
+    "Emissive Intensity"
+   ],
+   "origin": "official"
+  },
+  {
+   "name": "barrier-shieldbubble-noise-variants",
+   "parent": "M_BarrierShieldBubble (ShieldBubble/Material)",
+   "use": "Intersecting shield bubble with caustics: one noise texture x a color set, in Rainbow and Dual folders",
+   "steps": [
+    "Set MaskTexture and MaskTexture2 to a noise texture (T_CloudNoise, T_Noise_*, Mash_Noise, ShieldBubbleNoise2_M ...)",
+    "Color1 and Color_Caustics_A set the first hue, Color1_B and Color_Caustics_B the second (Dual); example hue H016: Color1 (1,0.267,0), Caustics_A (0,0.6,0.46), Caustics_B (1,0.56,0.4), Color1_B (0,1.5,1.15)",
+    "Per-texture tuning values to keep: WorldSpaceSize about 700, Distance Divisor 3000, IntersectingEdgeDivisor about 81, Fresnel_Pow about 2.7, Caustitcs_Brightness2 8, EdgeBrightness2 about 25",
+    "Folders: AllTextures_Rainbow (hue sweep), AllTextures_Dual (two-hue), ShieldBubbleNoise2 (20)",
+    "Name MI_<Noise>_<Rainbow|Dual>_H<hue>, hue in degrees",
+    "Create each instance with MaterialInstanceTools.create(folder_path, asset_name, parent) inside one execute_tool_script loop (never one MCP call per instance)",
+    "Recompile the master after any change, then save assets",
+    "Check every Barrier in the level uses its own instance and barrierDepth 0.01"
+   ],
+   "params": [
+    "MaskTexture",
+    "MaskTexture2",
+    "Color1",
+    "Color1_B",
+    "Color_Caustics_A",
+    "Color_Caustics_B",
+    "WorldSpaceSize",
+    "Opacity",
+    "Fresnel_Pow",
+    "IntersectingEdgeDivisor"
+   ],
+   "origin": "official"
   }
  ]
 }

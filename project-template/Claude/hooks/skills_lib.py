@@ -1494,7 +1494,7 @@ def _community_file():
 def community_state():
     """The switch "Contribute to the community" (OFF by default) and which lessons were already shared. Lives next to the skills."""
     d = _read_json(_community_file(), {})
-    shared = [x for x in (d.get("shared") or []) if isinstance(x, str) and re.fullmatch(r"p-[0-9a-f]{12}", x)]
+    shared = [x for x in (d.get("shared") or []) if isinstance(x, str) and re.fullmatch(r"[pr]-[0-9a-f]{12}", x)]
     return {"share": d.get("share") is True, "shared": shared[-2000:]}
 
 
@@ -1537,6 +1537,14 @@ def community_act(data, project=None):
         return mark_shared(data.get("genre"), data.get("id"))
     if act_ == "export-recipes":
         return recipes_export(project)
+    if act_ == "recipe-shared":
+        return mark_recipe_shared(data.get("genre"), data.get("name"))
+    if act_ == "export-recipe":
+        return recipe_export(data.get("genre"), data.get("name"))
+    if act_ == "section":
+        if data.get("section") not in CONTRIB_SECTIONS:
+            return {"ok": False, "error": "section must be one of: %s" % ", ".join(CONTRIB_SECTIONS)}
+        return set_section(resolve_genre(data.get("genre")), data.get("id"), data.get("section"))
     return {"ok": False, "error": "unknown action"}
 
 
@@ -1608,6 +1616,19 @@ def mark_shared(slug, pattern_id):
         st["shared"].append(pattern_id)
         _write_json(_community_file(), st)
     return {"ok": True, "shared": len(st["shared"])}
+
+
+def mark_recipe_shared(slug, name):
+    """The owner sent this recipe to GitHub: it leaves the "to send" list."""
+    rid = recipe_id(name)
+    data = _read_json(os.path.join(ldir(_slug(slug)), "recipes.json"), {"recipes": []})
+    if not any(_norm(x.get("name", "")) == _norm(name or "") for x in data["recipes"]):
+        return {"ok": False, "error": "unknown recipe"}
+    st = community_state()
+    if rid not in st["shared"]:
+        st["shared"].append(rid)
+        _write_json(_community_file(), st)
+    return {"ok": True}
 
 
 def _norm_key(variant, condition):
@@ -1885,7 +1906,33 @@ def materials_inventory(project_dir):
 # ----------------------------------------------------------------------------- recipes (v1.87.2)
 # A recipe = "start from this known asset, change these parameters". Official ones ship in
 # <skill>/official/recipes-official.json; learned ones live in <skill>/local/recipes.json (never overwritten by
-# profile updates). A learned recipe starts as hypothesis, confirmed when reused in a 2nd map (maps are counted once).
+# profile updates). A learned recipe starts as hypothesis, confirmed when reused in a 2nd map (maps are counted once);
+# one learned in a Fab product is confirmed at once.
+def _fab_lab_base():
+    return os.environ.get("UEFN_FAB_LAB_DIR") or os.path.join(os.path.expanduser("~"), ".claude", "fab-lab")
+
+
+def _fab_products():
+    names = []
+    try:
+        names = [d for d in os.listdir(_fab_lab_base()) if os.path.isdir(os.path.join(_fab_lab_base(), d))]
+    except OSError:
+        pass
+    try:   # products registered as Fab (kit_install.py --kind): the name an agent gives may be the project folder or the registered name
+        with open(os.path.join(os.path.expanduser("~"), ".claude", "kit-projects.json"), encoding="utf-8") as f:
+            for path, v in json.load(f).items():
+                if isinstance(v, dict) and v.get("kind") == "fab":
+                    names += [os.path.basename(path.rstrip("/\\")), v.get("name", "")]
+    except (OSError, ValueError, AttributeError):
+        pass
+    return [n for n in names if n]
+
+
+def _fab_map_keys():
+    """Map keys of the Fab products (a recipe learned in a Fab product is confirmed at once: the owner checks it in the editor)."""
+    return {_map_key(d) for d in _fab_products()}
+
+
 def recipes_list(slug, query=""):
     slug = _slug(slug)
     out = []
@@ -1894,7 +1941,8 @@ def recipes_list(slug, query=""):
         out.append(r)
     lp = os.path.join(ldir(slug), "recipes.json")
     for r in (_read_json(lp, {"recipes": []}).get("recipes", []) if os.path.isfile(lp) else []):
-        r["tier"] = "confirmed" if len(r.get("maps", [])) >= 2 else "hypothesis"
+        fab = r.get("fab") or any(k in _fab_map_keys() for k in r.get("maps", []))
+        r["tier"] = "confirmed" if (fab or len(r.get("maps", [])) >= 2) else "hypothesis"
         out.append(r)
     q = (query or "").lower().strip()
     if q:
@@ -1902,12 +1950,22 @@ def recipes_list(slug, query=""):
     return {"ok": True, "recipes": out}
 
 
+# A mechanic recipe (skill "mechanics": a stand-alone device, a Verse mechanic, a whole map template) says how to REBUILD it:
+# kind, devices (what to place), settings (what to set on each), wiring (what is connected to what), files ([{name, code}] Verse),
+# assets it needs, verify (how to see that it works), plus the steps. Materials keep using parent + params.
+RECIPE_FIELDS = ("parent", "use", "steps", "params", "kind", "devices", "settings", "wiring", "files", "assets", "verify")
+
+
 def recipe_add(slug, recipe, map_name):
     """Add or update a learned recipe; the map counts once. recipe: name, parent, use, steps[], params[]."""
     slug = _slug(slug)
     name = _norm(recipe.get("name", ""))
-    if not name or not recipe.get("parent") or not recipe.get("steps"):
-        return {"ok": False, "error": "recipe needs name, parent and steps"}
+    if not name or not recipe.get("steps") or (slug == "materials" and not recipe.get("parent")):
+        return {"ok": False, "error": "recipe needs name and steps (materials also a parent)"}
+    for k in ("files",):   # code of a mechanic: kept whole, but only reasonable sizes and plain {name, code} items
+        fl = recipe.get(k)
+        if fl is not None and (not isinstance(fl, list) or any(not isinstance(x, dict) or not x.get("name") or len(str(x.get("code", ""))) > 40000 for x in fl)):
+            return {"ok": False, "error": "files must be a list of {name, code} (code up to 40000 characters each)"}
     mk = _map_key(map_name)
     lp = os.path.join(ldir(slug), "recipes.json")
     os.makedirs(ldir(slug), exist_ok=True)
@@ -1916,15 +1974,146 @@ def recipe_add(slug, recipe, map_name):
         if _norm(r.get("name", "")) == name:
             if mk not in r.get("maps", []):
                 r.setdefault("maps", []).append(mk)
-            for k in ("parent", "use", "steps", "params"):
+            for k in RECIPE_FIELDS:
                 if recipe.get(k):
                     r[k] = recipe[k]
             _write_json(lp, data)
             return {"ok": True, "updated": True, "maps": len(r["maps"])}
-    data["recipes"].append({"name": name, "origin": "owner", "parent": recipe["parent"], "use": recipe.get("use", ""),
-                            "steps": recipe["steps"], "params": recipe.get("params", []), "maps": [mk], "added": _today()})
+    data["recipes"].append({"name": name, "origin": "owner", "parent": recipe.get("parent", ""), "use": recipe.get("use", ""),
+                            "steps": recipe["steps"], "params": recipe.get("params", []), "maps": [mk], "added": _today(),
+                            **{k: recipe[k] for k in RECIPE_FIELDS if k not in ("parent", "use", "steps", "params") and recipe.get(k)},
+                            **({"fab": True} if mk in _fab_map_keys() else {})})
     _write_json(lp, data)
     return {"ok": True, "updated": False, "maps": 1}
+
+
+def recipe_share(slug, name, decision):
+    """The owner decides whether a learned recipe goes into the kit for everyone: 'approved', 'declined' or 'pending' (back to undecided).
+    Only approved ones are collected at release time (tool/collect_recipes.py)."""
+    slug = _slug(slug)
+    if decision not in ("approved", "declined", "pending"):
+        return {"ok": False, "error": "decision must be approved, declined or pending"}
+    lp = os.path.join(ldir(slug), "recipes.json")
+    data = _read_json(lp, {"recipes": []})
+    for r in data["recipes"]:
+        if _norm(r.get("name", "")) == _norm(name):
+            r["share"] = decision
+            r["share_at"] = _today()
+            _write_json(lp, data)
+            return {"ok": True}
+    return {"ok": False, "error": "no such recipe"}
+
+
+# ----------------------------------------------------------------------------- recipes: to the community and from it (same logic as lessons)
+# You approve a recipe ("Share in the kit"), then send it as a GitHub proposal (nothing is sent by the kit). What the community shares comes back
+# with a kit update as <skill>/community/recipes-community.json: it waits in the inbox until YOU approve it. Every recipe is screened
+# (recipe_screen.py) on the way out and again on the way in.
+def recipe_id(name):
+    return "r-" + hashlib.sha1(_norm(name).encode("utf-8")).hexdigest()[:12]
+
+
+def recipe_export(slug, name):
+    """The exact JSON that would leave this computer for ONE recipe you approved, plus the GitHub page to propose it. Refused while the switch is off."""
+    if not community_state()["share"]:
+        return {"ok": False, "error": "sharing with the community is switched off"}
+    slug = _slug(slug)
+    data = _read_json(os.path.join(ldir(slug), "recipes.json"), {"recipes": []})
+    r = next((x for x in data["recipes"] if _norm(x.get("name", "")) == _norm(name or "")), None)
+    if not r or r.get("origin") != "owner":
+        return {"ok": False, "error": "only a recipe of yours can be sent"}
+    if r.get("share") != "approved":
+        return {"ok": False, "error": "approve it first with \"Share in the kit\""}
+    import recipe_screen as RS
+    rec = {k: r[k] for k in RS.FIELDS if r.get(k) not in (None, "", [])}
+    rec.setdefault("kind", "material" if slug == "materials" else "mechanic")
+    chk = RS.check(rec)
+    if not chk["ok"]:
+        return {"ok": False, "error": "the recipe does not pass the check: " + "; ".join(chk["reasons"][:3])}
+    doc = {"schema_version": 1, "skill": slug, "recipe": rec, "kit_version": _kit_version()}
+    value = json.dumps(doc, ensure_ascii=False, sort_keys=True, indent=1)
+    path = "contributions/recipes/%s/%s/<your-github-handle>.json" % (slug, recipe_id(name))
+    url = "https://github.com/%s/new/main?filename=%s" % (COMMUNITY_REPO, urllib.parse.quote(path, safe="/"))
+    note = "Too long to prefill: press Copy, paste the JSON in the GitHub editor, rename the file to your GitHub handle, then press Propose new file."
+    full = url + "&value=" + urllib.parse.quote(value, safe="")
+    if len(full) <= MAX_CONTRIB_URL:
+        url, note = full, "On GitHub rename the file to your GitHub handle, then press Propose new file."
+    return {"ok": True, "doc": doc, "json": value, "filename": path, "url": url, "note": note, "recipe_kind": True}
+
+
+def _inbox_path():
+    return os.path.join(skills_root(), "recipes-inbox.json")
+
+
+def _inbox():
+    d = _read_json(_inbox_path(), {})
+    return {"pending": [x for x in d.get("pending", []) if isinstance(x, dict)], "decided": d.get("decided", {}) if isinstance(d.get("decided"), dict) else {}}
+
+
+def import_community_recipes(genre_dir_root=None):
+    """Recipes the community shared (shipped with the kit in <skill>/community/recipes-community.json) go into the inbox: checked again here,
+    nothing is saved as a recipe until you approve. Idempotent."""
+    import recipe_screen as RS
+    root = genre_dir_root or genre_root()
+    ib = _inbox()
+    known = {x["id"] for x in ib["pending"]} | set(ib["decided"])
+    out = {"queued": 0, "rejected": 0}
+    for g in (sorted(os.listdir(root)) if os.path.isdir(root) else []):
+        fp = os.path.join(root, g, "community", "recipes-community.json")
+        if not os.path.isfile(fp):
+            continue
+        try:
+            arr = _read_json(fp, {}, base=root).get("recipes", [])
+        except Exception:
+            arr = []
+        for r in arr if isinstance(arr, list) else []:
+            if not isinstance(r, dict) or not isinstance(r.get("name"), str):
+                out["rejected"] += 1; continue
+            rid = recipe_id(g + "/" + r["name"])
+            if rid in known:
+                continue
+            body = {k: v for k, v in r.items() if k in RS.FIELDS}
+            if not RS.check(body)["ok"]:
+                out["rejected"] += 1
+                continue
+            ib["pending"].append({"id": rid, "skill": g, "recipe": body, "contributors": int(r.get("contributors", 1)) if str(r.get("contributors", 1)).isdigit() else 1})
+            known.add(rid); out["queued"] += 1
+    if out["queued"]:
+        _write_json(_inbox_path(), ib)
+    return out
+
+
+def recipe_inbox():
+    ib = _inbox()
+    return {"pending": [{"id": x["id"], "skill": x["skill"], "name": x["recipe"].get("name"), "kind": x["recipe"].get("kind"), "use": x["recipe"].get("use", ""),
+                         "steps": len(x["recipe"].get("steps", [])), "files": [f["name"] for f in x["recipe"].get("files", [])],
+                         "settings": len(x["recipe"].get("settings", [])), "contributors": x.get("contributors", 1)} for x in ib["pending"]],
+            "decided": len(ib["decided"])}
+
+
+def recipe_inbox_act(rid, decision):
+    """approve: the recipe joins your recipes (origin community, a hypothesis until a second project uses it, never offered again for sharing).
+    reject: it is kept as rejected and never shown again. Nothing is deleted."""
+    if decision not in ("approve", "reject"):
+        return {"ok": False, "error": "decision must be approve or reject"}
+    ib = _inbox()
+    it = next((x for x in ib["pending"] if x["id"] == rid), None)
+    if not it:
+        return {"ok": False, "error": "not in the inbox"}
+    if decision == "approve":
+        import recipe_screen as RS
+        if not RS.check(it["recipe"])["ok"]:
+            return {"ok": False, "error": "the recipe does not pass the check"}
+        slug = _slug(it["skill"])
+        lp = os.path.join(ldir(slug), "recipes.json")
+        os.makedirs(ldir(slug), exist_ok=True)
+        data = _read_json(lp, {"recipes": []})
+        if not any(_norm(x.get("name", "")) == _norm(it["recipe"]["name"]) for x in data["recipes"]):
+            data["recipes"].append(dict(it["recipe"], origin="community", maps=[], share="declined", added=_today()))
+            _write_json(lp, data)
+    ib["pending"] = [x for x in ib["pending"] if x["id"] != rid]
+    ib["decided"][rid] = "approved" if decision == "approve" else "rejected"
+    _write_json(_inbox_path(), ib)
+    return {"ok": True}
 
 
 def needs_feeding(slug, threshold=3):
@@ -2020,11 +2209,105 @@ def recipes_overview():
             for r in recipes_list(s).get("recipes", []):
                 owner = r.get("origin") == "owner"
                 out.append({"skill": s, "name": r.get("name", ""), "use": (r.get("use") or "")[:200], "parent": r.get("parent", ""),
-                            "source": "yours" if owner else "official", "tier": r.get("tier", "official"), "maps": len(r.get("maps", [])),
-                            "steps": len(r.get("steps", [])), "added": r.get("added", "")})
+                            "source": "yours" if owner else ("community" if r.get("origin") == "community" else "official"), "tier": r.get("tier", "official"), "maps": len(r.get("maps", [])),
+                            "steps": len(r.get("steps", [])), "added": r.get("added", ""), "kind": r.get("kind", ""), "share": r.get("share", "pending") if owner else "", "rid": recipe_id(r.get("name", ""))})
     except Exception:
         pass
     return out
+
+
+def project_name(project):
+    """Name the kit uses for a project: its folder, or the folder above it when the kit lives in .../<Project>/Content."""
+    p = os.path.abspath(project)
+    b = os.path.basename(p)
+    return (os.path.basename(os.path.dirname(p)) or b) if b.lower() == "content" else b
+
+
+def recipes_of(name):
+    """Recipes (name, skill, kind) that came from the project called `name`."""
+    key = _map_key(name)
+    out = []
+    try:
+        for s in _genres():
+            for r in recipes_list(s).get("recipes", []):
+                if key in r.get("maps", []):
+                    out.append({"name": r.get("name", ""), "skill": s, "kind": r.get("kind", "")})
+    except Exception:
+        pass
+    return out
+
+
+def _learn_flag_path(project):
+    return os.path.join(project, "Claude", "logs", "learn-request.json")
+
+
+def map_learn_flag(project):
+    """State of the Learn button of a map project: None, or {"state": "waiting"|"sent", "at", "sent_at"}."""
+    try:
+        with open(_learn_flag_path(project), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def map_learn_request(project):
+    """The owner pressed Learn on the console: prepare the recipes of the map now (no AI) and ask the agent, once, at the end of
+    its next answer (learn_nudge.py reads the flag). Returns {"recipes": [names saved now]}."""
+    saved = []
+    try:
+        import mechanic_recipes as _mr
+        saved = _mr.ensure_map(project, project_name(project), recipe_add)
+    except Exception:
+        saved = []
+    p = _learn_flag_path(project)
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump({"state": "waiting", "at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")}, f)
+    return {"recipes": saved}
+
+
+def projects_overview():
+    """Every project the kit learns from, for the Skills page (Maps & products): analysed maps (maps.json of each genre) and Fab products
+    (lab folders + registry). Per row: name, kind, genre, how many lessons and recipes it supports, and a 0/50/100 learning percentage. Never raises."""
+    rows = {}
+    try:
+        fabk = _fab_map_keys()
+        rec_keys = {}
+        for s in _genres():
+            for r in recipes_list(s).get("recipes", []):
+                for k in r.get("maps", []):
+                    rec_keys[k] = rec_keys.get(k, 0) + 1
+        for s in _genres():
+            sup = _support(s)
+            les = {}
+            for pid, v in sup.items():
+                for k in (v.get("for") or []):
+                    les[k] = les.get(k, 0) + 1
+            for k, m in _maps(s).items():
+                name = (m.get("name") if isinstance(m, dict) else "") or k
+                r = rows.setdefault(k, {"name": name, "kind": "fab" if k in fabk else "map", "genre": s, "lessons": 0, "recipes": 0,
+                                        "first_seen": (m.get("first_seen") if isinstance(m, dict) else "") or ""})
+                r["lessons"] += les.get(k, 0)
+        for n in _fab_products():
+            k = _map_key(n)
+            rows.setdefault(k, {"name": n, "kind": "fab", "genre": "", "lessons": 0, "recipes": 0, "first_seen": ""})["kind"] = "fab"
+        try:   # every project registered with the kit (kit_install.py --kind), maps included: a map that only has recipes is still listed
+            with open(os.path.join(os.path.expanduser("~"), ".claude", "kit-projects.json"), encoding="utf-8") as f:
+                for path, v in json.load(f).items():
+                    if isinstance(v, dict) and v.get("kind") in ("map", "fab"):
+                        n = v.get("name") or os.path.basename(path.rstrip("/\\"))
+                        rows.setdefault(_map_key(n), {"name": n, "kind": v["kind"], "genre": "", "lessons": 0, "recipes": 0, "first_seen": ""})
+        except (OSError, ValueError, AttributeError):
+            pass
+        for k, r in rows.items():
+            r["recipes"] = rec_keys.get(k, 0)
+            if r["kind"] == "fab":
+                r["pct"] = 100 if r["recipes"] else 50
+            else:
+                r["pct"] = 50 * (r["lessons"] > 0) + 50 * (r["recipes"] > 0)
+    except Exception:
+        pass
+    return sorted(rows.values(), key=lambda r: (r["kind"], r["name"].lower()))
 
 
 def summary():
@@ -2055,6 +2338,8 @@ def summary():
             variants_seen.add(p["variant"])
             pats.append({k: p.get(k) for k in ("id", "variant", "statement", "condition", "action", "tier", "status",
                                                "origin", "support", "against", "community_support", "conflicts_with", "section")})
+            if p.get("origin") == "local" and p.get("support", 0) >= 1:
+                pats[-1]["published"] = lesson_published(s, p["id"])
         led = _read_jsonl(os.path.join(ldir(s), "ledger.jsonl"))
         ll = led[-1]["ts"] if led else None
         if ll and (not last_learned or ll > last_learned):
@@ -2078,7 +2363,7 @@ def summary():
     oldest = min((p["created"] for p in pending), default=None)
     return {"root": genre_root(), "root_exists": _isdir(genre_root()), "genres": genres, "totals": totals,
             "pending": pending, "pending_lessons": len(pending) - community, "pending_packs": community,
-            "recipes": recipes_overview(), "oldest_pending": oldest, "variants": len(variants_seen), "last_learned": last_learned,
+            "recipes": recipes_overview(), "projects": projects_overview(), "oldest_pending": oldest, "variants": len(variants_seen), "last_learned": last_learned,
             "usage_week": [week[d] for d in days], "usage_week_total": sum(week.values()),
             "never_used": sum(1 for g in genres if g["patterns"] and g["consulted"] == 0),
             "privacy": {"checked": check_ts is not None, "ok": check_ok, "ts": check_ts}}
@@ -2103,6 +2388,7 @@ def _cli(argv=None):
     s = sub.add_parser("materials"); s.add_argument("project_dir")
     s = sub.add_parser("needs-feeding"); s.add_argument("genre")
     s = sub.add_parser("recipes"); s.add_argument("genre"); s.add_argument("query", nargs="?", default="")
+    s = sub.add_parser("recipe-share"); s.add_argument("genre"); s.add_argument("name"); s.add_argument("decision")
     s = sub.add_parser("recipe-add"); s.add_argument("genre"); s.add_argument("recipe_json_file"); s.add_argument("map_name")
     s = sub.add_parser("consult"); s.add_argument("genre")
     s = sub.add_parser("consult-path"); s.add_argument("file_path")
@@ -2162,6 +2448,8 @@ def _cli(argv=None):
             r = detect_techniques(a.project_dir)
         elif a.cmd == "recipes":
             r = recipes_list(a.genre, a.query)
+        elif a.cmd == "recipe-share":
+            r = recipe_share(a.genre, a.name, a.decision)
         elif a.cmd == "recipe-add":
             with open(a.recipe_json_file, encoding="utf-8") as _f:
                 r = recipe_add(a.genre, json.load(_f), a.map_name)

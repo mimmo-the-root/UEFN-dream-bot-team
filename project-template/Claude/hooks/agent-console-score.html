@@ -99,10 +99,18 @@ function why(S){var h='<div class="gh" style="margin-top:0">Evidence</div>';S.ro
 var _d=draw;draw=function(){_d();document.getElementById("why").innerHTML=why(calc(SEL))+(UNM.length?'<div class="gh">Tasks not linked to a criterion yet</div><div class="tip">'+UNM.map(function(u){return esc(u.id+" "+u.title);}).join("; ")+'. Ask planner-docs to classify them (score-map.json).</div>':'');};
 var UNM=[];
 fetch("/score-data",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){
- document.getElementById("app").innerHTML=head("Project score");document.getElementById("kitVersion").textContent = "v1.109.1";
+ document.getElementById("app").innerHTML=head("Project score");document.getElementById("kitVersion").textContent = "v1.110.0";
  if(!d.available){document.getElementById("empty").style.display="";document.getElementById("empty").innerHTML='<div class="tip">'+esc(d.reason||"No score yet.")+'</div>';return;}
  REL=d.releases;SH=d.releases;N=REL.length;LAST=d.last;SEL=LAST;C=d.criteria;UNM=d.unmapped||[];
  document.getElementById("gen").textContent="updated "+d.generated;
  document.getElementById("main").style.display="";draw();
-}).catch(function(){document.getElementById("app").innerHTML=head("Project score");document.getElementById("kitVersion").textContent = "v1.109.1";document.getElementById("empty").style.display="";document.getElementById("empty").innerHTML='<div class="tip">The console server is not running, so there is no score to read.</div>';});
-</script></body></html>
+}).catch(function(){document.getElementById("app").innerHTML=head("Project score");document.getElementById("kitVersion").textContent = "v1.110.0";document.getElementById("empty").style.display="";document.getElementById("empty").innerHTML='<div class="tip">The console server is not running, so there is no score to read.</div>';});
+</script><!-- fab-tab:begin -->
+<script>
+/* Fab products only: the console server tells who it serves; a Fab product gets the Checklist tab. */
+(function(){fetch("/whoami").then(function(r){return r.json();}).then(function(w){
+  if(!w||!w.fab)return;var sc=document.querySelector('a[href="agent-console-score.html"]');if(!sc||document.querySelector('a[href="agent-console-fab.html"]'))return;
+  var a=document.createElement("a");a.href="agent-console-fab.html";a.textContent="Checklist";if(sc.className&&sc.className!=="on")a.className=sc.className;sc.parentNode.appendChild(a);}).catch(function(){});})();
+</script>
+<!-- fab-tab:end -->
+</body></html>

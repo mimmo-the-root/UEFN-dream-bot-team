@@ -37,9 +37,9 @@ compliance-reviewer → planner-docs):
 
 ![Agent Console](docs/images/agent-console.png)
 
-**The Skills page** — what the kit has learned across all your maps (top), and what it learned
-from the map you are working on (below): learning steps, the map blueprint, a log of what it
-read, the patterns of the genre and the lessons waiting for your approval. Sample data:
+**The Skills page** — what waits for you and what the kit has learned: four cards (waiting, lessons,
+recipes, projects), a LEARN button for the map or Fab product you are in, and tabs: To approve, To share,
+Lessons, Recipes, Skills, Maps & products, This map / This product, UEFN MCP and Community. Sample data:
 
 ![Skills page](docs/images/agent-console-skills.png)
 
@@ -56,8 +56,10 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.109.1)
+## What's new (v1.102 - v1.110.0)
 
+- **Skills page by tabs, LEARN, recipes (1.110).** One page for maps and Fab products: queues (To approve, To share), knowledge (Lessons, Recipes, Skills), sources (Maps & products, This map / product), UEFN MCP and Community. A LEARN button for maps and for Fab products, recipes prepared by the kit from your Verse code and shared both ways through the community, a folder called FAB is a Fab product by itself, and the assets are cleaned of user and project names before `check` and `zip`.
+- **Fab Checklist (1.110).** A console page for Fab products: six stations with every check in plain language, a verdict with bar and percentage, tickable items for what only you can judge, a recorded UEFN validation, and a scan of the assets for traces of other projects (the cause of two rejections). Nothing is written in the project.
 - **Safe editing (1.109).** `/editor-changes` and an undo plan for what the agents wrote to the editor, one writer at a time (a real lock), recipes flagged for replay when UEFN changes a tool, a static Verse check, and a console proof with screenshots.
 - **Fab products, economy, log signals (1.109).** The `fab-product` skill and the `fab_pack.py` helper check a Fab package against Epic's rules, create `Documentation/` and `FabListing/` texts from your Verse code, make a panoramic image grid and write a clean zip; nothing is installed in the product. `economy-sim` plans a tycoon economy with numbers, `[SIGNAL]` log lines let `qa-regression` check what happened in a playtest, and `delivery.py` writes a delivery document for a map.
 - **The kit updates itself (1.108.3).** A background check of the newest GitHub release runs at session start, at most every 6 hours, and downloads a newer one into your profile; the project follows at its next session. **If you have an older version, do this once:** run `/kit-update --fetch` in a session (or `update-my-profile.cmd` from the repo), then open a new session. Older kits cannot update themselves because nothing in them looks at GitHub. Off switch: an empty file `~/.claude/kit-auto-update.off`.

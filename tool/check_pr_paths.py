@@ -5,7 +5,7 @@ check_pr_paths(changed, handle) -> list of error strings. CLI: check_pr_paths.py
 import re, sys
 
 MAX_FILES = 20
-OK_PATH = re.compile(r"contributions/[a-z0-9-]+/p-[0-9a-f]{12}/([A-Za-z0-9-]+)\.json")
+OK_PATH = re.compile(r"contributions/(?:[a-z0-9-]+/p-[0-9a-f]{12}|recipes/[a-z0-9-]+/r-[0-9a-f]{12})/([A-Za-z0-9-]+)\.json")
 
 
 def check_pr_paths(changed, handle):
@@ -18,7 +18,7 @@ def check_pr_paths(changed, handle):
     for c in changed:
         m = OK_PATH.fullmatch(c)
         if not m:
-            errs.append("%s: outside contributions/<genre>/<pattern_id>/<handle>.json" % c)
+            errs.append("%s: outside contributions/<genre>/<pattern_id>/<handle>.json or contributions/recipes/<skill>/<recipe_id>/<handle>.json" % c)
         elif m.group(1).lower() != (handle or "").lower():
             errs.append("%s: the file name must be the author's GitHub handle (%s)" % (c, handle))
     return errs

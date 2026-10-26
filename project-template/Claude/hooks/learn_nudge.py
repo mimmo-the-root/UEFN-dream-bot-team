@@ -23,6 +23,24 @@ def main():
         return
     project = os.environ.get("CLAUDE_PROJECT_DIR") or payload.get("cwd") or os.path.dirname(os.path.dirname(HERE))
     mdir = os.path.join(project, "Claude", "docs", "map")
+    try:   # the owner pressed Learn on the console (Skills page): learn now, once, whatever the cooldown says
+        import skills_lib as _sk
+        fl = _sk.map_learn_flag(project)
+        if fl and fl.get("state") == "waiting":
+            fl["state"] = "sent"
+            fl["sent_at"] = time.strftime("%Y-%m-%d %H:%M")
+            with open(_sk._learn_flag_path(project), "w", encoding="utf-8") as f:
+                json.dump(fl, f)
+            print(json.dumps({"decision": "block", "reason":
+                "The owner pressed LEARN on the console for this map. Do it now, without asking, then say in ONE line what you learned: "
+                "follow `.claude/commands/learn-map.md` completely (code, documents, devices, the map blueprint). Then queue up to 5 general lessons about HOW things are done in this map "
+                "(the steps and settings that worked for a mechanic, device, widget or Verse feature, and in which order; mistakes only as a short 'avoid' note) with "
+                "`python Claude/hooks/skills_lib.py propose <genre> --variant <type> ...` after checking `skills_lib.py patterns <genre>`. "
+                "The recipes of the mechanics and devices of this map were already prepared by the kit from its Verse code: complete one only if the owner confirms a step is wrong. "
+                "The owner approves everything on the Skills page."}))
+            return
+    except Exception:
+        pass
     gp = os.path.join(project, "Claude", "docs", ".genre")
     genre = open(gp, encoding="utf-8").read().strip() if os.path.isfile(gp) else ""
     if not genre or genre == "epic-template":

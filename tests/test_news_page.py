@@ -11,7 +11,8 @@ ok('"/community-summary"' in news and '"/community-state"' in news, "the page re
 ok("No release summary is shipped with this kit yet" in news, "empty state when there is no summary")
 ok(re.search(r"https://github\.com/'\+REPO\+'/issues/new/choose", news) is not None, "the page links to submit an issue on GitHub")
 ok("Only lessons learned from a <b>published</b> map" in news, "the page carries the published-map note")
-ok(len(re.findall(r"\bfunction render\(", news)) == 1 and news.count("<script>") == 2, "one render function, no external script")
+news_core = re.sub(r"<!-- fab-tab:begin -->.*?<!-- fab-tab:end -->", "", news, flags=re.S)  # the Fab-only Checklist tab snippet (v1.110) is shared by all pages
+ok(len(re.findall(r"\bfunction render\(", news_core)) == 1 and news_core.count("<script>") == 2, "one render function, no external script")
 ok("agent-console-news.html" in rd("agent-console-server.py") and "/news" in rd("agent-console-server.py"), "the Python server serves the page")
 ok("agent-console-news.html" in rd("agent-console-server.ps1") and "NewsHtmlPath" in rd("agent-console-server.ps1"), "the PowerShell server serves the page")
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "project-template", "Claude", "hooks"))

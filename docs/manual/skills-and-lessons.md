@@ -65,3 +65,12 @@ Your map names, task ids, notes and evidence stay in a private layer called `loc
 On the **Skills** page of the [console](ch:the-console). The SKILLS tab of every console page blinks while a lesson, a pack update or a genre confirmation waits for you.
 
 ![The Skills page (demo data)](shot-skills.png)
+
+### How the page is organised
+
+At the top, four cards: what **waits for you** (two lines you can click), the **lessons**, the **recipes** and the **projects** the kit learns from, each with a ring that says how much is reliable, decided or learned. Under them the **LEARN** block, the same for a map and for a Fab product: one button asks the agent to read the project and propose lessons, and the bar shows how much of the learning is done.
+
+Then the tabs, in groups. **Queues**: *To approve* (lessons from your work, lesson packs and recipes that came back from the community, Fab lessons; one list, five per page, with *Approve all*) and *To share* (recipes to decide, things ready to send to the community, what was sent). **Knowledge**: *Lessons*, *Recipes* and *Skills*. **Sources**: *Maps & products* (every project the kit learns from, with a bar) and *This map* or *This product*. **Engine**: *UEFN MCP*. **Settings**: *Community*. An item that you approve or send leaves its queue, and the numbers on the tabs always match the lists.
+
+A **lesson** is a short rule. A **recipe** is how to rebuild something, step by step, with its Verse code. They are different things and have different tabs.
+

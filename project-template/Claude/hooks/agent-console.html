@@ -524,7 +524,7 @@
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.109.1";
+const KIT_VERSION = "v1.110.0";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -1931,5 +1931,13 @@ setInterval(tickTimers, 1000);
 <style>.kitfoot{max-width:1240px;margin:28px auto 22px;padding:12px 4px 0;border-top:1px solid var(--line-soft,#1b2740);font-size:11px;line-height:1.7;color:var(--dim,#5a7088);text-align:center}.kitfoot a{color:var(--cyan,#4bd8ff);text-decoration:none}.kitfoot a:hover{text-decoration:underline}.kitfoot .sep{margin:0 8px;opacity:.5}</style>
 <div class="kitfoot">Dream Bot Team for UEFN<span class="sep">&middot;</span><a href="/manual/the-console.html#console" data-manual-help>Help for this page</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> &mdash; free to use, copy and change, no warranty<span class="sep">&middot;</span>by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games.</div>
 <!-- kit-footer:end -->
+<!-- fab-tab:begin -->
+<script>
+/* Fab products only: the console server tells who it serves; a Fab product gets the Checklist tab. */
+(function(){fetch("/whoami").then(function(r){return r.json();}).then(function(w){
+  if(!w||!w.fab)return;var sc=document.querySelector('a[href="agent-console-score.html"]');if(!sc||document.querySelector('a[href="agent-console-fab.html"]'))return;
+  var a=document.createElement("a");a.href="agent-console-fab.html";a.textContent="Checklist";if(sc.className&&sc.className!=="on")a.className=sc.className;sc.parentNode.appendChild(a);}).catch(function(){});})();
+</script>
+<!-- fab-tab:end -->
 </body>
 </html>

@@ -35,5 +35,12 @@ for ev, matcher in (("PreToolUse", "Task|Agent"), ("SubagentStop", None)):
     lst.append(entry)
     changed = True
     print("  Fab lab hook (%s) added to settings.json" % ev)
+stop_cmd = lab_cmd.replace(" hook }", " stop }").replace(" hook'" , " stop'") if False else ("powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"& { if (Get-Command py -ErrorAction SilentlyContinue) "
+            "{ py -3 '%s' stop } else { python '%s' stop } }\"" % (lab, lab))
+lst = d["hooks"].setdefault("Stop", [])
+if not any("fab_lab" in h.get("command", "") for e in lst for h in e.get("hooks", [])):
+    lst.append({"hooks": [{"type": "command", "command": stop_cmd, "timeout": 10}]})
+    changed = True
+    print("  Fab lab hook (Stop) added to settings.json")
 if changed:
     json.dump(d, open(settings, "w", encoding="utf-8"), indent=2, ensure_ascii=False)

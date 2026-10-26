@@ -81,6 +81,27 @@ def find_root(base):
     return None
 
 
+def auto_clean(root):
+    """Names of Windows users and of the owner's other projects inside the assets are replaced (same length) before every check and zip,
+    with a backup outside the project. Returns (notes, problems)."""
+    try:
+        import time
+        import fab_assets
+        import fab_lab
+        bk = os.path.join(fab_lab.lab_dir(root), "asset-backup", time.strftime("%Y%m%d-%H%M%S"))
+        changed, problems = fab_assets.clean(root, True, bk)
+    except Exception:
+        return [], []
+    notes = []
+    if changed:
+        tot = {}
+        for _, c in changed:
+            for k, v in c.items():
+                tot[k] = tot.get(k, 0) + v
+        notes.append("cleaned by itself in %d asset(s): %s (same size; the originals are in %s)" % (len(changed), ", ".join("%s x%d" % (k.split(":", 1)[1], v) for k, v in sorted(tot.items())), bk))
+    return notes, problems
+
+
 def check(root, product=None):
     """(blocks, warnings, notes) for the package rooted at `root`."""
     block, warn, notes = [], [], []
@@ -90,8 +111,20 @@ def check(root, product=None):
         for where in (root, content):
             if os.path.exists(os.path.join(where, n)):
                 block.append("%s is in the project (%s): a Fab package must not contain it" % (n, os.path.relpath(os.path.join(where, n), root).replace(os.sep, "/")))
+    cn, cp = auto_clean(root)
+    notes += cn
+    warn += cp
+    try:  # traces of another project inside the assets (v1.110): the thing Epic's validation rejected twice
+        sys.path.insert(0, HERE)
+        import fab_assets
+        ab, aw, an = fab_assets.scan(root)
+        block += ab
+        warn += aw
+        notes += an
+    except Exception:
+        pass
     if os.path.isdir(os.path.join(root, ".lore")):
-        warn.append(".lore (UEFN version-control data) is at the project root: check if your archive includes it; it is not content")
+        notes.append(".lore, .loreignore, .urcignore and *.code-workspace are at the project root: Epic asks to remove them, and `zip` leaves them out of the archive")
     for base, dirs, files in os.walk(root):
         dirs[:] = [d for d in dirs if d not in UEFN_INTERNAL and d not in FORBIDDEN_DIRS and d != ".lore"]
         for f in files:
@@ -105,7 +138,7 @@ def check(root, product=None):
                 if not NAME_OK.fullmatch(d):
                     block.append("%s: folder name must use letters, digits and underscore only" % rel)
                 try:
-                    if not os.listdir(os.path.join(base, d)):
+                    if d != "Collections" and not os.listdir(os.path.join(base, d)):  # Collections is created by the editor itself: never reported
                         warn.append("%s: empty folder (remove it or fill it)" % rel)
                 except OSError:
                     pass
@@ -255,9 +288,8 @@ def files_to_make(root):
     name = os.path.basename(root.rstrip("/\\"))
     return {
         "Documentation/README.md": "# %s\n\nTODO: one paragraph: what the product is and who it is for.\n\n## What is inside\n\nTODO: list the devices, widgets, materials and Verse files the customer receives.\n\n## Requirements\n\n- UEFN version: TODO\n- Other plugins or Epic libraries: TODO\n\n## Setup\n\n1. TODO: copy the content into your project.\n2. TODO: place the device in the level.\n3. TODO: set the options (see SETTINGS.md).\n\n## Usage\n\nTODO\n\n## Known limits\n\nTODO\n" % name,
-        "FabListing/listing.md": "# Fab listing texts (copy them into the Fab portal)\n\nTitle: TODO (about 30 characters or fewer)\n\nShort description: TODO\n\n## Description\n\nTODO: what it does, what is included, how it is used. Declare third-party software and assets (see third_party.md).\n\n## Category and subcategories\n\nTODO\n\n## Tags\n\nTODO\n\n## Price\n\nTODO\n\n## Technical details\n\n- Supported UEFN version: TODO\n- Verse files: %d\n- LOD: TODO (yes or no)\n- Other: TODO\n" % len(verse_files(root)),
+        "FabListing/listing.md": "# Fab listing texts (copy them into the Fab portal)\n\nTitle: TODO (about 30 characters or fewer)\n\nShort description: TODO\n\n## Description\n\nTODO: what it does, what is included, how it is used. Declare third-party software and assets (see third_party.md).\n\n## Category and subcategories\n\nTODO\n\n## Tags\n\nTODO\n\n## Price\n\nTODO\n\n## Technical details\n\nThese are the fields of the portal form (format UEFN Source, category Game Systems). Allowed values are in brackets.\n\n- Modular / extensible: TODO (yes or no)\n- Includes UI components: TODO (yes or no)\n- Network integration ready: TODO (yes or no)\n- AI features: TODO (yes or no)\n- Code framework: TODO (Blueprint, C++ or Other: Verse is Other)\n- Projects: TODO (number)\n- C++ classes: TODO (number, 0 for a Verse product)\n- Input methods: TODO (any of Gamepad, Keyboard, Mouse, Other)\n- Additional information: TODO\n- Verse files: %d\n" % len(verse_files(root)),
         "FabListing/third_party.md": third_party_md(root),
-        "FabListing/screenshots.md": "# Images for the listing\n\nFab asks for a thumbnail that represents the product and a gallery; for packs, a panoramic grid on a plain background helps. Epic gives no image sizes, so check the current Fab pages before you make them.\n\n| File | What it shows | Done |\n|---|---|---|\n| thumbnail | the product in one picture | no |\n| gallery-1 | TODO | no |\n| gallery-2 | TODO | no |\n",
     }
 
 
@@ -316,15 +348,18 @@ def zip_package(root):
     import time
     import zipfile
     top = os.path.basename(root.rstrip("/\\"))
-    skip_dirs = set(FORBIDDEN_DIRS) | {".git"}
+    skip_dirs = set(FORBIDDEN_DIRS) | {".git", ".lore", ".urc"}   # Epic: lore/urc/codeworkspace files are not needed by Fab and are removed in review
     files = []
     for base, dirs, fs in os.walk(root):
         dirs[:] = [d for d in dirs if d not in skip_dirs]
         for f in fs:
+            if base == root and (f in (".loreignore", ".urcignore") or f.endswith(".code-workspace")):
+                continue
             if f.endswith(".py") or (base == root and f in FORBIDDEN_FILES) or f.endswith(".zip") and base == root:
                 continue
             files.append(os.path.join(base, f))
     problems = []
+    auto_clean(root)  # no user name and no other project's name goes into the archive
     for p in files:
         rel = os.path.relpath(p, root).replace(os.sep, "/")
         if rel.startswith("Content/") and not rel.startswith(("Content/__External",)):
@@ -337,12 +372,16 @@ def zip_package(root):
                 problems.append("%s: path is %d characters in the archive (limit %d)" % (rel, len(top + "/" + rel), MAX_PATH))
     if problems:
         return None, problems
-    out = os.path.join(os.path.dirname(root.rstrip("/\\")), top + ".zip")
-    if os.path.exists(out):
-        out = os.path.join(os.path.dirname(out), "%s-%s.zip" % (top, time.strftime("%Y%m%d-%H%M%S")))
-    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+    out = os.path.join(os.path.dirname(root.rstrip("/\\")), top + ".zip")   # always the same name: a new zip replaces the old one
+    tmp = out + ".tmp"
+    with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as z:
         for p in files:
             z.write(p, top + "/" + os.path.relpath(p, root).replace(os.sep, "/"))
+    try:
+        os.replace(tmp, out)
+    except OSError:
+        os.remove(tmp)
+        return None, ["%s cannot be replaced: close the program that has it open (Explorer preview, an uploader) and try again" % os.path.basename(out)]
     return out, []
 
 

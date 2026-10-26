@@ -68,6 +68,12 @@ during initial analysis).
 
 **Use:** `references/read-tools-proven.md` lists the read tools proven on a real run and which need a real object first. `references/ui-session-tools.md` lists the toolsets beyond the device reads above (widgets, Verse fields, bindings, Verse files and build, sessions, entities, assets). **Don't use:** a write tool for a task that is only a question; never guess a tool name, run `describe_toolset`. **Procedure:** for screens built with Epic's Verse UI Kit follow the `verse-ui-kit` skill.
 
+## Contract: changing a reference or an array on an object (read back, then stop and ask)
+
+**Use:** the property-set tools of the MCP, when the property is an object reference (a device pointing to another device, a widget, an asset) or an array of references.
+**Don't use:** as a "quick fix" to rewire a level. A reference set through the MCP can silently replace the one the editor had, and a wrong or empty one breaks the owner's graph without any error from the tool.
+**Procedure:** (1) read the property first and keep the old value in the reply; (2) set it only when the owner asked for exactly that change; (3) read it back and compare: if it differs from what was asked, or any other reference of the same object changed, STOP, tell the owner, and do not try again by guessing; (4) never change several references in one go without reading each back. Real case: after reference assignments the manager device kept its settings but the round started with 0 participants.
+
 ## Adding a new contract
 
 When a new MCP-tool gotcha gets discovered (a tool that seems right by name but doesn't do what's

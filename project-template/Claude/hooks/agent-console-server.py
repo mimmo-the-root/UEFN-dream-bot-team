@@ -68,6 +68,7 @@ FLOW_HTML_PATH = os.path.join(ROOT, "agent-console-flow.html")
 SKILLS_HTML_PATH = os.path.join(ROOT, "agent-console-skills.html")
 NEWS_HTML_PATH = os.path.join(ROOT, "agent-console-news.html")
 SCORE_HTML_PATH = os.path.join(ROOT, "agent-console-score.html")
+FAB_HTML_PATH = os.path.join(ROOT, "agent-console-fab.html")  # v1.110: the Checklist page, served only for a Fab product (UEFN_FAB_LAB set)
 MANUAL_DIR = os.path.join(ROOT, "manual")  # the HTML manual (v1.100): /manual/ and /manual/<chapter>.html
 MANUAL_FILE_RE = re.compile(r"/manual/([a-z0-9-]+\.(?:html|css|png))")
 # Skill Harness (v1.81+): the Skills page reads/writes the genre skills under ~/.claude/skills/genre
@@ -82,6 +83,59 @@ except Exception:  # pragma: no cover - missing/broken module must never take th
 FAB_LAB = os.environ.get("UEFN_FAB_LAB") or ""
 PROJECT_DIR = FAB_LAB if FAB_LAB else os.path.dirname(os.path.dirname(ROOT))
 _DATA = os.path.join(FAB_LAB, "Claude") if FAB_LAB else os.path.dirname(ROOT)
+
+
+def _fab_mod():
+    """fab_checklist.py lives in the profile (~/.claude/hooks), never in a project. Returns (module, project root, lab) or raises."""
+    if not FAB_LAB:
+        raise RuntimeError("not a Fab product")
+    hd = os.path.join(os.path.expanduser("~"), ".claude", "hooks")
+    if hd not in sys.path:
+        sys.path.insert(0, hd)
+    import fab_checklist
+    with open(os.path.join(FAB_LAB, "product.json"), encoding="utf-8") as f:
+        root = json.load(f)["project"]
+    return fab_checklist, root, FAB_LAB
+
+
+def _fab_lab_mod():
+    """fab_lab.py (profile hooks) and the project root of this Fab lab."""
+    if not FAB_LAB:
+        raise RuntimeError("not a Fab product")
+    hd = os.path.join(os.path.expanduser("~"), ".claude", "hooks")
+    if hd not in sys.path:
+        sys.path.insert(0, hd)
+    import fab_lab
+    with open(os.path.join(FAB_LAB, "product.json"), encoding="utf-8") as f:
+        return fab_lab, json.load(f)["project"]
+
+
+def _fab_product_info():
+    """What the kit really knows about this Fab product (a map's genre and blueprint do not apply): Verse files of the product, approved lessons, recipes, recorded calls."""
+    out = {"name": os.path.basename(FAB_LAB), "verse_files": 0, "verse_sample": [], "lessons": 0, "recipes": 0, "calls": 0, "failed": 0, "cards": 0}
+    try:
+        fl, root = _fab_lab_mod()
+        out["name"] = os.path.basename(os.path.normpath(root))
+        names = []
+        for base, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("Intermediate", "Saved", "node_modules")]
+            names += [os.path.relpath(os.path.join(base, f), root).replace("\\", "/") for f in files if f.endswith(".verse")]
+        out["verse_files"] = len(names)
+        out["verse_sample"] = sorted(names)[:6]
+        out["lessons"] = len(fl._jload(fl.lessons_file(), []))
+        st = fl.status(root)
+        out.update(calls=st["calls"], failed=st["failed"], cards=len(st["cards"]))
+        try:
+            key = skills_lib._map_key(os.path.basename(FAB_LAB))
+            out["recipes"] = sum(1 for sl in ("materials", "mechanics") for r in skills_lib.recipes_list(sl).get("recipes", []) if key in r.get("maps", []))
+            out["recipe_list"] = skills_lib.recipes_of(os.path.basename(FAB_LAB))
+        except Exception:
+            pass
+    except Exception:
+        pass
+    return out
+
+
 SERVER_STARTED_AT = datetime.now(timezone.utc).isoformat()
 try:
     with open(os.path.join(os.path.dirname(ROOT), "KIT-VERSION"), encoding="utf-8") as _kv:
@@ -421,7 +475,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif self.path.startswith("/kit-status"):
             self._send_json_bytes(json.dumps(_kit_status()).encode("utf-8"))
         elif self.path.startswith("/whoami"):
-            self._send_json_bytes(json.dumps({"project": PROJECT_DIR, "started_at": SERVER_STARTED_AT, "kit_version": KIT_VERSION_AT_START}).encode("utf-8"))
+            self._send_json_bytes(json.dumps({"project": PROJECT_DIR, "started_at": SERVER_STARTED_AT, "kit_version": KIT_VERSION_AT_START, "fab": bool(FAB_LAB), "caps": ["quit", "fab_product"]}).encode("utf-8"))
         elif self.path.startswith("/island-metrics"):
             self._send_json_bytes(json.dumps(_get_island_metrics()).encode("utf-8"))
         elif self.path.startswith("/island-info"):
@@ -431,9 +485,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif self.path.startswith("/learning-data"):
             # State of the learning of THIS project (steps, blueprint state, log) + genre/type proposal. State files only.
             try:
-                self._send_json_bytes(json.dumps(skills_lib.console_learning(PROJECT_DIR)).encode("utf-8"))
+                d = skills_lib.console_learning(PROJECT_DIR)
+                if FAB_LAB:
+                    d["fab_product"] = _fab_product_info()
+                else:
+                    d["learn_flag"] = skills_lib.map_learn_flag(PROJECT_DIR)
+                    d["recipe_list"] = skills_lib.recipes_of(skills_lib.project_name(PROJECT_DIR))
+                self._send_json_bytes(json.dumps(d).encode("utf-8"))
             except Exception as e:
                 self._send_json_bytes(json.dumps({"error": "could not read the learning state: %s" % e}).encode("utf-8"))
+        elif self.path.startswith("/recipe-inbox"):
+            try:
+                self._send_json_status(200, skills_lib.recipe_inbox() if skills_lib else {"pending": [], "decided": 0})
+            except Exception as e:
+                self._send_json_status(200, {"pending": [], "decided": 0, "error": "%s" % e})
         elif self.path.startswith("/community-state"):
             # The switch "Contribute to the community", what was shared, and whether this project's map is published.
             try:
@@ -464,13 +529,39 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self._send_json_bytes(json.dumps(score.compute(PROJECT_DIR)).encode("utf-8"))
             except Exception as e:
                 self._send_json_bytes(json.dumps({"available": False, "reason": "could not compute the score (%s)" % e.__class__.__name__}).encode("utf-8"))
+        elif self.path.startswith("/fab-data"):
+            try:
+                fc, root, lab = _fab_mod()
+                self._send_json_bytes(json.dumps(fc.build(root, lab)).encode("utf-8"))
+            except Exception as e:
+                self._send_json_bytes(json.dumps({"error": "%s" % e}).encode("utf-8"))
+        elif self.path.startswith("/fab-learn"):
+            try:
+                fl, root = _fab_lab_mod()
+                self._send_json_bytes(json.dumps(fl.learn_state(root)).encode("utf-8"))
+            except Exception as e:
+                self._send_json_bytes(json.dumps({"error": "%s" % e}).encode("utf-8"))
+        elif self.path.startswith("/fab-file"):
+            try:
+                from urllib.parse import urlparse, parse_qs
+                fc, root, lab = _fab_mod()
+                key = parse_qs(urlparse(self.path).query).get("key", [""])[0]
+                label, text = fc.read_product_file(root, key)
+                self._send_json_bytes(json.dumps({"name": label, "text": text}).encode("utf-8"))
+            except Exception as e:
+                self._send_json_bytes(json.dumps({"error": "%s" % e}).encode("utf-8"))
+        elif self.path.startswith("/checklist") or self.path.startswith("/agent-console-fab.html"):
+            self._serve_html_file(FAB_HTML_PATH)
         elif self.path.startswith("/skills-data"):
             # Real data only, computed from the local genre-skill files by skills_lib.summary().
             if skills_lib is None:
                 self._send_json_bytes(json.dumps({"error": "skills_lib.py not found next to the server"}).encode("utf-8"))
             else:
                 try:
-                    self._send_json_bytes(json.dumps(skills_lib.summary()).encode("utf-8"))
+                    d = skills_lib.summary()
+                    d["current_project"] = os.path.basename(FAB_LAB) if FAB_LAB else skills_lib.project_name(PROJECT_DIR)
+                    d["current_kind"] = "fab" if FAB_LAB else "map"
+                    self._send_json_bytes(json.dumps(d).encode("utf-8"))
                 except Exception as e:
                     self._send_json_bytes(json.dumps({"error": "could not read skills: %s" % e}).encode("utf-8"))
         elif self.path == "/manual" or self.path.startswith("/manual/") or self.path.startswith("/manual?"):
@@ -511,8 +602,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_POST(self):
+        if self.path.startswith("/quit"):  # v1.110: lets a newer fab_lab.py replace an out-of-date console of the same product
+            if self.client_address[0] not in ("127.0.0.1", "::1"):
+                return self._send_json_status(403, {"ok": False})
+            self._send_json_status(200, {"ok": True})
+            import threading
+            threading.Timer(0.3, lambda: os._exit(0)).start()
+            return
         # Owner decisions on the Skills page: approve / edit / reject a lesson, run the privacy check.
-        if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check") or self.path.startswith("/genre-confirm") or self.path.startswith("/community-act")):
+        if self.path.startswith("/fab-learn-act"):
+            return self._fab_learn_act()
+        if self.path.startswith("/map-learn"):
+            return self._map_learn()
+        if self.path.startswith("/fab-act"):
+            return self._fab_act()
+        if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check") or self.path.startswith("/genre-confirm") or self.path.startswith("/community-act") or self.path.startswith("/recipe-share")):
             return self._send_json_status(404, {"ok": False, "error": "unknown endpoint"})
         if not self._origin_ok():
             return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
@@ -521,7 +625,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if n > 65536:
                 return self._send_json_status(413, {"ok": False, "error": "body too large"})
             data = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
-            if self.path.startswith("/community-act"):
+            if self.path.startswith("/recipe-share") and data.get("inbox"):
+                res = skills_lib.recipe_inbox_act(str(data.get("id") or ""), str(data.get("decision") or ""))
+            elif self.path.startswith("/recipe-share"):
+                res = skills_lib.recipe_share(str(data.get("skill") or ""), str(data.get("name") or ""), str(data.get("decision") or ""))
+            elif self.path.startswith("/community-act"):
                 res = skills_lib.community_act(data, PROJECT_DIR)
             elif self.path.startswith("/genre-confirm"):
                 res = skills_lib.confirm_genre(PROJECT_DIR, data.get("genre"), data.get("variant"))
@@ -532,6 +640,70 @@ class Handler(http.server.BaseHTTPRequestHandler):
                                      data.get("statement"), data.get("exclude") or [])
             self._send_json_status(200, res)
         except (ValueError, KeyError, TypeError) as e:
+            self._send_json_status(400, {"ok": False, "error": str(e)})
+
+    def _map_learn(self):
+        # Skills page, map project: the Learn button (same idea as the Fab product button).
+        if not self._origin_ok():
+            return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
+        if FAB_LAB or skills_lib is None:
+            return self._send_json_status(400, {"ok": False, "error": "not a map project"})
+        try:
+            self._send_json_status(200, dict(skills_lib.map_learn_request(PROJECT_DIR), ok=True))
+        except (ValueError, OSError) as e:
+            self._send_json_status(400, {"ok": False, "error": str(e)})
+
+    def _fab_learn_act(self):
+        # Skills page, Fab product: press Learn, approve / edit / reject a proposed lesson.
+        if not self._origin_ok():
+            return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            if n > 65536:
+                return self._send_json_status(413, {"ok": False, "error": "body too large"})
+            data = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
+            fl, root = _fab_lab_mod()
+            a = data.get("action")
+            if a == "request":
+                res = fl.learn_request(root)
+                return self._send_json_status(200, dict(res, ok=True))
+            fl.act(root, a, str(data.get("id") or ""), data.get("text"))
+            self._send_json_status(200, {"ok": True})
+        except (ValueError, KeyError, TypeError, RuntimeError, OSError) as e:
+            self._send_json_status(400, {"ok": False, "error": str(e)})
+
+    def _fab_act(self):
+        # Checklist page actions (Fab product only): tick an item, record the UEFN validation log, rescan, make / re-read the zip.
+        if not self._origin_ok():
+            return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            if n > 1048576:
+                return self._send_json_status(413, {"ok": False, "error": "body too large"})
+            data = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
+            fc, root, lab = _fab_mod()
+            a = data.get("action")
+            if a == "tick":
+                fc.set_tick(lab, str(data.get("id") or ""), bool(data.get("on")))
+            elif a == "validation":
+                fc.save_validation(lab, str(data.get("text") or ""), bool(data.get("skip_fixup")))
+            elif a == "scan":
+                fc.refresh(root, lab)
+            elif a == "zip":
+                if not fc.build(root, lab)["can_zip"]:
+                    return self._send_json_status(200, {"ok": False, "error": "stations 1 to 4 still have a block: fix them first"})
+                import fab_pack
+                out, probs = fab_pack.zip_package(root)
+                if probs:
+                    return self._send_json_status(200, {"ok": False, "error": "; ".join(probs[:3])})
+                fc.scan_state(root, lab)
+                return self._send_json_status(200, {"ok": True, "zip": out})
+            elif a == "reread":
+                fc.reread_zip(root, lab)
+            else:
+                return self._send_json_status(400, {"ok": False, "error": "unknown action"})
+            self._send_json_status(200, {"ok": True})
+        except (ValueError, KeyError, TypeError, RuntimeError, OSError) as e:
             self._send_json_status(400, {"ok": False, "error": str(e)})
 
     def _serve_manual(self):
@@ -578,7 +750,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return
         with open(file_path, "rb") as f:
             body = f.read()
+        if FAB_LAB:  # a Fab product: the Checklist tab is added here, on the server, so it never depends on the browser cache or a script
+            real = b'<a href="agent-console-fab.html">Checklist</a>'  # the REAL link: the fallback script also contains the text href="agent-console-fab.html"
+            m = re.search(rb'<a\b[^>]*href="agent-console-score\.html"[^>]*>Score</a>', body)
+            if m and real not in body:
+                body = body[:m.end()] + real + body[m.end():]
         self.send_response(200)
+        if FAB_LAB:
+            self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()

@@ -32,6 +32,9 @@ This whole package: agents, skills, rules, project scaffold and console.
 ## Lesson
 One short, general thing learned from a map, with a trust level. You approve, edit or reject each one. See [Skills and lessons](ch:skills-and-lessons).
 
+## Recipe
+How to rebuild something (a device, a mechanic, a map template, a material), step by step, with its Verse code. Not the same thing as a lesson: a lesson is a short rule. See [Community](ch:community).
+
 ## Map type
 A free name for the kind of map inside a genre, such as pillars or checkpoint-race.
 

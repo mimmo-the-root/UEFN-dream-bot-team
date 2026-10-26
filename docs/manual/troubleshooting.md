@@ -55,6 +55,10 @@ python3 Claude/hooks/agent-console-server.py
 
 Nothing shows until an agent actually runs. If agents run and the page stays empty, check that the project's `.claude/settings.json` still has the kit's hooks, which `/kit-doctor` does for you. After a Claude Code update that renames its internal dispatch tool, the console goes quiet the same way until the hooks are updated by a kit update.
 
+## The round starts with 0 participants after I changed references
+
+A reference (device to device, widget, asset) or a list of references was set through the MCP and the game manager lost the link: its settings look fine but nobody takes part. The editor does not report an error. Open the device and look at the reference fields; restore them by hand or from a restore point (`/restore`). From now on the agents read a reference before and after changing it and stop if it differs (skill `mcp-tool-contracts`). If you did not ask for the change, ask the agent to list every reference it wrote (`/editor-changes`).
+
 ## Claude loses UEFN
 
 The UEFN server listens on `http://127.0.0.1:8000/mcp` by default. Go in this order:
@@ -67,6 +71,9 @@ The UEFN server listens on `http://127.0.0.1:8000/mcp` by default. Go in this or
 ## There are two files called settings.json
 
 They are different and must never be merged by hand. `~/.claude/settings.json` is yours: Claude Code's own preferences. `<project>/.claude/settings.json` belongs to that project: the kit's hooks and permissions. Claude Code reads both and combines them. The full table is in [Full installation](ch:install#two-files-called-settings-json).
+
+## The Skills page of a Fab product looks old, or has no Checklist tab
+The console you see was started before the last update. Run `update-my-profile.cmd`, then start the console again with `fab_lab.py console <project> --foreground`: it now replaces an older console of the same product by itself. Press Ctrl+F5 in the browser.
 
 ## The What's new page is empty
 

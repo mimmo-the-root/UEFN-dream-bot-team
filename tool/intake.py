@@ -33,6 +33,8 @@ def _now():
 def _files(contrib_root):
     out = []
     for g in sorted(os.listdir(contrib_root)) if os.path.isdir(contrib_root) else []:
+        if g == "recipes":   # recipes have their own check and shipping (tool/collect_recipes.py)
+            continue
         gd = os.path.join(contrib_root, g)
         for pid in sorted(os.listdir(gd)) if os.path.isdir(gd) else []:
             pd = os.path.join(gd, pid)

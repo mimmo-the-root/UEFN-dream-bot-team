@@ -13,7 +13,7 @@ added to the customer's project later, so project-template is NEVER put in it. T
 ("map" or "fab") is kept in ~/.claude/kit-projects.json, outside the project, so the question is
 asked once. Existing files are never overwritten; Claude/docs is never touched. Nothing is deleted.
 """
-import json, os, shutil, sys
+import re, json, os, shutil, sys
 
 HOME = os.path.join(os.path.expanduser("~"), ".claude")
 REGISTRY = os.path.join(HOME, "kit-projects.json")
@@ -48,8 +48,18 @@ def load_registry():
         return {}
 
 
-def get_kind(root):
+def name_looks_fab(root):
+    """True when the project folder name has FAB as a word (root_FAB_rainbow, Fab-Pack, my.fab)."""
+    return bool(re.search(r"(^|[^a-z0-9])fab([^a-z0-9]|$)", os.path.basename(os.path.abspath(root)), re.I))
+
+
+def registered_kind(root):
     return load_registry().get(_norm(root), {}).get("kind")
+
+
+def get_kind(root):
+    """map / fab as the owner chose it; when nothing was chosen, a folder called ..._FAB_... counts as a Fab product."""
+    return registered_kind(root) or ("fab" if name_looks_fab(root) else None)
 
 
 def set_kind(root, kind):

@@ -1,4 +1,5 @@
 """Fab product helper: package check, generated documents, clean zip."""
+import re
 import os, shutil, sys, tempfile, zipfile
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "user-level-hooks"))
 import fab_pack
@@ -40,7 +41,7 @@ try:
     made, kept = fab_pack.docs(root, False)
     ok(made and not os.path.exists(os.path.join(BASE, "Documentation")), "dry run writes nothing")
     fab_pack.docs(root, True)
-    for f in ("Documentation/README.md", "Documentation/SETTINGS.md", "FabListing/listing.md", "FabListing/third_party.md", "FabListing/screenshots.md"):
+    for f in ("Documentation/README.md", "Documentation/SETTINGS.md", "FabListing/listing.md", "FabListing/third_party.md"):
         ok(os.path.exists(os.path.join(BASE, *f.split("/"))), "created " + f)
     s = open(os.path.join(BASE, "Documentation", "SETTINGS.md"), encoding="utf-8").read()
     ok("PointsPerRank" in s and "100" in s and "Points needed per rank" in s, "SETTINGS.md lists @editable with default and note")
@@ -107,7 +108,7 @@ finally:
 ART = "# Author: someone\n# " + "-" * 90 + "\n#  ART LINE\n#\n#  Site:  https://example.org/me\n# " + "-" * 90 + "\n"
 HEAD = "# A.verse\n# " + "-" * 90 + "\n# Thing  -  v2  (last modified: 2026-09-04)\n#\n# WHAT IT DOES\n#   Does a thing.\n#\n# QUICK SETUP\n#   1. Place it.\n#\n" + ART + "\nusing { /Verse.org/Simulation }\n"
 sig = fab_pack.extract_signature(HEAD)
-ok(sig and sig.startswith("# Author:") and "example.org" in sig and sig.rstrip().endswith("-" * 90), "signature block is extracted from Author to the closing rule")
+ok(sig and sig.startswith("# Author:") and re.search(r"https://example\.org/me", sig) and sig.rstrip().endswith("-" * 90), "signature block is extracted from Author to the closing rule")
 ok(fab_pack.header_problems(HEAD, sig) == [], "a complete header has no problems")
 ok(len(fab_pack.header_problems("# x\nusing { a }\n", sig)) == 5, "an empty header lists every missing part")
 ok("Does a thing" in fab_pack.summary(HEAD), "WHAT IT DOES feeds the summary")

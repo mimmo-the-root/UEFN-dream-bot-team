@@ -4,7 +4,7 @@ Brings ANY project that already has the kit (even a very old one, with no hook o
 version in ~/.claude/kit-template. Silent when there is nothing to do. Never fails a session."""
 import json, os, sys
 
-def new_map_context(base):
+def new_map_context(base, fab_only=False):
     """v1.108 (U2+U3): a UEFN project that has no kit yet. Returns the text for Claude, or None."""
     here = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, here)
@@ -16,20 +16,30 @@ def new_map_context(base):
     if not r:
         return None
     root, content = r
-    if ki.kit_installed(content):
+    if ki.kit_installed(content) and not fab_only:
         return None
     kind = ki.get_kind(root)
+    auto_fab = False
+    if fab_only and (ki.registered_kind(root) or kind != "fab"):
+        return None
+    if not ki.registered_kind(root) and kind == "fab":  # v1.110: a folder called ..._FAB_... is a Fab product: no question, no template
+        ki.set_kind(root, "fab")
+        kind = "fab"
+        auto_fab = True
     inst = 'python "%s"' % os.path.join(here, "kit_install.py")
     if kind == "fab":
         fp = os.path.join(here, "fab_pack.py")
         lab = os.path.join(here, "fab_lab.py")
-        return ("This UEFN project is registered as a FAB PRODUCT. Do NOT install the kit's project-template in it "
+        return (("The folder name says FAB, so the kit registered this project as a Fab product by itself: tell the owner in one line (if it is a map: `%s --kind \"%s\" map`). " % (inst, root) if auto_fab else "") + "This UEFN project is registered as a FAB PRODUCT. Do NOT install the kit's project-template in it "
                 "(its components are added to the customer's project later). Work on it normally. For the Fab package use "
                 "the skill fab-product and the helper `python \"%s\" check|docs|zip \"%s\"` (check = Epic's upload rules, "
                 "docs --apply = Documentation/ and FabListing/ inside Content/<Product>/, zip = the archive Fab wants). Run `check` before you say the package is ready. "
                 "SCRIPTS: this project has no Claude/hooks, so every kit command that names `Claude/hooks/<script>.py` (skills_lib.py recipes / recipe-add, mcp_map.py, ...) is run from the profile copy in `%s` instead; the data they use is global. "
                 "TOOL NAMES: never guess one: search the tool map with `py -3 <that folder>/mcp_map.py --find <keywords>` (renaming or moving an asset = AssetTools/move). "
+                "RULES: scan the assets first (fab_assets.py), no assets copied by hand from other projects, no update_metadata_tags, exact parameter names, no list_properties on textures, never edit .uasset bytes or close the editor yourself (skill fab-product has the full list). "
+                "LEARNED: the lessons the owner approved from earlier Fab products are printed by `python fab_lab.py lessons` in the profile hooks folder: read them before you start. "
                 "MATERIALS: when the owner confirms a material works, save it with `skills_lib.py recipe-add materials <file.json> \"<product name>\"` so the materials skill learns it. "
+                "MECHANICS: before building a stand-alone device, a mechanic or a map template, look for a recipe: `skills_lib.py recipes mechanics <keyword>` and follow it (devices, settings, wiring, Verse files, assets, verify). When the owner confirms one works, run `fab_lab.py draft-recipe <project> \"<name>\"`, fill every TODO and save it with `skills_lib.py recipe-add mechanics <file.json> \"<product name>\"`. "
                 "LESSONS: your UEFN MCP calls are recorded OUTSIDE the project (hook in the profile, folder ~/.claude/fab-lab/<Product>/), never inside it. "
                 "When a material or mechanic is finished, run `python \"%s\" card \"%s\"`, fill in the TODO parts of the draft card and ask the owner whether to promote it into a skill or recipe. "
                 "The owner opens the console on this data with `python \"%s\" console \"%s\"`."
@@ -91,6 +101,11 @@ def main():
         if os.path.isdir(os.path.join(c, "Claude", "hooks")) and os.path.isfile(os.path.join(c, "CLAUDE.md")):
             project = c
             break
+    if project:  # a project that already has the kit but is called ..._FAB_... and was never classified: it is a Fab product
+        ctx = new_map_context(project, fab_only=True)
+        if ctx:
+            print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": ctx}}))
+            return 0
     if not project:
         ctx = new_map_context(base)
         if ctx:

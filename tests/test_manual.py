@@ -34,7 +34,7 @@ for page in ("agent-console.html", "agent-console-stats.html", "agent-console-do
     ok(m is not None, "%s links to its manual chapter" % page)
     ok(m.group(1) in os.listdir(man) and (not m.group(2) or 'id="%s"' % m.group(2)[1:] in rd(os.path.join(man, m.group(1)))), "%s: the help link target exists" % page)
     ok('class="kit-logo"' in t and 'rel="icon"' in t, "%s shows the logo and has a tab icon" % page)
-    ok("github.com/mimmo-the-root/UEFN-dream-bot-team" in t and "MIT License" in t and "x.com/mimmo_the_root" in t, "%s carries the repo, MIT and author footer" % page)
+    ok(re.search(r"https://github\.com/mimmo-the-root/UEFN-dream-bot-team", t) and "MIT License" in t and re.search(r"https://x\.com/mimmo_the_root", t), "%s carries the repo, MIT and author footer" % page)
 ps1 = rd(os.path.join(hooks, "agent-console-server.ps1"))
 ok("/manual" in ps1 and "manualDir" in ps1, "the PowerShell server routes /manual")
 

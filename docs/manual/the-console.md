@@ -82,12 +82,17 @@ Some steps (task intake, read context, skill match, pre-check, MCP place, sealed
 
 ## Skills
 
-What the kit has learned, in four parts:
+What the kit has learned, and what waits for you. At the top, four cards (what waits for you, lessons, recipes, the projects the kit learns from), each with a ring, and a **LEARN** block with one button: *Learn from this map* or *Learn from this product*. Under them, the tabs:
 
-- **The kit**: everything it knows across all your genres and maps.
-- **This map**: the genre and type of the map you are in, its blueprint, and the lessons waiting for your approval.
-- **UEFN MCP**: how many of UEFN's tools have a recipe ("recipes cover 225 of 388 tools, 221 proven") and how many answered in tests, what the safe tests found, and the latest news: tools added, removed or no longer working. The card also shows the progress of the recipes: four rings (proven by use, tool answered, not verified, failed), a bar per area and the growth over the last weeks. It fills by itself, see [The MCP engine](ch:mcp-engine).
-- **Community**: the switch to share lessons, covered in [Community](ch:community).
+- **To approve**: lessons from your work, lesson packs and recipes that came back from the community, and the lessons of a Fab product. One list, five per page, with *Approve all*. What you approve leaves the list.
+- **To share**: recipes you decide to share in the kit or keep private, and what is ready to send to the community.
+- **Lessons**, **Recipes**, **Skills**: everything the kit knows, with filters and a search.
+- **Maps & products**: every project the kit learns from, with a bar for how much is learned.
+- **This map** (or **This product** in a Fab product): the genre and type, the steps of the learning, the blueprint and the recipes of the project you are in.
+- **UEFN MCP**: how many of UEFN's tools have a recipe ("recipes cover 225 of 388 tools, 221 proven") and how many answered in tests, the safe tests, and the latest news. Four rings (proven by use, tool answered, not verified, failed), a bar per area and the growth over the last weeks. It fills by itself, see [The MCP engine](ch:mcp-engine).
+- **Community**: the switch to share, covered in [Community](ch:community).
+
+In a Fab product the console also has a **Checklist** tab (see [A Fab product project](ch:fab-product-project)).
 
 The **SKILLS** tab blinks when something waits for you. More in [Skills and lessons](ch:skills-and-lessons).
 

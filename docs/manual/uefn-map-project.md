@@ -6,6 +6,10 @@ What the kit puts in a project that is a **map** (an island you will play and pu
 
 Open a session from the `Content` folder of the project. If the project has no kit yet, the kit asks whether it is a map or a Fab product. Answer **map** and it shows how many files it would copy, asks for your yes, copies the contents of `project-template/` into `Content/` (never overwriting a file that already exists) and runs the setup steps. The hooks start working from the next session. The manual way is in the *Quick start*.
 
+## Learning from the map
+
+The kit reads the Verse code, the documents and the devices at every session start. To do it right now press **Learn from this map** on the Skills page: the kit prepares the recipes of your devices and mechanics by itself, and the agent finishes the learning at the end of its next answer (blueprint and how-to lessons). You approve the result in the tab *To approve*.
+
 ## What is in the project
 
 | Where | What |

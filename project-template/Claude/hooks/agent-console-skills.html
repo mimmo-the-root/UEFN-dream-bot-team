@@ -82,7 +82,7 @@ textarea.edit{width:100%;font:inherit;font-size:12px;background:var(--panel2);co
 .kspark{display:flex;align-items:flex-end;gap:3px;height:22px;margin:4px 0;}.kspark i{flex:1;background:var(--blue);border-radius:1px;min-height:2px;}
 .ktwo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
 .ktwo.wide{grid-template-columns:1.7fr 1fr;}
-@media(max-width:900px){.khero{grid-template-columns:1fr 1fr;}.ktwo,.ktwo.wide{grid-template-columns:1fr;}.ksteps{grid-template-columns:1fr 1fr!important;}}
+@media(max-width:900px){.khero,#kRecipeStats{grid-template-columns:1fr 1fr!important;}.ktwo,.ktwo.wide{grid-template-columns:1fr;}.ksteps{grid-template-columns:1fr 1fr!important;}}
 .kcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;}
 .klabel{font-size:11px;color:var(--dim);letter-spacing:1.3px;text-transform:uppercase;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .klabel .r{margin-left:auto;text-transform:none;letter-spacing:0;}
@@ -117,32 +117,61 @@ details.kproj{margin:26px 0 0;}details.kproj>summary{cursor:pointer;color:var(--
 .kcsw.on{background:rgba(57,255,136,.25);border-color:rgba(57,255,136,.6)}.kcsw.on::after{left:20px;background:var(--green)}
 .kcnote{font-size:12px;line-height:1.6;color:var(--amber);border:1px dashed rgba(255,180,84,.45);border-radius:8px;padding:9px 12px;margin:10px 0;font-family:'Segoe UI',system-ui,sans-serif}
 .kcpre{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:11px;white-space:pre-wrap;max-height:240px;overflow:auto;margin:8px 0}
+/* v1.111: the Skills page by tabs (queues, knowledge, sources, engine, settings) */
+.kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0}
+.kcard2{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}.kstrip .kcard2{margin-bottom:0}
+.kcard2 h3{margin:0 0 8px;font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;font-weight:400}.kcard2.warn{border-color:rgba(255,180,84,.55)}
+.kcard2.rc{display:flex;gap:12px;align-items:center;justify-content:space-between}.kcard2.rc .l{min-width:0}
+.nums{display:flex;gap:6px 14px;flex-wrap:wrap}.nums b{display:block;font-size:19px}.nums span{font-size:10.5px;color:var(--dim)}
+.pct{font-size:11px;color:var(--dim);margin-top:6px}.pbar{height:7px;border-radius:4px;background:#182338;overflow:hidden;margin-top:6px}.pbar i{display:block;height:100%}
+.rg{width:64px;height:64px;flex:none}.rg text{fill:var(--text);font:700 14px ui-monospace,Consolas,monospace;text-anchor:middle;dominant-baseline:central}
+.wl{padding:6px 8px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer;background:var(--panel2)}.wl:hover{border-color:var(--amber)}.wl.zero{opacity:.6}.wl .sub{font-size:10.5px;color:var(--dim)}
+.kgrp{display:inline-flex;flex-direction:column;margin-right:8px;vertical-align:bottom}.kgrp label{font-size:9.5px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin:0 0 2px 4px}.kgrp div{display:flex;gap:2px}
+#kTabs{display:flex;flex-wrap:wrap;align-items:flex-end;margin-top:14px;border-bottom:1px solid var(--line)}
+.ktb{padding:7px 10px;border:1px solid var(--line);border-bottom:none;border-radius:8px 8px 0 0;cursor:pointer;color:var(--dim);background:var(--panel);font-size:13px;white-space:nowrap;user-select:none}
+.ktb.on{color:var(--text);background:var(--panel2);border-color:var(--blue)}.ktb i{font-style:normal;background:var(--amber);color:#000;border-radius:9px;padding:0 7px;font-size:11px;margin-left:6px}.ktb u{text-decoration:none;color:var(--dim);font-size:11px;margin-left:6px}
+.kpane{display:none;background:var(--panel2);border:1px solid var(--line);border-top:none;border-radius:0 0 10px 10px;padding:14px}.kpane.on{display:block}
+.kfilters{display:flex;gap:6px;flex-wrap:nowrap;align-items:center;margin-bottom:10px;overflow-x:auto;white-space:nowrap;font-size:12px;color:var(--dim)}
+.kf{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font:inherit;font-size:11.5px;cursor:pointer;flex:none}.kf.on{color:var(--green);border-color:rgba(57,255,136,.5)}
+.grow{flex:1}.ksep{width:1px;height:18px;background:var(--line);margin:0 6px;flex:none}
+.kq{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font:inherit;font-size:11.5px;min-width:160px}
+.kpager{display:flex;gap:10px;align-items:center;margin-top:10px;color:var(--dim);font-size:12px}
+.kchip2{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:0 8px;font-size:10.5px;color:var(--dim);margin-right:4px;white-space:nowrap}.kchip2.g{color:var(--green);border-color:rgba(57,255,136,.4)}.kchip2.a{color:var(--amber);border-color:rgba(255,180,84,.4)}.kchip2.b{color:var(--blue);border-color:rgba(75,139,255,.4)}.kchip2.v{color:var(--violet);border-color:rgba(185,139,255,.4)}.kchip2.r{color:var(--red);border-color:rgba(255,77,94,.4)}.kchip2.d{color:#8fa5c0}
+.kact{white-space:nowrap}.kact .kbtn{margin-right:4px}.kedit{width:100%;font:inherit;font-size:12px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px}
+.kck{display:flex;gap:8px;align-items:flex-start;padding:3px 0;font-size:12px}.kck input{margin-top:3px}.kdiff{margin-top:6px;font-size:12px}
+.knote{font-size:12px;color:var(--amber);border:1px dashed rgba(255,180,84,.45);border-radius:8px;padding:8px 12px;margin-bottom:10px}
+.kerr{color:var(--red);font-size:11px}.khint{margin-top:10px;font-size:11.5px;color:var(--dim)}.khint a{color:var(--cyan,#4dd0e1)}
+tr.kme td{background:rgba(255,180,84,.06)}
+@media(max-width:900px){.kstrip{grid-template-columns:1fr 1fr}}
 </style>
 <div id="kitwrap">
- <div class="ksec"><h2>The kit</h2><span>everything the kit knows, across all your genres and maps</span></div>
- <div id="kHero" class="khero"></div>
- <div class="ktwo wide"><div id="kGenres"></div><div id="kSide"></div></div>
- <div class="ksec map"><h2 id="kMapTitle">This map</h2><span>learning, blueprint and lessons of this map's genre only</span></div>
- <div id="kGenreConf"></div>
- <div id="kLearning"></div>
- <div class="ktwo"><div id="kBlueprint"></div><div><div id="kLog"></div><div id="kPatterns"></div></div></div>
- <div id="kWaiting"></div>
- <div id="kRecipes"></div>
- <div class="ksec"><h2>UEFN MCP</h2><span>the engine under the kit: mapped and tested by itself, on this computer</span></div>
- <div id="kMcp"></div>
- <div class="ksec"><h2>Community</h2><span>share what you learned, only from a published map</span></div>
- <div id="kCommunity"></div>
-</div>
-  <details class="kproj" id="classic"><summary>Classic view: edit wording, approve all, packs, details</summary>
-  <div id="hero" class="hero"></div>
-  <div id="body"></div>
-  </details>
+ <div id="kHero" style="display:none"></div><div id="kRecipeStats" style="display:none"></div>
+ <div id="kStrip" class="kstrip"></div>
+ <div id="kLearnBox"></div>
+ <div id="kTabs"></div>
+ <div class="kpane" id="pn-approve"><div id="kQApprove"></div></div>
+ <div class="kpane" id="pn-share"><div id="kQShare"></div></div>
+ <div class="kpane" id="pn-lessons"><div id="kLessonsAll"></div></div>
+ <div class="kpane" id="pn-recipes"><div id="kRecipes"></div></div>
+ <div class="kpane" id="pn-skills"><div class="ktwo wide"><div id="kGenres"></div><div id="kSide"></div></div></div>
+ <div class="kpane" id="pn-maps"><div id="kMaps"></div></div>
+ <div class="kpane" id="pn-this">
+  <div class="ksec map"><h2 id="kMapTitle">This map</h2><span>learning, blueprint and lessons of this map's genre only</span></div>
+  <div id="kGenreConf"></div>
+  <div id="kLearning"></div>
+  <div class="ktwo"><div id="kBlueprint"></div><div><div id="kLog"></div><div id="kPatterns"></div></div></div>
+  <div id="kThisRecipes"></div>
+ </div>
+ <div class="kpane" id="pn-mcp"><div id="kMcp"></div></div>
+ <div class="kpane" id="pn-comm"><div id="kCommunity"></div></div>
+ <div id="kWaiting" style="display:none"></div>
+ <div id="classic" style="display:none"><div id="hero"></div><div id="body"></div></div>
 </div>
 <script>
 "use strict";
 var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); };
 var DATA = null, SELECTED = null, BUSY = false;
-var KIND = {new_pattern:["NEW PATTERN","p-new"], support_added:["SUPPORT ADDED","p-upd"], contradiction:["CONTRADICTION","p-con"]};
+var KIND = {new_pattern:["NEW LESSON","p-new"], support_added:["SUPPORT ADDED","p-upd"], contradiction:["CONTRADICTION","p-con"]};
 
 function ago(iso){
   if(!iso) return "—";
@@ -170,7 +199,7 @@ function renderHero(d){
     '<div class="hc"><div class="k">Learning from</div><div class="n">' + c(t.maps) + ' <small>map' + (t.maps === 1 ? "" : "s") + ' · ' +
       d.genres.length + ' genre' + (d.genres.length === 1 ? "" : "s") + ' · ' + d.variants + ' variant' + (d.variants === 1 ? "" : "s") +
       '</small></div><div class="s">' + (d.last_learned ? "last learned: " + esc(ago(d.last_learned)) : "nothing learned yet") + '</div></div>' +
-    '<div class="hc"><div class="k">Pattern confidence</div><div class="n">' + tot + ' <small>pattern' + (tot === 1 ? "" : "s") + '</small></div>' +
+    '<div class="hc"><div class="k">Lesson confidence</div><div class="n">' + tot + ' <small>lesson' + (tot === 1 ? "" : "s") + '</small></div>' +
       '<div class="stack"><i style="width:' + w(t.proven) + ';background:var(--green)"></i><i style="width:' + w(t.confirmed) +
       ';background:var(--amber)"></i><i style="width:' + w(t.reference||0) + ';background:var(--blue)"></i><i style="width:' + w(t.hypothesis) + ';background:#8fa5c0"></i><i style="width:' + w(t.contested) +
       ';background:var(--red)"></i></div><div class="s">' + c(t.proven) + ' proven · ' + c(t.confirmed) + ' confirmed · ' + c(t.hypothesis) +
@@ -179,7 +208,7 @@ function renderHero(d){
       (d.usage_week_total === 1 ? "" : "s") + '</small></div><div class="spark">' +
       d.usage_week.map(function(v){ return '<i style="height:' + Math.max(8, Math.round(100 * v / maxU)) + '%"></i>'; }).join("") + '</div>' +
       '<div class="s">' + (d.privacy.checked ? (d.privacy.ok ? '<span class="ok">✓ privacy check passed</span>' : '<span style="color:var(--red)">✗ privacy check FAILED</span>')
-        : '<span class="dim">privacy check not run yet</span>') + ' · ' + d.never_used + ' genre' + (d.never_used === 1 ? "" : "s") + ' with patterns never used</div></div>';
+        : '<span class="dim">privacy check not run yet</span>') + ' · ' + d.never_used + ' genre' + (d.never_used === 1 ? "" : "s") + ' with lessons never used</div></div>';
 }
 
 function proposalCard(p){
@@ -204,7 +233,7 @@ function packCard(p){
     rows(p.new, "+ new", "var(--green)", function(it){ return ' <span class="dim">(' + (p.official ? 'added as official reference' : 'added as a community hypothesis') + ')</span>'; }) +
     rows(p.known, "= known", "var(--amber)", function(it){ return ' <span class="dim">(support ' + (it.delta > 0 ? "+" : "") + it.delta + ' — your text stays)</span>'; }) +
     rows(p.conflicts, "! conflict", "var(--red)", function(it){ return ' <span class="dim">(differs from yours: “' + esc(it.local_statement) + '” — kept as Contested, yours wins)</span>'; }) +
-    '</div>' + (p.rejected && p.rejected.length ? '<div class="sub">' + p.rejected.length + ' pattern(s) were refused by the format/safety check.</div>' : "") +
+    '</div>' + (p.rejected && p.rejected.length ? '<div class="sub">' + p.rejected.length + ' lesson(s) were refused by the format/safety check.</div>' : "") +
     '<div class="btns"><button class="btn ok" onclick="applyPack(\'' + g + '\',\'' + id + '\')">Apply selected</button><button class="btn no" onclick="act(\'' + g + '\',\'' + id + '\',\'reject\')">Skip this version</button></div><div class="err" id="err-' + id + '"></div></div>';
 }
 
@@ -228,7 +257,7 @@ function render(d){
     (lessons.length ? lessons.map(proposalCard).join("") :
       '<div class="empty">No lessons waiting. Lessons appear here after a playtest (the <code>skill-reflector</code> agent proposes them) or when you ask Claude to propose a lesson from a map. Nothing is learned without your approval.</div>') + '</div>';
   h += '<div class="grid"><div>';
-  h += '<div class="lab">Genre skills — what the kit has learned</div><div class="card"><table><tr><th>Genre</th><th>Maps</th><th>Patterns</th><th>Used by coder</th></tr>' +
+  h += '<div class="lab">Genre skills — what the kit has learned</div><div class="card"><table><tr><th>Genre</th><th>Maps</th><th>Lessons</th><th>Used by coder</th></tr>' +
     (d.genres.length ? d.genres.map(function(g){
       var n = g.patterns.length, c = g.counts, w = function(v){ return n ? (100 * v / n).toFixed(1) + "%" : "0%"; };
       var tys = (g.variants || []).filter(function(v){ return v !== "*"; });
@@ -248,17 +277,17 @@ function render(d){
     (packs.length ? packs.map(packCard).join("") : '<div class="empty">No pack updates waiting. To try one: <code>python Claude/hooks/skills_lib.py merge &lt;genre&gt; &lt;patterns.json&gt;</code> — it only queues a proposal; nothing changes until you apply it.</div>') + '</div>';
   h += '<div class="lab">What stays on your computer</div><div class="card lock">' +
     '<div>🔒 <b>Evidence</b> <span class="dim">— map names, task IDs, notes.</span> <span class="ok">Never leaves this computer.</span></div>' +
-    '<div>📦 <b>Pack</b> <span class="dim">— generalized patterns + support counts, no names.</span> Shareable only after the privacy check.</div>' +
+    '<div>📦 <b>Pack</b> <span class="dim">— generalized lessons + support counts, no names.</span> Shareable only after the privacy check.</div>' +
     '<div>✎ <b>Your decisions</b> <span class="dim">— approvals and rejections; updates never overwrite them.</span></div>' +
     '<div>' + (d.privacy.checked ? (d.privacy.ok ? '<span class="ok">Last privacy check: ✓ no map names, codes or numbers found (' + esc(ago(d.privacy.ts)) + ').</span>' :
-      '<span style="color:var(--red)">Last privacy check FAILED — fix the patterns before sharing anything.</span>') : '<span class="dim">Privacy check not run yet.</span>') +
+      '<span style="color:var(--red)">Last privacy check FAILED — fix the lessons before sharing anything.</span>') : '<span class="dim">Privacy check not run yet.</span>') +
     ' <button class="btn" onclick="runCheck()">Run check</button><span class="err" id="chk"></span></div></div>';
   h += '<div class="lab">Digest</div><div class="card"><div class="prop"><div class="say">Last 7 days: the coder consulted your genre skills <b>' + d.usage_week_total + '</b> time' + (d.usage_week_total === 1 ? "" : "s") +
     '. <b>' + d.pending_lessons + '</b> lesson' + (d.pending_lessons === 1 ? "" : "s") + ' and <b>' + d.pending_packs + '</b> pack update' + (d.pending_packs === 1 ? "" : "s") + ' waiting for you.</div></div></div>';
   h += '</div></div>';
   h += '<div class="lab">How one genre skill is stored</div><div class="card"><div class="tree"><span class="d">' + esc(d.root || "~/.claude/skills/genre") + '/&lt;genre&gt;/</span>\n' +
-    '  SKILL.md                    <span class="c">what the coder reads (patterns + confidence, generated)</span>\n' +
-    '  <span class="d">pack/</span> patterns.json         <span class="c">generalized patterns — the only part that can ever be shared</span>\n' +
+    '  SKILL.md                    <span class="c">what the coder reads (lessons + confidence, generated)</span>\n' +
+    '  <span class="d">pack/</span> patterns.json         <span class="c">generalized lessons — the only part that can ever be shared</span>\n' +
     '  <span class="l">local/</span> evidence, ledger, inbox  <span class="l">PRIVATE</span> <span class="c">map names, task IDs, your decisions — never exported, never committed</span></div></div>';
   b.innerHTML = h;
 }
@@ -277,7 +306,7 @@ function act(g, id, action, statement, exclude){
   }).catch(function(){ BUSY = false; showErr(id, "Could not reach the local server (is the page opened through it?)"); });
 }
 
-/* Approve every waiting lesson in one go (new patterns and extra support). Contradictions (they mark a pattern
+/* Approve every waiting lesson in one go (new lessons and extra support). Contradictions (they mark a pattern
    Contested) and pack updates are never bulk-approved. Stops at the first error and reports it. */
 function approveAll(){
   if (BUSY || !DATA) return;
@@ -308,7 +337,7 @@ function editWording(g, id){
 }
 
 /* Patterns list: filtered + paginated so it stays readable and light as it grows (v1.88.1).
-   Default view "Relevant" hides official reference patterns nobody has tested yet (0 support, 0 against):
+   Default view "Relevant" hides official reference lessons nobody has tested yet (0 support, 0 against):
    they are the kit's starting knowledge, one click away under "Reference", not noise. */
 var PG = {page:0, filter:"relevant", q:"", size:8};
 var TIER_ORDER = {contested:0, proven:1, confirmed:2, hypothesis:3, reference:4};
@@ -352,13 +381,13 @@ function patternsCard(sel){
       var n = cnt(c[0]); if (!n && c[0] !== "relevant" && c[0] !== "all") return "";
       return '<a class="chip' + (PG.filter === c[0] ? " on" : "") + '" onclick="pgSet(\'' + c[0] + '\')">' + c[1] + ' ' + n + '</a>';
     }).join("");
-  var h = '<div class="lab">' + esc(sel.slug) + ' — patterns <span class="cnt">' + all.length + '</span></div><div class="card">' +
+  var h = '<div class="lab">' + esc(sel.slug) + ' — lessons <span class="cnt">' + all.length + '</span></div><div class="card">' +
     '<div class="pgbar">' + chips + '<input id="pgq" class="pgq" type="search" placeholder="search…" value="' + esc(PG.q) + '" oninput="pgQuery(this.value)"></div>' +
     '<table><tr><th>Pattern</th><th>Confidence</th><th>Support</th></tr>' +
     (slice.length ? slice.map(function(p){
       return '<tr><td>' + esc(p.statement) + '<div class="sub">[' + esc(p.variant) + '] when ' + esc(p.condition) + ' → ' + esc(p.action) + '</div></td><td>' + tierPill(p) + '</td><td class="sub">' +
         (p.support || 0) + ' for' + (p.against ? ' · ' + p.against + ' against' : '') + (p.community_support ? ' · community ' + p.community_support : '') + '</td></tr>';
-    }).join("") : '<tr><td colspan="3" class="dim">' + (all.length ? 'Nothing matches this filter.' : 'No approved patterns yet.') + '</td></tr>') + '</table>' +
+    }).join("") : '<tr><td colspan="3" class="dim">' + (all.length ? 'Nothing matches this filter.' : 'No approved lessons yet.') + '</td></tr>') + '</table>' +
     (list.length > PG.size ? '<div class="pgnav"><a class="chip" onclick="pgGo(-1)">‹ Prev</a> <span class="dim">' + (PG.page * PG.size + 1) + '–' + Math.min(list.length, (PG.page + 1) * PG.size) + ' of ' + list.length + '</span> <a class="chip" onclick="pgGo(1)">Next ›</a></div>' : '') +
     '</div>';
   return h;
@@ -375,7 +404,7 @@ function load(){
     DATA = d;
     document.getElementById("conn").innerHTML = '<span class="ok">✓</span> reading genre skills from the local server';
     var ae = document.activeElement;
-    if (!(ae && ae.tagName === "TEXTAREA" || ae.tagName === "INPUT")) render(d);  // never re-render under a wording edit in progress
+    /* the queues of the page are drawn by the tabs script below */
   }).catch(function(){
     document.getElementById("conn").innerHTML = '<span class="bad">✗</span> disconnected — is agent-console-server running?';
     document.getElementById("hero").innerHTML = '<div class="hc" style="grid-column:1/-1"><div class="k">Skills</div><div class="s">Could not reach the local server. Open this page through the console (the server serves it at /skills).</div></div>';
@@ -383,7 +412,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.109.1";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.110.0";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -478,25 +507,40 @@ function counts(c){return (c.proven||0)+" proven · "+(c.confirmed||0)+" confirm
 function pill(t,cls){return '<span class="kpill '+cls+'">'+esc(t)+'</span>';}
 function tierPill(p){if(p.status==="contested")return pill("contested","kp-r");var m={proven:"kp-g",confirmed:"kp-a",hypothesis:"kp-d",reference:"kp-b"};return pill(p.tier,m[p.tier]||"kp-d");}
 
+var GPAGE=0;
 function renderKit(){
  if(!SD||SD.error||!SD.totals){$("kHero").innerHTML='<div class="khc" style="grid-column:1/-1"><div class="k">Skills</div><div class="s">'+esc((SD&&SD.error)||"Could not read the genre skills.")+'</div></div>';return;}
  var t=SD.totals,mx=Math.max.apply(null,SD.usage_week.concat([1]));
  $("kHero").innerHTML=
   '<div class="khc'+(SD.pending.length?" warn":"")+'"><div class="k">Waiting for you</div><div class="n">'+SD.pending_lessons+' <small>lesson'+(SD.pending_lessons===1?"":"s")+'</small></div><div class="s">'+(SD.pending_packs?"+ "+SD.pending_packs+" community pack update"+(SD.pending_packs===1?"":"s")+"<br>":"")+(SD.pending.length?"oldest waiting: "+esc(ago(SD.oldest_pending)):"nothing to review")+'</div></div>'+
   '<div class="khc"><div class="k">Learning from</div><div class="n">'+t.maps+' <small>map'+(t.maps===1?"":"s")+' · '+SD.genres.length+' genre'+(SD.genres.length===1?"":"s")+' · '+SD.variants+' type'+(SD.variants===1?"":"s")+'</small></div><div class="s">'+(SD.last_learned?"last learned: "+esc(ago(SD.last_learned)):"nothing learned yet")+'</div></div>'+
-  '<div class="khc"><div class="k">Pattern confidence</div><div class="n">'+t.patterns+' <small>pattern'+(t.patterns===1?"":"s")+'</small></div>'+stack(t)+'<div class="s">'+esc(counts(t))+'</div></div>'+
+  '<div class="khc"><div class="k">Lesson confidence</div><div class="n">'+t.patterns+' <small>lesson'+(t.patterns===1?"":"s")+'</small></div>'+stack(t)+'<div class="s">'+esc(counts(t))+'</div></div>'+
   '<div class="khc"><div class="k">Used by coder — last 7 days</div><div class="n">'+SD.usage_week_total+' <small>consultation'+(SD.usage_week_total===1?"":"s")+'</small></div><div class="kspark">'+SD.usage_week.map(function(v){return '<i style="height:'+Math.max(8,Math.round(100*v/mx))+'%"></i>';}).join("")+'</div><div class="s">'+(SD.privacy.checked?(SD.privacy.ok?'<span style="color:var(--green)">✓ privacy check passed</span>':'<span style="color:var(--red)">✗ privacy check FAILED</span>'):'privacy check not run yet')+' · '+SD.never_used+' genre'+(SD.never_used===1?"":"s")+' never used</div></div>';
+ var _gp=Math.max(0,Math.ceil(((SD&&SD.genres)||[]).length/5)-1);if(GPAGE>_gp)GPAGE=_gp;
  var cur=(LD&&LD.genre_state&&LD.genre_state.genre)||"";
- $("kGenres").innerHTML='<div class="kcard"><div class="klabel">Genre skills — what the kit has learned</div><table class="ktable"><tr><th>Genre</th><th>Maps</th><th>Patterns</th><th>Used by coder</th></tr>'+
-  SD.genres.map(function(g){var n=g.patterns.length;return '<tr'+(g.slug===cur?' style="background:rgba(185,139,255,.07)"':'')+'><td><b>'+esc(g.slug)+'</b>'+(g.variants.filter(function(v){return v!=="*";}).length?'<div style="font-size:10px;color:var(--dim)">types: '+esc(g.variants.filter(function(v){return v!=="*";}).join(", "))+'</div>':'')+'<div style="font-size:10px;color:var(--dim)">'+(g.last_learned?"updated "+esc(ago(g.last_learned)):"no maps yet")+'</div></td><td>'+g.maps+'</td><td>'+(n?stack(g.counts)+'<div style="font-size:10px;color:var(--dim)">'+esc(counts(g.counts))+'</div>':'<span style="color:var(--dim)">— nothing learned yet</span>')+'</td><td>'+(g.consulted?g.consulted+"×":"—")+'</td></tr>';}).join("")+'</table></div>';
+ $("kGenres").innerHTML='<div class="kcard"><div class="klabel">Genre skills — what the kit has learned</div><table class="ktable"><tr><th>Genre</th><th>Maps</th><th>Lessons</th><th>Used by coder</th></tr>'+
+  SD.genres.slice(GPAGE*5,GPAGE*5+5).map(function(g){var n=g.patterns.length;return '<tr'+(g.slug===cur?' style="background:rgba(185,139,255,.07)"':'')+'><td><b>'+esc(g.slug)+'</b>'+(g.variants.filter(function(v){return v!=="*";}).length?'<div style="font-size:10px;color:var(--dim)">types: '+esc(g.variants.filter(function(v){return v!=="*";}).join(", "))+'</div>':'')+'<div style="font-size:10px;color:var(--dim)">'+(g.last_learned?"updated "+esc(ago(g.last_learned)):"no maps yet")+'</div></td><td>'+g.maps+'</td><td>'+(n?stack(g.counts)+'<div style="font-size:10px;color:var(--dim)">'+esc(counts(g.counts))+'</div>':'<span style="color:var(--dim)">— nothing learned yet</span>')+'</td><td>'+(g.consulted?g.consulted+"×":"—")+'</td></tr>';}).join("")+'</table>'+(SD.genres.length>5?'<div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="kbtn" id="gPrev"'+(GPAGE?'':' disabled')+'>Prev</button><span class="ksub">page '+(GPAGE+1)+' of '+Math.ceil(SD.genres.length/5)+'</span><button class="kbtn" id="gNext"'+((GPAGE+1)*5<SD.genres.length?'':' disabled')+'>Next</button></div>':'')+'</div>';
+ var gp=$("gPrev"),gn=$("gNext");if(gp)gp.onclick=function(){GPAGE--;renderKit();};if(gn)gn.onclick=function(){GPAGE++;renderKit();};
  var other=SD.pending.filter(function(p){return p.kind==="pack_update"||p.genre!==cur;});
- $("kSide").innerHTML='<div class="kcard"><div class="klabel">Waiting in other genres / packs</div>'+(other.length?other.map(function(p){return '<div style="margin:4px 0;font-size:12px">'+pill(p.kind==="pack_update"?"community pack":(p.kind==="contradiction"?"contradiction":"lesson"),p.kind==="contradiction"?"kp-r":"kp-b")+' '+esc(p.genre)+' <a href="#classic" onclick="var d=document.getElementById(\'classic\');if(d)d.open=true;" style="color:var(--blue)">open in Skills →</a></div>';}).join(""):'<div class="kempty">nothing waiting outside this genre</div>')+'</div>'+
-  '<div class="kcard"><div class="klabel">What stays on your computer</div><div style="line-height:1.9;font-size:12px"><b>Evidence</b> — map names, task IDs, notes. <span style="color:var(--green)">Never leaves this computer.</span><br><b>Pack</b> — generalized patterns, no names. Shareable only after the privacy check.<br><b>Your decisions</b> — approvals and rejections; updates never overwrite them.<br><b>Blueprints</b> — map anatomy stays in your genre skill, names hashed.</div><div style="margin-top:10px;font-size:12px;color:'+(SD.privacy.checked&&SD.privacy.ok?"var(--green)":"var(--dim)")+'">'+(SD.privacy.checked?"Last privacy check: "+(SD.privacy.ok?"✓ passed":"✗ FAILED")+" ("+esc(ago(SD.privacy.ts))+")":"Privacy check not run yet")+'</div><div style="margin-top:8px"><button class="kbtn" id="kRunCheck">Run check</button></div></div>';
+ $("kSide").innerHTML='<div class="kcard"><div class="klabel">Waiting in other genres / packs</div>'+(other.length?other.map(function(p){return '<div style="margin:4px 0;font-size:12px">'+pill(p.kind==="pack_update"?"community pack":(p.kind==="contradiction"?"contradiction":"lesson"),p.kind==="contradiction"?"kp-r":"kp-b")+' '+esc(p.genre)+' <a href="#" data-gotab="approve" style="color:var(--blue)">open in To approve →</a></div>';}).join(""):'<div class="kempty">nothing waiting outside this genre</div>')+'</div>'+
+  '<div class="kcard"><div class="klabel">What stays on your computer</div><div style="line-height:1.9;font-size:12px"><b>Evidence</b> — map names, task IDs, notes. <span style="color:var(--green)">Never leaves this computer.</span><br><b>Pack</b> — generalized lessons, no names. Shareable only after the privacy check.<br><b>Your decisions</b> — approvals and rejections; updates never overwrite them.<br><b>Blueprints</b> — map anatomy stays in your genre skill, names hashed.</div><div style="margin-top:10px;font-size:12px;color:'+(SD.privacy.checked&&SD.privacy.ok?"var(--green)":"var(--dim)")+'">'+(SD.privacy.checked?"Last privacy check: "+(SD.privacy.ok?"✓ passed":"✗ FAILED")+" ("+esc(ago(SD.privacy.ts))+")":"Privacy check not run yet")+'</div><div style="margin-top:8px"><button class="kbtn" id="kRunCheck">Run check</button></div></div>';
  var rc=$("kRunCheck");if(rc)rc.onclick=function(){post("/skills-check",{}).then(function(){LAST="";load();});};
 }
 
 function renderMap(){
  if(!LD||LD.error){$("kLearning").innerHTML='<div class="kcard"><div class="kempty">'+esc((LD&&LD.error)||"Learning state not available: the console server is older than this page. Close this session with exit and open a new one (the server restarts by itself).")+'</div></div>';return;}
+ if(LD.fab_product){var f=LD.fab_product;
+  $("kMapTitle").textContent="This Fab product: "+f.name;
+  var ms=document.querySelector(".ksec.map span");if(ms)ms.textContent="a product has no genre or blueprint: this is what the kit knows about it";
+  $("kGenreConf").innerHTML="";$("kBlueprint").innerHTML="";$("kLog").innerHTML="";$("kPatterns").innerHTML="";
+  var c=function(t,d,ok){return '<div class="kst '+(ok?"done":"")+'"><b>'+t+'</b><span>'+d+'</span></div>';};
+  $("kLearning").innerHTML='<div class="kcard"><div class="klabel">Learning<span class="r" style="color:var(--dim)">from your work on this product, kept outside the project</span></div><div class="ksteps">'+
+   c("Verse code",f.verse_files?f.verse_files+" file(s) in the product"+(f.verse_sample.length?": "+esc(f.verse_sample.join(", ")):""):"no Verse files",f.verse_files>0)+
+   c("Calls recorded",f.calls+" editor call(s), "+f.failed+" failed",f.calls>0)+
+   c("Lessons approved",f.lessons+" (shared by every Fab product)",f.lessons>0)+
+   c("Recipes from this product",f.recipes+" (confirmed at once)",f.recipes>0)+
+   c("Closing cards",f.cards+" written",f.cards>0)+'</div></div>';
+  return;}
  var gs=LD.genre_state||{},genre=gs.genre,variant=gs.variant;
  var gname=function(slug){var g=(gs.genres||[]).filter(function(x){return x.slug===slug;})[0];return g?g.name:slug;};
  $("kMapTitle").textContent=genre?"This map: "+genre+(variant?" / "+variant:""):"This map";
@@ -547,40 +591,264 @@ function renderMap(){
  var g=(SD&&SD.genres||[]).filter(function(x){return x.slug===genre;})[0],pats=g?g.patterns:[];
  var types=[];pats.forEach(function(p){if(p.variant!=="*"&&types.indexOf(p.variant)<0)types.push(p.variant);});
  var shown=pats.filter(function(p){return SEL_TYPE==="all"||p.variant===SEL_TYPE||p.variant==="*";}).slice(0,8);
- $("kPatterns").innerHTML='<div class="kcard"><div class="klabel">Patterns of this genre<span class="r" style="color:var(--dim)">'+pats.length+' pattern'+(pats.length===1?"":"s")+(types.length?" · types: "+esc(types.join(", ")):"")+'</span></div>'+
+ $("kPatterns").innerHTML='<div class="kcard"><div class="klabel">Lessons of this genre<span class="r" style="color:var(--dim)">'+pats.length+' lesson'+(pats.length===1?"":"s")+(types.length?" · types: "+esc(types.join(", ")):"")+'</span></div>'+
   (types.length?'<div class="ktabs"><span class="ktab'+(SEL_TYPE==="all"?" on":"")+'" data-t="all">all</span>'+types.map(function(t){return '<span class="ktab'+(SEL_TYPE===t?" on":"")+'" data-t="'+esc(t)+'">'+esc(t)+'</span>';}).join("")+'</div>':"")+
-  (shown.length?shown.map(function(p){return '<div class="kprop"><div style="line-height:1.5">'+esc(p.statement)+'</div><div style="margin-top:6px">'+pill(p.variant==="*"?"all types":p.variant,"kp-p")+' '+tierPill(p)+' <span style="font-size:10.5px;color:var(--dim)">support: '+((p.support&&p.support.length)||0)+' map(s)</span></div></div>';}).join("")+'<div style="font-size:11px;color:var(--dim);margin-top:10px">showing '+shown.length+' of '+pats.length+' · <a href="#classic" onclick="var d=document.getElementById(\'classic\');if(d)d.open=true;" style="color:var(--blue)">see all in Skills →</a></div>':'<div class="kempty">no patterns in this genre yet</div>')+'</div>';
+  (shown.length?shown.map(function(p){return '<div class="kprop"><div style="line-height:1.5">'+esc(p.statement)+'</div><div style="margin-top:6px">'+pill(p.variant==="*"?"all types":p.variant,"kp-p")+' '+tierPill(p)+' <span style="font-size:10.5px;color:var(--dim)">support: '+((p.support&&p.support.length)||0)+' map(s)</span></div></div>';}).join("")+'<div style="font-size:11px;color:var(--dim);margin-top:10px">showing '+shown.length+' of '+pats.length+' · <a href="#" data-gotab="lessons" style="color:var(--blue)">see all in Lessons →</a></div>':'<div class="kempty">no lessons in this genre yet</div>')+'</div>';
  Array.prototype.forEach.call(document.querySelectorAll("#kPatterns .ktab"),function(e){e.onclick=function(){SEL_TYPE=e.getAttribute("data-t");renderMap();};});
  // lessons waiting for this genre
  var mine=(SD&&SD.pending||[]).filter(function(p){return p.genre===genre&&p.kind!=="pack_update";});
  var bulkN=mine.filter(function(p){return p.kind!=="contradiction";}).length;
- $("kWaiting").innerHTML=mine.length?'<div class="kcard"><div class="klabel">Lessons waiting — this genre<span class="r">'+(bulkN>1?'<button class="kbtn ok" id="kApproveAll">✓ Approve all '+bulkN+'</button>':'')+'</span></div>'+mine.map(function(p){return '<div class="kprop"><span class="kpill '+(p.kind==="contradiction"?"kp-r":"kp-b")+'">'+(p.kind==="contradiction"?"CONTRADICTION":"LESSON")+'</span> '+pill(p.variant==="*"?"all types":p.variant,"kp-p")+'<div style="margin:8px 0;line-height:1.5">'+esc(p.say||p.statement||"")+'</div><button class="kbtn ok" data-a="approve" data-p="'+esc(p.id)+'" data-g="'+esc(p.genre)+'">✓ '+(p.kind==="contradiction"?"Mark as Contested":"Approve")+'</button> <button class="kbtn no" data-a="reject" data-p="'+esc(p.id)+'" data-g="'+esc(p.genre)+'">✕ Reject</button> <a href="#classic" onclick="var d=document.getElementById(\'classic\');if(d)d.open=true;" style="color:var(--dim);font-size:11px;margin-left:6px">edit wording in Skills</a></div>';}).join("")+'</div>':"";
+ $("kWaiting").innerHTML=mine.length?'<div class="kcard"><div class="klabel">Lessons waiting — this genre<span class="r">'+(bulkN>1?'<button class="kbtn ok" id="kApproveAll">✓ Approve all '+bulkN+'</button>':'')+'</span></div>'+mine.map(function(p){return '<div class="kprop"><span class="kpill '+(p.kind==="contradiction"?"kp-r":"kp-b")+'">'+(p.kind==="contradiction"?"CONTRADICTION":"LESSON")+'</span> '+pill(p.variant==="*"?"all types":p.variant,"kp-p")+'<div style="margin:8px 0;line-height:1.5">'+esc(p.say||p.statement||"")+'</div><button class="kbtn ok" data-a="approve" data-p="'+esc(p.id)+'" data-g="'+esc(p.genre)+'">✓ '+(p.kind==="contradiction"?"Mark as Contested":"Approve")+'</button> <button class="kbtn no" data-a="reject" data-p="'+esc(p.id)+'" data-g="'+esc(p.genre)+'">✕ Reject</button></div>';}).join("")+'</div>':"";
  var aa=$("kApproveAll");if(aa)aa.onclick=function(){aa.disabled=true;aa.textContent="approving...";var list=mine.filter(function(p){return p.kind!=="contradiction";});
   (function next(i){if(i>=list.length){LAST="";load();return;}post("/skills-act",{genre:list[i].genre,proposal:list[i].id,action:"approve",exclude:[]}).then(function(){next(i+1);}).catch(function(){next(i+1);});})(0);};
  Array.prototype.forEach.call(document.querySelectorAll("#kWaiting .kbtn:not(#kApproveAll)"),function(e){e.onclick=function(){post("/skills-act",{genre:e.getAttribute("data-g"),proposal:e.getAttribute("data-p"),action:e.getAttribute("data-a"),exclude:[]}).then(function(){LAST="";load();});};});
 }
-var CS=null,CEXP=null;
-function loadCommunity(){fetch("/community-state",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){CS=j;renderCommunity();}).catch(function(){CS={error:"The console server is older than this page. Restart it to enable sharing."};renderCommunity();});}
+var CS=null,CEXP=null,RI=null,FQ=null;
+var TAB="approve",AF="all",APG=0,SF="todo",SK="all",SPG=0,LF="all",LQ="",LPG=0,RF="all",RQ="",RPAGE=0,MF="all",MQ="",MPG=0,CRP=null;
+var SECS=["run-loop","architecture","devices","progression","death-strategies","persistence","performance","launch-checklist"];
+function chipB(t,c){return '<span class="kchip2 '+(c||"")+'">'+esc(t)+'</span>';}
+function rg(p,col,txt,size){p=Math.max(0,Math.min(100,Math.round(p)||0));var C=2*Math.PI*26,cl={green:"#39ff88",amber:"#ffb454",violet:"#b98bff",blue:"#4d8dff",red:"#ff5c5c",gray:"#8fa5c0"}[col]||"#4d8dff";
+ return '<svg class="rg" viewBox="0 0 64 64"'+(size?' style="width:'+size+'px;height:'+size+'px"':'')+'><circle cx="32" cy="32" r="26" fill="none" stroke="#1d2b47" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="'+cl+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+(C*p/100).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 32 32)"/><text x="32" y="33">'+(txt==null?p+"%":esc(txt))+'</text></svg>';}
+function pgr(id,pg,n,per){per=per||5;var pages=Math.max(1,Math.ceil(n/per));return n>per?'<div class="kpager"><button class="kbtn" data-pg="'+id+'" data-d="-1"'+(pg?'':' disabled')+'>Prev</button><span>page '+(pg+1)+' of '+pages+' &middot; '+n+' in the list</span><button class="kbtn" data-pg="'+id+'" data-d="1"'+((pg+1)*per<n?'':' disabled')+'>Next</button></div>':'<div class="kpager"><span>'+n+' in the list</span></div>';}
+function fil(id,cur,opts){return opts.map(function(o){return '<button class="kf'+(cur===o[0]?" on":"")+'" data-f="'+id+'" data-v="'+o[0]+'">'+esc(o[1])+(o[2]!=null?' '+o[2]:'')+'</button>';}).join("");}
+function inboxL(){return (RI&&RI.pending)||[];}
+function lessonsP(){return (SD&&SD.pending||[]).filter(function(p){return p.kind!=="pack_update";});}
+function packsP(){return (SD&&SD.pending||[]).filter(function(p){return p.kind==="pack_update";});}
+function fabP(){return (FQ&&FQ.proposals||[]).filter(function(x){return x.status==="pending";});}
+function isFab(){return !!(LD&&LD.fab_product)||(SD&&SD.current_kind==="fab");}
+function shareModel(){
+ var shared=(CS&&CS.shared)||[],on=!!(CS&&CS.share),les=[];
+ (SD&&SD.genres||[]).forEach(function(g){g.patterns.forEach(function(p){if(p.origin==="local"&&(p.support||0)>=1&&p.status!=="superseded")les.push([g.slug,p]);});});
+ var rows=[];
+ les.forEach(function(x){var g=x[0],p=x[1],has=SECS.indexOf(p.section)>=0,sent=shared.indexOf(p.id)>=0;
+  rows.push({kind:"lesson",st:sent?"sent":(!has?"stay":(p.published===false?"stay":(on?"ready":"stay"))),g:g,p:p,has:has});});
+ (SD&&SD.recipes||[]).filter(function(r){return r.source==="yours";}).forEach(function(r){var sent=shared.indexOf(r.rid)>=0;
+  var st=r.share==="declined"?"private":(r.share==="pending"?"decide":(sent?"sent":(on?"ready":"kit")));rows.push({kind:"recipe",st:st,r:r});});
+ rows.push({kind:"mcp",st:on?"ready":"stay"});
+ return {rows:rows,on:on};
+}
+function queueCounts(){
+ var A=lessonsP().length+packsP().length+inboxL().length+fabP().length,m=shareModel(),dec=0,rdy=0;
+ m.rows.forEach(function(x){if(x.st==="decide")dec++;else if(x.st==="ready"&&x.kind!=="mcp")rdy++;});
+ return {approve:A,share:dec+rdy,decide:dec,ready:rdy,les:lessonsP().length,packs:packsP().length,rin:inboxL().length,fab:fabP().length};
+}
+function refresh(){LAST="";load();}
+function renderStrip(){
+ var el=$("kStrip");if(!el||!SD||SD.error||!SD.totals){if(el)el.innerHTML='<div class="kcard" style="grid-column:1/-1"><div class="kempty">'+esc((SD&&SD.error)||"Could not read the skills.")+'</div></div>';return;}
+ var q=queueCounts(),t=SD.totals,all=SD.recipes||[],yrs=all.filter(function(r){return r.source==="yours";}),dec=yrs.filter(function(r){return r.share==="pending";}).length;
+ var inKit=all.filter(function(r){return r.source==="official";}).length+yrs.filter(function(r){return r.share==="approved";}).length,priv=yrs.filter(function(r){return r.share==="declined";}).length;
+ var rel=t.patterns?100*((t.proven||0)+(t.confirmed||0))/t.patterns:0,decided=all.length?100*(all.length-dec)/all.length:100;
+ var pr=SD.projects||[],maps=pr.filter(function(p){return p.kind==="map";}).length,fabs=pr.filter(function(p){return p.kind==="fab";}).length,done=pr.filter(function(p){return p.pct>=100;}).length;
+ var skills=(SD.genres||[]).filter(function(g){return g.patterns.length;}).length;
+ var tot=q.approve+q.share,oldest=SD.oldest_pending;
+ var wl=function(go,t1,n,sub){return '<div class="wl'+(n?'':' zero')+'" data-go="'+go+'"><b>'+t1+' &middot; '+n+'</b><div class="sub">'+sub+'</div></div>';};
+ var pa=[];if(q.rin)pa.push(q.rin+" recipe"+(q.rin===1?"":"s")+" from the community");if(q.les)pa.push(q.les+" lesson"+(q.les===1?"":"s")+" from my work");if(q.packs)pa.push(q.packs+" community lesson pack"+(q.packs===1?"":"s"));if(q.fab)pa.push(q.fab+" Fab lesson"+(q.fab===1?"":"s"));
+ var ps=[];if(q.decide)ps.push(q.decide+" recipe"+(q.decide===1?"":"s")+" to decide (share or keep private)");if(q.ready)ps.push(q.ready+" ready to send to the community");
+ el.innerHTML=
+  '<div class="kcard2'+(tot?" warn":"")+'"><h3>Waiting for you &middot; '+tot+' thing'+(tot===1?"":"s")+'</h3>'+wl("approve","To approve",q.approve,pa.join(" &middot; ")||"nothing to approve")+wl("share","To share",q.share,ps.join(" &middot; ")||"nothing to share")+
+   '<div class="sub" style="margin-top:6px">'+(tot&&oldest?"oldest waiting: "+esc(ago(oldest))+" &middot; ":"")+'click a line to open it</div></div>'+
+  '<div class="kcard2 rc"><div class="l"><h3>Lessons</h3><div class="nums"><div><b>'+t.patterns+'</b><span>in your skills</span></div><div><b>'+(t.proven||0)+'</b><span>proven</span></div><div><b>'+(t.confirmed||0)+'</b><span>confirmed</span></div><div><b>'+(t.hypothesis||0)+'</b><span>hypothesis</span></div></div><div class="pct">ring = reliable (confirmed or proven) / all</div></div>'+rg(rel,"green")+'</div>'+
+  '<div class="kcard2 rc"><div class="l"><h3>Recipes</h3><div class="nums"><div><b>'+all.length+'</b><span>total</span></div><div><b>'+inKit+'</b><span>in the kit</span></div><div><b>'+priv+'</b><span>private</span></div><div><b>'+dec+'</b><span>to decide</span></div></div><div class="pct">ring = decided (in the kit or private) / all</div></div>'+rg(decided,"violet")+'</div>'+
+  '<div class="kcard2 rc"><div class="l"><h3>Learning from</h3><div class="nums"><div><b>'+maps+'</b><span>map'+(maps===1?"":"s")+'</span></div><div><b>'+fabs+'</b><span>Fab product'+(fabs===1?"":"s")+'</span></div><div><b>'+skills+'</b><span>skill'+(skills===1?"":"s")+'</span></div></div><div class="pct">ring = projects with the learning complete</div></div>'+rg(pr.length?100*done/pr.length:0,"blue")+'</div>';
+ Array.prototype.forEach.call(el.querySelectorAll(".wl"),function(w){w.onclick=function(){setTab(w.getAttribute("data-go"));};});
+}
+function renderLearn(){
+ var el=$("kLearnBox");if(!el)return;if(!LD||LD.error){el.innerHTML="";return;}
+ var fab=LD.fab_product,h='<div class="kcard2"><h3>LEARN &middot; from this '+(fab?"product":"map")+'</h3>',pct=0,line="",btn="",st="";
+ if(fab){var ch=[fab.verse_files>0,fab.calls>0,fab.lessons>0,fab.recipes>0,fab.cards>0];pct=100*ch.filter(Boolean).length/ch.length;
+  line=fab.verse_files+' Verse file(s) &middot; '+fab.calls+' editor call(s) recorded ('+fab.failed+' failed) &middot; '+fab.lessons+' lesson(s) approved &middot; '+fab.recipes+' recipe(s) &middot; '+fab.cards+' closing card(s)';
+  var fl=FQ&&FQ.flag;btn='<button class="kbtn ok" id="kLearnGo">Learn from this product</button>';
+  if(fl&&fl.state==="waiting")st='The agent was asked: it continues at the end of its next answer. If no session is open, open one on this product.';else if(fl&&fl.state==="sent")st='The agent was asked at '+esc(fl.sent_at||fl.at)+'. Its lessons appear in To approve as soon as it writes them.';}
+ else{var sp=(LD.steps||[]).map(function(s){return s.pct||0;});pct=sp.length?sp.reduce(function(a,b){return a+b;},0)/sp.length:0;
+  line=(LD.steps||[]).map(function(s){return esc(s.title);}).join(" &middot; ")||"learning not started";var fl2=LD.learn_flag;
+  btn='<button class="kbtn ok" id="kLearnGo">Learn from this map</button>';
+  if(fl2&&fl2.state==="waiting")st='The agent was asked: it continues at the end of its next answer. If no session is open, open one on this map.';else if(fl2&&fl2.state==="sent")st='The agent was asked at '+esc(fl2.sent_at||fl2.at)+'. Its lessons appear in To approve as soon as it writes them.';
+  else st='Reads the Verse code, the documents and the devices, writes the blueprint and the recipes, and proposes lessons. It also runs by itself at every session start.';}
+ h+='<div class="pbar"><i style="width:'+Math.round(pct)+'%;background:var(--blue)"></i></div><div class="pct">learning of this '+(fab?"product":"map")+': '+Math.round(pct)+'%</div>'+
+  '<div class="krow" style="margin-top:8px"><span class="sub">'+line+'</span></div><div class="krow">'+btn+'<span class="sub">'+st+'</span></div><div id="kLearnErr" class="kerr"></div></div>';
+ el.innerHTML=h;
+ var b=$("kLearnGo");if(b)b.onclick=function(){b.disabled=true;post(fab?"/fab-learn-act":"/map-learn",fab?{action:"request"}:{}).then(function(j){if(!j.ok)$("kLearnErr").textContent=j.error||"did not work";refresh();}).catch(function(){$("kLearnErr").textContent="Could not reach the local server";b.disabled=false;});};
+}
+var TABDEF=function(){var q=queueCounts(),fab=isFab();return [
+ ["Queues",[["approve","To approve",q.approve,"a"],["share","To share",q.share,"a"]]],
+ ["Knowledge",[["lessons","Lessons",SD&&SD.totals?SD.totals.patterns:0],["recipes","Recipes",SD&&SD.recipes?SD.recipes.length:0],["skills","Skills",SD&&SD.genres?SD.genres.length:0]]],
+ ["Sources",[["maps","Maps & products",SD&&SD.projects?SD.projects.length:0],["this",fab?"This product":"This map",null]]],
+ ["Engine",[["mcp","UEFN MCP",null]]],["Settings",[["comm","Community",null]]]];};
+function setTab(t){TAB=t;try{localStorage.setItem("kitTab",t);}catch(e){}renderTabs();showPane();}
+function renderTabs(){var el=$("kTabs");if(!el)return;
+ el.innerHTML=TABDEF().map(function(g){return '<div class="kgrp"><label>'+g[0]+'</label><div>'+g[1].map(function(t){return '<span class="ktb'+(TAB===t[0]?" on":"")+'" data-t="'+t[0]+'">'+esc(t[1])+(t[2]!=null?(t[3]==="a"?(t[2]?'<i>'+t[2]+'</i>':'<u>0</u>'):'<u>'+t[2]+'</u>'):'')+'</span>';}).join("")+'</div></div>';}).join("");
+ Array.prototype.forEach.call(el.querySelectorAll(".ktb"),function(b){b.onclick=function(){setTab(b.getAttribute("data-t"));};});}
+function showPane(){["approve","share","lessons","recipes","skills","maps","this","mcp","comm"].forEach(function(t){var e=$("pn-"+t);if(e)e.className="kpane"+(t===TAB?" on":"");});}
+function bindCommon(box,rerender){
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-f]"),function(b){b.onclick=function(){var k=b.getAttribute("data-f"),v=b.getAttribute("data-v");
+  if(k==="af"){AF=v;APG=0;}else if(k==="sf"){SF=v;SPG=0;}else if(k==="sk"){SK=v;SPG=0;}else if(k==="lf"){LF=v;LPG=0;}else if(k==="rf"){RF=v;RPAGE=0;}else if(k==="mf"){MF=v;MPG=0;}
+  rerender();};});
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-pg]"),function(b){b.onclick=function(){var k=b.getAttribute("data-pg"),d=+b.getAttribute("data-d");
+  if(k==="ap")APG+=d;else if(k==="sp")SPG+=d;else if(k==="lp")LPG+=d;else if(k==="rp")RPAGE+=d;else if(k==="mp")MPG+=d;rerender();};});
+}
+/* ---- To approve ---- */
+function approveRows(){var rows=[];
+ lessonsP().forEach(function(p){rows.push({k:"les",p:p});});
+ packsP().forEach(function(p){rows.push({k:"pack",p:p});});
+ inboxL().forEach(function(x){rows.push({k:"rin",x:x});});
+ fabP().forEach(function(x){rows.push({k:"fab",x:x});});
+ return rows;}
+function renderApprove(){
+ var box=$("kQApprove");if(!box)return;if(!SD||SD.error){box.innerHTML='<div class="kempty">Reading…</div>';return;}
+ var all=approveRows(),cnt=function(k){return all.filter(function(r){return r.k===k;}).length;};
+ var list=all.filter(function(r){return AF==="all"||(AF==="les"&&r.k==="les")||(AF==="pack"&&r.k==="pack")||(AF==="rin"&&r.k==="rin")||(AF==="fab"&&r.k==="fab");});
+ var pg=Math.min(APG,Math.max(0,Math.ceil(list.length/5)-1));APG=pg;
+ var bulk=list.filter(function(r){return r.k==="rin"||r.k==="fab"||(r.k==="les"&&r.p.kind!=="contradiction");});
+ var h='<div class="kfilters">'+fil("af",AF,[["all","All",all.length],["les","My lessons",cnt("les")],["rin","Community recipes",cnt("rin")],["pack","Community lesson packs",cnt("pack")]].concat(isFab()||cnt("fab")?[["fab","Fab lessons",cnt("fab")]]:[]))+
+  '<span class="grow"></span>'+(bulk.length>1?'<button class="kbtn ok" id="kApprAll">&#10003; Approve all '+bulk.length+'</button>':'')+'<span id="kApprMsg" class="ksub"></span></div>';
+ h+='<table class="ktable"><tr><th>What</th><th>Text</th><th>Where from</th><th></th></tr>';
+ if(!list.length)h+='<tr><td colspan="4" class="kempty">Nothing waiting here. Lessons appear after a playtest or when the agent learns a map or a Fab product; recipes arrive with kit updates or from the community. Nothing is used until you approve it, and an approved item leaves this list.</td></tr>';
+ list.slice(pg*5,pg*5+5).forEach(function(r,i){var id=pg*5+i;
+  if(r.k==="les"){var p=r.p,con=p.kind==="contradiction";
+   h+='<tr><td>'+chipB(con?"Contradiction":"Lesson",con?"r":"b")+'</td><td id="say-'+esc(p.id)+'">'+esc(p.say)+'<div class="ksub">'+esc((p.tasks||[]).join(", "))+'</div></td><td class="ksub">my work: '+esc(p.map_name||"")+'<br>skill '+esc(p.genre)+' / '+esc(p.variant||"")+'</td><td class="kact"><button class="kbtn ok" data-ls="approve" data-g="'+esc(p.genre)+'" data-id="'+esc(p.id)+'">'+(con?"Mark contested":"Approve")+'</button>'+(p.kind==="new_pattern"?'<button class="kbtn" data-ls="edit" data-g="'+esc(p.genre)+'" data-id="'+esc(p.id)+'">Edit</button>':'')+'<button class="kbtn no" data-ls="reject" data-g="'+esc(p.genre)+'" data-id="'+esc(p.id)+'">Reject</button><div class="kerr" id="err-'+esc(p.id)+'"></div></td></tr>';}
+  else if(r.k==="pack"){var p2=r.p,nn=(p2.new||[]).length,kn=(p2.known||[]).length,cf=(p2.conflicts||[]).length;
+   h+='<tr><td>'+chipB("Lesson pack","v")+'</td><td><b>'+esc(p2.source)+' pack v'+esc(p2.version)+'</b> &mdash; '+esc(p2.genre)+'<div class="ksub">'+nn+' new &middot; '+kn+' known &middot; '+cf+' conflict(s). Nothing has changed on your computer yet.</div><div id="pk-'+esc(p2.id)+'" class="kdiff" style="display:none"></div></td><td class="ksub">community / official</td><td class="kact"><button class="kbtn" data-pk="open" data-id="'+esc(p2.id)+'">Review</button><button class="kbtn no" data-pk="skip" data-g="'+esc(p2.genre)+'" data-id="'+esc(p2.id)+'">Skip</button></td></tr>';}
+  else if(r.k==="rin"){var x=r.x;
+   h+='<tr><td>'+chipB("Recipe","g")+'</td><td><b>'+esc(x.name)+'</b> <span class="ksub">'+esc(x.kind||"")+(x.contributors>1?" &middot; from "+x.contributors+" people":"")+'</span><div class="ksub">'+esc(x.use)+'</div><div class="ksub">'+x.steps+' step(s) &middot; '+x.settings+' setting(s) &middot; '+(x.files.length?esc(x.files.join(", ")):"no Verse")+'. Written by other people: read it before you approve.</div></td><td class="ksub">community, skill '+esc(x.skill)+'</td><td class="kact"><button class="kbtn ok" data-ia="approve" data-iid="'+esc(x.id)+'">Approve</button><button class="kbtn no" data-ia="reject" data-iid="'+esc(x.id)+'">Reject</button></td></tr>';}
+  else{var f=r.x;
+   h+='<tr><td>'+chipB("Fab lesson","a")+'</td><td><textarea class="kedit" id="fl_'+esc(f.id)+'" rows="2">'+esc(f.statement)+'</textarea><div class="ksub">'+(f.when?'when: '+esc(f.when)+' ':'')+(f.do?'do: '+esc(f.do):'')+'</div></td><td class="ksub">Fab product<br>'+esc(f.source||"")+'</td><td class="kact"><button class="kbtn ok" data-fa="approve" data-id="'+esc(f.id)+'">Approve</button><button class="kbtn no" data-fa="reject" data-id="'+esc(f.id)+'">Reject</button></td></tr>';}
+ });
+ h+='</table>'+pgr("ap",pg,list.length);
+ box.innerHTML=h;bindCommon(box,renderApprove);
+ var done=function(){refresh();loadInbox();loadFab();};
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-ls]"),function(b){b.onclick=function(){var id=b.getAttribute("data-id"),g=b.getAttribute("data-g"),a=b.getAttribute("data-ls");
+  if(a==="edit"){var c=$("say-"+id);if(!c||c.querySelector("textarea"))return;var cur=(SD.pending.filter(function(p){return p.id===id;})[0]||{});
+   c.innerHTML='<textarea class="kedit" rows="3" maxlength="200" id="ta-'+esc(id)+'">'+esc((cur.pattern&&cur.pattern.statement)||cur.say||"")+'</textarea><div><button class="kbtn ok" id="sv-'+esc(id)+'">Save &amp; approve</button></div>';
+   $("sv-"+id).onclick=function(){post("/skills-act",{genre:g,proposal:id,action:"edit",statement:$("ta-"+id).value,exclude:[]}).then(function(r){if(!r.ok){$("err-"+id).textContent=(r.error||"failed")+(r.findings?" "+JSON.stringify(r.findings):"");}else done();});};return;}
+  post("/skills-act",{genre:g,proposal:id,action:a,exclude:[]}).then(function(r){if(!r.ok)$("err-"+id).textContent=(r.error||"failed")+(r.findings?" "+JSON.stringify(r.findings):"");else done();}).catch(function(){$("err-"+id).textContent="Could not reach the local server";});};});
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-pk]"),function(b){b.onclick=function(){var id=b.getAttribute("data-id"),p=packsP().filter(function(x){return x.id===id;})[0];if(!p)return;
+  if(b.getAttribute("data-pk")==="skip"){post("/skills-act",{genre:b.getAttribute("data-g"),proposal:id,action:"reject",exclude:[]}).then(done);return;}
+  var d=$("pk-"+id);if(d.style.display!=="none"){d.style.display="none";return;}
+  var rows=function(l,lab,col,ex){return (l||[]).map(function(it){return '<label class="kck"><input type="checkbox" checked data-pack="'+esc(id)+'" value="'+esc(it.id)+'"><span><span style="color:'+col+'">'+lab+'</span> '+esc(it.statement)+ex(it)+'</span></label>';}).join("");};
+  d.innerHTML=rows(p.new,"+ new","var(--green)",function(){return ' <span class="ksub">('+(p.official?"added as official reference":"added as a community hypothesis")+')</span>';})+rows(p.known,"= known","var(--amber)",function(it){return ' <span class="ksub">(support '+(it.delta>0?"+":"")+it.delta+', your text stays)</span>';})+rows(p.conflicts,"! conflict","var(--red)",function(it){return ' <span class="ksub">(differs from yours: &ldquo;'+esc(it.local_statement)+'&rdquo;, kept as Contested, yours wins)</span>';})+'<div style="margin-top:6px"><button class="kbtn ok" id="ap-'+esc(id)+'">Apply selected</button></div>';
+  d.style.display="block";
+  $("ap-"+id).onclick=function(){var off=[].slice.call(d.querySelectorAll("input[data-pack]")).filter(function(i){return !i.checked;}).map(function(i){return i.value;});post("/skills-act",{genre:p.genre,proposal:id,action:"approve",exclude:off}).then(done);};};});
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-ia]"),function(b){b.onclick=function(){post("/recipe-share",{inbox:true,id:b.getAttribute("data-iid"),decision:b.getAttribute("data-ia")}).then(done);};});
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-fa]"),function(b){b.onclick=function(){var id=b.getAttribute("data-id"),ta=$("fl_"+id);post("/fab-learn-act",{action:b.getAttribute("data-fa"),id:id,text:ta?ta.value:null}).then(function(j){if(!j.ok)$("kApprMsg").textContent=j.error||"did not work";done();});};});
+ var aa=$("kApprAll");if(aa)aa.onclick=function(){aa.disabled=true;var ch=Promise.resolve(),n=0,msg=$("kApprMsg"),bad="";
+  bulk.forEach(function(r){ch=ch.then(function(){var q;
+   if(r.k==="les")q=post("/skills-act",{genre:r.p.genre,proposal:r.p.id,action:"approve",exclude:[]});
+   else if(r.k==="rin")q=post("/recipe-share",{inbox:true,id:r.x.id,decision:"approve"});
+   else{var ta=$("fl_"+r.x.id);q=post("/fab-learn-act",{action:"approve",id:r.x.id,text:ta?ta.value:null});}
+   return q.then(function(j){if(j&&j.ok===false&&!bad)bad=j.error||"one did not work";n++;if(msg)msg.textContent=" "+n+" approved…";}).catch(function(){bad=bad||"could not reach the local server";});});});
+  ch.then(function(){if(bad&&msg)msg.textContent=" "+bad;done();});};
+}
+/* ---- To share ---- */
+function renderShare(){
+ var box=$("kQShare");if(!box)return;if(!SD||SD.error){box.innerHTML='<div class="kempty">Reading…</div>';return;}
+ var m=shareModel(),rows=m.rows.filter(function(x){return (SK==="all"||x.kind===SK)&&(SF==="all"||(SF==="todo"&&(x.st==="decide"||x.st==="ready"))||(SF==="stay"&&(x.st==="stay"||x.st==="kit"))||(SF==="sent"&&x.st==="sent")||(SF==="private"&&x.st==="private"));});
+ var order={decide:0,ready:1,kit:2,stay:3,sent:4,private:5};rows.sort(function(a,b){return order[a.st]-order[b.st];});
+ var c=function(f){return m.rows.filter(function(x){return f(x);}).length;};
+ var pg=Math.min(SPG,Math.max(0,Math.ceil(rows.length/5)-1));SPG=pg;
+ var h='';
+ if(!m.on)h+='<div class="knote">Contribute to the community is off. You can still decide what goes into the kit; to send things to the community turn it on in the Community tab.</div>';
+ h+='<div id="kcResult"></div><div class="kfilters">'+fil("sf",SF,[["todo","To do",c(function(x){return x.st==="decide"||x.st==="ready";})],["stay","Staying here",c(function(x){return x.st==="stay"||x.st==="kit";})],["sent","Sent",c(function(x){return x.st==="sent";})],["private","Kept private",c(function(x){return x.st==="private";})],["all","All",m.rows.length]])+
+  '<span class="ksep"></span><span class="ksub">Kind</span>'+fil("sk",SK,[["all","All"],["lesson","Lessons"],["recipe","Recipes"],["mcp","MCP evidence"]])+'</div>';
+ h+='<table class="ktable"><tr><th>What</th><th>Text</th><th>State</th><th></th></tr>';
+ if(!rows.length)h+='<tr><td colspan="4" class="kempty">Nothing here.</td></tr>';
+ var chipSt={decide:["to decide","a"],ready:["ready to send","g"],kit:["goes into the kit at the next release","g"],stay:["stays here","d"],sent:["sent","b"],"private":["kept private","d"]};
+ rows.slice(pg*5,pg*5+5).forEach(function(x){var st=chipSt[x.st]||["",""],act="",txt="",what="";
+  if(x.kind==="lesson"){var g=x.g,p=x.p;what=chipB("Lesson","b");txt=esc(p.statement)+'<div class="ksub">skill '+esc(g)+'</div>';
+   if(!x.has)act='<select data-sec="1" data-g="'+esc(g)+'" data-id="'+esc(p.id)+'"><option value="">choose a section&hellip;</option>'+SECS.map(function(z){return '<option>'+z+'</option>';}).join("")+'</select>';
+   else if(p.published===false)txt+='<div class="ksub" style="color:var(--amber)">stays here: its map is not published</div>';
+   else if(x.st==="ready")act='<button class="kbtn ok" data-g="'+esc(g)+'" data-id="'+esc(p.id)+'">Contribute</button>';
+   else if(x.st==="stay"&&!m.on)txt+='<div class="ksub">turn on Contribute to send it</div>';}
+  else if(x.kind==="recipe"){var r=x.r;what=chipB("Recipe","g");txt='<b>'+esc(r.name)+'</b> <span class="ksub">'+esc(r.skill)+(r.kind?" &middot; "+esc(r.kind):"")+'</span><div class="ksub">'+esc(r.use)+'</div>';
+   if(x.st==="decide")act='<button class="kbtn ok" data-share="approved" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Share in the kit</button><button class="kbtn" data-share="declined" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Keep private</button>';
+   else if(x.st==="ready")act='<button class="kbtn ok" data-rs="'+esc(r.skill)+'" data-rn="'+esc(r.name)+'">Send to the community</button><button class="kbtn" data-share="pending" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Undo</button>';
+   else if(x.st==="kit"||x.st==="sent")act='<button class="kbtn" data-share="pending" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Undo</button>';
+   else if(x.st==="private")act='<button class="kbtn" data-share="pending" data-sk="'+esc(r.skill)+'" data-nm="'+esc(r.name)+'">Undo</button>';
+   if(x.st==="decide")txt+='<div class="ksub">shared = public in the kit, MIT licence, with its Verse code</div>';}
+  else{what=chipB("MCP evidence","v");txt='Which editor tools worked (counts only, no arguments or paths)';if(x.st==="ready")act='<button class="kbtn" id="kcRec">Contribute</button>';}
+  h+='<tr><td>'+what+'</td><td>'+txt+'</td><td>'+chipB(st[0],st[1])+'</td><td class="kact">'+act+'</td></tr>';});
+ h+='</table>'+pgr("sp",pg,rows.length);
+ var cx="";
+ if(CEXP){cx='<div class="kcard" style="margin:0 0 12px"><div class="klabel">What would leave this computer</div>'+(CEXP.ok?'<div class="kcpre">'+esc(CEXP.json)+'</div><div class="ksub">'+esc(CEXP.note||"")+'</div><div style="margin-top:8px"><button class="kbtn" id="kcOpen">Open GitHub</button> <button class="kbtn" id="kcCopy">Copy</button> <button class="kbtn" id="kcCancel">Cancel</button></div>':'<div style="color:var(--amber);font-size:12px">'+esc(CEXP.error||"Not shareable")+'</div><div style="margin-top:8px"><button class="kbtn" id="kcCancel">Close</button></div>')+'</div>';}
+ box.innerHTML=h;var kr=$("kcResult");if(kr&&cx){kr.innerHTML=cx;try{kr.scrollIntoView({block:"center",behavior:"smooth"});}catch(e){}}
+ bindCommon(box,renderShare);
+ Array.prototype.forEach.call(box.querySelectorAll("select[data-sec]"),function(sl){sl.onchange=function(){if(!sl.value)return;post("/community-act",{action:"section",genre:sl.getAttribute("data-g"),id:sl.getAttribute("data-id"),section:sl.value}).then(function(r){if(r&&r.ok)refresh();else{CEXP={ok:false,error:(r&&r.error)||"could not set the section"};renderShare();}});};});
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-id]:not([data-ls])"),function(b){if(b.hasAttribute("data-share"))return;b.onclick=function(){var g=b.getAttribute("data-g"),id=b.getAttribute("data-id");post("/community-act",{action:"export",genre:g,id:id}).then(function(r){CEXP=r;CEXP._g=g;CEXP._id=id;renderShare();});};});
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-rs]"),function(b){b.onclick=function(){var g=b.getAttribute("data-rs"),n=b.getAttribute("data-rn");post("/community-act",{action:"export-recipe",genre:g,name:n}).then(function(r){CEXP=r;CEXP._rg=g;CEXP._rn=n;renderShare();});};});
+ Array.prototype.forEach.call(box.querySelectorAll("button[data-share]"),function(b){b.onclick=function(){post("/recipe-share",{skill:b.getAttribute("data-sk"),name:b.getAttribute("data-nm"),decision:b.getAttribute("data-share")}).then(refresh);};});
+ var rb=$("kcRec");if(rb)rb.onclick=function(){post("/community-act",{action:"export-recipes"}).then(function(r){CEXP=r;CEXP._rec=true;renderShare();});};
+ var o=$("kcOpen");if(o)o.onclick=function(){window.open(CEXP.url,"_blank","noopener");if(CEXP._rec){CEXP=null;renderShare();return;}
+   if(CEXP._rn){post("/community-act",{action:"recipe-shared",genre:CEXP._rg,name:CEXP._rn}).then(function(){CEXP=null;loadCommunity();refresh();});return;}
+   post("/community-act",{action:"shared",genre:CEXP._g,id:CEXP._id}).then(function(){CEXP=null;loadCommunity();refresh();});};
+ var cp=$("kcCopy");if(cp)cp.onclick=function(){try{navigator.clipboard.writeText(CEXP.json);cp.textContent="Copied";}catch(e){}};
+ var cc=$("kcCancel");if(cc)cc.onclick=function(){CEXP=null;renderShare();};
+}
+/* ---- Lessons (all skills) ---- */
+function renderLessons(){
+ var box=$("kLessonsAll");if(!box)return;if(!SD||SD.error||!SD.totals){box.innerHTML="";return;}
+ var all=[];(SD.genres||[]).forEach(function(g){g.patterns.forEach(function(p){if(p.status!=="superseded")all.push([g.slug,p]);});});
+ var tier=function(p){return p.status==="contested"?"contested":p.tier;},cnt=function(t){return all.filter(function(x){return tier(x[1])===t;}).length;};
+ var rel=all.filter(function(x){return tier(x[1])!=="reference";}).length;
+ box.innerHTML='<div class="kfilters" id="lfbar">'+fil("lf",LF,[["all","All",all.length],["relevant","Relevant",rel],["proven","Proven",cnt("proven")],["confirmed","Confirmed",cnt("confirmed")],["hypothesis","Hypothesis",cnt("hypothesis")],["reference","Reference",cnt("reference")],["contested","Contested",cnt("contested")]])+
+  '<span class="grow"></span><input id="lq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(LQ)+'"></div><div id="lsTbl"></div>';
+ var draw=function(){var q=LQ.trim().toLowerCase(),list=all.filter(function(x){var p=x[1],t=tier(p);return (LF==="all"||(LF==="relevant"&&t!=="reference")||t===LF)&&(!q||(x[0]+" "+p.statement+" "+p.condition+" "+p.action+" "+p.variant).toLowerCase().indexOf(q)>=0);});
+  var order={contested:0,proven:1,confirmed:2,hypothesis:3,reference:4};list.sort(function(a,b){return (order[tier(a[1])]-order[tier(b[1])])||((b[1].support||0)-(a[1].support||0));});
+  var pg=Math.min(LPG,Math.max(0,Math.ceil(list.length/5)-1));LPG=pg;
+  var h='<table class="ktable"><tr><th>Lesson</th><th>Skill</th><th>Confidence</th><th>Support</th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(x){var p=x[1];return '<tr><td>'+esc(p.statement)+'<div class="ksub">['+esc(p.variant)+'] when '+esc(p.condition)+' &rarr; '+esc(p.action)+'</div></td><td>'+esc(x[0])+'</td><td>'+tierPill(p)+(p.origin==="community"?' '+chipB("community","v"):(p.origin==="official"?' '+chipB("official","b"):''))+'</td><td class="ksub">'+(p.support||0)+' for'+(p.against?' &middot; '+p.against+' against':'')+(p.community_support?' &middot; community '+p.community_support:'')+'</td></tr>';}).join(""):'<tr><td colspan="4" class="kempty">'+(all.length?"Nothing matches this filter.":"No approved lessons yet.")+'</td></tr>')+'</table>'+pgr("lp",pg,list.length);
+  $("lsTbl").innerHTML=h;bindCommon($("lsTbl"),draw);};
+ draw();bindCommon($("lfbar"),renderLessons);
+ $("lq").oninput=function(){LQ=this.value;LPG=0;draw();};
+}
+/* ---- Recipes ---- */
+function renderRecipes(){
+ var box=$("kRecipes");if(!box)return;if(!SD||SD.error){box.innerHTML="";return;}
+ var all=SD.recipes||[],mine=all.filter(function(r){return r.source==="yours";});
+ var cnt=function(f){return all.filter(f).length;};
+ box.innerHTML='<div class="kfilters" id="rfbar">'+fil("rf",RF,[["all","All",all.length],["yours","Mine",mine.length],["official","In the kit",cnt(function(r){return r.source==="official";})],["community","From the community",cnt(function(r){return r.source==="community";})],["decide","To decide",cnt(function(r){return r.source==="yours"&&r.share==="pending";})],["private","Kept private",cnt(function(r){return r.source==="yours"&&r.share==="declined";})]])+
+  '<span class="grow"></span><input id="rq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(RQ)+'"></div><div id="rcTbl"></div><div class="khint">A recipe is how to rebuild something, step by step: devices, settings, wiring, Verse code, assets, how to verify. The kit prepares them by itself from the Verse code of a map or a Fab product. A lesson is a short rule; they are not the same thing. Deciding what goes into the kit happens in <a href="#" id="rcGo">To share</a>.</div>';
+ var draw=function(){var q=RQ.trim().toLowerCase(),filtered=RF!=="all"||q;
+  var list=all.filter(function(r){return (RF==="all"||(RF==="yours"&&r.source==="yours")||(RF==="official"&&(r.source==="official"||(r.source==="yours"&&r.share==="approved")))||(RF==="community"&&r.source==="community")||(RF==="decide"&&r.source==="yours"&&r.share==="pending")||(RF==="private"&&r.source==="yours"&&r.share==="declined"))&&(!q||(r.name+" "+r.skill+" "+(r.use||"")+" "+(r.kind||"")).toLowerCase().indexOf(q)>=0);});
+  list=list.map(function(r,i){return [r,i];}).sort(function(x,y){return (y[0].added||"").localeCompare(x[0].added||"")||x[1]-y[1];}).map(function(x){return x[0];});
+  var total=list.length;if(!filtered)list=list.slice(0,20);
+  var pg=Math.min(RPAGE,Math.max(0,Math.ceil(list.length/5)-1));RPAGE=pg;
+  var st=function(r){if(r.source==="official")return chipB("in the kit","b");if(r.source==="community")return chipB("from the community","v");return r.share==="approved"?chipB("goes into the kit at the next release","g"):(r.share==="declined"?chipB("kept private","d"):chipB("to decide","a"));};
+  var h='<table class="ktable"><tr><th>Recipe</th><th>Skill</th><th>State</th><th>Steps</th><th>Used in</th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(r){return '<tr><td><b>'+esc(r.name)+'</b>'+(r.use?'<div class="ksub">'+esc(r.use)+'</div>':'')+'<div class="ksub">'+(r.kind?esc(r.kind)+" &middot; ":"")+(r.parent?"starts from "+esc(r.parent)+" &middot; ":"")+(r.source==="yours"?(r.tier==="confirmed"?"confirmed":"hypothesis: used by the agents, confirmed when a second project uses it"):"")+(r.added?" &middot; "+esc(r.added):"")+'</div></td><td>'+esc(r.skill)+'</td><td>'+st(r)+'</td><td>'+r.steps+'</td><td>'+r.maps+' project(s)</td></tr>';}).join(""):'<tr><td colspan="5" class="kempty">'+(all.length?"Nothing matches.":"No recipes yet: the kit prepares them from your Verse code.")+'</td></tr>')+'</table>'+pgr("rp",pg,list.length)+(!filtered&&total>20?'<div class="ksub">latest 20 of '+total+' &middot; use the filters or the search to see the others</div>':'');
+  $("rcTbl").innerHTML=h;bindCommon($("rcTbl"),draw);};
+ draw();bindCommon($("rfbar"),renderRecipes);$("rq").oninput=function(){RQ=this.value;RPAGE=0;draw();};$("rcGo").onclick=function(e){e.preventDefault();setTab("share");};
+}
+/* ---- Maps & products ---- */
+function renderMaps(){
+ var box=$("kMaps");if(!box)return;if(!SD||SD.error){box.innerHTML="";return;}
+ var all=SD.projects||[],cur=(SD.current_project||"").toLowerCase();
+ box.innerHTML='<div class="kfilters" id="mfbar">'+fil("mf",MF,[["all","All",all.length],["map","Maps",all.filter(function(p){return p.kind==="map";}).length],["fab","Fab products",all.filter(function(p){return p.kind==="fab";}).length]])+'<span class="grow"></span><input id="mq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(MQ)+'"></div><div id="mpTbl"></div><div class="khint">Every project the kit has learned from or is learning from. A map teaches lessons, a blueprint and recipes; a Fab product teaches recipes and the how-to of its editor work. The bar is how much of the learning is done.</div>';
+ var draw=function(){var q=MQ.trim().toLowerCase(),list=all.filter(function(p){return (MF==="all"||p.kind===MF)&&(!q||(p.name+" "+p.genre).toLowerCase().indexOf(q)>=0);});
+  var pg=Math.min(MPG,Math.max(0,Math.ceil(list.length/5)-1));MPG=pg;
+  $("mpTbl").innerHTML='<table class="ktable"><tr><th>Project</th><th>Type</th><th>Skill</th><th>Lessons</th><th>Recipes</th><th>Learning</th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(p){var me=p.name.toLowerCase()===cur;return '<tr'+(me?' class="kme"':'')+'><td><b>'+esc(p.name)+'</b>'+(me?' '+chipB("this one","a"):'')+(p.first_seen?'<div class="ksub">first seen '+esc(p.first_seen)+'</div>':'')+'</td><td>'+chipB(p.kind==="fab"?"Fab product":"map",p.kind==="fab"?"v":"b")+'</td><td>'+(p.genre?esc(p.genre):'<span class="ksub">&mdash;</span>')+'</td><td>'+p.lessons+'</td><td>'+p.recipes+'</td><td style="min-width:120px"><div class="pbar" style="margin:2px 0"><i style="width:'+p.pct+'%;background:'+(p.pct>=100?'var(--green)':'var(--amber)')+'"></i></div><div class="ksub">'+p.pct+'%</div></td></tr>';}).join(""):'<tr><td colspan="6" class="kempty">'+(all.length?"Nothing matches.":"No project yet.")+'</td></tr>')+'</table>'+pgr("mp",pg,list.length);
+  bindCommon($("mpTbl"),draw);};
+ draw();bindCommon($("mfbar"),renderMaps);$("mq").oninput=function(){MQ=this.value;MPG=0;draw();};
+}
+/* ---- Community (settings) ---- */
+function loadCommunity(){loadInbox();fetch("/community-state",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){CS=j;renderAll();}).catch(function(){CS={error:"The console server is older than this page. Restart it to enable sharing."};renderAll();});}
+function loadInbox(){fetch("/recipe-inbox",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){RI=j;renderAll();}).catch(function(){});}
+function loadFab(){if(!isFab()){FQ=null;return;}fetch("/fab-learn",{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){if(d&&!d.error){var s=JSON.stringify(d);if(s!==CRP){CRP=s;FQ=d;renderAll();}}}).catch(function(){});}
 function renderCommunity(){
  var box=$("kCommunity");if(!box)return;
  if(!CS||CS.error){box.innerHTML='<div class="kcard"><div class="kempty">'+esc((CS&&CS.error)||"Reading the community state…")+'</div></div>';return;}
  var pubTxt=CS.published===true?'<span style="color:var(--green)">&#10003; the map of this project is published</span> <span class="ksub">('+esc(CS.published_reason||"")+')</span>':(CS.published===false?'<span style="color:var(--amber)">&#10007; the map of this project is not published</span> <span class="ksub">('+esc(CS.published_reason||"")+')</span>':'<span class="ksub">could not check whether the map is published (Epic not reachable); nothing changes until it can</span>');
- var h='<div class="kcard"><div class="klabel">Share lessons with the community</div>'+
+ var m=shareModel(),q=queueCounts(),n=function(f){return m.rows.filter(f).length;};
+ var card=function(t,v,s,w){return '<div class="khc'+(w?" warn":"")+'"><div class="k">'+t+'</div><div class="n">'+v+'</div><div class="s">'+s+'</div></div>';};
+ var h='<div class="kcard"><div class="klabel">Share with the community, and receive from it</div>'+
   '<div style="margin:8px 0"><span id="kcSw" class="kcsw'+(CS.share?" on":"")+'" title="Switch"></span><b>Contribute to the community</b> <span class="ksub">'+(CS.share?"on":"off (default)")+'</span></div>'+
-  '<div class="kcnote"><b>Only lessons learned from a published map can be shared.</b> If the map is not published, your lessons stay on this computer. Nothing is sent by the kit: you press <i>Contribute</i> on one lesson, see the exact JSON, and finish on GitHub with your own account. Map names, code, devices and blueprints never leave.</div>'+
-  '<div style="font-size:12px;margin:6px 0">'+pubTxt+'</div>';
- if(CS.share){
-  var rows=[];(SD&&SD.genres||[]).forEach(function(g){g.patterns.forEach(function(p){if(p.origin==="local"&&(p.support||0)>=1&&p.status!=="superseded")rows.push([g.slug,p]);});});
-  h+='<table class="ktable"><tr><th>Genre</th><th>Lesson</th><th>Section</th><th></th></tr>'+(rows.length?rows.slice(0,60).map(function(x){var g=x[0],p=x[1],done=(CS.shared||[]).indexOf(p.id)>=0;return '<tr><td>'+esc(g)+'</td><td>'+esc(p.statement)+'</td><td class="ksub">'+esc(p.section||"—")+'</td><td>'+(done?'<span style="color:var(--green)">shared</span>':'<button class="kbtn" data-g="'+esc(g)+'" data-id="'+esc(p.id)+'">Contribute</button>')+'</td></tr>';}).join(""):'<tr><td colspan="4" class="kempty">No approved lesson of yours yet.</td></tr>')+'</table>';
-  h+='<div style="margin-top:12px"><b>UEFN MCP recipes you proved</b> <span class="ksub">counts only, no arguments or paths</span> <button class="kbtn" id="kcRec">Contribute</button></div>';
-  if(CEXP){h+='<div class="kcard" style="margin-top:12px"><div class="klabel">What would leave this computer</div>'+(CEXP.ok?'<div class="kcpre">'+esc(CEXP.json)+'</div><div class="ksub">'+esc(CEXP.note||"")+'</div><div style="margin-top:8px"><button class="kbtn" id="kcOpen">Open GitHub</button> <button class="kbtn" id="kcCancel">Cancel</button></div>':'<div style="color:var(--amber);font-size:12px">'+esc(CEXP.error||"Not shareable")+'</div><div style="margin-top:8px"><button class="kbtn" id="kcCancel">Close</button></div>')+'</div>';}
- }
- h+='</div>';box.innerHTML=h;
+  '<div class="kcnote"><b>How it works.</b> Nothing is sent by the kit: you press a button, see the exact JSON and finish on GitHub with your own account. Map names, devices and blueprints never leave. <b>Only lessons learned from a published map can be shared</b>: if the map is not published they stay on this computer. Lessons also need a section. <b>Recipes</b> (how to rebuild, with Verse code) need your <i>Share in the kit</i> first. What the community shares comes back with kit updates into <i>To approve</i>: nothing is used until you approve it, and an approved item leaves its list. What you can send waits in <i>To share</i>.</div>'+
+  '<div style="font-size:12px;margin:6px 0">'+pubTxt+'</div>'+
+  '<div class="khero" style="grid-template-columns:repeat(4,1fr);margin:12px 0">'+
+   card("Lessons ready to send",n(function(x){return x.kind==="lesson"&&x.st==="ready";}),"approved, with a section, map published",n(function(x){return x.kind==="lesson"&&x.st==="ready";})>0)+
+   card("Recipes ready to send",n(function(x){return x.kind==="recipe"&&x.st==="ready";}),"you approved them to share",n(function(x){return x.kind==="recipe"&&x.st==="ready";})>0)+
+   card("Sent",n(function(x){return x.st==="sent"&&x.kind!=="mcp";}),"left the list")+
+   card("Received, to approve",q.rin+q.packs,q.rin+" recipe(s) &middot; "+q.packs+" lesson pack(s)",q.rin+q.packs>0)+'</div>'+
+  '<div class="krow"><button class="kbtn" id="kcGoS">Open To share</button><button class="kbtn" id="kcGoA">Open To approve</button></div></div>';
+ box.innerHTML=h;
  var sw=$("kcSw");if(sw)sw.onclick=function(){post("/community-act",{action:CS.share?"off":"on"}).then(function(){CEXP=null;loadCommunity();});};
- Array.prototype.forEach.call(box.querySelectorAll("button[data-id]"),function(b){b.onclick=function(){var g=b.getAttribute("data-g"),id=b.getAttribute("data-id");post("/community-act",{action:"export",genre:g,id:id}).then(function(r){CEXP=r;CEXP._g=g;CEXP._id=id;renderCommunity();});};});
- var rb=$("kcRec");if(rb)rb.onclick=function(){post("/community-act",{action:"export-recipes"}).then(function(r){CEXP=r;CEXP._rec=true;renderCommunity();});};
- var o=$("kcOpen");if(o)o.onclick=function(){window.open(CEXP.url,"_blank","noopener");if(CEXP._rec){CEXP=null;renderCommunity();return;}post("/community-act",{action:"shared",genre:CEXP._g,id:CEXP._id}).then(function(){CEXP=null;loadCommunity();});};
- var c=$("kcCancel");if(c)c.onclick=function(){CEXP=null;renderCommunity();};
+ $("kcGoS").onclick=function(){setTab("share");};$("kcGoA").onclick=function(){setTab("approve");};
 }
 function ringSvg(n,pct,col){var C=163.4;return '<svg viewBox="0 0 64 64" width="70" height="70"><circle cx="32" cy="32" r="26" fill="none" stroke="#3a4350" stroke-width="5"/><circle cx="32" cy="32" r="26" fill="none" stroke="'+col+'" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+(C*Math.min(100,pct)/100).toFixed(1)+' '+C+'" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" style="fill:'+col+';font:700 17px system-ui">'+esc(n)+'</text></svg>';}
 function recipeRings(rc){var T=Math.max(1,rc.total),pc=function(x){return Math.round(100*x/T);},o='<div style="margin-top:12px"><b>UEFN MCP recipes</b> <span class="ksub">of '+esc(rc.total)+': proven by use (real work or a replay), tool answered, not verified</span></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">';
@@ -604,22 +872,25 @@ function loadMcp(){
   h+='<div class="ksub" style="margin-top:8px">Refreshed by itself at session start when UEFN is open. Agents search it before working through UEFN. <a href="/manual/mcp-engine.html" style="color:var(--cyan)">How it works</a></div></div>';
   box.innerHTML=h;});
 }
-function renderRecipes(){
- var el=$("kRecipes");if(!el)return;
- var rs=(SD&&SD.recipes)||[];
- if(!rs.length){el.innerHTML="";return;}
- var mine=rs.filter(function(r){return r.source==="yours";}).length;
- el.innerHTML='<div class="kcard"><div class="klabel">Recipes the skills know<span class="r" style="color:var(--dim)">'+rs.length+' in total · '+mine+' learned from your work</span></div>'+
-  rs.map(function(r){return '<div class="kprop"><div style="line-height:1.5"><b>'+esc(r.name)+'</b> <span style="color:var(--dim)">('+esc(r.skill)+')</span></div>'+
-   (r.use?'<div style="margin-top:4px;font-size:12px">'+esc(r.use)+'</div>':"")+
-   '<div style="margin-top:6px;font-size:10.5px;color:var(--dim)">'+(r.source==="yours"?"learned from your work · "+(r.tier==="confirmed"?"confirmed":"hypothesis")+" · used in "+r.maps+" map(s)":"official")+(r.parent?" · starts from "+esc(r.parent):"")+" · "+r.steps+" step(s)"+(r.added?" · "+esc(r.added):"")+'</div></div>';}).join("")+'</div>';
+function renderThisRecipes(){
+ var el=$("kThisRecipes");if(!el)return;var l=(LD&&(LD.fab_product?LD.fab_product.recipe_list:LD.recipe_list))||[];
+ el.innerHTML='<div class="kcard"><div class="klabel">Recipes from this '+(LD&&LD.fab_product?"product":"map")+'<span class="r" style="color:var(--dim)">prepared by the kit from its Verse code and your work</span></div>'+(l.length?'<table class="ktable"><tr><th>Recipe</th><th>Skill</th><th>Kind</th></tr>'+l.map(function(r){return '<tr><td><b>'+esc(r.name)+'</b></td><td>'+esc(r.skill)+'</td><td class="ksub">'+esc(r.kind||"")+'</td></tr>';}).join("")+'</table>':'<div class="kempty">No recipe yet. The kit prepares them by itself when the project has Verse code with devices; press LEARN to do it now.</div>')+'</div>';
+}
+function bindGo(){Array.prototype.forEach.call(document.querySelectorAll("[data-gotab]"),function(a){a.onclick=function(e){e.preventDefault();setTab(a.getAttribute("data-gotab"));};});}
+function renderAll(){
+ var ae=document.activeElement,kw=$("kitwrap");
+ if(ae&&kw&&kw.contains(ae)&&(ae.tagName==="TEXTAREA"||ae.tagName==="SELECT"||(ae.tagName==="INPUT"&&ae.type!=="checkbox")))return;
+ try{renderStrip();renderLearn();renderTabs();renderApprove();renderShare();renderLessons();renderRecipes();renderMaps();renderKit();renderMap();renderThisRecipes();renderCommunity();showPane();bindGo();}catch(e){var c=$("conn");if(c)c.textContent="page error: "+e.message;}
 }
 function load(){
- loadMcp();
+ loadMcp();loadFab();
  if(!CS)loadCommunity();
- Promise.all([fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})]).then(function(a){var sig=JSON.stringify(a);if(sig===LAST)return;LAST=sig;SD=a[0];LD=a[1];renderKit();renderMap();renderCommunity();renderRecipes();});
+ fetch("/recipe-inbox",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){var s=JSON.stringify(j);if(s!==JSON.stringify(RI)){RI=j;renderAll();}}).catch(function(){});
+ Promise.all([fetch("/skills-data").then(function(r){return r.json();}).catch(function(){return null;}),fetch("/learning-data").then(function(r){return r.json();}).catch(function(){return null;})]).then(function(a){var sig=JSON.stringify(a);if(sig===LAST)return;LAST=sig;SD=a[0];LD=a[1];renderAll();loadFab();});
 }
+try{var _t=localStorage.getItem("kitTab");if(_t&&/^(approve|share|lessons|recipes|skills|maps|this|mcp|comm)$/.test(_t))TAB=_t;}catch(e){}
 load();setInterval(load,15000);
+
 })();
 </script>
 <!-- skills-alert:begin -->
@@ -648,5 +919,14 @@ load();setInterval(load,15000);
 <style>.kitfoot{max-width:1240px;margin:28px auto 22px;padding:12px 4px 0;border-top:1px solid var(--line-soft,#1b2740);font-size:11px;line-height:1.7;color:var(--dim,#5a7088);text-align:center}.kitfoot a{color:var(--cyan,#4bd8ff);text-decoration:none}.kitfoot a:hover{text-decoration:underline}.kitfoot .sep{margin:0 8px;opacity:.5}</style>
 <div class="kitfoot">Dream Bot Team for UEFN<span class="sep">&middot;</span><a href="/manual/the-console.html#skills" data-manual-help>Help for this page</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> &mdash; free to use, copy and change, no warranty<span class="sep">&middot;</span>by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games.</div>
 <!-- kit-footer:end -->
+
+<!-- fab-tab:begin -->
+<script>
+/* Fab products only: the console server tells who it serves; a Fab product gets the Checklist tab. */
+(function(){fetch("/whoami").then(function(r){return r.json();}).then(function(w){
+  if(!w||!w.fab)return;var sc=document.querySelector('a[href="agent-console-score.html"]');if(!sc||document.querySelector('a[href="agent-console-fab.html"]'))return;
+  var a=document.createElement("a");a.href="agent-console-fab.html";a.textContent="Checklist";if(sc.className&&sc.className!=="on")a.className=sc.className;sc.parentNode.appendChild(a);}).catch(function(){});})();
+</script>
+<!-- fab-tab:end -->
 </body>
 </html>

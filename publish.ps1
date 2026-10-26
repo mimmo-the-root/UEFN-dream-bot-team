@@ -23,6 +23,10 @@ Set-Content -Path $notesFile -Value $notes -Encoding UTF8
 if ($hasPy) { py -3 tool/community_summary.py } else { python tool/community_summary.py }
 if ($LASTEXITCODE -ne 0) { throw "community_summary.py failed: nothing was published" }
 
+# 1b2. recipes you approved on the Skills page ("Share in the kit") join the official recipes of the kit (privacy checked; a refused one stops the release)
+if ($hasPy) { py -3 tool/collect_recipes.py } else { python tool/collect_recipes.py }
+if ($LASTEXITCODE -ne 0) { throw "collect_recipes.py refused a recipe (see above): nothing was published" }
+
 # 1c. the HTML manual: rebuild it from docs/manual so the shipped copy (and GitHub Pages) is never stale
 if ($hasPy) { py -3 tool/build_manual.py } else { python tool/build_manual.py }
 if ($LASTEXITCODE -ne 0) { throw "build_manual.py failed: nothing was published" }

@@ -369,6 +369,12 @@ def genre_and_inbox(project):
                 notes.append("community: %d genre pack(s) of shared lessons waiting for your approval on the Skills page" % _c["queued"])
         except Exception:
             pass
+        try:  # recipes the community shared come with the kit: they wait in the inbox until you approve them
+            _cr = skills_lib.import_community_recipes()
+            if _cr.get("queued"):
+                notes.append("community: %d recipe(s) shared by others waiting for your approval on the Skills page" % _cr["queued"])
+        except Exception:
+            pass
         try:  # is the map of this project published? Only lessons of published maps can be shared with the community (checked at most once a day)
             skills_lib.sync_published(project)
         except Exception:
@@ -570,6 +576,13 @@ def _run(project, out):
                                        (", %d file(s) and %d document(s) to learn" % (pend, pend_docs)) if (pend or pend_docs) else ", nothing to learn"))
             spec = os.path.join(project, "Claude", "docs", "SPEC.md")
             has_content = has_map or any(True for _ in verse_map.verse_files(project)) or (os.path.isfile(spec) and os.path.getsize(spec) > 1500)
+            try:   # mechanic recipes of this map, prepared by the kit itself (one per folder with a device; redone only when its Verse changed)
+                import mechanic_recipes as _mr, skills_lib as _sl3
+                _saved = _mr.ensure_map(project, _sl3.project_name(project), _sl3.recipe_add)
+                if _saved:
+                    out["notes"].append("MECHANIC RECIPES: the kit prepared %d recipe(s) from this map's Verse (%s). They are on the Skills page; no action needed." % (len(_saved), ", ".join(_saved[:5])))
+            except Exception:
+                pass
             if not genre and has_content:
                 out["notes"].append("GENRE (MANDATORY, do it now before answering the owner's first message, never ask): Claude/docs/.genre is empty (Epic's data may be missing: no island code, unpublished map or API error 403). Work the genre out YOURSELF from the project: its Verse files, SPEC.md and other documents, the devices in the level. Pick the closest slug in ~/.claude/skills/genre/fortnite-genres-official.json; "
                                     "The genre is ALWAYS one slug of that list (it is Epic's own Discover category, never a new one, never a mechanic): choose by the STRUCTURE of the game, using each genre's `hint` in that file: players per match, round length, lobby, how a match ends, not by single words in the documents ('last one standing' or 'elimination' do not make a Battle Royale: Battle Royale is a large map with 50-100 players and a long match; short rounds in an arena with a lobby are Party & Mini Games). When the island configuration is readable (max players, rounds, time limit), use it. A new mechanic such as pillars is learned INSIDE its genre: the core loop and mechanics become patterns of that genre. If the owner corrects the genre or the type on the console, that is final; if he tells you in chat that it is wrong, run `python Claude/hooks/skills_lib.py confirm-genre <right> --variant <type> --project .` (moves the lessons still waiting for approval). Do NOT write .genre or create the genre skill yourself: run `python Claude/hooks/skills_lib.py propose-genre <slug> --variant <map-type> --why \"<the facts that decided it: players, rounds, lobby, key mechanic>\" --project .` (the map type is a short free name for what this map is, e.g. pillars, red-vs-blue, checkpoint-race; reuse a type already known in that genre when it fits). It writes only a PROPOSAL: the owner confirms genre and type on the console (Skills page), and until then nothing is written to the genre skills (`skills_lib.py` tells you GENRE NOT CONFIRMED: lessons are held and the blueprint stays in Claude/docs/map/profile.json; both are saved by themselves when the owner confirms on the console, nothing for you to retry). IP RULE: if the documents (INDEX/SPEC/README/design notes) say the map is a version of the same base game dressed for an IP or franchise, the map TYPE is that IP as a short kebab-case name (the same base game with a different IP = the same genre, a different type); a map with no IP, or the shared base itself, is type `base`. Take it from the documents, never ask the owner in chat; he confirms it on the console. The blueprint of an IP variant records only what DIFFERS from the base (custom devices, rules, numbers) and points to the base blueprint for the rest. Then learn the core loop and the basic mechanics of this map (learn-map.md: the Verse files, the documents including planned design, the devices) so the next session starts from it.")

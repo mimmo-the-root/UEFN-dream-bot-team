@@ -28,8 +28,22 @@ A Fab product is a small UEFN project whose components the customer adds to thei
 4. Third-party content: check the licence of each item (VerseUIKit is Epic's library: confirm its terms before including it) and fill `FabListing/third_party.md`.
 5. Verse code the customer receives keeps the header rule: Summary, real date, version; changes are not listed in the file.
 6. Materials: when the owner confirms a material works, save its recipe (`skills_lib.py recipe-add materials <file.json> "<product name>"`, run from `~/.claude/kit-template/Claude/hooks/`); that is what the materials skill learns from. Say it in the reply, with the recipe name.
+7. Mechanics: before building a stand-alone device, a mechanic or a map template, look for a recipe (`skills_lib.py recipes mechanics <keyword>`) and follow it. When the owner confirms one works, run `fab_lab.py draft-recipe <project> "<name>"` (from `~/.claude/hooks/`), fill every TODO (devices, settings, wiring, Verse files, assets, how to verify) and save it with `skills_lib.py recipe-add mechanics <file.json> "<product name>"`. It counts as confirmed at once; say the recipe name in the reply.
 7. Lessons: your UEFN MCP calls are recorded outside the project (`fab_lab.py`, folder `~/.claude/fab-lab/<Product>/`). When a material or mechanic is finished, run `python fab_lab.py card <project>`, fill the TODO parts of the draft (goal, final recipe, traps, third-party assets) and ask the owner whether to promote it into a skill or recipe. Never write lesson files in the project.
 8. Before saying "ready": `check` has no blocks, no TODO is left in `FabListing/listing.md`, then `zip`, and the owner tests the zip in a clean project.
+
+## Rules learned from two rejected products (apply them from the first minute)
+
+These come from a real case (assets copied by hand between the owner's projects). Fab validates the whole project offline, and the editor's own validation may look only at the assets you touched, so "no errors here" proves nothing.
+
+1. **Scan at the start, not at the end.** First thing in a Fab project run `fab_assets.py <project>` (or `fab_pack.py check`). It lists imports of assets of another project, internal names of another project and Windows user names saved in the import paths. Report it in plain words before building anything.
+2. **Never copy assets by hand from another project into a Fab product** without telling the owner: they bring the old internal name and sometimes a real import (`/OtherProject/.../Asset`) that does not exist here. Rebuild or re-save them inside this project and scan again.
+3. **Do not use `update_metadata_tags`** on assets of a Fab product.
+4. **Use the exact parameter names** from the tool table (`mcp_map.py --find`); do not guess them.
+5. **Never call `list_properties` on textures**: the output is huge and useless. Read only the property you need.
+6. **Never edit `.uasset` bytes yourself.** The kit does the one safe change by itself, before every `check` and `zip`: Windows user names and the names of your other projects inside source paths become `x` of the same length (same file size, a backup in the lab folder outside the project). Anything else is fixed in the editor.
+7. A file is locked while the editor is open: that is normal, not a reason to close the editor.
+8. When the owner records the UEFN validation (Checklist page) with Skip Fix-up, do not offer "Run Validation Fix-up": it resets illegal references to default and can break the product.
 
 ## Verse files of a Fab product (this style only here, never in maps)
 Every `.verse` file the customer receives is written as a small manual. Header, in this order, all `#` lines between dashed rules:
