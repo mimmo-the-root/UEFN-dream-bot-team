@@ -5,7 +5,7 @@ allowed-tools: Bash(py:*), Bash(python:*), Bash(python3:*), Read, Write, Edit, A
 
 You turn the approved `PLAN.md` into the task list in `Claude/docs/ROADMAP.md`. The owner of that file is `planner-docs`: do it through that agent, which keeps the ID rules and the table contract. Run scripts from `Claude/hooks` (`py -3` on Windows).
 
-**Gate.** `PLAN.md` must say `Approved: yes` and `CONSTITUTION.md` must exist. If not, say so in one line and stop: `/piano` first.
+**Gate.** `PLAN.md` must say `Approved: yes` and `CONSTITUTION.md` must exist. If not, say so in one line and stop: `/game-plan` first.
 
 **Tasks.** For each story, P1 first, ask `planner-docs` to add rows to the ONE Tasks table, keeping its six columns (ID | Feature | Status | Acceptance criteria | Priority | Release). The extra information lives inside the Feature cell, as tags:
 - `[S1]` the story the task belongs to (every task has one);

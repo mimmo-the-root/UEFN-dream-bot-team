@@ -16,12 +16,12 @@ The demo does the COMPLETE round of the kit on the pilot game Chicken Roundup (t
 **The round, each phase timed** with `python demo_timer.py phase "<key>"`: use EXACTLY these keys as the label (a short note may follow after a colon, e.g. `build: T-002`), because the Docs page turns each one into a lit arrow and opens its page by itself. The page shows the total big and the running phase small, so keep the phases in this order and never skip one:
 1. `idea`: `/spec` first half: study of the kit's knowledge, three scored variants, the idea chosen.
 2. `spec`: `/spec` second half: players asked first (multiplayer guaranteed), loop, stories, risks, Island settings needs, review, approval.
-3. `plan`: the constitution and `/piano` (Island settings table, the `## Environment` table of the scenery, where each device goes: a DemoDisplay outside the play area, gameplay-position devices in place), review, approval.
-4. `tasks`: `/compiti`, then `/coerenza`.
-5. `environment`: `/ambiente` (what the owner must have: Beta Access, Python scripting, MCP) AND the scenery BUILT in the map: every row of the `## Environment` table of the plan (ground, sky and light, props, sound, boundary) placed in UEFN and read back, row by row `planned` -> `built`. The demo is not complete with an empty or unfinished environment.
+3. `plan`: the constitution and `/game-plan` (Island settings table, the `## Environment` table of the scenery, where each device goes: a DemoDisplay outside the play area, gameplay-position devices in place), review, approval.
+4. `tasks`: `/task-list`, then `/consistency`.
+5. `environment`: `/environment` (what the owner must have: Beta Access, Python scripting, MCP) AND the scenery BUILT in the map: every row of the `## Environment` table of the plan (ground, sky and light, props, sound, boundary) placed in UEFN and read back, row by row `planned` -> `built`. The demo is not complete with an empty or unfinished environment.
 6. `build`: the gameplay in UEFN task by task with the `coder` agent (plan first, approval before each change, Verse with editable parameters instead of references the MCP cannot assign, Island settings set and read back, build clean), validation and review after each step. Check the Verse digest for what the game needs before choosing the mechanic; if a command does not exist, say it in the plan and use the nearest one.
 7. `audit`: `/audit` (fix minor findings alone, record serious ones with the recommendation), including the Fab and island compliance scan and the placement check.
-8. `delivery`: `/consegna` (what only the owner can do, private release, Publishing Validation and memory flags to confirm) and `/ambiente --playtest` with the real number of players. Stop here: the private release and the publish are the owner's.
+8. `delivery`: `/delivery` (what only the owner can do, private release, Publishing Validation and memory flags to confirm) and `/environment --playtest` with the real number of players. Stop here: the private release and the publish are the owner's.
 
 Update the roadmap task statuses as they change (To do, In progress, Done) the moment they change: the Docs page follows them live.
 

@@ -14,4 +14,4 @@ You audit the game when the build is finished, before the delivery. Work in `Cla
 
 **4. Ask.** Show the owner only what is left: the medium and major findings, each with what breaks, who is affected, and your recommendation. One question per finding (fix it this way / leave it / change the spec). A change to the spec goes through `/spec` and the plan and tasks are redone. Then run the audit again until `python audit_log.py status` exits 0.
 
-Report: how many fixed alone, how many for the owner, what you recommend. Name `AUDIT.md`; do not paste it. The next step is `/consegna`.
+Report: how many fixed alone, how many for the owner, what you recommend. Name `AUDIT.md`; do not paste it. The next step is `/delivery`.

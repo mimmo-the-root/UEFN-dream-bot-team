@@ -26,6 +26,6 @@ In a jam (`--jam` or `Mode: jam`): a one-page plan, high risks first.
 
 **Review.** After 1 and after 2, ask the agent `intent-reviewer` to read the file against the spec with fresh eyes (gaps, contradictions, a missing player case). Fix what it finds; a doubt about the spec goes back to `/spec`, never into the plan.
 
-**3. Check and approve.** Run `python plan_check.py --stage plan`. Fix every CRITICAL and HIGH line; a CRITICAL is a conflict with the constitution and is never argued away. Then ONE question to the owner: approve the plan, or change something. Write `Approved: yes` in `PLAN.md` only after the yes, add one line to `Claude/docs/STATUS.md`, and say the next step is `/compiti`.
+**3. Check and approve.** Run `python plan_check.py --stage plan`. Fix every CRITICAL and HIGH line; a CRITICAL is a conflict with the constitution and is never argued away. Then ONE question to the owner: approve the plan, or change something. Write `Approved: yes` in `PLAN.md` only after the yes, add one line to `Claude/docs/STATUS.md`, and say the next step is `/task-list`.
 
 Short report in plain language; name the files, do not paste them.
