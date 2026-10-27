@@ -167,6 +167,9 @@ tr.kme td{background:rgba(255,180,84,.06)}
  <div id="kWaiting" style="display:none"></div>
  <div id="classic" style="display:none"><div id="hero"></div><div id="body"></div></div>
 </div>
+<script>/* per-project view state: the saved tab, view and pins belong to the project that was open; another project starts clean */
+(function(){try{var x=new XMLHttpRequest();x.open("GET","/whoami",false);x.send();var w=JSON.parse(x.responseText),id=(w&&w.project)||"";
+if(id&&localStorage.getItem("dbt.project")!==id){["kitTab","docsTab","dbt.view","dbt.pins"].forEach(function(n){localStorage.removeItem(n);});localStorage.setItem("dbt.project",id);}}catch(e){}})();</script>
 <script>
 "use strict";
 var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); };

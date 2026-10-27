@@ -519,6 +519,9 @@
   </footer>
 </div>
 
+<script>/* per-project view state: the saved tab, view and pins belong to the project that was open; another project starts clean */
+(function(){try{var x=new XMLHttpRequest();x.open("GET","/whoami",false);x.send();var w=JSON.parse(x.responseText),id=(w&&w.project)||"";
+if(id&&localStorage.getItem("dbt.project")!==id){["kitTab","docsTab","dbt.view","dbt.pins"].forEach(function(n){localStorage.removeItem(n);});localStorage.setItem("dbt.project",id);}}catch(e){}})();</script>
 <script>
 // Bump this on EVERY release that touches this file, matching CHANGELOG.md's top "## vX.Y"
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —

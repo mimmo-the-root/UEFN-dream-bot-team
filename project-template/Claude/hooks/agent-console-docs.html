@@ -388,6 +388,9 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
   </div>
 </div>
 
+<script>/* per-project view state: the saved tab, view and pins belong to the project that was open; another project starts clean */
+(function(){try{var x=new XMLHttpRequest();x.open("GET","/whoami",false);x.send();var w=JSON.parse(x.responseText),id=(w&&w.project)||"";
+if(id&&localStorage.getItem("dbt.project")!==id){["kitTab","docsTab","dbt.view","dbt.pins"].forEach(function(n){localStorage.removeItem(n);});localStorage.setItem("dbt.project",id);}}catch(e){}})();</script>
 <script>
 // v1.78.0: this page used to hold a hardcoded DOCS object of sample markdown for every doc,
 // completely disconnected from the real project — that's the root cause of all three "Docs &
