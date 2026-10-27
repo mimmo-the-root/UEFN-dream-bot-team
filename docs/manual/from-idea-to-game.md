@@ -75,10 +75,10 @@ The kit ships a complete example, built from the Epic farm game: the idea, the s
 
 1. In UEFN make a **new empty project** just for tests (Fortnite > Create).
 2. Open Claude Code in its `Content` folder and install the kit (`/kit-update`).
-3. On the Docs page, **Documents** tab, press **Copy /demo** (the flow with you, asking at each approval) or **Copy /demo --auto** (no questions: the AI approves every step and finishes by itself) and paste it in the chat. A stopwatch runs from start to the moment everything is ready; the Docs page shows it, handy for timing a promo video. **Copy /demo --load** only puts the files in `Claude/docs/`.
+3. On the Docs page, **Documents** tab, press **Copy /demo** (interactive: it asks you at each approval) or **Copy /demo --auto** (no questions: the AI approves every step and finishes by itself) and paste it in the chat. There is nothing else to choose: the demo loads the pilot files by itself, and if an earlier demo is there its files are moved to `_to_delete`. A stopwatch runs from the start to the moment everything is ready: the Docs page shows the total big and, smaller, the phase that is running with its own time. Handy for timing a promo video.
 4. Prefer to keep your docs as they are? Press **Copy /demo**: the files go to `Claude/docs/demo-chicken-roundup/` and nothing else is touched.
 
-`/demo --load` refuses when the project already has a spec, a plan or tasks, and it never overwrites a file. To run the demo again, discard the test project, make a new one and repeat from step 1.
+The demo refuses when the project already has your own spec, a plan or tasks, and it never overwrites a file. To run it again in the same test project, just run it again: the files of the earlier demo are moved to `_to_delete`.
 
 ## When something is not clear
 

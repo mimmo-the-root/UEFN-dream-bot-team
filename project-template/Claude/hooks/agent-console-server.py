@@ -439,6 +439,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+        elif self.path.startswith("/to-delete"):
+            import to_delete
+            self._send_json_bytes(json.dumps(to_delete.listing(PROJECT_DIR)).encode("utf-8"))
         elif self.path.startswith("/doc?") or self.path == "/doc":
             # /doc?name=<key> — see DOC_FILES above. Always returns 200 + JSON {name, exists,
             # content}, never a bare 404: a missing file is real, expected state for a fresh
@@ -618,6 +621,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         # Owner decisions on the Skills page: approve / edit / reject a lesson, run the privacy check.
         if self.path.startswith("/fab-learn-act"):
             return self._fab_learn_act()
+        if self.path.startswith("/to-delete-act"):
+            return self._to_delete_act()
         if self.path.startswith("/map-learn"):
             return self._map_learn()
         if self.path.startswith("/fab-act"):
@@ -651,6 +656,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
                                      data.get("statement"), data.get("exclude") or [])
             self._send_json_status(200, res)
         except (ValueError, KeyError, TypeError) as e:
+            self._send_json_status(400, {"ok": False, "error": str(e)})
+
+    def _to_delete_act(self):
+        # Release page: open the _to_delete folder, or clean one parked folder / all of them (the owner's click).
+        if not self._origin_ok():
+            return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
+        try:
+            import to_delete
+            n = int(self.headers.get("Content-Length") or 0)
+            data = json.loads(self.rfile.read(min(n, 4096)).decode("utf-8") or "{}")
+            act = data.get("action")
+            res = to_delete.open_folder(PROJECT_DIR) if act == "open" else to_delete.clean(PROJECT_DIR, str(data.get("name") or "")) if act == "clean" else {"ok": False, "error": "unknown action"}
+            self._send_json_status(200, res)
+        except (ValueError, OSError) as e:
             self._send_json_status(400, {"ok": False, "error": str(e)})
 
     def _map_learn(self):

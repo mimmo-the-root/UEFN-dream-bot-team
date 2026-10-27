@@ -12,7 +12,7 @@ Inside a session opened in the project's `Content/` folder you can:
 
 ## Starting a new game: from the idea
 
-Want to see the whole path first? Run `/demo --load` in a new empty test project (never in your real map): it brings a finished example, Chicken Roundup. The details are in *From an idea to a playable game*.
+Want to see the whole path first? Run `/demo` (with you) or `/demo --auto` (no questions) in a new empty test project (never in your real map): it builds a finished example, Chicken Roundup, and times it. The details are in *From an idea to a playable game*.
 
 A new game starts from an idea, yours or Claude's. You do not need a design document: a few sentences are enough.
 

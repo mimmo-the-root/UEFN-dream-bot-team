@@ -51,6 +51,8 @@ td{padding:9px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}t
 <div class="side"><div class="vs"><a href="agent-console.html">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a><a href="agent-console-news.html" class="on">What's new</a><a href="agent-console-score.html">Score</a></div><div># what changed in the last release, and who made it better</div></div></div>
 <div id="jam" class="card jam"></div>
 <div id="hero" class="hero"></div>
+<div class="ksec"><h2>Files parked for cleaning</h2><span>the kit never deletes your files: replaced or old ones wait in <code>_to_delete</code></span></div>
+<div id="parked" class="card"></div>
 <div class="ksec"><h2>Last release</h2><span>from the changelog</span></div>
 <div class="grid"><div id="rel" class="card rel"></div><div id="mine" class="card"></div></div>
 <div class="ksec t"><h2>Skills in this release</h2><span>new, and improved by the community</span></div>
@@ -132,6 +134,30 @@ Promise.all([j("/community-summary"),j("/community-state")]).then(function(a){re
 <div class="kitfoot">Dream Bot Team for UEFN<span class="sep">&middot;</span><a href="/manual/the-console.html#what-s-new" data-manual-help>Help for this page</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> &mdash; free to use, copy and change, no warranty<span class="sep">&middot;</span>by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games.</div>
 <!-- kit-footer:end -->
 <!-- fab-tab:begin -->
+<script>
+(function(){
+  var box=document.getElementById("parked");if(!box)return;
+  function kb(b){return b>1048576?(b/1048576).toFixed(1)+" MB":Math.max(1,Math.round(b/1024))+" KB";}
+  function post(a,n){return fetch("/to-delete-act",{method:"POST",headers:{"Content-Type":"application/json","X-Skills-Action":"1"},body:JSON.stringify({action:a,name:n})}).then(function(r){return r.json();}).catch(function(){return {ok:false,error:"server not reachable"};});}
+  var arm=null;
+  function draw(d){
+    if(!d||!d.ok){box.innerHTML='<div class="empty">Could not read the folder (is the console server running?).</div>';return;}
+    var h='<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px;"><button class="btn" id="pkOpen" type="button">Open the folder to inspect</button>';
+    if(d.folders.length)h+='<button class="btn" id="pkAll" type="button">'+(arm==="--all"?"Click again: delete everything ("+d.total+" files)":"Delete everything")+'</button>';
+    h+='<span style="font-size:11.5px;color:var(--dim);">'+(d.folders.length?d.total+" file(s), "+kb(d.bytes)+" in "+d.folders.length+" parked folder(s)":"Nothing is waiting: the folder is empty.")+'</span></div>';
+    d.folders.forEach(function(f){
+      h+='<div class="lesson"><b>'+esc(f.name)+'</b> · '+f.count+' file(s), '+kb(f.bytes)+' <button class="btn pkOne" type="button" data-n="'+esc(f.name)+'" style="margin-left:8px;">'+(arm===f.name?"Click again to delete":"Delete this one")+'</button><div class="m">'+f.files.slice(0,8).map(esc).join(" · ")+(f.count>8?" · …":"")+'</div></div>';
+    });
+    h+='<div style="font-size:11px;color:var(--dim);margin-top:8px;">Deleting here is permanent and only touches the <code>_to_delete</code> folder. Open it first if you want to look, or delete one folder at a time. It is yours to decide when.</div>';
+    box.innerHTML=h;
+    document.getElementById("pkOpen").onclick=function(){post("open").then(function(r){if(!r.ok)alert("Could not open it: "+(r.error||"")+"\n"+(r.folder||""));});};
+    var all=document.getElementById("pkAll");if(all)all.onclick=function(){if(arm==="--all"){arm=null;post("clean","--all").then(load);}else{arm="--all";draw(d);}};
+    Array.prototype.forEach.call(box.querySelectorAll(".pkOne"),function(b){b.onclick=function(){var n=b.getAttribute("data-n");if(arm===n){arm=null;post("clean",n).then(load);}else{arm=n;draw(d);}};});
+  }
+  function load(){j("/to-delete").then(draw);}
+  load();
+})();
+</script>
 <script>
 /* Fab products only: the console server tells who it serves; a Fab product gets the Checklist tab. */
 (function(){fetch("/whoami").then(function(r){return r.json();}).then(function(w){

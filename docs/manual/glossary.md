@@ -48,7 +48,7 @@ A free name for the kind of map inside a genre, such as pillars or checkpoint-ra
 Model Context Protocol, the way Claude talks to a running UEFN editor. The server listens on port 8000. See [The MCP engine](ch:mcp-engine).
 
 ## Pilot demo
-Chicken Roundup, a complete example (spec, constitution, plan, tasks, playtest checklist) shipped with the kit. `/demo --load` brings it into a new empty test project, never into your real map.
+Chicken Roundup, a complete example (spec, constitution, plan, tasks, playtest checklist) shipped with the kit. `/demo` (or `/demo --auto`) runs it in a new empty test project, never into your real map.
 
 ## Plan
 `PLAN.md`, written by `/piano`: per story the devices, Verse files, assets, manual steps, build order and the task that reduces each risk.

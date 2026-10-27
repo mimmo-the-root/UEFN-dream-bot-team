@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Stopwatch for the demo (for the promo video). Writes Claude/docs/DEMO-TIMER.md, which the Docs page reads.
   python demo_timer.py start [--mode auto|interactive]   # starts at the beginning of the demo
-  python demo_timer.py mark "label"                      # a lap: a step is finished
+  python demo_timer.py phase "label"                     # a new phase starts (the one before is closed as a lap)
+  python demo_timer.py mark "label"                      # a lap: the running phase is finished
   python demo_timer.py stop                              # everything is ready: stops the clock
   python demo_timer.py status | report
 Exit 1 on a misuse (stop without start, start while running)."""
@@ -26,7 +27,7 @@ def save(d):
     end = d.get("end") or time.time()
     out = ["# Demo timer", "", "<!-- data:%s -->" % json.dumps(d), "",
            "- Mode: %s" % d["mode"], "- State: %s" % ("stopped" if d.get("end") else "running"),
-           "- Total: %s" % fmt(end - d["start"]), "", "| Step | At | Lap |", "|---|---|---|"]
+           "- Total: %s" % fmt(end - d["start"]), "- Phase: %s" % (d.get("phase") or {}).get("label", "-"), "", "| Step | At | Lap |", "|---|---|---|"]
     prev = d["start"]
     for m in d["marks"]:
         out.append("| %s | %s | %s |" % (m["label"].replace("|", "/"), fmt(m["ts"] - d["start"]), fmt(m["ts"] - prev)))
@@ -39,14 +40,24 @@ def main(a):
         if d and not d.get("end"):
             print("Refused: the demo timer is already running (stop it first)"); return 1
         mode = a[a.index("--mode") + 1] if "--mode" in a and a.index("--mode") + 1 < len(a) else "interactive"
-        save({"mode": mode, "start": time.time(), "end": None, "marks": []}); print("demo timer started (%s)" % mode); return 0
+        save({"mode": mode, "start": time.time(), "end": None, "marks": [], "phase": None}); print("demo timer started (%s)" % mode); return 0
+    if cmd == "phase":
+        if not d or d.get("end"):
+            print("Refused: the demo timer is not running"); return 1
+        now = time.time()
+        if d.get("phase"):
+            d["marks"].append({"label": d["phase"]["label"], "ts": now})
+        d["phase"] = {"label": " ".join(a[1:]) or "phase", "start": now}
+        save(d); print("phase: %s" % d["phase"]["label"]); return 0
     if cmd in ("mark", "stop"):
         if not d or d.get("end"):
             print("Refused: the demo timer is not running"); return 1
         now = time.time()
         if cmd == "mark":
-            d["marks"].append({"label": " ".join(a[1:]) or "step", "ts": now})
+            d["marks"].append({"label": " ".join(a[1:]) or (d.get("phase") or {}).get("label", "step"), "ts": now}); d["phase"] = None
         else:
+            if d.get("phase"):
+                d["marks"].append({"label": d["phase"]["label"], "ts": now}); d["phase"] = None
             d["end"] = now
         save(d); print("%s: %s" % (cmd, fmt(now - d["start"]))); return 0
     if not d:

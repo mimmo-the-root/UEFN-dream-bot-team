@@ -3,7 +3,7 @@
 
   python Claude/hooks/demo_pilot.py list
   python Claude/hooks/demo_pilot.py copy [Content folder]          # to Claude/docs/demo-chicken-roundup/  (your files are untouched)
-  python Claude/hooks/demo_pilot.py load [Content folder]          # to Claude/docs/ of a NEW EMPTY test project (no game spec yet)
+  python Claude/hooks/demo_pilot.py load [Content folder]          # to Claude/docs/ of a NEW EMPTY test project; a previous demo run is moved to _to_delete first
 
 Never overwrites: a file that already exists is skipped and reported. `load` refuses when GAME-SPEC.md, PLAN.md or ROADMAP tasks exist."""
 import os, shutil, sys
@@ -47,6 +47,21 @@ def started(d):
     return "ROADMAP.md" if "| T-0" in t else ""
 
 
+def is_demo(d):
+    """True when the GAME-SPEC.md in this docs folder is the pilot's own (a previous demo run)."""
+    try:
+        return "Chicken Roundup" in open(os.path.join(d, "GAME-SPEC.md"), encoding="utf-8").read(2000)
+    except OSError:
+        return False
+
+
+def park_previous(base, d):
+    """Move the files of a previous demo run (spec, plan, tasks, the old copy folder) to _to_delete, never delete them."""
+    import to_delete
+    names = ["GAME-SPEC.md", "CONSTITUTION.md", "PLAN.md", "ROADMAP.md", "PLAYTEST.md", "demo-chicken-roundup"]
+    return to_delete.park(base, [os.path.join(d, n) for n in names if os.path.exists(os.path.join(d, n))])["moved"]
+
+
 def main(argv):
     cmd = argv[0] if argv else "list"
     base = next((a for a in argv[1:] if not a.startswith("--")), os.getcwd())
@@ -62,8 +77,12 @@ def main(argv):
         done, skipped = put(os.path.join(d, "demo-chicken-roundup"), names)
     elif cmd == "load":
         s = started(d)
+        if s and is_demo(d):
+            moved = park_previous(base, d)
+            print("A previous demo was here: %d file(s) moved to _to_delete (you decide when to clean it)." % len(moved))
+            s = ""
         if s:
-            print("This project already has %s: the demo is loaded only in an empty project (use `copy`)." % s)
+            print("This project already has %s: the demo runs only in a NEW empty test project (create one in UEFN, open Claude Code in it, run /kit-update, then /demo)." % s)
             return 1
         done, skipped = put(d, [n for n in names if n != "README.md"])
     else:

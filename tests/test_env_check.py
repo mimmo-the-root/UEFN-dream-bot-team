@@ -37,7 +37,9 @@ tmp = tempfile.mkdtemp()
 os.makedirs(os.path.join(tmp, "Claude", "docs"))
 assert dp.main(["copy", tmp]) == 0 and os.path.isfile(os.path.join(tmp, "Claude", "docs", "demo-chicken-roundup", "PLAN.md"))
 assert dp.main(["load", tmp]) == 0 and os.path.isfile(os.path.join(tmp, "Claude", "docs", "GAME-SPEC.md"))
-assert dp.main(["load", tmp]) == 1
+assert dp.main(["load", tmp]) == 0, "a second demo run parks the first"
+open(os.path.join(tmp, "Claude", "docs", "GAME-SPEC.md"), "w").write("# my own game\n")
+assert dp.main(["load", tmp]) == 1, "the owner's own spec is never parked"
 assert "demo_pilot.py" in rd("user-level-commands", "demo.md")
 print("ok demo")
 

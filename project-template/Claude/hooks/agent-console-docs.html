@@ -326,21 +326,15 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
          user-level-agents/planner-docs.md for who owns which one). -->
     <div class="card" id="demoCard" style="margin-bottom:14px;">
       <div class="label" style="margin-bottom:6px;">Pilot demo — Chicken Roundup (the whole flow, timed)</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">The demo runs the whole flow on the pilot game: idea, spec, constitution, plan, tasks, playtest checklist. A stopwatch starts with the demo and stops when everything is ready, so you can time it (for a promo video).</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Two buttons, nothing else to do: the demo loads the pilot game by itself and runs the whole flow (idea, spec, constitution, plan, tasks, playtest checklist). A stopwatch starts with it and stops when everything is ready, so you can time it (for a promo video).</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;">
         <button class="btn" data-cmd="/demo" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo</button>
-        <span style="font-size:11px;color:var(--muted);">with you: it asks at each approval</span>
+        <span style="font-size:11px;color:var(--muted);">interactive: it asks you at each approval</span>
         <button class="btn" data-cmd="/demo --auto" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --auto</button>
-        <span style="font-size:11px;color:var(--muted);">no questions: starts and finishes by itself</span>
+        <span style="font-size:11px;color:var(--muted);">automatic: no questions, starts and finishes by itself</span>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;">
-        <button class="btn" data-cmd="/demo --copy" style="font:inherit;font-size:11px;border:1px solid var(--line);color:var(--fg,#ddd);background:var(--panel2);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --copy</button>
-        <span style="font-size:11px;color:var(--muted);">only the files, in <code>Claude/docs/demo-chicken-roundup/</code></span>
-        <button class="btn" data-cmd="/demo --load" style="font:inherit;font-size:11px;border:1px solid var(--line);color:var(--fg,#ddd);background:var(--panel2);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --load</button>
-        <span style="font-size:11px;color:var(--muted);">files into a NEW empty test project</span>
-      </div>
-      <div style="margin-top:10px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;"><span class="label" style="margin:0;">Demo timer</span><b id="demoClock" style="font-size:20px;font-variant-numeric:tabular-nums;">--:--:--</b><span id="demoClockInfo" style="font-size:11px;color:var(--muted);">not started</span></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px;">How: create a new empty UEFN project just for tests (Claude Code opened in its folder, kit installed), paste the command in its chat. Want it again? Delete that test project, create another one and run <code>/demo</code>. Laps: <a href="#" onclick="openPreview('demotimer');return false;" style="color:var(--blue);">DEMO-TIMER.md</a>.</div>
+      <div style="margin-top:12px;"><div class="label" style="margin:0 0 2px;">Demo timer · total</div><b id="demoClock" style="font-size:30px;font-variant-numeric:tabular-nums;line-height:1.1;">--:--:--</b><div style="font-size:12px;color:var(--muted);margin-top:4px;"><span id="demoPhase">no phase running</span> <b id="demoPhaseClock" style="font-variant-numeric:tabular-nums;color:var(--fg,#ddd);"></b></div><div id="demoClockInfo" style="font-size:11px;color:var(--muted);">not started</div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;">How: create a new empty UEFN project just for tests (Claude Code opened in its folder, kit installed), paste the command in its chat. Want it again? Just run it again: the files of the previous demo are moved to <code>_to_delete</code> (you clean them from the What&#39;s new page). Laps: <a href="#" onclick="openPreview('demotimer');return false;" style="color:var(--blue);">DEMO-TIMER.md</a>.</div>
     </div>
     <div class="label" style="margin-bottom:8px;">Documentation — click to open in readable form</div>
     <div class="docs-grid" id="docsGrid">
@@ -1511,10 +1505,12 @@ setInterval(refreshDocs, 5000);
 (function(){
   var T = null;
   function f(x){ x = Math.max(0, Math.round(x)); return ("0"+Math.floor(x/3600)).slice(-2)+":"+("0"+Math.floor(x%3600/60)).slice(-2)+":"+("0"+x%60).slice(-2); }
-  function tick(){ var c = document.getElementById("demoClock"), i = document.getElementById("demoClockInfo"); if (!c) return;
-    if (!T){ c.textContent = "--:--:--"; i.textContent = "not started: run /demo or /demo --auto"; return; }
-    var end = T.end || (Date.now()/1000); c.textContent = f(end - T.start);
-    i.textContent = (T.end ? "stopped, everything ready" : "running") + " · " + T.mode + " · " + T.marks.length + " steps"; }
+  function tick(){ var c = document.getElementById("demoClock"), i = document.getElementById("demoClockInfo"), ph = document.getElementById("demoPhase"), pc = document.getElementById("demoPhaseClock"); if (!c) return;
+    if (!T){ c.textContent = "--:--:--"; i.textContent = "not started: run /demo or /demo --auto"; ph.textContent = "no phase running"; pc.textContent = ""; return; }
+    var now = Date.now()/1000, end = T.end || now; c.textContent = f(end - T.start);
+    if (T.phase && !T.end){ ph.textContent = "phase: " + T.phase.label; pc.textContent = f(now - T.phase.start); }
+    else { ph.textContent = T.end ? "everything ready" : "between phases"; pc.textContent = ""; }
+    i.textContent = (T.end ? "stopped" : "running") + " · " + T.mode + " · " + T.marks.length + " phases done"; }
   async function poll(){ try{ var d = await fetchDoc("demotimer"); T = null;
       if (d && d.exists && !d.error){ var m = /<!-- data:(.*?) -->/.exec(d.content); if (m) T = JSON.parse(m[1]); } }catch(e){ T = null; }
     delete docCache["demotimer"]; tick(); }

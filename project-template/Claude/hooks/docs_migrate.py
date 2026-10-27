@@ -125,6 +125,16 @@ def run(project, backup_root=None):
             with open(p, "w", encoding="utf-8", newline="") as f:
                 f.write(new.replace("\n", nl))
             done += notes
+    # old kit-made leftovers go to _to_delete (never deleted): the demo copy folder of the first 1.114 builds
+    old = os.path.join(docs, "demo-chicken-roundup")
+    if os.path.isdir(old):
+        try:
+            import to_delete
+            moved = to_delete.park(project, [old])["moved"]
+            if moved:
+                done.append("docs: the old demo copy folder was moved to _to_delete (you decide when to clean it)")
+        except Exception:
+            pass
     return done
 
 
