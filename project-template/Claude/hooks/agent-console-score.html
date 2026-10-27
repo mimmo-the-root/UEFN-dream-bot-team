@@ -46,7 +46,7 @@ function light(t,v,rel){var ph=rel/Math.max(1,N-1),gap=t-v,red=1.5-0.5*ph,yel=0.
  if(ph>=0.6&&t>0){if(v<1.5)l="red";else if(v<2.5&&l=="green")l="yellow";}return l;}
 function calc(rel){
  var rows=C.map(function(c){var k=Math.min(rel,LAST),t=c.T[rel],b=c.B[k],v=c.V[k],pv=rel>0?c.V[Math.min(rel-1,LAST)]:0,gap=Math.max(0,t-v);
-  var l=c.w==0&&t==0?"na":light(t,v,rel);if(c.g=="bonus"&&l=="red")l="yellow";return {c:c,t:t,b:b,v:v,d:rel>0&&rel<=LAST?v-pv:0,gap:gap,l:l,score:c.w?gap*c.w:gap*2,pts:c.w?gap/5*c.w:0,pl:rel>0?light(c.T[rel-1],pv,rel-1):l};});
+  var l=t==0&&v==0?"na":light(t,v,rel); /* nothing planned and nothing proven yet = grey, never a green tick */if(c.g=="bonus"&&l=="red")l="yellow";return {c:c,t:t,b:b,v:v,d:rel>0&&rel<=LAST?v-pv:0,gap:gap,l:l,score:c.w?gap*c.w:gap*2,pts:c.w?gap/5*c.w:0,pl:rel>0?light(c.T[rel-1],pv,rel-1):l};});
  var rk=rows.filter(function(r){return r.l=="red"||r.l=="yellow";}).sort(function(a,b){return (b.l=="red")-(a.l=="red")||b.score-a.score;});rk.forEach(function(r,i){r.rank=i+1;});
  function tot(f){var e=0,o=0;rows.forEach(function(r){if(r.c.g=="primary")e+=f(r);else if(r.c.g=="additional")o+=f(r)/5*r.c.w;});return Math.round(e/35*70+o);}
  return {rows:rows,plan:tot(function(r){return r.t;}),built:tot(function(r){return r.b;}),proven:tot(function(r){return r.v;}),
@@ -58,7 +58,7 @@ function tl(l){var m={red:['#ff5c6a','<path d="M6.5 6.5l7 7M13.5 6.5l-7 7" strok
  yellow:['#ffb454','<path d="M10 7v4.5" stroke="#3a2a00" stroke-width="2.2" stroke-linecap="round"/><circle cx="10" cy="14.4" r="1.2" fill="#3a2a00"/>','<path d="M10 1.8L19 17.5H1z" fill="#ffb454" stroke="#ffb454" stroke-linejoin="round"/>'],
  green:['#39ff88','<path d="M5.5 10.5l3 3 6-6.5" stroke="#04301a" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>','<circle cx="10" cy="10" r="9" fill="#2fd374"/>'],
  na:['#7f8fb0','<path d="M6 10h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/>','<circle cx="10" cy="10" r="9" fill="#7f8fb0" fill-opacity=".5"/>']}[l];
- var t={red:"Act now",yellow:"Watch",green:"Fine",na:"Not planned"}[l];return '<span class="tl" title="'+t+'"><svg viewBox="0 0 20 20" width="20" height="20">'+m[2]+m[1]+'</svg></span>';}
+ var t={red:"Act now",yellow:"Watch",green:"Fine",na:"Not started: nothing planned or proven yet"}[l];return '<span class="tl" title="'+t+'"><svg viewBox="0 0 20 20" width="20" height="20">'+m[2]+m[1]+'</svg></span>';}
 function legendTl(){return '<div class="lg2"><span>'+tl("red")+' act now</span><span>'+tl("yellow")+' watch</span><span>'+tl("green")+' fine</span><span class="dim">The later the release, the less gap is accepted: the same gap can be green early in the plan and red near the end.</span></div>';}
 function legend(){return '<div class="leg"><span><i class="i-plan" style="border-style:solid;border-width:0 3px 0 0;border-color:var(--amber)"></i>where the plan says this release should be</span><span><i class="i-built"></i>built</span><span><i class="i-proven"></i>proven</span><span><i class="i-gap"></i>behind the plan</span></div>';}
 function bar(r){return '<div class="trk"><div class="gp" style="left:'+(r.v/5*100)+'%;width:'+(Math.max(0,r.t-r.v)/5*100)+'%"></div><div class="pl" style="width:'+(r.t/5*100)+'%"></div><div class="bt" style="width:'+(r.b/5*100)+'%"></div><div class="pv" style="width:'+(r.v/5*100)+'%"></div></div>';}

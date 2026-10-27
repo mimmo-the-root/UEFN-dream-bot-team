@@ -1609,7 +1609,7 @@ function heroT0(st, ss){
   L("progressRemaining", ss.now ? "Now: " + stepName(ss.now) : "All steps done");
   const r1 = document.getElementById("progressRing"); if (r1) r1.setAttribute("stroke-dashoffset", String(226 * (1 - ss.count / STEPS.length)));
   L("heroL2","Bugs"); L("bugPct","0"); L("bugTotals","No bugs: nothing is built yet"); L("openBugsBreakdown","The analysis comes first");
-  const r2 = document.getElementById("bugRing"); if (r2) r2.setAttribute("stroke-dashoffset","0");
+  const r2 = document.getElementById("bugRing"); if (r2) r2.setAttribute("stroke-dashoffset","226"); /* not started: grey, not a full green ring */
   L("heroL3","Release"); L("releaseStatusOverall","Not started");
   const rl = document.getElementById("releaseStatusList"); if (rl) rl.innerHTML = '<div style="font-size:11px;color:var(--dim);margin-top:4px;">Idea, spec and plan come first. The release gate is the last step.</div>';
 }
