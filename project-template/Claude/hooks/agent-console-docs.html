@@ -1203,7 +1203,7 @@ async function renderStatusTasks(){
   let rows = [];
   if (roadmap.exists){ try{ rows = parseRoadmapTasks(roadmap.content); }catch(e){ rows = []; } }
   rows = rows.filter(r => statusBucket(r.status) !== "outOfScope");
-  if (!rows.length){ empty('No tasks yet. After the plan is approved, <code>/compiti</code> fills this table: one row per task with its status.'); return; }
+  if (!rows.length){ empty('No tasks yet. After the plan is approved, <code>/task-list</code> fills this table: one row per task with its status.'); return; }
   rows.sort((a, b) => idNum(a.id) - idNum(b.id));
   el.innerHTML = head + rows.map(r => {
     const badge = statusBadgeForTask(r.status), pri = priorityPill(r.priority);
@@ -1434,17 +1434,17 @@ function jNext(st){
   if (st.t0) return {t0:true, txt:"New map: two ways to start", step:"idea", acts:[{l:"Your own game", cmd:"/spec"}, {l:"Watch the kit work, with you", cmd:"/demo"}, {l:"Watch it work alone", cmd:"/demo --auto"}]};
   if (!st.hasSpec) return A("Start from an idea", "/spec", "idea");
   if (!st.specApproved) return A(st.ideaDone ? "Finish and approve the spec" : "Write the idea and the loop", "/spec", st.ideaDone ? "spec" : "idea");
-  if (!st.consOk || !st.planExists) return A("Write the principles and the plan", "/piano", "plan");
-  if (!st.planApproved) return A("Approve the plan", "/piano", "plan");
-  if (!st.tasks.length) return A("Break the plan into tasks", "/compiti", "road");
-  if (st.envRows.length && st.envRows.some(r => r.status!=="built")) return A("Build the environment: " + st.envRows.filter(r => r.status!=="built").length + " scenery row(s) not built", "/ambiente", "env");
+  if (!st.consOk || !st.planExists) return A("Write the principles and the plan", "/game-plan", "plan");
+  if (!st.planApproved) return A("Approve the plan", "/game-plan", "plan");
+  if (!st.tasks.length) return A("Break the plan into tasks", "/task-list", "road");
+  if (st.envRows.length && st.envRows.some(r => r.status!=="built")) return A("Build the environment: " + st.envRows.filter(r => r.status!=="built").length + " scenery row(s) not built", "/environment", "env");
   const ip = st.tasks.find(t => /^in progress|^in corso/i.test(t.status||""));
   if (ip) return {txt:"In progress: " + ip.id + " " + (ip.feature||"").replace(/\s*[\[(].*$/,""), step:"build", acts:[], live:true, note:"The coder agent is on it. The Build page updates by itself when it finishes."};
   const nx = st.tasks.find(t => /^to do|^da fare/i.test(t.status||""));
   if (nx) return {txt:"Next task: " + nx.id + " " + (nx.feature||"").replace(/\s*[\[(].*$/,""), step:"build", acts:[{cmd:"Implement " + nx.id + " with the coder agent. Show me the plan first and ask before each change."}]};
   if (!st.auditExists) return A("Audit the build", "/audit", "audit");
   if (st.auditOpen) return A(st.auditOpen + " audit finding(s) open", "/audit", "audit");
-  if (!st.gateExists) return A("Prepare the delivery", "/consegna", "delivery");
+  if (!st.gateExists) return A("Prepare the delivery", "/delivery", "delivery");
   return null;
 }
 function jIdea0(st){
@@ -1475,7 +1475,7 @@ function jPlan0(st){
   const isl = jRows((/\n##\s+Island settings\s*\n([\s\S]*?)(?=\n##\s|$)/.exec(st.p)||[,""])[1]).filter(r => r[0] && !/^(setting|-+)$/i.test(r[0]) && r.join("").indexOf("<")<0);
   const bo = ["Pass 1","Pass 2","Try one sample first"].map(k => { const m = new RegExp("^-\\s*" + k + "[^:\\n]*:\\s*(.*)$","im").exec(st.p); return m ? m[1] : null; }).filter(Boolean);
   return '<div class="card" style="margin-bottom:16px;"><div class="label">Plan by story ' + (st.planApproved ? jPill("approved","jg") : jPill("to approve","ja")) + ' ' + (st.consOk ? jPill("principles approved","jg") : jPill("principles to approve","ja")) + '</div><div class="jscroll"><table class="jtab"><tr><th>Story</th><th>Devices</th><th>Assets</th><th>By hand</th></tr>' + rows + '</table></div></div>' +
-    (isl.length ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings (set by hand in UEFN Island Settings)</div><div class="jscroll"><table class="jtab"><tr><th>Setting</th><th>Value</th></tr>' + isl.map(r => '<tr><td>' + escH(r[0]) + '</td><td>' + escH(r[1]||"") + '</td></tr>').join("") + '</table></div></div>' : (/Players:\s*[2-9]/.test(st.head) ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings ' + jPill("missing","ja") + '</div><div style="margin-top:6px;color:var(--dim);">The spec has several players: <code>/piano</code> writes the Island settings table (max players, teams, respawn).</div></div>' : '')) +
+    (isl.length ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings (set by hand in UEFN Island Settings)</div><div class="jscroll"><table class="jtab"><tr><th>Setting</th><th>Value</th></tr>' + isl.map(r => '<tr><td>' + escH(r[0]) + '</td><td>' + escH(r[1]||"") + '</td></tr>').join("") + '</table></div></div>' : (/Players:\s*[2-9]/.test(st.head) ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings ' + jPill("missing","ja") + '</div><div style="margin-top:6px;color:var(--dim);">The spec has several players: <code>/game-plan</code> writes the Island settings table (max players, teams, respawn).</div></div>' : '')) +
     '<div class="card"><div class="label">Build order</div><div class="jchk">' + bo.map((b,i) => '<div><span class="jno">' + (i<2 ? i+1 : "·") + '</span>' + escH(b) + '</div>').join("") + '</div></div>';
 }
 function jGhost(real, html, hint){ return real ? html : '<div class="ghost">' + (hint ? '<div class="gh-hint">' + hint + '</div>' : '') + html + '</div>'; }
@@ -1519,7 +1519,7 @@ function jIdea(st){ const hint = '<b>Not started.</b> Two ways in, both with <co
   if (st.ideas.length) return jIdeaTabs(st) + jGhost(st.hasSpec, jIdea0(st), 'The idea you choose fills this part: genre, players and the loop in five lines.');
   return st.hasSpec ? jIdea0(st) : jGhost(false, '', hint) + jIdeaTabs(st) + jGhost(false, jIdea0(st), ''); }
 function jSpec(st){ return jGhost(st.hasSpec, jSpec0(st), 'Waiting for <code>/spec</code>. This page will show the checklist of the spec (loop, story with test, success criteria, assumptions) and the technical risks with a level.'); }
-function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/piano</code>.' : 'Waiting for the approved spec. <code>/piano</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
+function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/game-plan</code>.' : 'Waiting for the approved spec. <code>/game-plan</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
 function bucketPill(s){ const b = statusBucket(s); return b==="done" ? '<span class="jpill jgreen">Done</span>' : b==="active" ? '<span class="jpill jlive">In progress</span>' : b==="blocked" ? '<span class="jpill jred">Blocked</span>' : '<span class="jpill">To do</span>'; }
 function jEnv(st){
   const real = st.envRows.length > 0;
@@ -1529,18 +1529,18 @@ function jEnv(st){
     '<table class="jt"><tr><th>Element</th><th>Where</th><th>Status</th></tr>' + rows.map(r => { const key = "e:" + r.el, ch = prevSnap[key] !== undefined && prevSnap[key] !== r.status; prevSnap[key] = r.status;
       return '<tr class="' + (ch ? "flash" : "") + '"><td>' + escH(r.el) + '</td><td>' + escH(r.where) + '</td><td>' + (r.status==="built" ? '<span class="jpill jgreen">built</span>' : '<span class="jpill' + (live ? " jlive" : "") + '">planned</span>') + '</td></tr>'; }).join("") + '</table></div>' +
     '<div class="card"><div class="label">What only you can have ready</div><div class="jchk"><div><span class="jno">·</span>Epic Games Launcher: UEFN updated, Beta Access if the plan needs it</div><div><span class="jno">·</span>UEFN: Python scripting enabled in the editor preferences</div><div><span class="jno">·</span>UEFN: the MCP toolset is on and the project is open on the right map</div></div>' +
-    '<div style="margin-top:10px;font-size:11.5px;color:var(--dim);">The command <code>/ambiente</code> checks these, then builds the scenery row by row and marks each one <i>built</i> only after reading it back from the map.</div></div></div>';
-  return jGhost(real, html, 'No scenery planned yet. <code>/piano</code> writes the Environment table (ground, sky and light, props, sound, boundary); <code>/ambiente</code> builds it in the map.');
+    '<div style="margin-top:10px;font-size:11.5px;color:var(--dim);">The command <code>/environment</code> checks these, then builds the scenery row by row and marks each one <i>built</i> only after reading it back from the map.</div></div></div>';
+  return jGhost(real, html, 'No scenery planned yet. <code>/game-plan</code> writes the Environment table (ground, sky and light, props, sound, boundary); <code>/environment</code> builds it in the map.');
 }
 function jBuild(st){
-  const n = st.tasks.length, real = n > 0, pct = real ? Math.round(100*st.done/n) : 0, act = st.tasks.some(t => statusBucket(t.status)==="active");
+  const n = st.tasks.length, real = n > 0, pct = real ? Math.round(100*st.done/n) : 0, tm = /T-\d+/i.exec(st.demoOn && st.T && st.T.phase ? String(st.T.phase.label||"") : ""), curId = tm ? tm[0].toUpperCase() : "", /* the timer says which task is being built: shown as in progress even if the roadmap row has not been updated yet */ act = !!curId || st.tasks.some(t => statusBucket(t.status)==="active");
   const rows = real ? st.tasks : [{id:"T-001", feature:"(first task of the plan)", status:"To do"}, {id:"T-002", feature:"(next task)", status:"To do"}, {id:"T-003", feature:"(next task)", status:"To do"}];
   const html = '<div class="card"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">Build, task by task</span><span class="bigcount">' + st.done + '<span style="font-size:16px;color:var(--dim);"> / ' + n + '</span></span><span style="color:var(--dim);font-size:11.5px;">' + pct + '% done' + (act ? ' · working now' : '') + '</span></div>' +
     '<div class="jbar' + (act ? " live" : "") + '" style="margin:10px 0 12px;"><i style="width:' + pct + '%"></i></div><table class="jt"><tr><th>ID</th><th>Task</th><th>Status</th></tr>' +
     rows.map(t => { const key = "t:" + t.id, ch = prevSnap[key] !== undefined && prevSnap[key] !== t.status; prevSnap[key] = t.status;
-      return '<tr class="' + (ch ? "flash" : "") + '"><td><b>' + escH(t.id) + '</b></td><td>' + escH((t.feature||"").replace(/~~/g,"")) + '</td><td>' + bucketPill(t.status) + '</td></tr>'; }).join("") + '</table>' +
+      return '<tr class="' + (ch ? "flash" : "") + '"><td><b>' + escH(t.id) + '</b></td><td>' + escH((t.feature||"").replace(/~~/g,"")) + '</td><td>' + ((curId && String(t.id).toUpperCase()===curId && statusBucket(t.status)==="todo") ? '<span class="jpill jlive">In progress</span> <small style="color:var(--dim);">from the timer</small>' : bucketPill(t.status)) + '</td></tr>'; }).join("") + '</table>' +
     '<a href="#" onclick="openPreview(\'roadmap\');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full ROADMAP.md →</a></div>';
-  return jGhost(real, html, 'No tasks yet. <code>/compiti</code> breaks the approved plan into tasks; the build then runs here, one task at a time, and each row lights up when it changes.');
+  return jGhost(real, html, 'No tasks yet. <code>/task-list</code> breaks the approved plan into tasks; the build then runs here, one task at a time, and each row lights up when it changes.');
 }
 function jAudit(st){
   const ok = st.auditExists, sc = /-\s*Scan:\s*(.*)/i.exec(st.gate);
@@ -1557,7 +1557,7 @@ function jDelivery(st){
     '<div class="jchk">' + (lines.length ? lines.map(l => { const d = /\[[xX]\]/.test(l); return '<div><span class="' + (d ? "jok" : "jno") + '">' + (d ? "✓" : "☐") + '</span>' + escH(l.replace(/^- \[[ xX]\]\s*/, "")) + '</div>'; }).join("") :
       '<div><span class="jno">·</span>Private release and Publishing Validation</div><div><span class="jno">·</span>Memory check with your flags</div><div><span class="jno">·</span>Playtest with the real number of players</div>') + '</div>' +
     '<a href="#" onclick="openPreview(\'delivery\');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open DELIVERY-GATE.md →</a><div style="font-size:11.5px;color:var(--dim);margin-top:6px;">Claude never ticks a box: the private release and the publish are yours.</div></div>';
-  return jGhost(ok, html, 'Not started. <code>/consegna</code> writes the list of what only you can do, then <code>/ambiente --playtest</code> writes the playtest checklist.');
+  return jGhost(ok, html, 'Not started. <code>/delivery</code> writes the list of what only you can do, then <code>/environment --playtest</code> writes the playtest checklist.');
 }
 function t0Act(c, note){ return '<div class="act"><span class="cmd">' + escH(c) + '</span><button class="btn" type="button" data-cmd="' + escH(c) + '">Copy text</button></div>' + (note ? '<div class="why">' + escH(note) + '</div>' : ''); }
 function t0Boxes(){
@@ -1599,7 +1599,7 @@ async function renderJourney(){
     lastSt = st; paintIdea(); document.getElementById("pSpec").innerHTML = jSpec(st); document.getElementById("pPlan").innerHTML = jPlan(st);
     document.getElementById("pEnv").innerHTML = jEnv(st); document.getElementById("pBuild").innerHTML = jBuild(st);
     document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st);
-    const rh = document.getElementById("roadHint"); if (rh) rh.innerHTML = st.tasks.length ? "" : '<div class="ghost"><div class="gh-hint">No tasks yet. <code>/compiti</code> breaks the approved plan into tasks with a check for each one: the timeline and the list below fill in by themselves.</div></div>';
+    const rh = document.getElementById("roadHint"); if (rh) rh.innerHTML = st.tasks.length ? "" : '<div class="ghost"><div class="gh-hint">No tasks yet. <code>/task-list</code> breaks the approved plan into tasks with a check for each one: the timeline and the list below fill in by themselves.</div></div>';
     const s0 = document.getElementById("statusT0"), sm = document.getElementById("statusMain"), dc = document.getElementById("deliveryCard");
     if (s0){ s0.innerHTML = ""; bindCopy(s0); } if (sm) sm.style.display = st.t0 ? "none" : ""; if (dc) dc.style.display = st.t0 ? "none" : "";
     const box = document.getElementById("nextAction");
@@ -1640,7 +1640,7 @@ async function renderDelivery(){
       const mem = /Memory used:\s*(\d+)\s*%/i.exec(d.content);
       out.push("Gate: " + done + "/" + all + " lines ticked by the owner" + (mem ? " · memory " + mem[1] + "%" : " · memory not written yet") + (all && done===all && mem ? " — ready for the private release" : ""));
       const sc = /-\s*Scan:\s*(.*)/i.exec(d.content); out.push("Compliance scan: " + (sc && sc[1].trim() ? escH(sc[1].trim()) : "not run (run /audit)"));
-    } else out.push("Gate: not started — <code>/consegna</code> writes the list of what only the owner can do.");
+    } else out.push("Gate: not started — <code>/delivery</code> writes the list of what only the owner can do.");
     out.push("Manual steps: open DELIVERY-GATE.md — Claude never ticks a box, you do.");
     el.innerHTML = out.map(x => "<div>" + x + "</div>").join("");
   } catch(e){ el.textContent = "Could not read the delivery files."; }
@@ -1759,8 +1759,8 @@ setInterval(refreshDocs, 5000);
   var main=!!document.getElementById("sessionTimer"), ownStrip=!!document.getElementById("islandTitle");
   var CMDS={"agent-console.html":[["/spec","start a game from an idea"],["/demo","watch the whole flow work"],["/kit-doctor","check the kit"]],
     "agent-console-skills.html":[["/learn-map","learn now from this map"]],"agent-console-news.html":[["/kit-update","update the kit now"]],
-    "agent-console-fab.html":[["/fab-check","check the product against Fab"]],"agent-console-score.html":[["/audit","check the build"],["/consegna","prepare the delivery"]],
-    "agent-console-flow.html":[["/handoff","write a hand-over for a fresh session"]],"agent-console-stats.html":[["/consegna","before the private release"]]};
+    "agent-console-fab.html":[["/fab-check","check the product against Fab"]],"agent-console-score.html":[["/audit","check the build"],["/delivery","prepare the delivery"]],
+    "agent-console-flow.html":[["/handoff","write a hand-over for a fresh session"]],"agent-console-stats.html":[["/delivery","before the private release"]]};
   var here=(location.pathname.split("/").pop()||"agent-console.html"), cl=CMDS[here]||[];
   var cmdHtml=cl.length?'<span class="kh-cmds">Commands here: '+cl.map(function(c){return '<code title="click to copy" data-kc="'+esc(c[0])+'">'+esc(c[0])+'</code> '+esc(c[1]);}).join(" · ")+' · <a href="/manual/commands.html">all commands</a></span>':"";
   var box=document.createElement("div"); box.id="kitHead";
