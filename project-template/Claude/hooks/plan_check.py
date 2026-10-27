@@ -67,6 +67,16 @@ def island_settings(plan):
     return out
 
 
+def environment_rows(plan):
+    m = re.search(r"(?ms)^##\s+Environment\s*$(.*?)(?=^##\s|\Z)", plan or "")
+    out = []
+    for l in (m.group(1) if m else "").splitlines():
+        c = [x.strip() for x in l.strip().strip("|").split("|")]
+        if l.strip().startswith("|") and len(c) >= 3 and c[2].lower() in ("planned", "built") and "<" not in l:
+            out.append((c[0], c[1], c[2].lower()))
+    return out
+
+
 def table_rows(text, heading):
     m = re.search(r"###\s+%s\s*\n(.*?)(?=\n###|\n##|\Z)" % re.escape(heading), text, re.S)
     if not m:
@@ -137,6 +147,8 @@ def check(d, stage="all", today=None):
         add("HIGH", "PLAN.md still has template placeholders")
     secs = plan_sections(plan)
     isl = island_settings(plan)
+    if not environment_rows(plan):
+        add("MEDIUM", "PLAN.md: no Environment table (ground, sky and light, props, sound, boundary): the scenery is part of the game and is built in the Environment step")
     pm = re.search(r"\d+", spec_check.field(spec, "Players") or "")
     if not isl:
         add("HIGH", "PLAN.md: no Island settings table (max players, teams, round, respawn): they are set by hand in UEFN Island Settings")

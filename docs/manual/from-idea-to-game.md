@@ -42,7 +42,7 @@ Only with an approved spec (`python spec_check.py --gate`). It writes the **cons
 
 ## Step 6 and 7: `/ambiente` and the playtest
 
-`/ambiente` reads the plan and tells you, without touching anything, which assets are still to import or create and what only you can do (Beta Access, Python scripting, the MCP toolset). A Lore checkpoint is saved before the first playtest. `/ambiente --playtest` writes `PLAYTEST.md` from the spec: per story what you expect and what you observe, per success criterion a box. A failed row becomes a regression task; a small bug follows the Self-healing block.
+`/ambiente` reads the plan and tells you, without touching anything, which assets are still to import or create and what only you can do (Beta Access, Python scripting, the MCP toolset). The scenery of the map (the `## Environment` table of the plan: ground, sky and light, props, sound, boundary) is part of the game: after the readout it is built in the map row by row and each row is marked `built` only after reading it back. A Lore checkpoint is saved before the first playtest. `/ambiente --playtest` writes `PLAYTEST.md` from the spec: per story what you expect and what you observe, per success criterion a box. A failed row becomes a regression task; a small bug follows the Self-healing block.
 
 ## Players and Island settings
 

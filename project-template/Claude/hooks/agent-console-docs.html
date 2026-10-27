@@ -193,6 +193,63 @@ body{background-image:
   repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);}
 main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
 </style>
+<style>
+/* v1.114: workflow arrows, live dots, demo clock beside the arrows, ghost (empty) sections, small energy effects. CSS only, switched off for reduced motion. */
+@keyframes jshim{0%{background-position:0 0}100%{background-position:220% 0}}
+@keyframes jdp{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.75),0 0 6px 1px currentColor}50%{box-shadow:0 0 0 6px rgba(255,255,255,0),0 0 12px 3px currentColor}}
+@keyframes jglow{0%,100%{text-shadow:0 0 8px rgba(57,255,136,.35)}50%{text-shadow:0 0 18px rgba(57,255,136,.9)}}
+@keyframes jbreathe{0%,100%{box-shadow:0 0 0 1px rgba(255,180,84,.22),0 0 12px rgba(255,180,84,.08)}50%{box-shadow:0 0 0 1px rgba(255,180,84,.5),0 0 22px rgba(255,180,84,.22)}}
+@keyframes jsweep{0%{background-position:-60% 0}100%{background-position:160% 0}}
+@keyframes jflash{0%{background:rgba(75,216,255,.38);box-shadow:inset 3px 0 0 var(--cyan)}100%{background:transparent;box-shadow:inset 3px 0 0 transparent}}
+@keyframes jstripe{0%{background-position:0 0}100%{background-position:28px 0}}
+@keyframes jdrop{0%,100%{filter:drop-shadow(0 0 3px rgba(255,180,84,.55))}50%{filter:drop-shadow(0 0 11px rgba(255,180,84,.95))}}
+.flowrow{display:flex;gap:10px 18px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:0 0 10px;}
+.flowrow.run::after{content:"";flex-basis:100%;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--cyan),var(--green),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:jsweep 2.4s linear infinite;}
+.stp{display:flex;flex-wrap:nowrap;overflow-x:auto;padding:4px 4px 8px;flex:1 1 620px;min-width:0;}
+.stw{flex:none;margin-left:-9px;}.stw.f{margin-left:0;}
+.stw.now{animation:jdrop 1.8s ease-in-out infinite;z-index:2;position:relative;}
+.stp-b{position:relative;font:inherit;font-size:11.5px;color:var(--dim);background:var(--panel2);border:0;cursor:pointer;display:flex;align-items:center;gap:7px;padding:11px 24px 11px 28px;white-space:nowrap;clip-path:polygon(0 0,calc(100% - 15px) 0,100% 50%,calc(100% - 15px) 100%,0 100%,15px 50%);transition:filter .2s,background .4s,color .3s;}
+.stw.f .stp-b{padding-left:18px;clip-path:polygon(0 0,calc(100% - 15px) 0,100% 50%,calc(100% - 15px) 100%,0 100%);}
+.stp-b:hover{filter:brightness(1.3);color:var(--text);}
+.stp-b:focus-visible{outline:2px solid var(--blue);outline-offset:-2px;}
+.stp-b.on::after{content:"";position:absolute;left:22px;right:22px;bottom:0;height:3px;border-radius:2px;background:var(--blue);}
+.stp-b.done{background:var(--green);color:#04210f;font-weight:700;}
+.stp-b.now{background:linear-gradient(100deg,#c97b00 0%,var(--amber) 35%,#ffd98a 50%,var(--amber) 65%,#c97b00 100%);background-size:220% 100%;animation:jshim 2.6s linear infinite;color:#1a1000;font-weight:700;}
+.stp-b .stp-n{font-size:9.5px;opacity:.7;border:1px solid currentColor;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+.stp-b .jd{color:currentColor;background:currentColor;}.stp-b .jd.todo{background:transparent;border:1px solid currentColor;}
+.stp-b .jd.now{animation:jdp 1.3s ease-in-out infinite;}
+.stp-b.done .jd{box-shadow:0 0 6px rgba(4,33,15,.5);}
+.stp-b .cnt{font-size:10px;opacity:.8;}
+.pt .tab .jd.now{animation:jdp 1.3s ease-in-out infinite;color:var(--amber);}
+.demobox{border:1px solid var(--line);border-radius:10px;padding:8px 14px;background:var(--panel);text-align:right;min-width:178px;flex:none;}
+.demobox .dl{font-size:9.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--dim);}
+.demobox #demoClock{display:block;font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1;color:var(--green);}
+.demobox.run{border-color:rgba(57,255,136,.5);}.demobox.run #demoClock{animation:jglow 2s ease-in-out infinite;}
+.demobox .dp{font-size:11px;color:var(--dim);margin-top:2px;}.demobox #demoPhaseClock{color:var(--text);font-variant-numeric:tabular-nums;}
+.demobox #demoClockInfo{font-size:10px;color:var(--dim);}
+.nx{animation:jbreathe 3.4s ease-in-out infinite;}
+.nx .acts{display:flex;gap:8px 14px;align-items:center;flex-wrap:wrap;}
+.nx .act{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.nx .act small{font-size:10px;color:var(--dim);}
+.nx.live{border-color:var(--cyan);animation:none;box-shadow:0 0 18px rgba(75,216,255,.2);}.nx.live b{color:var(--cyan);}
+.ghost>.card{opacity:.6;border-style:dashed;}
+.ghost .gh-hint{border:1px dashed var(--line-soft);border-radius:8px;padding:9px 12px;margin:0 0 12px;color:var(--amber);font-size:12px;line-height:1.5;}
+.ghost .gh-hint code,.nx code,.t0card code{color:var(--blue);}
+.jbar{position:relative;}
+.jbar.live i{background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.28) 0 7px,transparent 7px 14px);background-size:28px 100%;animation:jstripe .9s linear infinite;}
+tr.flash td{animation:jflash 2.2s ease-out 1;}
+.jt td,.jt th{padding:6px 8px;border-bottom:1px solid var(--line-soft);text-align:left;font-size:11.5px;vertical-align:top;}.jt th{color:var(--dim);font-weight:400;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;}
+.jt{width:100%;border-collapse:collapse;}
+.jpill.jgreen{color:var(--green);border-color:rgba(57,255,136,.5);}.jpill.jamber{color:var(--amber);border-color:rgba(255,180,84,.5);}.jpill.jred{color:var(--red);border-color:rgba(255,77,94,.5);}
+.jpill.jlive{color:var(--amber);border-color:var(--amber);animation:jdp 1.3s ease-in-out infinite;}
+.bigcount{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--green);}
+.t0card{border-color:var(--amber);}
+.t0card .acts{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+.t0card .act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.t0card .cmd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);}
+.t0card .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
+@media (prefers-reduced-motion:reduce){.stw.now,.stp-b.now,.jd.now,.nx,.flowrow.run::after,.demobox.run #demoClock,.jbar.live i,.jpill.jlive,tr.flash td{animation:none!important;}}
+</style>
 </head>
 <body>
 
@@ -228,7 +285,7 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
           <text id="progressPct" x="43" y="49" text-anchor="middle" font-size="18" fill="var(--text)" font-weight="700">–</text>
         </svg>
         <div>
-          <div class="label">Roadmap progress</div>
+          <div class="label" id="heroL1">Roadmap progress</div>
           <div style="font-size:13px;margin-top:4px;" id="progressTasks">loading…</div>
           <div style="font-size:11px;color:var(--dim);margin-top:2px;" id="progressRemaining"></div>
         </div>
@@ -241,13 +298,13 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
           <text id="bugPct" x="43" y="49" text-anchor="middle" font-size="18" fill="var(--text)" font-weight="700">–</text>
         </svg>
         <div>
-          <div class="label">Bug fixing progress</div>
+          <div class="label" id="heroL2">Bug fixing progress</div>
           <div style="font-size:13px;margin-top:4px;" id="bugTotals">loading…</div>
           <div style="font-size:11px;color:var(--dim);margin-top:2px;" id="openBugsBreakdown"></div>
         </div>
       </div>
       <div class="card">
-        <div class="label">Release status</div>
+        <div class="label" id="heroL3">Release status</div>
         <div style="font-size:13px;margin-top:4px;" id="releaseStatusOverall">loading…</div>
         <div class="relwrap" id="releaseStatusList"></div>
       </div>
@@ -255,11 +312,17 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
 
     <!-- v1.114: next action + one row of tabs. The blocks below keep their ids and their renderers; they are only grouped into panels. -->
     <div class="card nx" id="nextAction" style="display:none;"></div>
+    <div class="flowrow" id="flowRow"><div class="stp" id="pageSteps" role="tablist" aria-label="Workflow"></div><div class="demobox" id="demoBox" style="display:none;"><div class="dl">Demo · total</div><b id="demoClock">--:--:--</b><div class="dp"><span id="demoPhase"></span> <b id="demoPhaseClock"></b></div><div id="demoClockInfo"></div></div></div>
     <div class="pt" id="pageTabs" role="tablist"></div>
     <div class="pp" data-p="idea" id="pIdea"></div>
     <div class="pp" data-p="spec" id="pSpec"></div>
     <div class="pp" data-p="plan" id="pPlan"></div>
+    <div class="pp" data-p="env" id="pEnv"></div>
+    <div class="pp" data-p="build" id="pBuild"></div>
+    <div class="pp" data-p="audit" id="pAudit"></div>
+    <div class="pp" data-p="delivery" id="pDelivery"></div>
     <div class="pp" data-p="road">
+    <div id="roadHint"></div>
     <!-- PHASES (from ROADMAP.md "## Phases"): hidden when the project has no such section yet -->
     <div id="phasesBox" style="display:none;margin-bottom:18px;">
       <div class="label" style="margin-bottom:8px;">Phases</div>
@@ -303,9 +366,10 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
       </div>
     </div>
     <div class="pp" data-p="status">
+    <div id="statusT0"></div>
     <!-- RECENT STATUS: task/bug priorities + owner-action items, not raw STATUS.md lines
          (v1.80.0 — was a plain STATUS.md "Current state" excerpt) -->
-    <div class="card" style="margin-bottom:22px;">
+    <div class="card" id="statusMain" style="margin-bottom:22px;">
       <div class="label" style="margin-bottom:8px;">Recent status — priorities and owner actions</div>
       <div style="font-size:12.5px;color:var(--dim);line-height:1.8;" id="recentStatus">loading…</div>
       <a href="#" onclick="openPreview('status');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full STATUS.md →</a>
@@ -333,8 +397,7 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
         <button class="btn" data-cmd="/demo --auto" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --auto</button>
         <span style="font-size:11px;color:var(--muted);">automatic: no questions, starts and finishes by itself</span>
       </div>
-      <div style="margin-top:12px;"><div class="label" style="margin:0 0 2px;">Demo timer · total</div><b id="demoClock" style="font-size:30px;font-variant-numeric:tabular-nums;line-height:1.1;">--:--:--</b><div style="font-size:12px;color:var(--muted);margin-top:4px;"><span id="demoPhase">no phase running</span> <b id="demoPhaseClock" style="font-variant-numeric:tabular-nums;color:var(--fg,#ddd);"></b></div><div id="demoClockInfo" style="font-size:11px;color:var(--muted);">not started</div></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px;">How: create a new empty UEFN project just for tests (Claude Code opened in its folder, kit installed), paste the command in its chat. Want it again? Just run it again: the files of the previous demo are moved to <code>_to_delete</code> (you clean them from the What&#39;s new page). Laps: <a href="#" onclick="openPreview('demotimer');return false;" style="color:var(--blue);">DEMO-TIMER.md</a>.</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:8px;">How: create a new empty UEFN project just for tests (Claude Code opened in its folder, kit installed), paste the command in its chat. Want it again? Just run it again: the files of the previous demo are moved to <code>_to_delete</code> (you clean them from the What&#39;s new page). Laps: <a href="#" onclick="openPreview('demotimer');return false;" style="color:var(--blue);">DEMO-TIMER.md</a>.</div>
     </div>
     <div class="label" style="margin-bottom:8px;">Documentation — click to open in readable form</div>
     <div class="docs-grid" id="docsGrid">
@@ -789,10 +852,13 @@ function groupByRelease(rows){
   return keyed.map(o => ({ name: o.name, rows: groups[o.name] }));
 }
 
+(function(){ const ex = x => /\(example\b/i.test(Object.keys(x).map(k => x[k]).join(" "));
+  const a = parseRoadmapTasks, b = parseBugsBacklog; parseRoadmapTasks = raw => a(raw).filter(x => !ex(x)); parseBugsBacklog = raw => b(raw).filter(x => !ex(x)); })();
 async function renderHero(){
   const [roadmap, bugs, status] = await Promise.all([fetchDoc('roadmap'), fetchDoc('bugs'), fetchDoc('status')]);
   try{
   renderHeroInner(roadmap, bugs, status);
+  try{ const js = await jState(); heroT0(js, jSteps(js)); }catch(e2){}
   } catch(e){
     // v1.79.3 fix: same "fetch succeeded, synchronous parse threw" gap as loadRecentStatus — a
     // real 150KB+ ROADMAP.md/BUGS.md is not guaranteed to match the parser's assumed table shape,
@@ -1239,9 +1305,13 @@ async function markMissingDocs(){
 }
 
 
-// v1.114: the first phase of a project. Idea, Spec and Plan read GAME-SPEC.md, CONSTITUTION.md and PLAN.md (the same rules as spec_check.py and plan_check.py, shown, not enforced here).
-const JT = [["idea","Idea"],["spec","Spec"],["plan","Plan"],null,["road","Roadmap"],["bugs","Bugs"],["status","Status"],["docs","Documents"]];
-let curTab = null;
+// v1.114: the workflow as arrows. Idea, Spec, Plan, Tasks, Environment, Build, Audit and Delivery read the real files (GAME-SPEC, PLAN, ROADMAP, AUDIT, DELIVERY-GATE) and, while the demo runs, the stopwatch file.
+const STEPS = [["idea","Idea"],["spec","Spec"],["plan","Plan"],["road","Tasks"],["env","Environment"],["build","Build"],["audit","Audit"],["delivery","Delivery"]];
+const SECOND = [["bugs","Bugs"],["status","Status"],["docs","Documents"]];
+const PHASE_KEY = {idea:"idea",spec:"spec",plan:"plan",constitution:"plan",tasks:"road",compiti:"road",environment:"env",ambiente:"env",build:"build",audit:"audit",delivery:"delivery",consegna:"delivery",playtest:"delivery"};
+function phaseStep(l){ const w = String(l||"").toLowerCase().match(/[a-z]+/); return w ? (PHASE_KEY[w[0]] || null) : null; }
+function stepName(k){ const s = STEPS.find(x => x[0]===k); return s ? s[1] : (k||""); }
+let curTab = null, lastNow = null, prevSnap = {};
 function jSecs(raw){
   const out = {}; let cur = null;
   String(raw||"").replace(/\r\n/g,"\n").split("\n").forEach(l => {
@@ -1256,7 +1326,7 @@ function jPh(v){ return !v || /^</.test(String(v).trim()); }
 function jRows(txt){ return String(txt||"").split("\n").filter(l => /^\|/.test(l.trim()) && !/^\|\s*(-|Risk|Device|Asset)/i.test(l.trim())).map(l => l.trim().replace(/^\||\|$/g,"").split("|").map(c => c.trim())); }
 function jPill(t, c){ return '<span class="jpill ' + (c||"") + '">' + escH(t) + '</span>'; }
 async function jState(){
-  const [g, p, c, r] = await Promise.all(["gamespec","plan","constitution","roadmap"].map(fetchDoc));
+  const [g, p, c, r, au, dl, tm] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer"].map(fetchDoc));
   const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
   const tasks = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
   st.tasks = tasks; st.done = tasks.filter(t => /^(done|fatto)/i.test(t.status||"")).length;
@@ -1268,19 +1338,48 @@ async function jState(){
   st.planExists = !!st.p && /##\s+S\d+/.test(st.p);
   st.planApproved = st.planExists && /-\s*Approved:\s*yes/i.test(st.p);
   st.consOk = !!st.c && /-\s*Approved:\s*yes/i.test(st.c);
+  st.envRows = jRows(jSecs(st.p)["environment"]||"").filter(x => /^(planned|built)$/i.test(x[2]||"") && x.join("").indexOf("<")<0).map(x => ({el:x[0], where:x[1], status:x[2].toLowerCase()}));
+  st.T = null; try{ const m = /<!-- data:(.*?) -->/.exec(tm.content||""); if (m) st.T = JSON.parse(m[1]); }catch(e){ st.T = null; }
+  st.demoOn = !!(st.T && !st.T.end);
+  st.auditExists = !!(au.exists && !au.error); st.audit = st.auditExists ? au.content : "";
+  st.auditOpen = (st.audit.match(/^\|\s*\d+\s*\|\s*(minor|medium|major)\s*\|.*\|\s*(open|for the owner)\s*\|\s*$/gim)||[]).length;
+  st.gateExists = !!(dl.exists && !dl.error); st.gate = st.gateExists ? dl.content : "";
+  st.gateAll = (st.gate.match(/- \[[ xX]\]/g)||[]).length; st.gateDone = (st.gate.match(/- \[[xX]\]/g)||[]).length;
+  st.t0 = !st.hasSpec && !tasks.length;
   return st;
 }
-function jNext(st){
-  if (!st.hasSpec) return st.tasks.length ? null : {txt:"Start from an idea", cmd:"/spec", step:"idea"};
-  if (!st.specApproved) return {txt: st.ideaDone ? "Finish and approve the spec" : "Write the idea and the loop", cmd:"/spec", step:st.ideaDone ? "spec" : "idea"};
-  if (!st.consOk || !st.planExists) return {txt:"Write the principles and the plan", cmd:"/piano", step:"plan"};
-  if (!st.planApproved) return {txt:"Approve the plan", cmd:"/piano", step:"plan"};
-  if (!st.tasks.length) return {txt:"Break the plan into tasks", cmd:"/compiti", step:"road"};
-  const nx = st.tasks.find(t => /^to do|^da fare/i.test(t.status||""));
-  return nx ? {txt:"Next task: " + nx.id + " " + (nx.feature||"").replace(/\s*[\[(].*$/,""), cmd:"Implement " + nx.id + " with the coder agent. Show me the plan first and ask before each change.", step:"road"} : null;
+function jSteps(st){
+  const T = st.T;
+  const fileDone = {idea: st.ideaDone, spec: st.specApproved, plan: st.planApproved, road: st.tasks.length>0, env: st.envRows.length>0 && st.envRows.every(r => r.status==="built"),
+    build: st.tasks.length>0 && st.done===st.tasks.length, audit: st.auditExists && st.auditOpen===0, delivery: st.gateExists && st.gateAll>0 && st.gateDone===st.gateAll};
+  const marked = {}; if (T) (T.marks||[]).forEach(m => { const k = phaseStep(m.label); if (k) marked[k] = 1; });
+  const pk = st.demoOn && T.phase ? phaseStep(T.phase.label) : null;
+  const done = {}; STEPS.forEach(s => done[s[0]] = !!(fileDone[s[0]] || marked[s[0]] || (T && T.end)));
+  let now = pk;
+  if (!now && !(T && T.end)){ const f = STEPS.find(s => !done[s[0]]); now = f ? f[0] : null; }
+  const state = {}; STEPS.forEach(s => state[s[0]] = s[0]===now ? "now" : (done[s[0]] ? "done" : "todo"));
+  return {state, now, count: STEPS.filter(s => state[s[0]]==="done").length};
 }
-function jIdea(st){
-  if (!st.hasSpec) return '<div class="card"><div class="label">Idea</div><div style="margin-top:6px;color:var(--dim);">Not started. Run <code>/spec</code>: it takes an idea (yours or three proposed), asks the minimum and writes <code>GAME-SPEC.md</code>.</div></div>';
+function jNext(st){
+  const A = (txt, cmd, step) => ({txt, step, acts:[{cmd}]});
+  if (st.demoOn){ const k = st.T.phase ? phaseStep(st.T.phase.label) : null; return {txt:"Demo running" + (k ? ": " + stepName(k) : ""), step:k, acts:[], live:true, note:"Claude Code is working. Nothing to do here: this page follows it by itself and opens each step when the one before is finished."}; }
+  if (st.t0) return {t0:true, txt:"New map: two ways to start", step:"idea", acts:[{l:"Your own game", cmd:"/spec"}, {l:"Watch the kit work, with you", cmd:"/demo"}, {l:"Watch it work alone", cmd:"/demo --auto"}]};
+  if (!st.hasSpec) return A("Start from an idea", "/spec", "idea");
+  if (!st.specApproved) return A(st.ideaDone ? "Finish and approve the spec" : "Write the idea and the loop", "/spec", st.ideaDone ? "spec" : "idea");
+  if (!st.consOk || !st.planExists) return A("Write the principles and the plan", "/piano", "plan");
+  if (!st.planApproved) return A("Approve the plan", "/piano", "plan");
+  if (!st.tasks.length) return A("Break the plan into tasks", "/compiti", "road");
+  if (st.envRows.length && st.envRows.some(r => r.status!=="built")) return A("Build the environment: " + st.envRows.filter(r => r.status!=="built").length + " scenery row(s) not built", "/ambiente", "env");
+  const ip = st.tasks.find(t => /^in progress|^in corso/i.test(t.status||""));
+  if (ip) return {txt:"In progress: " + ip.id + " " + (ip.feature||"").replace(/\s*[\[(].*$/,""), step:"build", acts:[], live:true, note:"The coder agent is on it. The Build page updates by itself when it finishes."};
+  const nx = st.tasks.find(t => /^to do|^da fare/i.test(t.status||""));
+  if (nx) return {txt:"Next task: " + nx.id + " " + (nx.feature||"").replace(/\s*[\[(].*$/,""), step:"build", acts:[{cmd:"Implement " + nx.id + " with the coder agent. Show me the plan first and ask before each change."}]};
+  if (!st.auditExists) return A("Audit the build", "/audit", "audit");
+  if (st.auditOpen) return A(st.auditOpen + " audit finding(s) open", "/audit", "audit");
+  if (!st.gateExists) return A("Prepare the delivery", "/consegna", "delivery");
+  return null;
+}
+function jIdea0(st){
   const s = st.s, loop = s["loop (mvp)"]||"";
   const sc = jFld(s["score and approval"], "Score"), m = /^(\d+)\s*\/\s*100/.exec(sc), n = m ? +m[1] : null;
   const forced = /^y/i.test(jFld(s["score and approval"], "Forced"));
@@ -1290,8 +1389,7 @@ function jIdea(st){
     '<div class="label" style="margin-top:14px;">Loop (MVP)</div><dl class="jloop">' + ["Action","Rule","Reward","End","Replay"].map(k => '<dt>' + k + '</dt><dd>' + escH(jPh(jFld(loop,k)) ? "-" : jFld(loop,k)) + '</dd>').join("") + '</dl></div>' +
     '<div class="jstack"><div class="card"><div class="label">Score of the idea</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;"><span style="font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;">' + (n===null ? "-" : n) + '</span><span style="color:var(--dim);">of 100</span><div class="jbar"><i style="width:' + (n||0) + '%"></i><u style="left:60%" title="threshold 60"></u></div></div><div style="font-size:11px;color:var(--dim);margin-top:6px;">Threshold 60' + (n!==null && n<60 ? (forced ? " · forced by you" : " · below: raise it or force") : "") + '</div></div></div></div>';
 }
-function jSpec(st){
-  if (!st.hasSpec) return '<div class="card"><div class="label">Spec</div><div style="margin-top:6px;color:var(--dim);">No <code>GAME-SPEC.md</code> yet. Run <code>/spec</code>.</div></div>';
+function jSpec0(st){
   const s = st.s, stories = s["stories"]||"", p1 = /###\s+[^\n]*\(P1\)([\s\S]*?)(?=\n###|$)/.exec(stories);
   const sc = (s["success criteria"]||"").split("\n").filter(l => /^[-*]\s*SC-\d+\s*:\s*\S/.test(l) && l.indexOf("<")<0).length;
   const ass = (s["assumptions"]||"").split("\n").filter(l => /^[-*]/.test(l.trim()) && l.indexOf("<")<0).length;
@@ -1302,8 +1400,7 @@ function jSpec(st){
   return '<div class="jgrid"><div class="card"><div class="label">Spec checklist ' + (st.specApproved ? jPill("approved","jg") : jPill("to approve","ja")) + '</div><div class="jchk">' + checks.map(c => '<div><span class="' + (c[1]?"jok":"jno") + '">' + (c[1]?"✓":"!") + '</span>' + escH(c[0]) + '</div>').join("") + '</div></div>' +
     '<div class="card"><div class="label">Technical risks</div><div class="jscroll"><table class="jtab"><tr><th>#</th><th>Risk</th><th>Level</th></tr>' + (risks.length ? risks.map((r,i) => '<tr><td>R' + (i+1) + '</td><td>' + escH(r[0]) + '</td><td>' + jPill(r[1].toLowerCase(), lv[r[1].toLowerCase()]) + '</td></tr>').join("") : '<tr><td colspan="3" style="color:var(--dim);">none written yet</td></tr>') + '</table></div></div></div>';
 }
-function jPlan(st){
-  if (!st.planExists) return '<div class="card"><div class="label">Plan</div><div style="margin-top:6px;color:var(--dim);">No plan yet. ' + (st.hasSpec && st.specApproved ? 'Run <code>/piano</code>.' : 'It starts after the spec is approved.') + '</div></div>';
+function jPlan0(st){
   const parts = st.p.split(/\n##\s+(?=S\d+\b)/).slice(1).map(x => x.replace(/\n##\s+(?!S\d)[\s\S]*$/, ""));
   const rows = parts.map(x => { const t = /^(S\d+)\s*-\s*(.*)/.exec(x) || [,"S","" ]; const dev = jRows((/###\s+Devices\s*\n([\s\S]*?)(?=\n###|$)/.exec(x)||[,""])[1]).filter(r => /^(recipe|skill|explore)$/i.test(r[1]||"")); const as = jRows((/###\s+Assets inventory\s*\n([\s\S]*?)(?=\n###|$)/.exec(x)||[,""])[1]).filter(r => /^(present|import|create)$/i.test(r[1]||"")); const man = /###\s+Manual steps[^\n]*\n([\s\S]*?)(?=\n###|$)/.exec(x); return '<tr><td><b>' + t[1] + '</b> ' + escH(t[2]) + '</td><td>' + dev.length + (dev.some(r => /explore/i.test(r[1])) ? " (to explore)" : "") + '</td><td>' + as.length + '</td><td>' + (man && /\S/.test(man[1]) ? "yes" : "none") + '</td></tr>'; }).join("");
   const isl = jRows((/\n##\s+Island settings\s*\n([\s\S]*?)(?=\n##\s|$)/.exec(st.p)||[,""])[1]).filter(r => r[0] && !/^(setting|-+)$/i.test(r[0]) && r.join("").indexOf("<")<0);
@@ -1312,28 +1409,101 @@ function jPlan(st){
     (isl.length ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings (set by hand in UEFN Island Settings)</div><div class="jscroll"><table class="jtab"><tr><th>Setting</th><th>Value</th></tr>' + isl.map(r => '<tr><td>' + escH(r[0]) + '</td><td>' + escH(r[1]||"") + '</td></tr>').join("") + '</table></div></div>' : (/Players:\s*[2-9]/.test(st.head) ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings ' + jPill("missing","ja") + '</div><div style="margin-top:6px;color:var(--dim);">The spec has several players: <code>/piano</code> writes the Island settings table (max players, teams, respawn).</div></div>' : '')) +
     '<div class="card"><div class="label">Build order</div><div class="jchk">' + bo.map((b,i) => '<div><span class="jno">' + (i<2 ? i+1 : "·") + '</span>' + escH(b) + '</div>').join("") + '</div></div>';
 }
-function jTabs(st, next){
-  const showJ = st.hasSpec || !st.tasks.length;
-  const state = {idea: st.ideaDone ? "done" : (next && next.step==="idea" ? "now" : "todo"), spec: st.specApproved ? "done" : (next && next.step==="spec" ? "now" : "todo"), plan: st.planApproved ? "done" : (next && next.step==="plan" ? "now" : "todo")};
-  document.getElementById("pageTabs").innerHTML = JT.filter(t => showJ || !t || ["road","bugs","status","docs"].indexOf(t[0])>=0).map(t => {
-    if (!t) return showJ ? '<span class="sep"></span>' : "";
-    return '<button class="tab' + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '">' + (state[t[0]] ? '<span class="jd ' + state[t[0]] + '"></span>' : "") + t[1] + (t[0]==="road" && st.tasks.length ? ' <span class="cnt">' + st.done + '/' + st.tasks.length + '</span>' : "") + '</button>';
-  }).join("");
-  Array.prototype.forEach.call(document.querySelectorAll("#pageTabs .tab"), b => { b.onclick = () => { curTab = b.getAttribute("data-t"); try{ localStorage.setItem("docsTab", curTab); }catch(e){} jShow(); }; });
-  document.querySelectorAll(".pp").forEach(e => e.classList.toggle("on", e.getAttribute("data-p")===curTab));
+function jGhost(real, html, hint){ return real ? html : '<div class="ghost"><div class="gh-hint">' + hint + '</div>' + html + '</div>'; }
+function jIdea(st){ return jGhost(st.hasSpec, jIdea0(st), 'Not started. Run <code>/spec</code> (or a demo): it takes an idea, asks the minimum and fills this page: the idea, the genre, the players, the loop in five lines and its score.'); }
+function jSpec(st){ return jGhost(st.hasSpec, jSpec0(st), 'Waiting for <code>/spec</code>. This page will show the checklist of the spec (loop, story with test, success criteria, assumptions) and the technical risks with a level.'); }
+function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/piano</code>.' : 'Waiting for the approved spec. <code>/piano</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
+function bucketPill(s){ const b = statusBucket(s); return b==="done" ? '<span class="jpill jgreen">Done</span>' : b==="active" ? '<span class="jpill jlive">In progress</span>' : b==="blocked" ? '<span class="jpill jred">Blocked</span>' : '<span class="jpill">To do</span>'; }
+function jEnv(st){
+  const real = st.envRows.length > 0;
+  const rows = real ? st.envRows : [["Ground and terrain","where"],["Sky, lighting, time of day","where"],["Props and buildings of the theme","where"],["Sound, music, ambience","where"],["Play area boundary and spawn area","where"]].map(x => ({el:x[0], where:x[1], status:"planned"}));
+  const b = rows.filter(r => r.status==="built").length, pct = Math.round(100*b/rows.length), live = st.demoOn && st.T.phase && phaseStep(st.T.phase.label)==="env";
+  const html = '<div class="jgrid"><div class="card"><div class="label">Scenery of the map <span class="cnt">' + b + '/' + rows.length + ' built</span></div><div class="jbar' + (live ? " live" : "") + '" style="margin:8px 0;"><i style="width:' + pct + '%"></i></div>' +
+    '<table class="jt"><tr><th>Element</th><th>Where</th><th>Status</th></tr>' + rows.map(r => { const key = "e:" + r.el, ch = prevSnap[key] !== undefined && prevSnap[key] !== r.status; prevSnap[key] = r.status;
+      return '<tr class="' + (ch ? "flash" : "") + '"><td>' + escH(r.el) + '</td><td>' + escH(r.where) + '</td><td>' + (r.status==="built" ? '<span class="jpill jgreen">built</span>' : '<span class="jpill' + (live ? " jlive" : "") + '">planned</span>') + '</td></tr>'; }).join("") + '</table></div>' +
+    '<div class="card"><div class="label">What only you can have ready</div><div class="jchk"><div><span class="jno">·</span>Epic Games Launcher: UEFN updated, Beta Access if the plan needs it</div><div><span class="jno">·</span>UEFN: Python scripting enabled in the editor preferences</div><div><span class="jno">·</span>UEFN: the MCP toolset is on and the project is open on the right map</div></div>' +
+    '<div style="margin-top:10px;font-size:11.5px;color:var(--dim);">The command <code>/ambiente</code> checks these, then builds the scenery row by row and marks each one <i>built</i> only after reading it back from the map.</div></div></div>';
+  return jGhost(real, html, 'No scenery planned yet. <code>/piano</code> writes the Environment table (ground, sky and light, props, sound, boundary); <code>/ambiente</code> builds it in the map.');
 }
-function jShow(){ document.querySelectorAll(".pp").forEach(e => e.classList.toggle("on", e.getAttribute("data-p")===curTab)); Array.prototype.forEach.call(document.querySelectorAll("#pageTabs .tab"), b => { const on = b.getAttribute("data-t")===curTab; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); }); }
+function jBuild(st){
+  const n = st.tasks.length, real = n > 0, pct = real ? Math.round(100*st.done/n) : 0, act = st.tasks.some(t => statusBucket(t.status)==="active");
+  const rows = real ? st.tasks : [{id:"T-001", feature:"(first task of the plan)", status:"To do"}, {id:"T-002", feature:"(next task)", status:"To do"}, {id:"T-003", feature:"(next task)", status:"To do"}];
+  const html = '<div class="card"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">Build, task by task</span><span class="bigcount">' + st.done + '<span style="font-size:16px;color:var(--dim);"> / ' + n + '</span></span><span style="color:var(--dim);font-size:11.5px;">' + pct + '% done' + (act ? ' · working now' : '') + '</span></div>' +
+    '<div class="jbar' + (act ? " live" : "") + '" style="margin:10px 0 12px;"><i style="width:' + pct + '%"></i></div><table class="jt"><tr><th>ID</th><th>Task</th><th>Status</th></tr>' +
+    rows.map(t => { const key = "t:" + t.id, ch = prevSnap[key] !== undefined && prevSnap[key] !== t.status; prevSnap[key] = t.status;
+      return '<tr class="' + (ch ? "flash" : "") + '"><td><b>' + escH(t.id) + '</b></td><td>' + escH((t.feature||"").replace(/~~/g,"")) + '</td><td>' + bucketPill(t.status) + '</td></tr>'; }).join("") + '</table>' +
+    '<a href="#" onclick="openPreview(\'roadmap\');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full ROADMAP.md →</a></div>';
+  return jGhost(real, html, 'No tasks yet. <code>/compiti</code> breaks the approved plan into tasks; the build then runs here, one task at a time, and each row lights up when it changes.');
+}
+function jAudit(st){
+  const ok = st.auditExists, sc = /-\s*Scan:\s*(.*)/i.exec(st.gate);
+  const html = '<div class="jgrid"><div class="card"><div class="label">Audit ' + (ok ? (st.auditOpen ? '<span class="jpill jamber">' + st.auditOpen + ' open</span>' : '<span class="jpill jgreen">no open findings</span>') : '<span class="jpill">not run</span>') + '</div>' +
+    '<div class="jchk"><div><span class="' + (ok ? "jok" : "jno") + '">' + (ok ? "✓" : "·") + '</span>Bugs and rules of the kit (Verse headers, naming, DemoDisplay, authority)</div><div><span class="jno">·</span>Placement: gameplay devices in place, support devices on the stand</div><div><span class="jno">·</span>Fab compliance scan' + (sc && sc[1].trim() ? ": " + escH(sc[1].trim()) : "") + '</div><div><span class="jno">·</span>Island rules (Publishing Validation, texts, memory)</div></div>' +
+    '<a href="#" onclick="openPreview(\'audit\');return false;" style="display:inline-block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open AUDIT.md →</a> <a href="agent-console-fab.html" style="margin-left:14px;font-size:11.5px;color:var(--blue);">Fab compliance details →</a></div>' +
+    '<div class="card"><div class="label">How it works</div><div style="font-size:12px;color:var(--dim);line-height:1.6;margin-top:6px;"><code>/audit</code> fixes the minor findings by itself, within limits, and lists the serious ones for you with a recommendation. The scan reads the map without changing it.</div></div></div>';
+  return jGhost(ok, html, 'Not run yet. After the build, <code>/audit</code> checks the game against the rules, Fab and the island compliance, and this page lists what it found.');
+}
+function jDelivery(st){
+  const ok = st.gateExists, lines = (st.gate.match(/^- \[[ xX]\].*$/gm)||[]), mem = /Memory used:\s*(\d+)\s*%/i.exec(st.gate);
+  const html = '<div class="card"><div class="label">Delivery gate <span class="cnt">' + st.gateDone + '/' + st.gateAll + ' ticked by you</span>' + (mem ? ' · memory ' + mem[1] + '%' : '') + '</div>' +
+    '<div class="jbar" style="margin:8px 0;"><i style="width:' + (st.gateAll ? Math.round(100*st.gateDone/st.gateAll) : 0) + '%"></i></div>' +
+    '<div class="jchk">' + (lines.length ? lines.map(l => { const d = /\[[xX]\]/.test(l); return '<div><span class="' + (d ? "jok" : "jno") + '">' + (d ? "✓" : "☐") + '</span>' + escH(l.replace(/^- \[[ xX]\]\s*/, "")) + '</div>'; }).join("") :
+      '<div><span class="jno">·</span>Private release and Publishing Validation</div><div><span class="jno">·</span>Memory check with your flags</div><div><span class="jno">·</span>Playtest with the real number of players</div>') + '</div>' +
+    '<a href="#" onclick="openPreview(\'delivery\');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open DELIVERY-GATE.md →</a><div style="font-size:11.5px;color:var(--dim);margin-top:6px;">Claude never ticks a box: the private release and the publish are yours.</div></div>';
+  return jGhost(ok, html, 'Not started. <code>/consegna</code> writes the list of what only you can do, then <code>/ambiente --playtest</code> writes the playtest checklist.');
+}
+function t0Card(st){
+  const n = jNext(st);
+  return '<div class="card t0card"><div class="label">New map</div><div style="margin-top:6px;line-height:1.5;">Nothing is built yet, so there is nothing to follow here but the start. You have two ways in. Paste the text in Claude Code: nothing runs by itself and every change waits for your approval.</div><div class="acts">' +
+    n.acts.map(a => '<div class="act"><b style="min-width:210px;">' + escH(a.l) + '</b><span class="cmd">' + escH(a.cmd) + '</span><button class="btn" type="button" data-cmd="' + escH(a.cmd) + '">Copy text</button></div>').join("") + '</div></div>';
+}
+function bindCopy(root){
+  Array.prototype.forEach.call(root.querySelectorAll("[data-cmd]"), b => { b.onclick = function(){ const t = b.getAttribute("data-cmd"); try{ navigator.clipboard.writeText(t).then(() => { b.textContent = "Copied"; }, () => { b.textContent = "Select and copy it"; }); }catch(e){ b.textContent = "Select and copy it"; } }; });
+}
+function jTabs(st, next){
+  const ss = jSteps(st);
+  document.getElementById("pageSteps").innerHTML = STEPS.map((t, i) => { const s = ss.state[t[0]];
+    return '<span class="stw ' + s + (i===0 ? " f" : "") + '"><button class="stp-b ' + s + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '" title="' + (s==="done" ? "finished" : s==="now" ? "in progress" : "not started") + '"><span class="jd ' + s + '"></span><span class="stp-n">' + (i+1) + '</span>' + t[1] +
+      (t[0]==="build" && st.tasks.length ? ' <span class="cnt">' + st.done + '/' + st.tasks.length + '</span>' : "") + '</button></span>'; }).join("");
+  document.getElementById("pageTabs").innerHTML = SECOND.map(t => '<button class="tab' + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '">' + t[1] + '</button>').join("");
+  Array.prototype.forEach.call(document.querySelectorAll("#pageSteps .stp-b, #pageTabs .tab"), b => { b.onclick = () => { curTab = b.getAttribute("data-t"); try{ localStorage.setItem("docsTab", curTab); }catch(e){} jShow(); }; });
+  document.getElementById("flowRow").classList.toggle("run", st.demoOn);
+  return ss;
+}
+function jShow(){ document.querySelectorAll(".pp").forEach(e => e.classList.toggle("on", e.getAttribute("data-p")===curTab)); Array.prototype.forEach.call(document.querySelectorAll("#pageSteps .stp-b, #pageTabs .tab"), b => { const on = b.getAttribute("data-t")===curTab; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); }); }
 async function renderJourney(){
   try{
     const st = await jState(), next = jNext(st);
-    if (curTab === null){ let saved = null; try{ saved = localStorage.getItem("docsTab"); }catch(e){} curTab = saved || (next && ["idea","spec","plan"].indexOf(next.step)>=0 ? next.step : "road"); }
+    const ss = jSteps(st);
+    if (curTab === null){ let saved = null; try{ saved = localStorage.getItem("docsTab"); }catch(e){} curTab = (st.demoOn && ss.now) ? ss.now : (saved || ss.now || "idea"); }
+    else if (lastNow !== null && ss.now && ss.now !== lastNow && (STEPS.some(s => s[0]===curTab))) curTab = ss.now; // a step finished: the next one opens by itself
+    lastNow = ss.now;
     document.getElementById("pIdea").innerHTML = jIdea(st); document.getElementById("pSpec").innerHTML = jSpec(st); document.getElementById("pPlan").innerHTML = jPlan(st);
+    document.getElementById("pEnv").innerHTML = jEnv(st); document.getElementById("pBuild").innerHTML = jBuild(st);
+    document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st);
+    const rh = document.getElementById("roadHint"); if (rh) rh.innerHTML = st.tasks.length ? "" : '<div class="ghost"><div class="gh-hint">No tasks yet. <code>/compiti</code> breaks the approved plan into tasks with a check for each one: the timeline and the list below fill in by themselves.</div></div>';
+    const s0 = document.getElementById("statusT0"), sm = document.getElementById("statusMain"), dc = document.getElementById("deliveryCard");
+    if (s0){ s0.innerHTML = st.t0 ? t0Card(st) : ""; bindCopy(s0); } if (sm) sm.style.display = st.t0 ? "none" : ""; if (dc) dc.style.display = st.t0 ? "none" : "";
     const box = document.getElementById("nextAction");
-    if (next){ box.style.display = ""; box.innerHTML = '<div><div class="label">Next action <span id="nxProj"></span></div><b>' + escH(next.txt) + '</b><div style="font-size:11px;color:var(--dim);margin-top:4px;">What you see on the right is only a text to copy. Nothing runs by itself: you paste it in Claude Code and every change still waits for your approval.</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span class="cmd">' + escH(next.cmd) + '</span><button class="btn" id="nxCopy" type="button">Copy text</button></div>';
-      document.getElementById("nxCopy").onclick = function(){ const b = this; try{ navigator.clipboard.writeText(next.cmd).then(() => { b.textContent = "Copied"; }, () => { b.textContent = "Select and copy it"; }); }catch(e){ b.textContent = "Select and copy it"; } }; }
+    if (next){ box.style.display = ""; box.className = "card nx" + (next.live ? " live" : "");
+      box.innerHTML = '<div><div class="label">Next action <span id="nxProj"></span></div><b>' + escH(next.txt) + '</b>' + (next.acts.length || next.note ? '<div style="font-size:11px;color:var(--dim);margin-top:4px;">' + escH(next.note || "Text to copy: nothing runs by itself, you paste it in Claude Code and every change still waits for your approval.") + '</div>' : '') + '</div>' +
+        '<div class="acts">' + next.acts.map(a => '<div class="act">' + (a.l ? '<small>' + escH(a.l) + '</small>' : '') + '<span class="cmd">' + escH(a.cmd) + '</span><button class="btn" type="button" data-cmd="' + escH(a.cmd) + '">Copy text</button></div>').join("") + '</div>';
+      bindCopy(box); if (window.__projName){ const p = document.getElementById("nxProj"); if (p) p.textContent = "· " + window.__projName; } }
     else box.style.display = "none";
-    jTabs(st, next);
+    jTabs(st, next); jShow();
+    heroT0(st, ss);
   } catch(e){ /* the existing blocks keep working if this part fails */ curTab = curTab || "road"; document.querySelectorAll(".pp").forEach(x => x.classList.toggle("on", x.getAttribute("data-p")===curTab)); }
+}
+function heroT0(st, ss){
+  const L = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+  if (!st.t0){ L("heroL1","Roadmap progress"); L("heroL2","Bug fixing progress"); L("heroL3","Release status"); return; }
+  L("heroL1","Journey progress"); L("progressPct", ss.count + "/" + STEPS.length); L("progressTasks", ss.count + " of " + STEPS.length + " steps done");
+  L("progressRemaining", ss.now ? "Now: " + stepName(ss.now) : "All steps done");
+  const r1 = document.getElementById("progressRing"); if (r1) r1.setAttribute("stroke-dashoffset", String(226 * (1 - ss.count / STEPS.length)));
+  L("heroL2","Bugs"); L("bugPct","0"); L("bugTotals","No bugs: nothing is built yet"); L("openBugsBreakdown","The analysis comes first");
+  const r2 = document.getElementById("bugRing"); if (r2) r2.setAttribute("stroke-dashoffset","0");
+  L("heroL3","Release"); L("releaseStatusOverall","Not started");
+  const rl = document.getElementById("releaseStatusList"); if (rl) rl.innerHTML = '<div style="font-size:11px;color:var(--dim);margin-top:4px;">Idea, spec and plan come first. The release gate is the last step.</div>';
 }
 
 
@@ -1440,36 +1610,76 @@ setInterval(refreshDocs, 5000);
   }).catch(function(){});
 })();
 </script>
+<!-- kit-head:begin -->
+<style>
+.kh-strip{font-size:11px;color:var(--dim,#5a7088);margin:8px 4px 12px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;}
+.kh-strip b{color:var(--text,#c9d6f0);font-weight:normal;}
+.kh-strip .tag-list{display:inline-flex;gap:5px;flex-wrap:wrap;vertical-align:middle;}
+.kh-strip .tag-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--dim,#5a7088);border:1px solid var(--line,#1c2740);border-radius:10px;padding:2px 8px;background:var(--panel,#0d121c);}
+.kh-strip .genre-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--bg,#060810);border:1px solid var(--green,#39ff88);border-radius:10px;padding:2px 8px;background:var(--green,#39ff88);font-weight:bold;}
+.kh-strip .kh-none{color:var(--dim,#5a7088);font-style:italic;}
+.kh-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 16px;}
+@media(max-width:800px){.kh-cards{grid-template-columns:1fr;}}
+.kh-card{background:var(--panel,#0d121c);border:1px solid var(--line,#1c2740);border-radius:10px;padding:12px 16px;}
+.kh-card .l{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--dim,#5a7088);}
+.kh-card .v{font-size:26px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums;color:var(--green,#39ff88);line-height:1.15;}
+.kh-card .v.b{color:var(--blue,#4b8bff);}
+.kh-card .v.t{font-size:18px;color:var(--text,#c9d6f0);overflow-wrap:anywhere;}
+.kh-cmds{margin-left:auto;font-size:10.5px;color:var(--dim,#5a7088);display:flex;gap:4px 12px;flex-wrap:wrap;align-items:center;}
+.kh-cmds code{color:var(--blue,#4b8bff);background:var(--panel2,#0a0e17);border:1px solid var(--line,#1c2740);border-radius:4px;padding:1px 6px;cursor:pointer;}
+.kh-cmds a{color:var(--cyan,#4bd8ff);text-decoration:none;}
+.kh-card .s{font-size:11px;color:var(--dim,#5a7088);margin-top:2px;}
+</style>
 <script>
-/* Island info strip (title, code, tags, project genre) — same block as the Stats page, shown on every page.
-   Local /island-info + /project-genre only; silent on any failure. Stats page renders its own copy. */
+/* One header logic on every page: island strip (always there, with a fallback while the island is not published) + the three base cards
+   (session, tokens, project), then the detail of the section. The Console page already has its own base cards, so it gets only the strip. */
 (function(){
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-  var st=document.createElement("style");
-  st.textContent=".island-strip{font-size:11px;color:var(--dim,#5a7088);margin:8px 4px 14px;}"
-   +".island-strip b{color:var(--text,#c9d6f0);font-weight:normal;}"
-   +".island-strip .tag-list{display:inline-flex;gap:5px;margin-left:10px;flex-wrap:wrap;vertical-align:middle;}"
-   +".island-strip .tag-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--dim,#5a7088);border:1px solid var(--line,#1c2740);border-radius:10px;padding:2px 8px;background:var(--panel,#0d121c);}"
-   +".island-strip .genre-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--bg,#060810);border:1px solid var(--green,#39ff88);border-radius:10px;padding:2px 8px;background:var(--green,#39ff88);font-weight:bold;margin-right:6px;}";
-  document.head.appendChild(st);
-  var box=document.createElement("div"); box.className="island-strip"; box.id="islandStrip"; box.style.display="none";
-  var vs=document.querySelector(".view-switch,.vs"), anchor=vs&&vs.closest(".termlines,.hdrbar,.h,header");
-  if(anchor&&anchor.parentNode) anchor.parentNode.insertBefore(box,anchor.nextSibling);
-  else (document.querySelector("main,.wrap")||document.body).insertBefore(box,(document.querySelector("main,.wrap")||document.body).firstChild);
-  var html="";
-  function show(){ if(html){box.innerHTML=html;box.style.display="";} }
-  fetch("/island-info",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(i){
-    if(i&&i.title){
-      html="Isola: <b>"+esc(i.title)+"</b>"+(i.code?" ("+esc(i.code)+")":"");
-      if(Array.isArray(i.tags)&&i.tags.length) html+='<span class="tag-list">'+i.tags.map(function(t){return '<span class="tag-badge">'+esc(t)+'</span>';}).join("")+'</span>';
-    }
-  }).catch(function(){}).then(function(){
-    return fetch("/project-genre",{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(g){
-      g=(g||"").trim(); if(g&&g.length<60) html+='<span class="genre-badge" title="Genre assigned to the project (Claude/docs/.genre)">'+esc(g)+'</span>';
-    }).catch(function(){});
-  }).then(show);
+  if(document.getElementById("kitHead"))return;
+  var main=!!document.getElementById("sessionTimer"), ownStrip=!!document.getElementById("islandTitle");
+  var CMDS={"agent-console.html":[["/spec","start a game from an idea"],["/demo","watch the whole flow work"],["/kit-doctor","check the kit"]],
+    "agent-console-skills.html":[["/learn-map","learn now from this map"]],"agent-console-news.html":[["/kit-update","update the kit now"]],
+    "agent-console-fab.html":[["/fab-check","check the product against Fab"]],"agent-console-score.html":[["/audit","check the build"],["/consegna","prepare the delivery"]],
+    "agent-console-flow.html":[["/handoff","write a hand-over for a fresh session"]],"agent-console-stats.html":[["/consegna","before the private release"]]};
+  var here=(location.pathname.split("/").pop()||"agent-console.html"), cl=CMDS[here]||[];
+  var cmdHtml=cl.length?'<span class="kh-cmds">Commands here: '+cl.map(function(c){return '<code title="click to copy" data-kc="'+esc(c[0])+'">'+esc(c[0])+'</code> '+esc(c[1]);}).join(" · ")+' · <a href="/manual/commands.html">all commands</a></span>':"";
+  var box=document.createElement("div"); box.id="kitHead";
+  box.innerHTML=(ownStrip?"":'<div class="kh-strip" id="islandStrip"><span class="kh-none">Isola: reading…</span>'+cmdHtml+'</div>')+
+    (main?"":'<div class="kh-cards"><div class="kh-card"><div class="l">Session running for</div><div class="v" id="khSess">--:--:--</div><div class="s" id="khSince">not started yet</div></div>'+
+    '<div class="kh-card"><div class="l">Tokens this session (approx.)</div><div class="v b" id="khTok">—</div><div class="s" id="khTokSub">no data yet</div></div>'+
+    '<div class="kh-card"><div class="l">Project</div><div class="v t" id="khProj">—</div><div class="s" id="khProjSub">console on this project</div></div></div>');
+  if(!box.innerHTML)return;
+  var tries=0;
+  function place(){var vs=document.querySelector(".view-switch,.vs,nav"), anchor=vs&&vs.closest(".termlines,.hdrbar,.h,header,.top");
+    var host=document.querySelector("main,.wrap")||document.body;
+    if(anchor&&anchor.parentNode){anchor.parentNode.insertBefore(box,anchor.nextSibling);return;}
+    if(++tries<12){setTimeout(place,250);return;}
+    host.insertBefore(box,host.firstChild);}
+  place();
+  box.addEventListener('click',function(e){var k=e.target&&e.target.getAttribute&&e.target.getAttribute('data-kc');if(k){try{navigator.clipboard.writeText(k);e.target.textContent='copied';setTimeout(function(){e.target.textContent=k;},1200);}catch(x){}}});
+  var started=0;
+  function f(x){x=Math.max(0,Math.round(x));return ("0"+Math.floor(x/3600)).slice(-2)+":"+("0"+Math.floor(x%3600/60)).slice(-2)+":"+("0"+x%60).slice(-2);}
+  function n(x){x=+x||0;return x>=1e6?(x/1e6).toFixed(2)+"M":x>=1e3?(x/1e3).toFixed(1)+"k":String(x);}
+  function tick(){var e=document.getElementById("khSess");if(e&&started)e.textContent=f((Date.now()-started)/1000);}
+  fetch("/whoami",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(w){
+    if(!w)return; if(w.started_at){var t=Date.parse(w.started_at);if(!isNaN(t)){started=t;var s=document.getElementById("khSince");if(s)s.textContent="since "+new Date(t).toLocaleTimeString();}}
+    if(typeof w.project==="string"){var g=w.project.replace(/[\\/]+$/,"").split(/[\\/]/),nm=g.pop();if(/^content$/i.test(nm)&&g.length)nm=g.pop();var p=document.getElementById("khProj");if(p)p.textContent=nm;window.__kitProject=nm;paint();}
+  }).catch(function(){});
+  setInterval(tick,1000);
+  function tok(){fetch("/tokens",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(t){var e=document.getElementById("khTok");if(!e||!t||typeof t.total!=="number")return;e.textContent=n(t.total);document.getElementById("khTokSub").textContent="in "+n(t.input)+" · out "+n(t.output)+" · cache read "+n(t.cache_read);}).catch(function(){});}
+  tok();setInterval(tok,15000);
+  var isl=null,genre="";
+  function paint(){var el=document.getElementById("islandStrip");if(!el)return;var h="";
+    if(isl&&isl.title){h="Isola: <b>"+esc(isl.title)+"</b>"+(isl.code?" ("+esc(isl.code)+")":"");
+      if(Array.isArray(isl.tags)&&isl.tags.length)h+='<span class="tag-list">'+isl.tags.map(function(t){return '<span class="tag-badge">'+esc(t)+'</span>';}).join("")+'</span>';}
+    else h='Isola: <b>'+esc(window.__kitProject||"this project")+'</b> <span class="kh-none">not published yet, no island code</span>';
+    if(genre&&genre.length<60)h+='<span class="genre-badge" title="Genre assigned to the project (Claude/docs/.genre)">'+esc(genre)+'</span>';
+    var cm=el.querySelector('.kh-cmds'); el.innerHTML='<span class="kh-isl">'+h+'</span>'; if(cm)el.appendChild(cm);}
+  fetch("/island-info",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(i){isl=i;}).catch(function(){}).then(function(){
+    return fetch("/project-genre",{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(g){genre=(g||"").trim();}).catch(function(){});}).then(paint);
 })();
 </script>
+<!-- kit-head:end -->
 <!-- skills-alert:begin -->
 <style>@keyframes sklblink{0%,100%{opacity:1}50%{opacity:.25}}a.skl-new{color:var(--amber,#ffb454)!important;font-weight:700;animation:sklblink 1.1s ease-in-out infinite}</style>
 <script>
@@ -1494,7 +1704,7 @@ setInterval(refreshDocs, 5000);
 <!-- skills-alert:end -->
 <!-- kit-footer:begin -->
 <style>.kitfoot{max-width:1240px;margin:28px auto 22px;padding:12px 4px 0;border-top:1px solid var(--line-soft,#1b2740);font-size:11px;line-height:1.7;color:var(--dim,#5a7088);text-align:center}.kitfoot a{color:var(--cyan,#4bd8ff);text-decoration:none}.kitfoot a:hover{text-decoration:underline}.kitfoot .sep{margin:0 8px;opacity:.5}</style>
-<div class="kitfoot">Dream Bot Team for UEFN<span class="sep">&middot;</span><a href="/manual/the-console.html#docs" data-manual-help>Help for this page</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> &mdash; free to use, copy and change, no warranty<span class="sep">&middot;</span>by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games.</div>
+<div class="kitfoot">Dream Bot Team for UEFN<span class="sep">&middot;</span><a href="/manual/the-console.html#docs" data-manual-help>Help for this page</a><span class="sep">&middot;</span><a href="/manual/commands.html">All commands</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> &mdash; free to use, copy and change, no warranty<span class="sep">&middot;</span>by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games.</div>
 <!-- kit-footer:end -->
 <!-- fab-tab:begin -->
 <script>
@@ -1508,10 +1718,11 @@ setInterval(refreshDocs, 5000);
 (function(){
   var T = null;
   function f(x){ x = Math.max(0, Math.round(x)); return ("0"+Math.floor(x/3600)).slice(-2)+":"+("0"+Math.floor(x%3600/60)).slice(-2)+":"+("0"+x%60).slice(-2); }
-  function tick(){ var c = document.getElementById("demoClock"), i = document.getElementById("demoClockInfo"), ph = document.getElementById("demoPhase"), pc = document.getElementById("demoPhaseClock"); if (!c) return;
-    if (!T){ c.textContent = "--:--:--"; i.textContent = "not started: run /demo or /demo --auto"; ph.textContent = "no phase running"; pc.textContent = ""; return; }
+  function tick(){ var box = document.getElementById("demoBox"), c = document.getElementById("demoClock"), i = document.getElementById("demoClockInfo"), ph = document.getElementById("demoPhase"), pc = document.getElementById("demoPhaseClock"); if (!c || !box) return;
+    if (!T){ box.style.display = "none"; return; }
+    box.style.display = ""; box.classList.toggle("run", !T.end);
     var now = Date.now()/1000, end = T.end || now; c.textContent = f(end - T.start);
-    if (T.phase && !T.end){ ph.textContent = "phase: " + T.phase.label; pc.textContent = f(now - T.phase.start); }
+    if (T.phase && !T.end){ ph.textContent = stepName(phaseStep(T.phase.label)) || T.phase.label; pc.textContent = f(now - T.phase.start); }
     else { ph.textContent = T.end ? "everything ready" : "between phases"; pc.textContent = ""; }
     i.textContent = (T.end ? "stopped" : "running") + " · " + T.mode + " · " + T.marks.length + " phases done"; }
   async function poll(){ try{ var d = await fetchDoc("demotimer"); T = null;

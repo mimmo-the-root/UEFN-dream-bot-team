@@ -313,6 +313,12 @@ def tree(d):
 
 
 def main():
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import gen_commands
+        open(gen_commands.OUT, "w", encoding="utf-8", newline="\n").write(gen_commands.build())
+    except Exception as e:  # the list of commands is a convenience: the manual still builds without it
+        print("commands list not refreshed:", e)
     if "--check" in sys.argv:
         tmp = tempfile.mkdtemp()
         try:

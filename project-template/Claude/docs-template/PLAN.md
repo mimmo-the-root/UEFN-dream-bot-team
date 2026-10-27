@@ -17,6 +17,16 @@
 | Respawn | <on / off> | <why> |
 | Join in progress | <on / off> | <why> |
 
+## Environment
+<!-- The scenery of the map: what the player SEES and HEARS around the game. It is built in the map in the Environment step; Status goes from planned to built only when it is in the map and checked. -->
+| Element | Where | Status |
+|---|---|---|
+| <ground and terrain> | <where> | planned |
+| <sky, lighting, time of day> | <where> | planned |
+| <props and buildings of the theme> | <where> | planned |
+| <sound, music, ambience> | <where> | planned |
+| <play area boundary and spawn area> | <where> | planned |
+
 ## Build order
 - Pass 1 (structure): <S1 first: level, devices, the flow of the loop; the loop is playable at the end of this pass>
 - Pass 2 (details): <materials, UI, sounds, effects>

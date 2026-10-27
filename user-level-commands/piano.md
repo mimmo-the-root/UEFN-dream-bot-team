@@ -20,6 +20,7 @@ You plan the game. The spec says WHAT; the plan says HOW. Work in `Claude/docs/`
 - Manual steps: everything only the owner can do (`@editable` references, editor settings), each with how to verify.
 - Build order: Pass 1 (structure: S1 first, the loop playable at the end), Pass 2 (details), and one sample to try alone before making a series.
 - Island settings: a table (Max players, Min players to start, Teams, Round, Respawn, Join in progress...) written FROM the spec (Players and Teams). Most of them are set by hand in UEFN Island Settings: say which ones and how to verify.
+- Environment: the `## Environment` table (ground and terrain, sky and lighting, props and buildings of the theme, sound and ambience, play area boundary and spawn area), each row `planned` with where it goes. The scenery is part of the game: it is built in the map in the Environment step, never skipped.
 - Risks to tasks: each risk of the spec (numbered R1, R2... in table order) gets the first task that reduces it; the high ones must be in the first three tasks.
 In a jam (`--jam` or `Mode: jam`): a one-page plan, high risks first.
 

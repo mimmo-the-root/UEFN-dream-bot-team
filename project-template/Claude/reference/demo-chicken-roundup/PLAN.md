@@ -13,6 +13,15 @@
 | Respawn | on | nobody is out of the game |
 | Join in progress | on | friends can join a running round |
 
+## Environment
+| Element | Where | Status |
+|---|---|---|
+| Farm ground and grass | the whole play area | built |
+| Sky and warm afternoon light | the whole map | built |
+| Barn, fences and haystacks | around the pen | built |
+| Farm ambience and a short music loop | the whole map | built |
+| Play area boundary and the spawn area | the edge of the farm | built |
+
 ## Build order
 - Pass 1 (structure): S1 first: the farm, the pen and the flow of the loop; the loop is playable at the end of this pass, then S2.
 - Pass 2 (details): sounds for the delivery, a nicer pen, effects.

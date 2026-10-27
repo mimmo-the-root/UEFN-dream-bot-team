@@ -18,6 +18,7 @@
         "your-team",
         "daily-work",
         "from-idea-to-game",
+        "commands",
         "the-console",
         "skills-and-lessons",
         "mcp-engine",
@@ -45,6 +46,7 @@
   "summaries": {
     "welcome": "What the kit is, what it does for you, what it does not do.",
     "quick-start": "From zero to a first working session.",
+    "commands": "Every custom command of the kit, what it does and when to use it.",
     "your-team": "The 22 agents, the model each one runs on, and when to call them.",
     "the-console": "The seven pages of the local console, one by one (the Docs page has tabs).",
     "skills-and-lessons": "How the kit learns from your maps and what you approve.",

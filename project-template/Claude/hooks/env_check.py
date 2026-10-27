@@ -50,7 +50,7 @@ def environment(d):
     spec = plan_check.read(os.path.join(d, "GAME-SPEC.md"))
     isl = ["Island Settings: %s = %s" % (r[0], r[1]) for r in plan_check.island_settings(plan)]
     return {"assets": a, "to_get": todo, "manual": manual_steps(plan), "owner": OWNER_ONLY + tuple(isl), "players": spec_check.field(spec, "Players"),
-            "approved": spec_check.field(plan, "Approved").lower() == "yes", "lore": "Save a Lore checkpoint before the first playtest."}
+            "scenery": plan_check.environment_rows(plan), "approved": spec_check.field(plan, "Approved").lower() == "yes", "lore": "Save a Lore checkpoint before the first playtest."}
 
 
 def playtest(d):

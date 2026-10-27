@@ -104,7 +104,7 @@
     </div>
   </div>
 
-  <div class="island-title" id="islandTitle"></div>
+  <div class="island-title" id="islandTitle">Isola: <b>this project</b> <i>not published yet, no island code</i></div>
 
   <div id="mainContent">
     <div class="rank-card" id="rankCard" style="display:none;">
@@ -618,7 +618,7 @@ setInterval(loadData, 5 * 60 * 1000); // API data is daily-granularity; a 5-min 
 <!-- skills-alert:end -->
 <!-- kit-footer:begin -->
 <style>.kitfoot{max-width:1240px;margin:28px auto 22px;padding:12px 4px 0;border-top:1px solid var(--line-soft,#1b2740);font-size:11px;line-height:1.7;color:var(--dim,#5a7088);text-align:center}.kitfoot a{color:var(--cyan,#4bd8ff);text-decoration:none}.kitfoot a:hover{text-decoration:underline}.kitfoot .sep{margin:0 8px;opacity:.5}</style>
-<div class="kitfoot">Dream Bot Team for UEFN<span class="sep">&middot;</span><a href="/manual/the-console.html#stats" data-manual-help>Help for this page</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> &mdash; free to use, copy and change, no warranty<span class="sep">&middot;</span>by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games.</div>
+<div class="kitfoot">Dream Bot Team for UEFN<span class="sep">&middot;</span><a href="/manual/the-console.html#stats" data-manual-help>Help for this page</a><span class="sep">&middot;</span><a href="/manual/commands.html">All commands</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> &mdash; free to use, copy and change, no warranty<span class="sep">&middot;</span>by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games.</div>
 <!-- kit-footer:end -->
 <!-- fab-tab:begin -->
 <script>
@@ -628,5 +628,75 @@ setInterval(loadData, 5 * 60 * 1000); // API data is daily-granularity; a 5-min 
   var a=document.createElement("a");a.href="agent-console-fab.html";a.textContent="Checklist";if(sc.className&&sc.className!=="on")a.className=sc.className;sc.parentNode.appendChild(a);}).catch(function(){});})();
 </script>
 <!-- fab-tab:end -->
+<!-- kit-head:begin -->
+<style>
+.kh-strip{font-size:11px;color:var(--dim,#5a7088);margin:8px 4px 12px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;}
+.kh-strip b{color:var(--text,#c9d6f0);font-weight:normal;}
+.kh-strip .tag-list{display:inline-flex;gap:5px;flex-wrap:wrap;vertical-align:middle;}
+.kh-strip .tag-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--dim,#5a7088);border:1px solid var(--line,#1c2740);border-radius:10px;padding:2px 8px;background:var(--panel,#0d121c);}
+.kh-strip .genre-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--bg,#060810);border:1px solid var(--green,#39ff88);border-radius:10px;padding:2px 8px;background:var(--green,#39ff88);font-weight:bold;}
+.kh-strip .kh-none{color:var(--dim,#5a7088);font-style:italic;}
+.kh-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 16px;}
+@media(max-width:800px){.kh-cards{grid-template-columns:1fr;}}
+.kh-card{background:var(--panel,#0d121c);border:1px solid var(--line,#1c2740);border-radius:10px;padding:12px 16px;}
+.kh-card .l{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--dim,#5a7088);}
+.kh-card .v{font-size:26px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums;color:var(--green,#39ff88);line-height:1.15;}
+.kh-card .v.b{color:var(--blue,#4b8bff);}
+.kh-card .v.t{font-size:18px;color:var(--text,#c9d6f0);overflow-wrap:anywhere;}
+.kh-cmds{margin-left:auto;font-size:10.5px;color:var(--dim,#5a7088);display:flex;gap:4px 12px;flex-wrap:wrap;align-items:center;}
+.kh-cmds code{color:var(--blue,#4b8bff);background:var(--panel2,#0a0e17);border:1px solid var(--line,#1c2740);border-radius:4px;padding:1px 6px;cursor:pointer;}
+.kh-cmds a{color:var(--cyan,#4bd8ff);text-decoration:none;}
+.kh-card .s{font-size:11px;color:var(--dim,#5a7088);margin-top:2px;}
+</style>
+<script>
+/* One header logic on every page: island strip (always there, with a fallback while the island is not published) + the three base cards
+   (session, tokens, project), then the detail of the section. The Console page already has its own base cards, so it gets only the strip. */
+(function(){
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  if(document.getElementById("kitHead"))return;
+  var main=!!document.getElementById("sessionTimer"), ownStrip=!!document.getElementById("islandTitle");
+  var CMDS={"agent-console.html":[["/spec","start a game from an idea"],["/demo","watch the whole flow work"],["/kit-doctor","check the kit"]],
+    "agent-console-skills.html":[["/learn-map","learn now from this map"]],"agent-console-news.html":[["/kit-update","update the kit now"]],
+    "agent-console-fab.html":[["/fab-check","check the product against Fab"]],"agent-console-score.html":[["/audit","check the build"],["/consegna","prepare the delivery"]],
+    "agent-console-flow.html":[["/handoff","write a hand-over for a fresh session"]],"agent-console-stats.html":[["/consegna","before the private release"]]};
+  var here=(location.pathname.split("/").pop()||"agent-console.html"), cl=CMDS[here]||[];
+  var cmdHtml=cl.length?'<span class="kh-cmds">Commands here: '+cl.map(function(c){return '<code title="click to copy" data-kc="'+esc(c[0])+'">'+esc(c[0])+'</code> '+esc(c[1]);}).join(" · ")+' · <a href="/manual/commands.html">all commands</a></span>':"";
+  var box=document.createElement("div"); box.id="kitHead";
+  box.innerHTML=(ownStrip?"":'<div class="kh-strip" id="islandStrip"><span class="kh-none">Isola: reading…</span>'+cmdHtml+'</div>')+
+    (main?"":'<div class="kh-cards"><div class="kh-card"><div class="l">Session running for</div><div class="v" id="khSess">--:--:--</div><div class="s" id="khSince">not started yet</div></div>'+
+    '<div class="kh-card"><div class="l">Tokens this session (approx.)</div><div class="v b" id="khTok">—</div><div class="s" id="khTokSub">no data yet</div></div>'+
+    '<div class="kh-card"><div class="l">Project</div><div class="v t" id="khProj">—</div><div class="s" id="khProjSub">console on this project</div></div></div>');
+  if(!box.innerHTML)return;
+  var tries=0;
+  function place(){var vs=document.querySelector(".view-switch,.vs,nav"), anchor=vs&&vs.closest(".termlines,.hdrbar,.h,header,.top");
+    var host=document.querySelector("main,.wrap")||document.body;
+    if(anchor&&anchor.parentNode){anchor.parentNode.insertBefore(box,anchor.nextSibling);return;}
+    if(++tries<12){setTimeout(place,250);return;}
+    host.insertBefore(box,host.firstChild);}
+  place();
+  box.addEventListener('click',function(e){var k=e.target&&e.target.getAttribute&&e.target.getAttribute('data-kc');if(k){try{navigator.clipboard.writeText(k);e.target.textContent='copied';setTimeout(function(){e.target.textContent=k;},1200);}catch(x){}}});
+  var started=0;
+  function f(x){x=Math.max(0,Math.round(x));return ("0"+Math.floor(x/3600)).slice(-2)+":"+("0"+Math.floor(x%3600/60)).slice(-2)+":"+("0"+x%60).slice(-2);}
+  function n(x){x=+x||0;return x>=1e6?(x/1e6).toFixed(2)+"M":x>=1e3?(x/1e3).toFixed(1)+"k":String(x);}
+  function tick(){var e=document.getElementById("khSess");if(e&&started)e.textContent=f((Date.now()-started)/1000);}
+  fetch("/whoami",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(w){
+    if(!w)return; if(w.started_at){var t=Date.parse(w.started_at);if(!isNaN(t)){started=t;var s=document.getElementById("khSince");if(s)s.textContent="since "+new Date(t).toLocaleTimeString();}}
+    if(typeof w.project==="string"){var g=w.project.replace(/[\\/]+$/,"").split(/[\\/]/),nm=g.pop();if(/^content$/i.test(nm)&&g.length)nm=g.pop();var p=document.getElementById("khProj");if(p)p.textContent=nm;window.__kitProject=nm;paint();}
+  }).catch(function(){});
+  setInterval(tick,1000);
+  function tok(){fetch("/tokens",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(t){var e=document.getElementById("khTok");if(!e||!t||typeof t.total!=="number")return;e.textContent=n(t.total);document.getElementById("khTokSub").textContent="in "+n(t.input)+" · out "+n(t.output)+" · cache read "+n(t.cache_read);}).catch(function(){});}
+  tok();setInterval(tok,15000);
+  var isl=null,genre="";
+  function paint(){var el=document.getElementById("islandStrip");if(!el)return;var h="";
+    if(isl&&isl.title){h="Isola: <b>"+esc(isl.title)+"</b>"+(isl.code?" ("+esc(isl.code)+")":"");
+      if(Array.isArray(isl.tags)&&isl.tags.length)h+='<span class="tag-list">'+isl.tags.map(function(t){return '<span class="tag-badge">'+esc(t)+'</span>';}).join("")+'</span>';}
+    else h='Isola: <b>'+esc(window.__kitProject||"this project")+'</b> <span class="kh-none">not published yet, no island code</span>';
+    if(genre&&genre.length<60)h+='<span class="genre-badge" title="Genre assigned to the project (Claude/docs/.genre)">'+esc(genre)+'</span>';
+    var cm=el.querySelector('.kh-cmds'); el.innerHTML='<span class="kh-isl">'+h+'</span>'; if(cm)el.appendChild(cm);}
+  fetch("/island-info",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(i){isl=i;}).catch(function(){}).then(function(){
+    return fetch("/project-genre",{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(g){genre=(g||"").trim();}).catch(function(){});}).then(paint);
+})();
+</script>
+<!-- kit-head:end -->
 </body>
 </html>
