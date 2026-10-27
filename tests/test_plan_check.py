@@ -43,8 +43,8 @@ assert F[0][0] == "CRITICAL" and "run /spec" in F[0][1]
 # constitution conflict is always CRITICAL, in the plan or in a task
 F = pc.check(make(plan=rd(FX, "plan-chicken.md").replace("sounds for the delivery", "a leaderboard board")))
 assert sev(F, "CRITICAL", "leaderboard")
-F = pc.check(make(road=rd(FX, "roadmap-chicken.md").replace("Round timer and end of round", "Multiplayer round timer")))
-assert sev(F, "CRITICAL", "multiplayer")
+F = pc.check(make(road=rd(FX, "roadmap-chicken.md").replace("Round timer and end of round", "PvP round timer")))
+assert sev(F, "CRITICAL", "pvp")
 F = pc.check(make(plan=rd(FX, "plan-chicken.md").replace("leaderboard", "x")), "plan")  # nothing forbidden here
 assert not sev(F, "CRITICAL", "forbidden")
 

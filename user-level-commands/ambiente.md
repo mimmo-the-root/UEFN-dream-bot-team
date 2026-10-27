@@ -13,4 +13,8 @@ You prepare the ground before building. Work in `Claude/docs/`; run scripts from
 
 **Playtest.** `python env_check.py --playtest` writes the checklist from the approved spec: per story the expected result and what you observe, per success criterion a box. Save it as `Claude/docs/PLAYTEST.md`. After the owner plays, fill "observed". Every failed row becomes a regression task in `ROADMAP.md` (Feature cell with its `[S#]` tag). Minor failures follow the Self-healing block of `CONSTITUTION.md`.
 
+**Island settings.** The plan lists them: say them one by one to the owner (Max players, Teams, Respawn...) as a checklist to set in UEFN Island Settings, and after the owner says done, read them back through the MCP when it can; otherwise ask the owner to confirm each one. Never assume they are set.
+
+**Review.** After the environment readout and after the playtest checklist, ask `qa-regression` to read the result against the spec (players, success criteria); fix the gaps before moving on.
+
 Short report in plain language; name the files, do not paste them.

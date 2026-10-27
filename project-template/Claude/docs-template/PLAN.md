@@ -6,6 +6,17 @@
 - Status: Draft
 - Approved: no
 
+## Island settings
+<!-- Set in UEFN Island Settings by hand (the MCP cannot set all of them). Written from the spec: players and teams first. -->
+| Setting | Value | Why |
+|---|---|---|
+| Max players | <N from the spec> | <why> |
+| Min players to start | <N> | <why> |
+| Teams | <none or teams of N> | <why> |
+| Round | <rounds and time> | <why> |
+| Respawn | <on / off> | <why> |
+| Join in progress | <on / off> | <why> |
+
 ## Build order
 - Pass 1 (structure): <S1 first: level, devices, the flow of the loop; the loop is playable at the end of this pass>
 - Pass 2 (details): <materials, UI, sounds, effects>

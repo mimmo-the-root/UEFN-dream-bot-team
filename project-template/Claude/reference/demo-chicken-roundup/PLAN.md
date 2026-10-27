@@ -3,6 +3,16 @@
 - Status: Approved
 - Approved: yes
 
+## Island settings
+| Setting | Value | Why |
+|---|---|---|
+| Max players | 4 | the spec asks for 4 players |
+| Min players to start | 1 | a player can start alone and others join |
+| Teams | none (Free for all, one shared score) | co-op, no teams |
+| Round | 1 round of 3 minutes | the loop |
+| Respawn | on | nobody is out of the game |
+| Join in progress | on | friends can join a running round |
+
 ## Build order
 - Pass 1 (structure): S1 first: the farm, the pen and the flow of the loop; the loop is playable at the end of this pass, then S2.
 - Pass 2 (details): sounds for the delivery, a nicer pen, effects.

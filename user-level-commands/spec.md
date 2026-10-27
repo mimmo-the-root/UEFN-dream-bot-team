@@ -20,12 +20,14 @@ You are the functional analyst of this project. The spec says WHAT the game is a
 - Feasibility: skills `uefn-device-gotchas`, `uefn-level-devices`, `uefn-lessons`, `mcp-tool-contracts`, and `python ~/.claude/hooks/skills_lib.py recipes mechanics <keyword>` for proven mechanics. `economy-sim` only if the loop has an economy.
 Use the findings to shape the 3 variants and the risks, not to decide for the owner.
 
-**Step 1, minimal card (iteration 0).** Five fields: idea, players, round length, theme (empty is allowed), days left (empty is allowed). Ask only for what is missing.
+**Step 1, minimal card (iteration 0).** Six fields: idea, **players** (how many: 1, 4... and whether in teams; ask it NOW, it decides the Island settings, the devices and the tests, and a multiplayer game cannot be fixed on later), round length, theme (empty is allowed), days left (empty is allowed). Write `Players:` and `Teams:` in the header of `GAME-SPEC.md`. Ask only for what is missing.
 
 **Step 2, three variants, scored.** Give 3 variants of the idea. Score each with `python concept_card.py --title ... --pitch ... --scores ambition=N,theme=N,...` (the 70 judging points plus 30 buildable). Show score, verdict and the two weakest points per variant. Below 60: say how to raise it. The owner may still force (write `Forced: yes`).
 
 **Step 3, loop MVP and spec v0.** With the chosen variant write the loop in 5 lines (Action, Rule, Reward, End, Replay: why they play again), no technology. Then fill `GAME-SPEC.md` from the template: Idea, Genre, Loop, Story 1 (P1, the loop itself, with an independent test and a Given/when/then), 3 to 5 measurable Success criteria (in game, e.g. "a round ends in under 3 minutes"), Assumptions, Theme line, Out of scope. In jam mode with days left, cut scope until the P1 loop is playable by the end of the 13th; every cut goes to Out of scope with the reason.
 Then the TECHNICAL RISKS table: what the API or MCP does not cover, manual steps (`@editable` references, editor settings), asset dependencies, performance. Use the skills `uefn-device-gotchas`, `uefn-mcp-lab-guard`, `uefn-level-devices` and the genre skill. Each risk: level low/medium/high and a fallback or a cut. Mark every open doubt `[NEEDS CLARIFICATION: question]` and answer them in rounds of up to 5.
+
+**Review (after every step).** Before the owner sees a step, check it: run the checker, then ask the agent `intent-reviewer` to read the file with fresh eyes and list gaps and contradictions (at most 2 rounds). Fix what it finds; whatever needs a decision goes to the owner as a question, not as a guess. When the owner changes the spec, iterate: Step 4, and everything downstream (plan, tasks) is listed as to be redone.
 
 **Quality list (the spec's unit tests).** Run `python spec_check.py` (add `--jam` in a jam). It must print "Spec is ready". Fix every BLOCK line; show the warnings and the high risks.
 

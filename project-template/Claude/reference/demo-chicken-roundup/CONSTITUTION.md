@@ -10,7 +10,7 @@
 
 ## Forbidden
 - leaderboard
-- multiplayer
+- pvp
 
 ## Names and budget
 - Folders and assets: letters, digits and underscore, paths of 140 characters at most.

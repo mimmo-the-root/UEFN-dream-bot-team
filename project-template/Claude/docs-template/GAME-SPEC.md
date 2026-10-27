@@ -6,6 +6,8 @@
 - Status: Draft
 - Mode: normal
 - Genre: <slug from the official genre list, or empty until confirmed>
+- Players: <how many, e.g. 1, or 4; ask the owner in step 0>
+- Teams: <none, or teams of N>
 - Days left: <number or empty>
 
 ## Idea

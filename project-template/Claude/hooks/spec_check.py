@@ -64,6 +64,15 @@ def check(text, gate=False, jam=False, today=None):
     if placeholder(field(head, "Genre")):
         warn.append("Genre: not confirmed yet (the owner decides; in a jam the AI proposes one from the theme)")
 
+    pl = field(head, "Players")
+    if placeholder(pl) or not re.search(r"\d", pl):
+        block.append("Players: write how many players the game is for (ask the owner; it decides the Island settings and the tests)")
+    else:
+        n = int(re.search(r"\d+", pl).group(0))
+        if n > 1:
+            info.append("multiplayer (%d players): the plan needs the Island settings and the playtest uses %d players" % (n, n))
+            if "player" not in sec.get("success criteria", "").lower():
+                warn.append("Success criteria: none mentions the players (for example 'with 4 players the score counts all of them')")
     loop = sec.get("loop (mvp)", "")
     for k in LOOP:
         v = field(loop, k)

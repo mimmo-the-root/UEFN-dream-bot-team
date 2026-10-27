@@ -57,6 +57,16 @@ def plan_sections(plan):
     return out
 
 
+def island_settings(plan):
+    m = re.search(r"(?ms)^##\s+Island settings\s*$(.*?)(?=^##\s|\Z)", plan)
+    out = []
+    for l in (m.group(1) if m else "").splitlines():
+        c = [x.strip() for x in l.strip().strip("|").split("|")]
+        if l.strip().startswith("|") and len(c) >= 2 and not re.match(r"-+$|Setting$", c[0]) and "<" not in l:
+            out.append(c)
+    return out
+
+
 def table_rows(text, heading):
     m = re.search(r"###\s+%s\s*\n(.*?)(?=\n###|\n##|\Z)" % re.escape(heading), text, re.S)
     if not m:
@@ -126,6 +136,17 @@ def check(d, stage="all", today=None):
     if re.search(r"<[^>\n]+>", re.sub(r"<!--.*?-->", "", plan, flags=re.S)):
         add("HIGH", "PLAN.md still has template placeholders")
     secs = plan_sections(plan)
+    isl = island_settings(plan)
+    pm = re.search(r"\d+", spec_check.field(spec, "Players") or "")
+    if not isl:
+        add("HIGH", "PLAN.md: no Island settings table (max players, teams, round, respawn): they are set by hand in UEFN Island Settings")
+    elif pm:
+        mx = [r[1] for r in isl if r[0].lower().startswith("max players")]
+        mn = re.search(r"\d+", mx[0]) if mx else None
+        if not mn:
+            add("HIGH", "Island settings: 'Max players' is missing")
+        elif int(mn.group(0)) < int(pm.group(0)):
+            add("HIGH", "Island settings: Max players (%s) is lower than the players of the spec (%s)" % (mn.group(0), pm.group(0)))
     for n, title, p in st:
         if n not in secs:
             add("HIGH", "Story %d (%s) has no section '## S%d' in PLAN.md" % (n, p, n))

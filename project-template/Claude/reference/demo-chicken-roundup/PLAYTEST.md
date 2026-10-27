@@ -2,6 +2,12 @@
 
 Fill 'observed' while you play. A failed row becomes a regression task (T-xxx) in ROADMAP.md.
 
+## Players (4)
+- [ ] Play with 1 player alone: the round starts and ends
+- [ ] Play with 4 players: everyone can join, the round starts, the shared state is correct
+- [ ] A player joins a running round (if Join in progress is on) and one leaves: nothing breaks
+- [ ] Island Settings in UEFN match the plan (max players, teams, respawn)
+
 ## S1 - Round up the chickens (P1)
 - Expected: start a round, tame one chicken, deliver it, and see the score go up by one step.
 - Observed: 
@@ -16,6 +22,7 @@ Fill 'observed' while you play. A failed row becomes a regression task (T-xxx) i
 - Result: ok / fail
 
 - [ ] Given two tamed chickens, when both enter the pen, then each counts once.
+- [ ] Given four players, when each delivers one chicken, then the shared score counts four.
 
 ## Success criteria
 - [ ] SC-001: a new player finishes a round in under 4 minutes without help. | observed: 

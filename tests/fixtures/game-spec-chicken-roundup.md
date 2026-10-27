@@ -3,10 +3,12 @@
 - Status: Draft
 - Mode: normal
 - Genre: survival
+- Players: 4
+- Teams: none (everyone plays together)
 - Days left:
 
 ## Idea
-A single-player farm game: tame the wandering chickens and bring them back to the pen before time runs out.
+A farm game for up to 4 players together: tame the wandering chickens and bring them back to the shared pen before time runs out.
 
 ## Loop (MVP)
 - Action: the player walks to a chicken and picks it up to tame it, then it follows the player.
@@ -26,6 +28,7 @@ The player tames chickens and delivers them to the pen to score. This is the who
 The player can lead several chickens together.
 - Independent test: tame two chickens, deliver both, and see the score count two, not one.
 - Given two tamed chickens, when both enter the pen, then each counts once.
+- Given four players, when each delivers one chicken, then the shared score counts four.
 
 ## Success criteria
 - SC-001: a new player finishes a round in under 4 minutes without help.
@@ -33,7 +36,7 @@ The player can lead several chickens together.
 - SC-003: the same chicken never counts twice (checked with two tamed and one delivered).
 
 ## Assumptions
-- Single player: the farm prototype of the Epic example has no teammates.
+- Co-op for 4 players, no teams: everyone shares one pen and one score.
 - One pen, one round length (3 minutes): the owner may change both.
 - Points per chicken are equal for every chicken.
 
@@ -54,7 +57,7 @@ The player can lead several chickens together.
 | Chickens may stop following the player at some distances | medium | Test one chicken first and tune the follow distance |
 
 ## Out of scope
-- Several players and a leaderboard: not needed to test the loop.
+- Competition between players (PvP) and a leaderboard: not needed to test the loop.
 - Day and night cycle: scope.
 
 ## To clarify

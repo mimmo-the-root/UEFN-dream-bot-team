@@ -47,7 +47,9 @@ def environment(d):
         return None
     a = asset_rows(plan)
     todo = [x for x in a if x[2] != "present"]
-    return {"assets": a, "to_get": todo, "manual": manual_steps(plan), "owner": OWNER_ONLY,
+    spec = plan_check.read(os.path.join(d, "GAME-SPEC.md"))
+    isl = ["Island Settings: %s = %s" % (r[0], r[1]) for r in plan_check.island_settings(plan)]
+    return {"assets": a, "to_get": todo, "manual": manual_steps(plan), "owner": OWNER_ONLY + tuple(isl), "players": spec_check.field(spec, "Players"),
             "approved": spec_check.field(plan, "Approved").lower() == "yes", "lore": "Save a Lore checkpoint before the first playtest."}
 
 
@@ -55,7 +57,12 @@ def playtest(d):
     spec = plan_check.read(os.path.join(d, "GAME-SPEC.md"))
     if not spec:
         return None
+    pl = spec_check.field(spec, "Players")
     lines = ["# Playtest checklist", "", "Fill 'observed' while you play. A failed row becomes a regression task (T-xxx) in ROADMAP.md.", ""]
+    if re.search(r"\d+", pl or "") and int(re.search(r"\d+", pl).group(0)) > 1:
+        n = int(re.search(r"\d+", pl).group(0))
+        lines += ["## Players (%d)" % n, "- [ ] Play with 1 player alone: the round starts and ends", "- [ ] Play with %d players: everyone can join, the round starts, the shared state is correct" % n,
+                  "- [ ] A player joins a running round (if Join in progress is on) and one leaves: nothing breaks", "- [ ] Island Settings in UEFN match the plan (max players, teams, respawn)", ""]
     for n, title, pr in plan_check.stories(spec):
         m = re.search(r"###\s+Story\s+%d\b.*?(?=\n###|\n## |\Z)" % n, spec, re.S)
         body = m.group(0) if m else ""

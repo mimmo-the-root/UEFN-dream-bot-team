@@ -63,7 +63,9 @@ Lessons, Recipes, Skills, Maps & products, This map / This product, UEFN MCP and
 | Principles and plan | `/piano` | `CONSTITUTION.md`, `PLAN.md` | one approval |
 | Tasks | `/compiti` | the Tasks table in `ROADMAP.md` | nothing |
 | Check | `/coerenza` | a read-only report | what to fix first |
-| Environment and playtest | `/ambiente`, `/ambiente --playtest` | the readout, `PLAYTEST.md` | the steps only you can do |
+| Environment and playtest | `/ambiente`, `/ambiente --playtest` | the readout (with the Island settings to set), `PLAYTEST.md` | the steps only you can do |
+| Audit | `/audit` | `AUDIT.md`: small bugs fixed by itself, the serious ones listed | what to do with each serious one |
+| Delivery | `/consegna` | `DELIVERY-GATE.md` | tick each box yourself, write the memory %, make the private release |
 
 `/spec` and `/piano` study first: second brain, genre lessons, retention and feasibility skills, proven recipes. Small bugs are fixed by themselves only if they are on the constitution's list (Self-healing). The full walk-through is the manual chapter *From an idea to a playable game*.
 
@@ -81,7 +83,7 @@ The kit ships Chicken Roundup (from the Epic farm example): spec, constitution, 
 
 ## What's new (v1.102 - v1.114.0)
 
-- **Study, environment and playtest (1.114).** `/spec` and `/piano` start from the second brain, the genre lessons and the proven recipes and write their sources; `/ambiente` reads the environment from the plan without changing anything and lists what only you can do; `/ambiente --playtest` writes a checklist from the spec. The Docs page gets Idea, Spec and Plan tabs.
+- **Study, environment and playtest (1.114).** `/spec` and `/piano` start from the second brain, the genre lessons and the proven recipes and write their sources; `/ambiente` reads the environment from the plan without changing anything and lists what only you can do; `/ambiente --playtest` writes a checklist from the spec. `/spec` asks how many players from the start (multiplayer needs the Island settings in the plan), `/audit` fixes small bugs by itself and gives you the serious ones, `/consegna` is the last gate: configuration you must do, private release, memory flag, playtest. The Docs page gets Idea, Spec and Plan tabs.
 - **From the spec to the tasks (1.113).** `/piano` writes the principles (`CONSTITUTION.md`) and the plan (`PLAN.md`: devices, assets that exist, steps only you can do, two build passes); `/compiti` makes tasks with a test, a story, dependencies and parallel marks; `/coerenza` checks spec, plan and tasks read-only, and a conflict with the principles is always CRITICAL.
 - **Start a game from the spec (1.112).** `/spec` takes an idea (yours or three proposed), asks the minimum, lets you confirm the genre, scores three variants, writes the loop in five lines and a `GAME-SPEC.md` with measurable criteria, assumptions and a table of technical risks, and asks for one approval. `spec_check.py` is its test list; `--gate` is the door to planning (score 60 or more, or your forced yes) and `--jam` checks the theme line.
 - **One workflow for everything you can share (1.111).** Lessons, recipes, skills and the UEFN MCP proof share the same states (collected, ready, shared, private) and the same buttons in every tab, with Promote all / Keep all private. Contribute to the community is on by default (nothing leaves without your click), GitHub opens with the file name, title and description filled in, lessons reach the kit at each release by themselves, and the maintainer has a Maintainer / Contributor view switch.

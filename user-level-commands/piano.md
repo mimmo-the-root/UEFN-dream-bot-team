@@ -18,8 +18,11 @@ You plan the game. The spec says WHAT; the plan says HOW. Work in `Claude/docs/`
 - Assets inventory: first look at what exists (project, Fortnite and Fab libraries through the MCP when the editor is open); mark each asset `present`, `import` or `create`. Never invent an asset by its name.
 - Manual steps: everything only the owner can do (`@editable` references, editor settings), each with how to verify.
 - Build order: Pass 1 (structure: S1 first, the loop playable at the end), Pass 2 (details), and one sample to try alone before making a series.
+- Island settings: a table (Max players, Min players to start, Teams, Round, Respawn, Join in progress...) written FROM the spec (Players and Teams). Most of them are set by hand in UEFN Island Settings: say which ones and how to verify.
 - Risks to tasks: each risk of the spec (numbered R1, R2... in table order) gets the first task that reduces it; the high ones must be in the first three tasks.
 In a jam (`--jam` or `Mode: jam`): a one-page plan, high risks first.
+
+**Review.** After 1 and after 2, ask the agent `intent-reviewer` to read the file against the spec with fresh eyes (gaps, contradictions, a missing player case). Fix what it finds; a doubt about the spec goes back to `/spec`, never into the plan.
 
 **3. Check and approve.** Run `python plan_check.py --stage plan`. Fix every CRITICAL and HIGH line; a CRITICAL is a conflict with the constitution and is never argued away. Then ONE question to the owner: approve the plan, or change something. Write `Approved: yes` in `PLAN.md` only after the yes, add one line to `Claude/docs/STATUS.md`, and say the next step is `/compiti`.
 
