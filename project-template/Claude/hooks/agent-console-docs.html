@@ -1323,7 +1323,8 @@ const SECOND = [["bugs","Bugs"],["status","Status"],["docs","Documents"]];
 const PHASE_KEY = {idea:"idea",spec:"spec",plan:"plan",constitution:"plan",tasks:"road",compiti:"road",environment:"env",ambiente:"env",build:"build",audit:"audit",delivery:"delivery",consegna:"delivery",playtest:"delivery"};
 function phaseStep(l){ const w = String(l||"").toLowerCase().match(/[a-z]+/); return w ? (PHASE_KEY[w[0]] || null) : null; }
 function stepName(k){ const s = STEPS.find(x => x[0]===k); return s ? s[1] : (k||""); }
-let curTab = null, lastNow = null, prevSnap = {};
+let curTab = null, lastNow = null, prevSnap = {}, ideaSel = 0, lastSt = null;
+const MAX_IDEAS = 5;
 function jSecs(raw){
   const out = {}; let cur = null;
   String(raw||"").replace(/\r\n/g,"\n").split("\n").forEach(l => {
@@ -1357,6 +1358,7 @@ async function jState(){
   st.auditOpen = (st.audit.match(/^\|\s*\d+\s*\|\s*(minor|medium|major)\s*\|.*\|\s*(open|for the owner)\s*\|\s*$/gim)||[]).length;
   st.gateExists = !!(dl.exists && !dl.error); st.gate = st.gateExists ? dl.content : "";
   st.gateAll = (st.gate.match(/- \[[ xX]\]/g)||[]).length; st.gateDone = (st.gate.match(/- \[[xX]\]/g)||[]).length;
+  st.ideas = jParseIdeas(jSecs(g.exists ? g.content : "")["ideas"]);
   st.t0 = !st.hasSpec && !tasks.length;
   return st;
 }
@@ -1421,8 +1423,46 @@ function jPlan0(st){
     (isl.length ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings (set by hand in UEFN Island Settings)</div><div class="jscroll"><table class="jtab"><tr><th>Setting</th><th>Value</th></tr>' + isl.map(r => '<tr><td>' + escH(r[0]) + '</td><td>' + escH(r[1]||"") + '</td></tr>').join("") + '</table></div></div>' : (/Players:\s*[2-9]/.test(st.head) ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings ' + jPill("missing","ja") + '</div><div style="margin-top:6px;color:var(--dim);">The spec has several players: <code>/piano</code> writes the Island settings table (max players, teams, respawn).</div></div>' : '')) +
     '<div class="card"><div class="label">Build order</div><div class="jchk">' + bo.map((b,i) => '<div><span class="jno">' + (i<2 ? i+1 : "·") + '</span>' + escH(b) + '</div>').join("") + '</div></div>';
 }
-function jGhost(real, html, hint){ return real ? html : '<div class="ghost"><div class="gh-hint">' + hint + '</div>' + html + '</div>'; }
-function jIdea(st){ return jGhost(st.hasSpec, jIdea0(st), 'Not started. Run <code>/spec</code> (or a demo): it takes an idea, asks the minimum and fills this page: the idea, the genre, the players, the loop in five lines and its score.'); }
+function jGhost(real, html, hint){ return real ? html : '<div class="ghost">' + (hint ? '<div class="gh-hint">' + hint + '</div>' : '') + html + '</div>'; }
+function jParseIdeas(raw){
+  return String(raw||"").split(/\n(?=###\s)/).filter(b => /^###\s/.test(b.trim())).map(b => {
+    const h = /^###\s+(.*)$/m.exec(b.trim()), title = (h ? h[1] : "").replace(/^Idea\s*\d+\s*[-:]\s*/i, "").trim(), sc = /(\d+)\s*\/\s*100/.exec(jFld(b, "Idea score"));
+    return {title, pitch: jFld(b,"Pitch"), score: sc ? +sc[1] : null, verdict: jFld(b,"Verdict"), weak: jFld(b,"Weak points"), iter: jFld(b,"Iterations"), status: (jFld(b,"Status")||"").toLowerCase()};
+  }).filter(x => !(jPh(x.title) && jPh(x.pitch))).slice(0, MAX_IDEAS);
+}
+function jVerdictPill(v){ v = String(v||"").toLowerCase(); return !v || jPh(v) ? "" : /^build/.test(v) ? jPill(v, "jg") : /smaller/.test(v) ? jPill(v, "ja") : jPill(v, "jr"); }
+function jStatusPill(s){ return s === "chosen" ? jPill("chosen ★", "jg") : s === "dropped" ? jPill("dropped", "") : s === "alternative" ? jPill("alternative", "ja") : ""; }
+function jIdeaTabs(st){
+  const ideas = st.ideas, n = ideas.length, ghost = n === 0;
+  if (ghost && st.hasSpec) return "";
+  const sel = (ideaSel === "cmp" && n > 1) ? "cmp" : Math.min(typeof ideaSel === "number" ? ideaSel : 0, Math.max(0, n - 1));
+  const items = ghost ? [{title:"", score:null, status:""}] : ideas;
+  const bar = '<div class="pt idt" role="tablist" aria-label="Ideas">' + items.map((x, i) => '<button class="tab' + (sel===i ? " on" : "") + '" type="button" data-i="' + i + '">Idea ' + (i+1) + (x.score !== null ? ' <span class="cnt">' + x.score + '</span>' : '') + (x.status === "chosen" ? ' ★' : '') + '</button>').join("") +
+    (n > 1 ? '<button class="tab' + (sel==="cmp" ? " on" : "") + '" type="button" data-i="cmp">Compare</button>' : '') + '</div>';
+  let body;
+  if (sel === "cmp"){
+    body = '<div class="card"><div class="label">Compare the ideas</div><div class="jscroll"><table class="jt"><tr><th>#</th><th>Idea</th><th>Score</th><th>Verdict</th><th>Weak points</th><th>Status</th></tr>' + ideas.map((x, i) => '<tr><td>' + (i+1) + '</td><td><b>' + escH(x.title||"") + '</b><div style="color:var(--dim);">' + escH(x.pitch||"") + '</div></td><td style="white-space:nowrap;"><b>' + (x.score===null ? "-" : x.score) + '</b><div class="jbar" style="width:90px;margin-top:4px;"><i style="width:' + (x.score||0) + '%"></i></div></td><td>' + jVerdictPill(x.verdict) + '</td><td style="color:var(--dim);">' + escH(x.weak||"") + '</td><td>' + jStatusPill(x.status) + '</td></tr>').join("") + '</table></div></div>';
+  } else {
+    const x = ghost ? {title:"", pitch:"", score:null, verdict:"", weak:"", iter:"", status:""} : ideas[sel];
+    const hist = (x.iter && !jPh(x.iter)) ? String(x.iter).split(/\s*(?:->|→|,)\s*/).filter(Boolean) : [];
+    body = '<div class="jgrid"><div class="card"><div class="label">Idea ' + (sel+1) + ' ' + jStatusPill(x.status) + '</div><div style="font-size:15px;margin-top:6px;font-weight:600;">' + escH(x.title && !jPh(x.title) ? x.title : "(title not written yet)") + '</div><div style="line-height:1.5;margin-top:6px;color:var(--text);">' + escH(x.pitch && !jPh(x.pitch) ? x.pitch : "(one sentence not written yet)") + '</div>' +
+      '<div class="label" style="margin-top:14px;">Weak points</div><div style="margin-top:4px;color:var(--dim);line-height:1.5;">' + escH(x.weak && !jPh(x.weak) ? x.weak : "-") + '</div></div>' +
+      '<div class="card"><div class="label">Score of this idea</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;"><span style="font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;">' + (x.score===null ? "-" : x.score) + '</span><span style="color:var(--dim);">of 100</span>' + jVerdictPill(x.verdict) + '</div><div class="jbar" style="margin:8px 0;"><i style="width:' + (x.score||0) + '%"></i><u style="left:60%"></u></div><div style="font-size:11px;color:var(--dim);">Threshold 60</div>' +
+      (hist.length > 1 ? '<div class="label" style="margin-top:12px;">Iterations</div><div style="margin-top:4px;">' + hist.map((h, k) => '<span class="jpill' + (k === hist.length-1 ? " jgreen" : "") + '">' + escH(h) + '</span>').join(' → ') + '</div>' : '') +
+      (ghost ? '' : '<div class="acts" style="display:flex;flex-direction:column;gap:6px;margin-top:12px;"><div class="act" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span class="cmd" style="background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);">/spec --improve ' + (sel+1) + '</span><button class="btn" type="button" data-cmd="/spec --improve ' + (sel+1) + '" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy text</button><span style="font-size:11px;color:var(--dim);">rework this idea to raise its score</span></div>' +
+      (n < MAX_IDEAS ? '<div class="act" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span class="cmd" style="background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);">/spec --new-idea</span><button class="btn" type="button" data-cmd="/spec --new-idea" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy text</button><span style="font-size:11px;color:var(--dim);">a new idea in its own tab (' + n + ' of ' + MAX_IDEAS + ')</span></div>' : '<div style="font-size:11px;color:var(--dim);">5 ideas: the maximum. Improve one or drop one.</div>') + '</div>') + '</div></div>';
+  }
+  return jGhostBlock(ghost, bar + body);
+}
+function jGhostBlock(g, html){ return g ? '<div class="ghost" style="margin-bottom:16px;">' + html + '</div>' : html; }
+function paintIdea(){
+  const el = document.getElementById("pIdea"); if (!el || !lastSt) return;
+  el.innerHTML = jIdea(lastSt); bindCopy(el);
+  Array.prototype.forEach.call(el.querySelectorAll(".idt .tab"), b => { b.onclick = () => { const v = b.getAttribute("data-i"); ideaSel = v === "cmp" ? "cmp" : +v; paintIdea(); }; });
+}
+function jIdea(st){ const hint = '<b>Not started.</b> Two ways in, both with <code>/spec</code>.<br><b>You have material</b> (an idea, notes, a document, a half-written spec): give it to Claude Code with the command. It uses it as the starting point and completes it to the model of this page, asking only for what is missing.<br><b>You have nothing</b>: run <code>/spec</code> alone. Claude Code works with you and proposes three ideas, each with a score out of 100.<br>If a score is under 60 you can improve that idea or ask for a new one (up to 5): each idea gets its own tab here, and a Compare tab puts the scores side by side. You choose the one that goes on.';
+  if (st.ideas.length) return jIdeaTabs(st) + jGhost(st.hasSpec, jIdea0(st), 'The idea you choose fills this part: genre, players and the loop in five lines.');
+  return st.hasSpec ? jIdea0(st) : jGhost(false, '', hint) + jIdeaTabs(st) + jGhost(false, jIdea0(st), ''); }
 function jSpec(st){ return jGhost(st.hasSpec, jSpec0(st), 'Waiting for <code>/spec</code>. This page will show the checklist of the spec (loop, story with test, success criteria, assumptions) and the technical risks with a level.'); }
 function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/piano</code>.' : 'Waiting for the approved spec. <code>/piano</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
 function bucketPill(s){ const b = statusBucket(s); return b==="done" ? '<span class="jpill jgreen">Done</span>' : b==="active" ? '<span class="jpill jlive">In progress</span>' : b==="blocked" ? '<span class="jpill jred">Blocked</span>' : '<span class="jpill">To do</span>'; }
@@ -1497,7 +1537,7 @@ async function renderJourney(){
     if (curTab === null){ let saved = null; try{ saved = localStorage.getItem("docsTab"); }catch(e){} curTab = (st.demoOn && ss.now) ? ss.now : (saved || ss.now || "idea"); }
     else if (lastNow !== null && ss.now && ss.now !== lastNow && (STEPS.some(s => s[0]===curTab))) curTab = ss.now; // a step finished: the next one opens by itself
     lastNow = ss.now;
-    document.getElementById("pIdea").innerHTML = jIdea(st); document.getElementById("pSpec").innerHTML = jSpec(st); document.getElementById("pPlan").innerHTML = jPlan(st);
+    lastSt = st; paintIdea(); document.getElementById("pSpec").innerHTML = jSpec(st); document.getElementById("pPlan").innerHTML = jPlan(st);
     document.getElementById("pEnv").innerHTML = jEnv(st); document.getElementById("pBuild").innerHTML = jBuild(st);
     document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st);
     const rh = document.getElementById("roadHint"); if (rh) rh.innerHTML = st.tasks.length ? "" : '<div class="ghost"><div class="gh-hint">No tasks yet. <code>/compiti</code> breaks the approved plan into tasks with a check for each one: the timeline and the list below fill in by themselves.</div></div>';

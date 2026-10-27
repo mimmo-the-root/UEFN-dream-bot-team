@@ -7,6 +7,31 @@
 - Teams: none (everyone plays together)
 - Days left:
 
+## Ideas
+### Idea 1 - Chicken Roundup
+- Pitch: Tame the escaped chickens and bring them to the shared pen before the round ends, up to 4 players together.
+- Idea score: 72/100
+- Verdict: build it
+- Weak points: taming may not exist as a command in Verse; the flock needs a simple follow rule
+- Iterations: 58 -> 66 -> 72
+- Status: chosen
+
+### Idea 2 - Fox Watch
+- Pitch: Players guard the coop at night and scare foxes away with lanterns.
+- Idea score: 61/100
+- Verdict: smaller scope
+- Weak points: needs enemy movement and night lighting; fewer reasons to replay
+- Iterations: 61
+- Status: alternative
+
+### Idea 3 - Egg Hunt Relay
+- Pitch: Teams race to carry eggs across the farm without breaking them.
+- Idea score: 54/100
+- Verdict: pick another
+- Weak points: physics of carrying is fragile in UEFN; scope grows with every obstacle
+- Iterations: 54
+- Status: dropped
+
 ## Idea
 A farm game for up to 4 players together: tame the wandering chickens and bring them back to the shared pen before time runs out.
 

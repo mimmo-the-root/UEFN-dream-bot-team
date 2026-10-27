@@ -10,6 +10,16 @@
 - Teams: <none, or teams of N>
 - Days left: <number or empty>
 
+## Ideas
+<!-- Up to 5 ideas, each with its own score; the chosen one feeds Idea and Loop below. Written by /spec. The Docs page shows one tab per idea and a Compare tab. -->
+### Idea 1 - <title>
+- Pitch: <one sentence>
+- Idea score: <NN>/100
+- Verdict: <build it / smaller scope / pick another>
+- Weak points: <the two weakest points>
+- Iterations: <score history, e.g. 52 -> 61 -> 68>
+- Status: <chosen / alternative / dropped>
+
 ## Idea
 <one sentence>
 
