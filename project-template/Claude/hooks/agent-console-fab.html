@@ -180,7 +180,7 @@ function recVal(){var t=$("vtext").value;if(!t.trim()){$("err").textContent="Pas
 $("bScan").onclick=function(){$("bScan").disabled=true;post({action:"scan"}).then(load).then(function(){$("bScan").disabled=false})};
 $("bZip").onclick=function(){post({action:"zip"}).then(function(j){if(j.ok){$("err").style.color="var(--green)";$("err").textContent="Zip made: "+j.zip}return load()})};
 $("bRe").onclick=function(){post({action:"reread"}).then(load)};
-$("kitVersion").textContent="v1.113.0";  /* shown at once; the server version replaces it */
+$("kitVersion").textContent="v1.114.0";  /* shown at once; the server version replaces it */
 fetch("/whoami").then(function(r){return r.json()}).then(function(w){$("kitVersion").textContent=w.kit_version?"v"+w.kit_version:""}).catch(function(){});
 load();setInterval(load,20000);
 </script>

@@ -5,7 +5,7 @@ fail on JavaScript errors or an empty page, and save dark-theme screenshots.
   python tool/shoot_consoles.py [--out DIR] [--only score,news] [--check-only]
 
 Needs Playwright with Chromium (pip install playwright; playwright install chromium). Without it the script says so and exits 2.
-The demo project is built in a temporary folder with invented but consistent data (a roadmap, bugs, a call ledger): nothing
+The demo project is built in a temporary folder with invented but consistent data (a roadmap, bugs, a call ledger, the pilot game docs): nothing
 from a real project is read. Screenshots go to docs/manual/images/shot-<page>.png unless --out says otherwise.
 """
 import json
@@ -37,6 +37,17 @@ def demo_project(d):
             ("T-005", "Visual polish: lighting and materials", "To do", "Readable at a glance", "P2", "P0-R3")]
     open(os.path.join(docs, "ROADMAP.md"), "w").write("# Roadmap\n\n## Tasks\n\n" + hdr + "\n".join("| %s | %s | %s | %s | %s | %s |" % r for r in rows) + "\n")
     open(os.path.join(docs, "BUGS.md"), "w").write("# Bugs\n\n| Title | Where | Severity | Probable cause | Status |\n|---|---|---|---|---|\n| B-001: score resets after a round | game.verse | medium | state not kept | Open |\n")
+    # the pilot demo (v1.114): spec, constitution, plan and its tasks, so the Docs page shows Idea, Spec and Plan filled
+    demo = os.path.join(ROOT, "project-template", "Claude", "reference", "demo-chicken-roundup")
+    for n in ("GAME-SPEC.md", "CONSTITUTION.md", "PLAN.md"):
+        shutil.copyfile(os.path.join(demo, n), os.path.join(docs, n))
+    if "--plain" not in sys.argv:
+        road = open(os.path.join(demo, "ROADMAP.md"), encoding="utf-8").read()
+        for t, st in (("T-001", "Done"), ("T-002", "Done"), ("T-003", "Done"), ("T-004", "In progress")):  # a game under way, for the progress graphics
+            road = road.replace("| %s |" % t, "| %s |" % t, 1)
+            lines = road.splitlines()
+            road = "\n".join(l.replace("| To do |", "| %s |" % st, 1) if l.startswith("| %s |" % t) else l for l in lines) + "\n"
+        open(os.path.join(docs, "ROADMAP.md"), "w", encoding="utf-8").write(road)
     open(os.path.join(docs, "STATUS.md"), "w").write("# Status\n\nDemo project for the console screenshots.\n")
     now = time.time()
     led = [{"d": time.strftime("%Y-%m-%d"), "sid": "demo", "t": "10:%02d:00" % i, "toolset": "Demo.Level", "tool": t, "args": "{}", "r": "ok", "src": "work"}
@@ -99,6 +110,13 @@ def main(argv):
                     bad.append("%s: the page is empty" % name)
                 if not check_only:
                     page.screenshot(path=os.path.join(out, "shot-%s.png" % name), full_page=False)
+                if name == "docs" and not check_only:
+                    for tab in ("idea", "spec", "plan", "road", "docs"):
+                        page.click('#pageTabs .tab[data-t="%s"]' % tab)
+                        page.wait_for_timeout(300)
+                        page.screenshot(path=os.path.join(out, "shot-docs-%s.png" % tab), full_page=False)
+                    if not page.is_visible('#demoCard'):
+                        bad.append("docs: the pilot demo card is not visible on the Documents tab")
                 page.close()
             br.close()
     finally:

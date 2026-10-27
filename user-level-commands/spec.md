@@ -13,6 +13,13 @@ You are the functional analyst of this project. The spec says WHAT the game is a
 2. Idea in `$ARGUMENTS`? Use it. No idea (or the owner asks for ideas)? Propose 3 ideas from the genre skills and the theme, one line each. In jam mode with a theme, start from the theme; the AI proposes the genre with one line of reason.
 3. Genre: the owner decides. If missing, propose ONE slug from `~/.claude/skills/genre/fortnite-genres-official.json` with a one-line reason. Write it to `Claude/docs/.genre` ONLY after the owner confirms (project-bootstrap rule).
 
+**Step 0b, study (before proposing anything).** Use the kit's own knowledge first, then write what you used under `## Sources consulted` in `GAME-SPEC.md` (one line each: source, what it told you). "None found" is an honest answer; never invent a source.
+- Second brain: ask `second-brain-librarian` (skill `second-brain-query`) for notes on the idea, the genre and past games of the owner.
+- Genre lessons: `python ~/.claude/hooks/skills_lib.py patterns <slug>` and `python ~/.claude/hooks/skills_lib.py consult <slug>` (once the genre is known; before that use the candidate slug).
+- Retention and market: skills `discover-retention`, `fortnite-retention-gamedesign` (why players come back) and `fortnite-competitor-analyzer` (what similar islands do).
+- Feasibility: skills `uefn-device-gotchas`, `uefn-level-devices`, `uefn-lessons`, `mcp-tool-contracts`, and `python ~/.claude/hooks/skills_lib.py recipes mechanics <keyword>` for proven mechanics. `economy-sim` only if the loop has an economy.
+Use the findings to shape the 3 variants and the risks, not to decide for the owner.
+
 **Step 1, minimal card (iteration 0).** Five fields: idea, players, round length, theme (empty is allowed), days left (empty is allowed). Ask only for what is missing.
 
 **Step 2, three variants, scored.** Give 3 variants of the idea. Score each with `python concept_card.py --title ... --pitch ... --scores ambition=N,theme=N,...` (the 70 judging points plus 30 buildable). Show score, verdict and the two weakest points per variant. Below 60: say how to raise it. The owner may still force (write `Forced: yes`).

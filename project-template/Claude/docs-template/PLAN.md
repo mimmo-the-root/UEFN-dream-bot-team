@@ -28,6 +28,9 @@
 ### Manual steps (only the owner can do them)
 - <for example: assign the @editable references in the Details panel, then tell Claude>
 
+## Sources consulted
+- <recipes, device skills, MCP lessons and notes used for this plan, one line each; "none found" is an honest answer>
+
 ## Risks to tasks
 | Risk of the spec | First task that reduces it |
 |---|---|

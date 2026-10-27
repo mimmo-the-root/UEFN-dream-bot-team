@@ -91,6 +91,10 @@ def check(text, gate=False, jam=False, today=None):
     if not ass:
         warn.append("Assumptions: none. Write every choice the AI made instead of the owner")
 
+    src = [l for l in sec.get("sources consulted", "").splitlines() if l.strip().startswith(("-", "*")) and "<" not in l]
+    if not src:
+        warn.append("Sources consulted: none written (the study step uses the second brain, the genre skill and its lessons, the retention and feasibility skills)")
+
     rows = [l for l in sec.get("technical risks", "").splitlines() if l.strip().startswith("|") and not re.match(r"\|\s*(-|Risk)", l.strip())]
     real = [r for r in rows if re.search(r"\|\s*(low|medium|high)\s*\|", r, re.I) and "<" not in r]
     if not real:

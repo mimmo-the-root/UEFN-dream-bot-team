@@ -71,4 +71,6 @@ assert p.returncode == 1 and "BLOCK" in p.stdout
 # the /spec command exists, with its front matter, and names the file and the checker
 cmd = open(os.path.join(ROOT, "user-level-commands", "spec.md"), encoding="utf-8").read()
 assert cmd.startswith("---") and "description:" in cmd and "GAME-SPEC.md" in cmd and "spec_check.py" in cmd and "concept_card.py" in cmd
+for w in ("Sources consulted", "skills_lib.py patterns", "discover-retention", "second-brain-librarian", "recipes mechanics"):
+    assert w in cmd, w
 print("ok")

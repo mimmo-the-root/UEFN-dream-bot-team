@@ -43,10 +43,33 @@ Lessons, Recipes, Skills, Maps & products, This map / This product, UEFN MCP and
 
 ![Skills page](docs/images/agent-console-skills.png)
 
-**The Docs page** — roadmap progress, bugs by severity, the task timeline and the owner actions, read from
-the project's own documents (demo data):
+**The Docs page** — header, the three progress rings, the next action with a Copy command button, and tabs: **Idea**, **Spec**, **Plan**, **Roadmap**, **Bugs**, **Status**, **Documents**. A dot on each of the first three says where the game is: grey not started, amber now, green done. Everything is read from the project's own files (demo data):
 
-![Docs page](docs/images/agent-console-docs-status.png)
+![Docs page, Idea tab](docs/images/agent-console-docs-idea.png)
+
+![Docs page, Spec tab](docs/images/agent-console-docs-spec.png)
+
+![Docs page, Plan tab](docs/images/agent-console-docs-plan.png)
+
+![Docs page, Roadmap tab](docs/images/agent-console-docs-road.png)
+
+![Docs page, Documents tab with the pilot demo buttons](docs/images/agent-console-docs-docs.png)
+
+### From an idea to a playable game
+
+| Step | You type | Claude writes | You decide |
+|---|---|---|---|
+| Idea, genre, spec | `/spec "your idea"` | `GAME-SPEC.md` (loop in 5 lines, stories, success criteria, risks, sources consulted) | the genre, one approval |
+| Principles and plan | `/piano` | `CONSTITUTION.md`, `PLAN.md` | one approval |
+| Tasks | `/compiti` | the Tasks table in `ROADMAP.md` | nothing |
+| Check | `/coerenza` | a read-only report | what to fix first |
+| Environment and playtest | `/ambiente`, `/ambiente --playtest` | the readout, `PLAYTEST.md` | the steps only you can do |
+
+`/spec` and `/piano` study first: second brain, genre lessons, retention and feasibility skills, proven recipes. Small bugs are fixed by themselves only if they are on the constitution's list (Self-healing). The full walk-through is the manual chapter *From an idea to a playable game*.
+
+### Try the pilot demo
+
+The kit ships Chicken Roundup (from the Epic farm example): spec, constitution, plan, six tasks and a playtest checklist, all passing the kit's checks. **Do not use your real map**: make a new empty UEFN project for tests, open Claude Code in its `Content` folder, run `/kit-update`, then `/demo --load` (or press the button on the Docs page, Documents tab). `/demo` alone copies the files into `Claude/docs/demo-chicken-roundup/` and touches nothing else. To run it again, use a fresh test project.
 
 **The Flow page** — the pipeline as a U-shaped board: one card and one agent icon per station, tokens per agent, Control Tower and Pipeline pulse (demo data):
 
@@ -56,8 +79,9 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.113.0)
+## What's new (v1.102 - v1.114.0)
 
+- **Study, environment and playtest (1.114).** `/spec` and `/piano` start from the second brain, the genre lessons and the proven recipes and write their sources; `/ambiente` reads the environment from the plan without changing anything and lists what only you can do; `/ambiente --playtest` writes a checklist from the spec. The Docs page gets Idea, Spec and Plan tabs.
 - **From the spec to the tasks (1.113).** `/piano` writes the principles (`CONSTITUTION.md`) and the plan (`PLAN.md`: devices, assets that exist, steps only you can do, two build passes); `/compiti` makes tasks with a test, a story, dependencies and parallel marks; `/coerenza` checks spec, plan and tasks read-only, and a conflict with the principles is always CRITICAL.
 - **Start a game from the spec (1.112).** `/spec` takes an idea (yours or three proposed), asks the minimum, lets you confirm the genre, scores three variants, writes the loop in five lines and a `GAME-SPEC.md` with measurable criteria, assumptions and a table of technical risks, and asks for one approval. `spec_check.py` is its test list; `--gate` is the door to planning (score 60 or more, or your forced yes) and `--jam` checks the theme line.
 - **One workflow for everything you can share (1.111).** Lessons, recipes, skills and the UEFN MCP proof share the same states (collected, ready, shared, private) and the same buttons in every tab, with Promote all / Keep all private. Contribute to the community is on by default (nothing leaves without your click), GitHub opens with the file name, title and description filled in, lessons reach the kit at each release by themselves, and the maintainer has a Maintainer / Contributor view switch.

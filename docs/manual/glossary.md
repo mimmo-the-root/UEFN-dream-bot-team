@@ -11,6 +11,9 @@ What the kit learned about how a map of your kind is built: layout, game loop, d
 ## Console
 The local web page, at `http://127.0.0.1:8765/`, that shows the agents working. See [The console](ch:the-console).
 
+## Constitution
+The one-page rules of a game, written by `/piano` in `CONSTITUTION.md`: principles with their reason, forbidden words, names and budget, and the Self-healing block. A plan or task that breaks it is a CRITICAL finding. See [From an idea to a playable game](ch:from-idea-to-game).
+
 ## Content folder
 The `Content/` folder of a UEFN project. Claude Code is started here, and the kit's project files live inside it.
 
@@ -19,6 +22,9 @@ A step in the community pipeline that proposes which lessons to promote. The mai
 
 ## Doctor
 `/kit-doctor`, a command that checks the health of a project's kit files.
+
+## Game spec
+`GAME-SPEC.md`, written by `/spec`: the idea, the loop, the stories, the success criteria and the risks. It says what the game is and why, never how it is built. Not the same as `SPEC.md`, which is deduced from existing code.
 
 ## Genre
 One of Epic's official Discover genres. The kit asks you to confirm the genre and the map type before it saves anything.
@@ -32,8 +38,8 @@ This whole package: agents, skills, rules, project scaffold and console.
 ## Lesson
 One short, general thing learned from a map, with a trust level. You approve, edit or reject each one. See [Skills and lessons](ch:skills-and-lessons).
 
-## Recipe
-How to rebuild something (a device, a mechanic, a map template, a material), step by step, with its Verse code. Not the same thing as a lesson: a lesson is a short rule. See [Community](ch:community).
+## Loop (MVP)
+The minimum playable game in five lines: Action, Rule, Reward, End, Replay (why you play again). The first story of the spec is the loop itself.
 
 ## Map type
 A free name for the kind of map inside a genre, such as pillars or checkpoint-race.
@@ -41,11 +47,20 @@ A free name for the kind of map inside a genre, such as pillars or checkpoint-ra
 ## MCP
 Model Context Protocol, the way Claude talks to a running UEFN editor. The server listens on port 8000. See [The MCP engine](ch:mcp-engine).
 
+## Pilot demo
+Chicken Roundup, a complete example (spec, constitution, plan, tasks, playtest checklist) shipped with the kit. `/demo --load` brings it into a new empty test project, never into your real map.
+
+## Plan
+`PLAN.md`, written by `/piano`: per story the devices, Verse files, assets, manual steps, build order and the task that reduces each risk.
+
 ## Plan first
 The rule that no code is written before a task with acceptance criteria is open in `ROADMAP.md`.
 
 ## Published map
 A map that has an island code on Epic's side. Only lessons from a published map can be shared with the community.
+
+## Recipe
+How to rebuild something (a device, a mechanic, a map template, a material), step by step, with its Verse code. Not the same thing as a lesson: a lesson is a short rule. See [Community](ch:community).
 
 ## Restore point
 A snapshot of your Verse code and documents made with `/restore-point`.
@@ -53,8 +68,14 @@ A snapshot of your Verse code and documents made with `/restore-point`.
 ## Second brain
 An optional Obsidian vault, kept by `second-brain-librarian`, where reusable mechanics are written once and found again in later projects.
 
+## Self-healing
+The kit fixes small bugs by itself, only those on the closed list in the constitution (3 attempts per bug, 10 per session, with a restore point and an undo). Anything bigger is asked first.
+
 ## Skill
 A folder of knowledge that Claude reads only when a task needs it. See [Skills catalog](ch:skill-catalog).
+
+## Sources consulted
+The section of the spec and of the plan that lists what the study step used (second brain, genre lessons, skills, recipes). "None found" is an honest answer.
 
 ## UEFN
 Unreal Editor for Fortnite.

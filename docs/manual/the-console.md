@@ -45,22 +45,27 @@ Epic usually shows numbers only after the map is published and has had visitors,
 
 ## Docs
 
-The project's own documents, read from `Claude/docs/`: spec, status, roadmap, bugs and release readiness. It is a read-only view of what the agents keep up to date.
+The project's own documents, read from `Claude/docs/`: the game idea, spec and plan, the roadmap, bugs, status and release readiness. It is a read-only view of what the agents keep up to date. The full path of a game is in the chapter *From an idea to a playable game*.
 
 **What you see**
 
 - Three progress bars at the top: **Roadmap progress**, **Bug fixing progress** and **Release status**.
+- **Next action** (new in 1.114): the one thing to do now, with a **Copy command** button; paste it in the chat.
+- **Tabs**: Idea, Spec and Plan (the start of a game), then Roadmap, Bugs, Status and Documents. A dot shows the step: grey not started, amber now, green done. The page opens on the tab of the next action and remembers the last one you used. A project that already has tasks and no game spec shows only the last four tabs.
+- **Pilot demo** (Documents tab): the buttons **Copy /demo** and **Copy /demo --load** bring the Chicken Roundup example into a test project.
 - **Roadmap, open tasks by release**: what is still to do, grouped by the release it belongs to.
 - **Open bugs, sorted by severity**: the worst first, with status.
 - **Recent status**: the priorities and the actions that wait for you, taken from `STATUS.md`.
-- **Documentation**: one card per document (`STATUS`, `ROADMAP`, `SPEC`, `BUGS`, `RETENTION-NOTES`, `RELEASE-READINESS`). Click one to read it, rendered or as raw text. A document that does not exist yet says "not created yet" instead of failing to open.
+- **Documentation**: one card per document (`GAME-SPEC`, `CONSTITUTION`, `PLAN`, `STATUS`, `ROADMAP`, `SPEC`, `BUGS`, `RETENTION-NOTES`, `RELEASE-READINESS`; the first three carry a NEW badge). Click one to read it, rendered or as raw text. A document that does not exist yet says "not created yet" instead of failing to open.
 - **Live, who is working now**: the agents active at this moment.
 
 The page follows the files: when an agent saves a document, the page redraws within about five seconds, so you can keep the tab open.
 
 **Why it is there.** So you can see where the project stands without opening files, and check what the agents wrote. `planner-docs` is the only one that edits the roadmap and the status; you read, and approve what asks for your decision.
 
-![The Docs page (demo data)](shot-docs.png)
+![The Docs page, Roadmap tab (demo data)](shot-docs-road.png)
+
+![The Docs page, Idea tab](shot-docs-idea.png)
 
 ## Flow
 

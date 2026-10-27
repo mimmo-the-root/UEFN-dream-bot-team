@@ -94,9 +94,10 @@ assert p.returncode == 1 and "to fix before building" in p.stdout
 
 # the commands exist and name their file and checker
 for name, words in (("piano", ("CONSTITUTION.md", "PLAN.md", "spec_check.py", "plan_check.py")), ("compiti", ("ROADMAP.md", "intent-gate", "[P]", "plan_check.py")),
-                    ("coerenza", ("plan_check.py", "read only", "CRITICAL"))):
+                    ("coerenza", ("plan_check.py", "read only", "CRITICAL")), ("ambiente", ("env_check.py", "Lore", "PLAYTEST.md", "Self-healing"))):
     c = rd(ROOT, "user-level-commands", name + ".md")
     assert c.startswith("---") and "description:" in c, name
     for w in words:
         assert w.lower() in c.lower(), (name, w)
+assert "Sources consulted" in rd(ROOT, "user-level-commands", "piano.md") and "skills_lib.py patterns" in rd(ROOT, "user-level-commands", "piano.md")
 print("ok")

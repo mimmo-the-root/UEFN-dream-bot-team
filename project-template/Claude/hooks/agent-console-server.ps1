@@ -90,6 +90,9 @@ $docFiles = @{
     "spec"      = "SPEC.md"
     "retention" = "RETENTION-NOTES.md"
     "release"   = "RELEASE-READINESS.md"
+    "gamespec"  = "GAME-SPEC.md"
+    "constitution" = "CONSTITUTION.md"
+    "plan"      = "PLAN.md"
 }
 $projectGenreFile = Join-Path $docsDir ".genre"
 $islandCodeFile = Join-Path $docsDir ".island-code"

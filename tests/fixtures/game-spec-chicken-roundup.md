@@ -37,6 +37,12 @@ The player can lead several chickens together.
 - One pen, one round length (3 minutes): the owner may change both.
 - Points per chicken are equal for every chicken.
 
+## Sources consulted
+- second brain: no note on tame-and-deliver loops (none found).
+- genre skill survival: patterns read, none about companion animals yet.
+- uefn-device-gotchas: references to spawners are assigned by hand (this is risk R1).
+- Epic farm example (community tutorial): build in two passes and try one sample first.
+
 ## Theme
 - How the theme enters the game:
 

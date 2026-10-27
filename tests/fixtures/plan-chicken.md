@@ -12,7 +12,7 @@
 ### Devices
 | Device or system | Status | Note |
 |---|---|---|
-| Creature spawner for the chickens | explore | try it in the Lab first |
+| Creature spawner for the chickens | explore | try it in a test project first |
 | Pen volume that counts deliveries | skill | uefn-level-devices |
 | Score manager and round timer | recipe | proven recipe |
 
@@ -42,6 +42,10 @@
 | Asset | Status | Source |
 |---|---|---|
 | none new | present | project |
+
+## Sources consulted
+- recipes mechanics: the score and timer recipe; uefn-level-devices for the pen volume.
+- uefn-device-gotchas: references assigned by hand.
 
 ## Risks to tasks
 | Risk of the spec | First task that reduces it |

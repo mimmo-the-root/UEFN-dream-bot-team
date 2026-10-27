@@ -17,6 +17,7 @@
       "chapters": [
         "your-team",
         "daily-work",
+        "from-idea-to-game",
         "the-console",
         "skills-and-lessons",
         "mcp-engine",
@@ -45,7 +46,7 @@
     "welcome": "What the kit is, what it does for you, what it does not do.",
     "quick-start": "From zero to a first working session.",
     "your-team": "The 22 agents, the model each one runs on, and when to call them.",
-    "the-console": "The seven pages of the local console, one by one.",
+    "the-console": "The seven pages of the local console, one by one (the Docs page has tabs).",
     "skills-and-lessons": "How the kit learns from your maps and what you approve.",
     "community": "Share a lesson, get everyone's: how it works and what stays private.",
     "troubleshooting": "Updates, the doctor, and the most common problems.",
@@ -59,7 +60,8 @@
     "mcp-tool-reference": "Every tool the kit knows, by toolset, with its parameters and how far it is proven.",
     "epic-ai-megajam": "How the kit helps in the 2026 Epic AI MegaJam and what we added for it.",
     "uefn-map-project": "A map project: what the kit installs and the documents it produces.",
-    "fab-product-project": "A Fab product: why the kit installs nothing, and the planned documents."
+    "fab-product-project": "A Fab product: why the kit installs nothing, and the planned documents.",
+    "from-idea-to-game": "The path of a new game: /spec, /piano, /compiti, /coerenza, /ambiente, the Docs page tabs and the pilot demo."
   },
   "seo": {
     "index": [

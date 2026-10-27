@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.114.0 — Study with the kit's knowledge, `/ambiente`, playtest checklist, the idea in the Docs page
+
+- **The study step uses the kit's own knowledge.** `/spec` and `/piano` now start by consulting the second brain, the genre lessons (`skills_lib.py patterns` and `consult`), the retention and competitor skills, the feasibility skills and the proven recipes, and write what they found under `## Sources consulted` (new section in `GAME-SPEC.md` and `PLAN.md`). "None found" is an honest answer; `spec_check.py` warns and `plan_check.py` reports a LOW when nothing is written.
+- **New command `/ambiente` and `env_check.py`.** A read-only readout of the environment from the plan: assets to import or create, manual steps, and the checklist only the owner can do (Beta Access, Python scripting, MCP toolset). Safe fixes are automatic, closing or reopening UEFN is asked first, and a Lore checkpoint comes before the first playtest.
+- **Playtest checklist from the spec.** `/ambiente --playtest` writes `PLAYTEST.md`: per story the expected result and the observed one, per success criterion a box. A failed row becomes a regression task; minor bugs follow the Self-healing block of `CONSTITUTION.md`.
+- **The Docs page shows the idea.** Tabs Idea, Spec, Plan beside Roadmap, Bugs, Status and Documents, with the next action on top; header, three rings, release status, phases, timeline and footer are unchanged. Old projects with tasks and no game spec do not see the new tabs. The console server serves `GAME-SPEC.md`, `CONSTITUTION.md` and `PLAN.md` to the page.
+- Tested in the Lab project with the Epic farm example (Chicken Roundup).
+
 ## v1.113.0 — From the spec to the tasks: `/piano`, `/compiti`, `/coerenza`
 
 - **New command `/piano`.** Only with an approved spec. It writes `CONSTITUTION.md` (principles with their reason, forbidden words, names and budget, scope limits, and the closed list of minor bugs the kit may fix by itself) and `PLAN.md`: one section per story with devices (recipe, skill or explore), the assets inventory (present, import, create), the manual steps only you can do, the build order in two passes and the first task that reduces each risk. One approval.

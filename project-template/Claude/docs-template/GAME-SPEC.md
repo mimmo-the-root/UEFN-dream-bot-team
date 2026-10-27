@@ -32,6 +32,9 @@
 ## Assumptions
 - <every choice the AI made instead of the owner, one per line>
 
+## Sources consulted
+- <the study before proposing: second brain, genre skill and its lessons, retention skills, feasibility skills; what each told us. "none found" is an honest answer>
+
 ## Theme
 - How the theme enters the game: <empty until the contest theme is known; required in jam mode after the announcement>
 

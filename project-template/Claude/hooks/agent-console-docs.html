@@ -126,6 +126,32 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
 
 .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
 @media (max-width:900px){.twocol{grid-template-columns:1fr;}}
+/* v1.114: the first phase of a project (idea, spec, plan) and one row of tabs around the existing blocks */
+.pt{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 14px;}
+.pt .tab{border:1px solid var(--line);border-radius:6px;padding:4px 10px;font:inherit;font-size:11px;color:var(--dim);background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.pt .tab:hover{color:var(--text);border-color:var(--line-soft);}
+.pt .tab.on{color:var(--text);border-color:var(--blue);}
+.pt .tab:focus-visible,.nx .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+.pt .sep{width:1px;align-self:stretch;background:var(--line);margin:0 4px;}
+.pt .cnt{color:var(--dim);font-size:10px;}
+.jd{width:7px;height:7px;border-radius:50%;flex:none;}.jd.done{background:var(--green);}.jd.now{background:var(--amber);}.jd.todo{border:1px solid var(--dim);}
+.nx{border-color:var(--amber);display:flex;gap:10px 14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px;}
+.nx b{color:var(--amber);}
+.nx .cmd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);}
+.nx .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
+.pp{display:none;}.pp.on{display:block;}
+.jgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;margin-bottom:16px;}
+@media (max-width:900px){.jgrid{grid-template-columns:1fr;}}
+.jstack{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.jloop{display:grid;grid-template-columns:70px minmax(0,1fr);gap:4px 10px;margin:6px 0 0;}.jloop dt{color:var(--dim);}.jloop dd{margin:0;}
+.jchk{font-size:12px;display:flex;flex-direction:column;gap:5px;margin-top:6px;}.jchk div{display:flex;gap:8px;align-items:baseline;}.jok{color:var(--green);}.jno{color:var(--amber);}
+.jbar{height:6px;background:var(--line);border-radius:3px;position:relative;flex:1;min-width:100px;}.jbar i{position:absolute;inset:0 auto 0 0;background:var(--amber);border-radius:3px;}.jbar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text);}
+.jpill{border-radius:10px;padding:1px 8px;font-size:10px;border:1px solid var(--line-soft);color:var(--dim);white-space:nowrap;}
+.jg{color:var(--green);border-color:var(--green);}.ja{color:var(--amber);border-color:var(--amber);}.jr{color:var(--red);border-color:var(--red);}
+.jtab{width:100%;border-collapse:collapse;font-size:11.5px;}.jtab th{text-align:left;font-size:9.5px;color:var(--dim);text-transform:uppercase;padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap;}.jtab td{padding:6px;border-bottom:1px solid var(--line-soft);vertical-align:top;}.jtab tr:last-child td{border-bottom:none;}
+.jscroll{overflow-x:auto;}
+.newb{background:var(--blue);color:#fff;border-radius:4px;padding:0 5px;font-size:9px;font-weight:700;margin-left:4px;}
+
 .relhead{display:flex;justify-content:space-between;align-items:center;margin:12px 0 4px;font-size:11.5px;}
 .relhead:first-child{margin-top:0;}
 .relhead .name{font-weight:700;color:var(--text);}
@@ -227,6 +253,13 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
       </div>
     </div>
 
+    <!-- v1.114: next action + one row of tabs. The blocks below keep their ids and their renderers; they are only grouped into panels. -->
+    <div class="card nx" id="nextAction" style="display:none;"></div>
+    <div class="pt" id="pageTabs" role="tablist"></div>
+    <div class="pp" data-p="idea" id="pIdea"></div>
+    <div class="pp" data-p="spec" id="pSpec"></div>
+    <div class="pp" data-p="plan" id="pPlan"></div>
+    <div class="pp" data-p="road">
     <!-- PHASES (from ROADMAP.md "## Phases"): hidden when the project has no such section yet -->
     <div id="phasesBox" style="display:none;margin-bottom:18px;">
       <div class="label" style="margin-bottom:8px;">Phases</div>
@@ -250,25 +283,26 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
     <!-- ROADMAP (open tasks, grouped by Release) + BUG BACKLOG (open, by severity) — two-column
          layout, v1.80.0. Replaces the old single-column "recent N items" lists: this is a "what's
          still open / pending" view, not a full audit trail (that's what "Open full …" is for). -->
-    <div class="twocol">
-      <div class="card">
+    <div class="card" style="margin-bottom:16px;">
         <div class="label" style="margin-bottom:4px;">Roadmap — open tasks by release</div>
         <div id="roadmapTaskList" style="font-size:11.5px;color:var(--dim);">loading…</div>
         <a href="#" onclick="openPreview('roadmap');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full ROADMAP.md →</a>
       </div>
-      <div class="card">
-        <div class="label" style="margin-bottom:4px;">Open bugs — sorted by severity</div>
-        <div id="bugBacklogList" style="font-size:11.5px;color:var(--dim);">loading…</div>
-        <a href="#" onclick="openPreview('bugs');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full BUGS.md →</a>
-      </div>
-    </div>
-
     <!-- BACKLOG: tasks whose Release is "Later" (not planned into a release yet) -->
     <div id="backlogBox" style="display:none;margin-bottom:18px;">
       <div class="label" style="margin-bottom:8px;">Backlog <span id="backlogCount" style="font-weight:400;color:var(--dim);"></span></div>
       <div class="card" id="backlogList" style="font-size:11.5px;"></div>
     </div>
 
+    </div>
+    <div class="pp" data-p="bugs">
+    <div class="card">
+        <div class="label" style="margin-bottom:4px;">Open bugs — sorted by severity</div>
+        <div id="bugBacklogList" style="font-size:11.5px;color:var(--dim);">loading…</div>
+        <a href="#" onclick="openPreview('bugs');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full BUGS.md →</a>
+      </div>
+    </div>
+    <div class="pp" data-p="status">
     <!-- RECENT STATUS: task/bug priorities + owner-action items, not raw STATUS.md lines
          (v1.80.0 — was a plain STATUS.md "Current state" excerpt) -->
     <div class="card" style="margin-bottom:22px;">
@@ -277,11 +311,27 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
       <a href="#" onclick="openPreview('status');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full STATUS.md →</a>
     </div>
 
+    </div>
+    <div class="pp" data-p="docs">
     <!-- DOCS GRID — matches Claude/docs/*.md written/read by planner-docs (see
          Claude/docs-template/ for the blank versions of these files, and
          user-level-agents/planner-docs.md for who owns which one). -->
+    <div class="card" id="demoCard" style="margin-bottom:14px;">
+      <div class="label" style="margin-bottom:6px;">Pilot demo — Chicken Roundup (the whole flow, ready)</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">A complete example from the Epic farm game: spec, constitution, plan, tasks and playtest checklist. Run it again whenever you want to see what each step produces. Nothing of yours is overwritten.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;">
+        <button class="btn" data-cmd="/demo" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo</button>
+        <span style="font-size:11px;color:var(--muted);">puts the files in <code>Claude/docs/demo-chicken-roundup/</code></span>
+        <button class="btn" data-cmd="/demo --load" style="font:inherit;font-size:11px;border:1px solid var(--line);color:var(--fg,#ddd);background:var(--panel2);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --load</button>
+        <span style="font-size:11px;color:var(--muted);">in a NEW empty test project (not your real map): fills Idea, Spec and Plan</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;">How: create a new empty UEFN project just for tests (Claude Code opened in its folder, kit installed), paste the command in its chat. Want it again? Delete that test project, create another one and run <code>/demo --load</code>.</div>
+    </div>
     <div class="label" style="margin-bottom:8px;">Documentation — click to open in readable form</div>
     <div class="docs-grid" id="docsGrid">
+      <div class="card doc-card" data-key="gamespec" onclick="openPreview('gamespec')"><div class="t">🎯</div><div class="n">GAME-SPEC.md<span class="newb">NEW</span></div><div class="d">Idea, loop, stories, risks</div></div>
+      <div class="card doc-card" data-key="constitution" onclick="openPreview('constitution')"><div class="t">⚖️</div><div class="n">CONSTITUTION.md<span class="newb">NEW</span></div><div class="d">Principles and what is forbidden</div></div>
+      <div class="card doc-card" data-key="plan" onclick="openPreview('plan')"><div class="t">🧭</div><div class="n">PLAN.md<span class="newb">NEW</span></div><div class="d">Devices, assets, build order</div></div>
       <div class="card doc-card" data-key="status" onclick="openPreview('status')"><div class="t">📋</div><div class="n">STATUS.md</div><div class="d">Current state + session log</div></div>
       <div class="card doc-card" data-key="roadmap" onclick="openPreview('roadmap')"><div class="t">🗺️</div><div class="n">ROADMAP.md</div><div class="d">Task table</div></div>
       <div class="card doc-card" data-key="spec" onclick="openPreview('spec')"><div class="t">📐</div><div class="n">SPEC.md</div><div class="d">Structure and deduced specs</div></div>
@@ -295,6 +345,7 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
       pre-generated snapshot. A doc that doesn't exist yet in this project (a fresh project has no
       SPEC.md, RETENTION-NOTES.md or RELEASE-READINESS.md until the relevant agent writes one)
       shows "not created yet" instead of failing to open.
+    </div>
     </div>
   </main>
 </div>
@@ -339,6 +390,7 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
 const DOC_TITLES = {
   status: "STATUS.md", roadmap: "ROADMAP.md", bugs: "BUGS.md",
   spec: "SPEC.md", retention: "RETENTION-NOTES.md", release: "RELEASE-READINESS.md",
+  gamespec: "GAME-SPEC.md", constitution: "CONSTITUTION.md", plan: "PLAN.md",
 };
 const docCache = {}; // key -> {exists, content} once fetched
 const DOC_FETCH_TIMEOUT_MS = 6000; // bounded timeout — no fetch here is ever allowed to hang a
@@ -1174,6 +1226,102 @@ async function markMissingDocs(){
   }
 }
 
+
+// v1.114: the first phase of a project. Idea, Spec and Plan read GAME-SPEC.md, CONSTITUTION.md and PLAN.md (the same rules as spec_check.py and plan_check.py, shown, not enforced here).
+const JT = [["idea","Idea"],["spec","Spec"],["plan","Plan"],null,["road","Roadmap"],["bugs","Bugs"],["status","Status"],["docs","Documents"]];
+let curTab = null;
+function jSecs(raw){
+  const out = {}; let cur = null;
+  String(raw||"").replace(/\r\n/g,"\n").split("\n").forEach(l => {
+    const m = /^##\s+(.+?)\s*$/.exec(l);
+    if (m && !/^###/.test(l)){ cur = m[1].toLowerCase(); out[cur] = []; } else if (cur) out[cur].push(l);
+  });
+  Object.keys(out).forEach(k => out[k] = out[k].join("\n").trim());
+  return out;
+}
+function jFld(txt, name){ const m = new RegExp("^[-*]\\s*" + name + "\\s*:\\s*(.*)$", "im").exec(txt||""); return m ? m[1].trim() : ""; }
+function jPh(v){ return !v || /^</.test(String(v).trim()); }
+function jRows(txt){ return String(txt||"").split("\n").filter(l => /^\|/.test(l.trim()) && !/^\|\s*(-|Risk|Device|Asset)/i.test(l.trim())).map(l => l.trim().replace(/^\||\|$/g,"").split("|").map(c => c.trim())); }
+function jPill(t, c){ return '<span class="jpill ' + (c||"") + '">' + escH(t) + '</span>'; }
+async function jState(){
+  const [g, p, c, r] = await Promise.all(["gamespec","plan","constitution","roadmap"].map(fetchDoc));
+  const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
+  const tasks = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
+  st.tasks = tasks; st.done = tasks.filter(t => /^(done|fatto)/i.test(t.status||"")).length;
+  const hs = st.hasSpec ? jSecs(g.content) : {};
+  st.s = hs; st.head = st.hasSpec ? g.content.split("\n## ")[0] : "";
+  const loopOk = st.hasSpec && ["Action","Rule","Reward","End","Replay"].every(k => !jPh(jFld(hs["loop (mvp)"], k)));
+  st.ideaDone = !!(st.hasSpec && !jPh(hs["idea"]) && loopOk);
+  st.specApproved = st.hasSpec && /^y/i.test(jFld(hs["score and approval"], "Approved"));
+  st.planExists = !!st.p && /##\s+S\d+/.test(st.p);
+  st.planApproved = st.planExists && /-\s*Approved:\s*yes/i.test(st.p);
+  st.consOk = !!st.c && /-\s*Approved:\s*yes/i.test(st.c);
+  return st;
+}
+function jNext(st){
+  if (!st.hasSpec) return st.tasks.length ? null : {txt:"Start from an idea", cmd:"/spec", step:"idea"};
+  if (!st.specApproved) return {txt: st.ideaDone ? "Finish and approve the spec" : "Write the idea and the loop", cmd:"/spec", step:st.ideaDone ? "spec" : "idea"};
+  if (!st.consOk || !st.planExists) return {txt:"Write the principles and the plan", cmd:"/piano", step:"plan"};
+  if (!st.planApproved) return {txt:"Approve the plan", cmd:"/piano", step:"plan"};
+  if (!st.tasks.length) return {txt:"Break the plan into tasks", cmd:"/compiti", step:"road"};
+  const nx = st.tasks.find(t => /^to do|^da fare/i.test(t.status||""));
+  return nx ? {txt:"Next task: " + nx.id + " " + (nx.feature||"").replace(/\s*[\[(].*$/,""), cmd:"coder " + nx.id, step:"road"} : null;
+}
+function jIdea(st){
+  if (!st.hasSpec) return '<div class="card"><div class="label">Idea</div><div style="margin-top:6px;color:var(--dim);">Not started. Run <code>/spec</code>: it takes an idea (yours or three proposed), asks the minimum and writes <code>GAME-SPEC.md</code>.</div></div>';
+  const s = st.s, loop = s["loop (mvp)"]||"";
+  const sc = jFld(s["score and approval"], "Score"), m = /^(\d+)\s*\/\s*100/.exec(sc), n = m ? +m[1] : null;
+  const forced = /^y/i.test(jFld(s["score and approval"], "Forced"));
+  return '<div class="jgrid"><div class="card"><div class="label">Idea</div><div style="line-height:1.5;margin-top:6px;">' + escH(jPh(s["idea"]) ? "(not written yet)" : s["idea"]) + '</div>' +
+    '<div class="label" style="margin-top:14px;">Genre ' + (jPh(jFld(st.head,"Genre")) ? jPill("not confirmed","ja") : jPill("confirmed","jg")) + '</div><div style="margin-top:4px;">' + escH(jPh(jFld(st.head,"Genre")) ? "-" : jFld(st.head,"Genre")) + '</div>' +
+    '<div class="label" style="margin-top:14px;">Loop (MVP)</div><dl class="jloop">' + ["Action","Rule","Reward","End","Replay"].map(k => '<dt>' + k + '</dt><dd>' + escH(jPh(jFld(loop,k)) ? "-" : jFld(loop,k)) + '</dd>').join("") + '</dl></div>' +
+    '<div class="jstack"><div class="card"><div class="label">Score of the idea</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;"><span style="font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;">' + (n===null ? "-" : n) + '</span><span style="color:var(--dim);">of 100</span><div class="jbar"><i style="width:' + (n||0) + '%"></i><u style="left:60%" title="threshold 60"></u></div></div><div style="font-size:11px;color:var(--dim);margin-top:6px;">Threshold 60' + (n!==null && n<60 ? (forced ? " · forced by you" : " · below: raise it or force") : "") + '</div></div></div></div>';
+}
+function jSpec(st){
+  if (!st.hasSpec) return '<div class="card"><div class="label">Spec</div><div style="margin-top:6px;color:var(--dim);">No <code>GAME-SPEC.md</code> yet. Run <code>/spec</code>.</div></div>';
+  const s = st.s, stories = s["stories"]||"", p1 = /###\s+[^\n]*\(P1\)([\s\S]*?)(?=\n###|$)/.exec(stories);
+  const sc = (s["success criteria"]||"").split("\n").filter(l => /^[-*]\s*SC-\d+\s*:\s*\S/.test(l) && l.indexOf("<")<0).length;
+  const ass = (s["assumptions"]||"").split("\n").filter(l => /^[-*]/.test(l.trim()) && l.indexOf("<")<0).length;
+  const risks = jRows(s["technical risks"]).filter(r => /^(low|medium|high)$/i.test(r[1]||"") && r.join("").indexOf("<")<0);
+  const open = (st.g.match(/\[NEEDS CLARIFICATION/g)||[]).length;
+  const checks = [["Loop in 5 lines", st.ideaDone],["Story P1 with an independent test", !!p1 && !jPh(jFld(p1[1],"Independent test"))],["Given / when / then", !!p1 && /given\s+[^,\n]+,\s*when\s+[^,\n]+,\s*then\s+\S/i.test(p1[1])],["Measurable success criteria (" + sc + ")", sc>=3],["Assumptions written (" + ass + ")", ass>0],["Technical risks with a level (" + risks.length + ")", risks.length>0],["No open question", open===0]];
+  const lv = {high:"jr", medium:"ja", low:"jg"};
+  return '<div class="jgrid"><div class="card"><div class="label">Spec checklist ' + (st.specApproved ? jPill("approved","jg") : jPill("to approve","ja")) + '</div><div class="jchk">' + checks.map(c => '<div><span class="' + (c[1]?"jok":"jno") + '">' + (c[1]?"✓":"!") + '</span>' + escH(c[0]) + '</div>').join("") + '</div></div>' +
+    '<div class="card"><div class="label">Technical risks</div><div class="jscroll"><table class="jtab"><tr><th>#</th><th>Risk</th><th>Level</th></tr>' + (risks.length ? risks.map((r,i) => '<tr><td>R' + (i+1) + '</td><td>' + escH(r[0]) + '</td><td>' + jPill(r[1].toLowerCase(), lv[r[1].toLowerCase()]) + '</td></tr>').join("") : '<tr><td colspan="3" style="color:var(--dim);">none written yet</td></tr>') + '</table></div></div></div>';
+}
+function jPlan(st){
+  if (!st.planExists) return '<div class="card"><div class="label">Plan</div><div style="margin-top:6px;color:var(--dim);">No plan yet. ' + (st.hasSpec && st.specApproved ? 'Run <code>/piano</code>.' : 'It starts after the spec is approved.') + '</div></div>';
+  const parts = st.p.split(/\n##\s+(?=S\d+\b)/).slice(1).map(x => x.replace(/\n##\s+(?!S\d)[\s\S]*$/, ""));
+  const rows = parts.map(x => { const t = /^(S\d+)\s*-\s*(.*)/.exec(x) || [,"S","" ]; const dev = jRows((/###\s+Devices\s*\n([\s\S]*?)(?=\n###|$)/.exec(x)||[,""])[1]).filter(r => /^(recipe|skill|explore)$/i.test(r[1]||"")); const as = jRows((/###\s+Assets inventory\s*\n([\s\S]*?)(?=\n###|$)/.exec(x)||[,""])[1]).filter(r => /^(present|import|create)$/i.test(r[1]||"")); const man = /###\s+Manual steps[^\n]*\n([\s\S]*?)(?=\n###|$)/.exec(x); return '<tr><td><b>' + t[1] + '</b> ' + escH(t[2]) + '</td><td>' + dev.length + (dev.some(r => /explore/i.test(r[1])) ? " (to explore)" : "") + '</td><td>' + as.length + '</td><td>' + (man && /\S/.test(man[1]) ? "yes" : "none") + '</td></tr>'; }).join("");
+  const bo = ["Pass 1","Pass 2","Try one sample first"].map(k => { const m = new RegExp("^-\\s*" + k + "[^:\\n]*:\\s*(.*)$","im").exec(st.p); return m ? m[1] : null; }).filter(Boolean);
+  return '<div class="card" style="margin-bottom:16px;"><div class="label">Plan by story ' + (st.planApproved ? jPill("approved","jg") : jPill("to approve","ja")) + ' ' + (st.consOk ? jPill("principles approved","jg") : jPill("principles to approve","ja")) + '</div><div class="jscroll"><table class="jtab"><tr><th>Story</th><th>Devices</th><th>Assets</th><th>By hand</th></tr>' + rows + '</table></div></div>' +
+    '<div class="card"><div class="label">Build order</div><div class="jchk">' + bo.map((b,i) => '<div><span class="jno">' + (i<2 ? i+1 : "·") + '</span>' + escH(b) + '</div>').join("") + '</div></div>';
+}
+function jTabs(st, next){
+  const showJ = st.hasSpec || !st.tasks.length;
+  const state = {idea: st.ideaDone ? "done" : (next && next.step==="idea" ? "now" : "todo"), spec: st.specApproved ? "done" : (next && next.step==="spec" ? "now" : "todo"), plan: st.planApproved ? "done" : (next && next.step==="plan" ? "now" : "todo")};
+  document.getElementById("pageTabs").innerHTML = JT.filter(t => showJ || !t || ["road","bugs","status","docs"].indexOf(t[0])>=0).map(t => {
+    if (!t) return showJ ? '<span class="sep"></span>' : "";
+    return '<button class="tab' + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '">' + (state[t[0]] ? '<span class="jd ' + state[t[0]] + '"></span>' : "") + t[1] + (t[0]==="road" && st.tasks.length ? ' <span class="cnt">' + st.done + '/' + st.tasks.length + '</span>' : "") + '</button>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll("#pageTabs .tab"), b => { b.onclick = () => { curTab = b.getAttribute("data-t"); try{ localStorage.setItem("docsTab", curTab); }catch(e){} jShow(); }; });
+  document.querySelectorAll(".pp").forEach(e => e.classList.toggle("on", e.getAttribute("data-p")===curTab));
+}
+function jShow(){ document.querySelectorAll(".pp").forEach(e => e.classList.toggle("on", e.getAttribute("data-p")===curTab)); Array.prototype.forEach.call(document.querySelectorAll("#pageTabs .tab"), b => { const on = b.getAttribute("data-t")===curTab; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); }); }
+async function renderJourney(){
+  try{
+    const st = await jState(), next = jNext(st);
+    if (curTab === null){ let saved = null; try{ saved = localStorage.getItem("docsTab"); }catch(e){} curTab = saved || (next && ["idea","spec","plan"].indexOf(next.step)>=0 ? next.step : "road"); }
+    document.getElementById("pIdea").innerHTML = jIdea(st); document.getElementById("pSpec").innerHTML = jSpec(st); document.getElementById("pPlan").innerHTML = jPlan(st);
+    const box = document.getElementById("nextAction");
+    if (next){ box.style.display = ""; box.innerHTML = '<div><div class="label">Next action</div><b>' + escH(next.txt) + '</b></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span class="cmd">' + escH(next.cmd) + '</span><button class="btn" id="nxCopy" type="button">Copy command</button></div>';
+      document.getElementById("nxCopy").onclick = function(){ const b = this; try{ navigator.clipboard.writeText(next.cmd).then(() => { b.textContent = "Copied"; }, () => { b.textContent = "Select and copy it"; }); }catch(e){ b.textContent = "Select and copy it"; } }; }
+    else box.style.display = "none";
+    jTabs(st, next);
+  } catch(e){ /* the existing blocks keep working if this part fails */ curTab = curTab || "road"; document.querySelectorAll(".pp").forEach(x => x.classList.toggle("on", x.getAttribute("data-p")===curTab)); }
+}
+
+renderJourney();
 renderRecentPriorities();
 markMissingDocs();
 renderHero();
@@ -1198,14 +1346,14 @@ async function refreshDocs(){
     let changed = false;
     keys.forEach((k, i) => { if (!fresh[i].error && old[k] !== (fresh[i].exists + '|' + fresh[i].content)) changed = true; });
     if (!changed) return;
-    renderRecentPriorities(); markMissingDocs(); renderHero(); renderTimeline();
+    renderJourney(); renderRecentPriorities(); markMissingDocs(); renderHero(); renderTimeline();
     renderPhasesAndBacklog(); renderRoadmapTaskList(); renderBugBacklog();
   } catch(e){ /* a failed refresh leaves the page as it was */ }
   finally { docsRefreshing = false; }
 }
 setInterval(refreshDocs, 5000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.113.0";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.114.0";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -1320,5 +1468,6 @@ setInterval(refreshDocs, 5000);
   var a=document.createElement("a");a.href="agent-console-fab.html";a.textContent="Checklist";if(sc.className&&sc.className!=="on")a.className=sc.className;sc.parentNode.appendChild(a);}).catch(function(){});})();
 </script>
 <!-- fab-tab:end -->
+<script>(function(){document.querySelectorAll("#demoCard .btn").forEach(function(b){b.onclick=function(){var t=b.getAttribute("data-cmd"),o=b.textContent;try{navigator.clipboard.writeText(t).then(function(){b.textContent="Copied";setTimeout(function(){b.textContent=o;},1500);},function(){b.textContent="Select: "+t;});}catch(e){b.textContent="Select: "+t;}};});})();</script>
 </body>
 </html>

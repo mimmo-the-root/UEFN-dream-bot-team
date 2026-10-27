@@ -139,6 +139,8 @@ def check(d, stage="all", today=None):
     for n in secs:
         if n not in [s[0] for s in st]:
             add("MEDIUM", "PLAN.md has a section S%d that is not a story of the spec" % n)
+    if not [l for l in re.sub(r"<!--.*?-->", "", plan, flags=re.S).split("## Sources consulted", 1)[-1].split("\n## ", 1)[0].splitlines() if l.strip().startswith(("-", "*")) and "<" not in l] or "## Sources consulted" not in plan:
+        add("LOW", "PLAN.md: no sources consulted written (recipes, device skills, MCP lessons)")
     m1 = re.search(r"-\s*Pass 1[^:\n]*:\s*(.*)", plan)
     if not m1 or "S1" not in m1.group(1):
         add("HIGH", "Build order: Pass 1 must start with S1 (the playable loop)")
