@@ -20,6 +20,7 @@ for p in pages:
     ok('href="/manual/commands.html">All commands</a>' in t, n + ": footer link to all commands")
 docs = open(os.path.join(H, "agent-console-docs.html"), encoding="utf-8").read()
 ok(all(k in docs for k in ('id="pageSteps"', 'id="demoBox"', 'id="demoH"', 'id="demoTask"', 'id="pEnv"', 'id="pBuild"', 'id="pAudit"', 'id="pDelivery"', 'id="statusT0"')), "the Docs page has the arrows, the demo box beside them, the four new steps and the new-map block")
+ok('bindCopy(document.getElementById("demoBox"))' in docs and "document.execCommand(\"copy\")" in docs, "the demo box buttons are bound to the copy code, with a fallback when the clipboard API is refused")
 ok("data-p=\"env\"" in docs and "jGhost(" in docs, "empty sections are shown as ghosts, not hidden")
 # the demo uses the same keys the page maps to arrows
 demo = open(os.path.join(ROOT, "user-level-commands", "demo.md"), encoding="utf-8").read()

@@ -1557,9 +1557,16 @@ function t0Card(st){
   return '<div class="t0wrap" style="display:grid;grid-template-columns:minmax(0,3fr) minmax(220px,1fr);gap:14px;">' + t0Boxes().replace('id="nxProj"','') +
     '<div class="t0box learn"><div class="label">Learn the kit</div><h3>Start with the product demo</h3><div class="why">The whole flow on a pilot game, timed. Run it in a new empty test project. The clock is on this page, next to the next action.</div><div class="sub">With you</div>' + t0Act("/demo", "it asks at each approval") + '<div class="sub">On its own</div>' + t0Act("/demo --auto", "no questions") + '</div></div>';
 }
-function bindCopy(root){
-  Array.prototype.forEach.call(root.querySelectorAll("[data-cmd]"), b => { b.onclick = function(){ const t = b.getAttribute("data-cmd"); try{ navigator.clipboard.writeText(t).then(() => { b.textContent = "Copied"; }, () => { b.textContent = "Select and copy it"; }); }catch(e){ b.textContent = "Select and copy it"; } }; });
+function copyText(txt, b){
+  const done = ok => { const o = b.getAttribute("data-label") || b.textContent; if (!b.getAttribute("data-label")) b.setAttribute("data-label", o); b.textContent = ok ? "Copied" : "Select and copy it"; setTimeout(() => { b.textContent = b.getAttribute("data-label"); }, 1800); };
+  const old = () => { try{ const ta = document.createElement("textarea"); ta.value = txt; ta.setAttribute("readonly",""); ta.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0;"; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, txt.length); const ok = document.execCommand("copy"); document.body.removeChild(ta); return ok; }catch(e){ return false; } };
+  if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(() => done(true), () => done(old())); } else done(old());
 }
+function bindCopy(root){
+  if (!root) return;
+  Array.prototype.forEach.call(root.querySelectorAll("[data-cmd]"), b => { b.onclick = function(ev){ ev.preventDefault(); copyText(b.getAttribute("data-cmd"), b); }; });
+}
+bindCopy(document.getElementById("demoBox"));
 function jTabs(st, next){
   const ss = jSteps(st);
   document.getElementById("pageSteps").innerHTML = STEPS.map((t, i) => { const s = ss.state[t[0]];
