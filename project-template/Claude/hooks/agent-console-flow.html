@@ -835,17 +835,18 @@ setInterval(tick, 1000);
 .kh-strip .tag-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--dim,#5a7088);border:1px solid var(--line,#1c2740);border-radius:10px;padding:2px 8px;background:var(--panel,#0d121c);}
 .kh-strip .genre-badge{display:inline-block;font-size:9px;letter-spacing:.03em;text-transform:uppercase;color:var(--bg,#060810);border:1px solid var(--green,#39ff88);border-radius:10px;padding:2px 8px;background:var(--green,#39ff88);font-weight:bold;}
 .kh-strip .kh-none{color:var(--dim,#5a7088);font-style:italic;}
-.kh-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 16px;}
-@media(max-width:800px){.kh-cards{grid-template-columns:1fr;}}
-.kh-card{background:var(--panel,#0d121c);border:1px solid var(--line,#1c2740);border-radius:10px;padding:12px 16px;}
-.kh-card .l{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--dim,#5a7088);}
-.kh-card .v{font-size:26px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums;color:var(--green,#39ff88);line-height:1.15;}
-.kh-card .v.b{color:var(--blue,#4b8bff);}
-.kh-card .v.t{font-size:18px;color:var(--text,#c9d6f0);overflow-wrap:anywhere;}
+.kh-cards{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 20px;font-family:'Consolas','Courier New',monospace;}
+.kh-card{flex:1;min-width:150px;background:linear-gradient(180deg,var(--panel,#0d121c),var(--panel2,#0a0e17));border:1px solid var(--line,#1c2740);border-radius:8px;padding:10px 14px;}
+.kh-card.c{flex:.65;min-width:130px;}.kh-card.p{flex:1.5;min-width:230px;}
+.kh-card .kl{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim,#5a7088);line-height:1.4;}
+.kh-card .kv{font-size:18px;margin-top:4px;font-weight:400;font-variant-numeric:tabular-nums;color:var(--green,#39ff88);text-shadow:0 0 6px rgba(57,255,136,.35);line-height:1.4;}
+.kh-card .kv.b{color:var(--blue,#4b8bff);text-shadow:0 0 6px var(--blue-glow,rgba(75,139,255,.45));}
+.kh-card .kp{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--cyan,#4bd8ff);line-height:1.4;}
+.kh-card .kp b{color:var(--cyan,#4bd8ff);}
+.kh-card .ks{font-size:10px;color:var(--dim,#5a7088);margin-top:2px;line-height:1.4;}
 .kh-cmds{margin-left:auto;font-size:10.5px;color:var(--dim,#5a7088);display:flex;gap:4px 12px;flex-wrap:wrap;align-items:center;}
 .kh-cmds code{color:var(--blue,#4b8bff);background:var(--panel2,#0a0e17);border:1px solid var(--line,#1c2740);border-radius:4px;padding:1px 6px;cursor:pointer;}
 .kh-cmds a{color:var(--cyan,#4bd8ff);text-decoration:none;}
-.kh-card .s{font-size:11px;color:var(--dim,#5a7088);margin-top:2px;}
 </style>
 <script>
 /* One header logic on every page: island strip (always there, with a fallback while the island is not published) + the three base cards
@@ -862,9 +863,9 @@ setInterval(tick, 1000);
   var cmdHtml=cl.length?'<span class="kh-cmds">Commands here: '+cl.map(function(c){return '<code title="click to copy" data-kc="'+esc(c[0])+'">'+esc(c[0])+'</code> '+esc(c[1]);}).join(" · ")+' · <a href="/manual/commands.html">all commands</a></span>':"";
   var box=document.createElement("div"); box.id="kitHead";
   box.innerHTML=(ownStrip?"":'<div class="kh-strip" id="islandStrip"><span class="kh-none">Isola: reading…</span>'+cmdHtml+'</div>')+
-    (main?"":'<div class="kh-cards"><div class="kh-card"><div class="l">Session running for</div><div class="v" id="khSess">--:--:--</div><div class="s" id="khSince">not started yet</div></div>'+
-    '<div class="kh-card"><div class="l">Tokens this session (approx.)</div><div class="v b" id="khTok">—</div><div class="s" id="khTokSub">no data yet</div></div>'+
-    '<div class="kh-card"><div class="l">Project</div><div class="v t" id="khProj">—</div><div class="s" id="khProjSub">console on this project</div></div></div>');
+    (true?"":'<div class="kh-cards"><div class="kh-card"><div class="kl">Session running for</div><div class="kv" id="khSess">--:--:--</div><div class="ks" id="khSince">not started yet</div></div>'+
+    '<div class="kh-card c"><div class="kl">Tokens this session (approx.)</div><div class="kv b" id="khTok">—</div><div class="ks" id="khTokSub">no data yet</div></div>'+
+    '<div class="kh-card p"><div class="kp">Project: <b id="khProj">—</b></div><div class="ks" id="khProjSub">the console reads this project</div></div></div>');
   if(!box.innerHTML)return;
   var tries=0;
   function place(){var vs=document.querySelector(".view-switch,.vs,nav"), anchor=vs&&vs.closest(".termlines,.hdrbar,.h,header,.top");
