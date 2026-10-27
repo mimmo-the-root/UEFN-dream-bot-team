@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "genre": "roguelike",
-  "pack_version": 87,
+  "pack_version": 88,
   "patterns": [
     {
       "id": "p-31178764a41e",

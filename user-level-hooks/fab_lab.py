@@ -218,10 +218,10 @@ def card(root, title=None):
     return path
 
 
-def _whoami(port):
+def _whoami(port, timeout=2):
     import urllib.request
     try:
-        with urllib.request.urlopen("http://127.0.0.1:%d/whoami" % port, timeout=2) as r:
+        with urllib.request.urlopen("http://127.0.0.1:%d/whoami" % port, timeout=timeout) as r:
             return json.loads(r.read().decode("utf-8"))
     except Exception:
         return None
@@ -249,27 +249,36 @@ def autostart(root, port=8766, open_browser=True):
     which a plain background command does not). Returns the URL or None."""
     lab = ensure_lab(root)
     here = os.path.normcase(os.path.abspath(lab))
+    probe = {}   # port -> whoami (None = nobody answers). Fast probes: a closed port on Windows costs up to the timeout, and the session hook has only 30 s.
+    def look(pt):
+        probe[pt] = _whoami(pt, 0.4)
+        return probe[pt]
     def find():
-        for p in range(port, port + 4):
-            w = _whoami(p)
+        for pt in range(port, port + 4):
+            w = look(pt)
             if w and os.path.normcase(os.path.abspath(w.get("project", ""))) == here:
-                return p, w
+                return pt, w
         return None, None
     p, w = find()
     if w and w.get("kit_version") == _current_kit_version() and "fab_product" in (w.get("caps") or []):
         return "http://127.0.0.1:%d/" % p
+    # the port for this product: its own (old console, it is replaced) or the first free one (8766 may belong to another console, e.g. the kit's own)
+    use = p if p else next((pt for pt in range(port, port + 4) if probe.get(pt) is None), port + 3)
     me = os.path.abspath(__file__)
     if os.name == "nt":
         q = lambda x: "'" + x.replace("'", "''") + "'"
-        ps = "Start-Process -WindowStyle Hidden -FilePath %s -ArgumentList @(%s,'console',%s,'%d','--foreground')" % (q(sys.executable), q('"' + me + '"'), q('"' + root + '"'), port)
+        ps = "Start-Process -WindowStyle Hidden -FilePath %s -ArgumentList @(%s,'console',%s,'%d','--foreground')" % (q(sys.executable), q('"' + me + '"'), q('"' + root + '"'), use)
         subprocess.Popen(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                          stderr=subprocess.DEVNULL, creationflags=0x08000000)
     else:
-        console(root, port)
-    for _ in range(24):
+        console(root, use)
+    w = None
+    p = use
+    deadline = time.time() + 12
+    while time.time() < deadline:
         time.sleep(0.5)
-        p, w = find()
-        if w and w.get("kit_version") == _current_kit_version():
+        w = _whoami(use, 0.4)
+        if w and os.path.normcase(os.path.abspath(w.get("project", ""))) == here and w.get("kit_version") == _current_kit_version():
             break
     if not w:
         return None

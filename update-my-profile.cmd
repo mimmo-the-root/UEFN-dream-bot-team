@@ -7,6 +7,8 @@ echo Kit template (project files)...
 robocopy "%SRC%project-template" "%DST%\kit-template" /E /NFL /NDL /NJH /NJS
 echo Agents...
 robocopy "%SRC%user-level-agents" "%DST%\agents" /E /NFL /NDL /NJH /NJS
+echo Commands...
+if exist "%SRC%user-level-commands" robocopy "%SRC%user-level-commands" "%DST%\commands" /E /NFL /NDL /NJH /NJS
 echo Skills (learned data protected)...
 robocopy "%SRC%user-level-skills" "%DST%\skills" /E /XD local pack /NFL /NDL /NJH /NJS
 rem This copy has publish.ps1: it is the maintainer's. The Skills page then releases from the console (no GitHub sending, release boxes).
@@ -33,6 +35,7 @@ copy /Y "%SRC%user-level-hooks\economy_sim.py" "%DST%\hooks\economy_sim.py" >nul
 copy /Y "%SRC%user-level-hooks\log_signals.py" "%DST%\hooks\log_signals.py" >nul
 copy /Y "%SRC%user-level-hooks\fab_lab.py" "%DST%\hooks\fab_lab.py" >nul
 copy /Y "%SRC%user-level-hooks\fab_assets.py" "%DST%\hooks\fab_assets.py" >nul
+copy /Y "%SRC%user-level-hooks\fab_clean_cycle.py" "%DST%\hooks\fab_clean_cycle.py" >nul
 copy /Y "%SRC%user-level-hooks\fab_checklist.py" "%DST%\hooks\fab_checklist.py" >nul
 copy /Y "%SRC%user-level-hooks\map_trace.py" "%DST%\hooks\map_trace.py" >nul
 py -3 "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py" || python "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py"

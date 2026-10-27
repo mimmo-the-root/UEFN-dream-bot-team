@@ -160,6 +160,23 @@
     "IntersectingEdgeDivisor"
    ],
    "origin": "official"
+  },
+  {
+   "name": "rotating-rays-background",
+   "parent": "Rotating background master material with an Img texture parameter",
+   "use": "Rotating rays/glint background for UI widgets, with a rainbow variant",
+   "steps": [
+    "Create the material instance and set_parent to the master material (instance and parent refPaths)",
+    "set_properties with TextureParameterValues: parameter Img, association GlobalParameter, index -1, value = ray texture refPath",
+    "Create a second instance for the rainbow variant with the same Img",
+    "Texture imports: set NeverStream false, rename with T_ prefix via move",
+    "save_assets, then delete old names"
+   ],
+   "params": [
+    "Img (texture)",
+    "NeverStream false on textures"
+   ],
+   "origin": "official"
   }
  ]
 }

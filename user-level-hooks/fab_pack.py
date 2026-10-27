@@ -3,6 +3,7 @@
 
   python fab_pack.py check [project folder]          check the package against Epic's rules for an UEFN Source upload
   python fab_pack.py docs  [project folder] [--apply] create the Fab documents (dry run unless --apply); never overwrites
+  python fab_pack.py listing-fill [project folder]   fill the TODO lines of "Technical details" in listing.md from the code and assets (never touches a line you wrote)
   python fab_pack.py zip   [project folder]          build <ProjectName>.zip next to the project, the way Fab wants it
   python fab_pack.py signature save <verse file>     keep the owner's signature block (ASCII art + links) from a finished file, in ~/.claude/fab-signature.txt
   python fab_pack.py signature show                  print the saved signature block
@@ -178,8 +179,24 @@ def check(root, product=None):
         m = re.search(r"^\s*Title:\s*(.+)$", open(lst, encoding="utf-8", errors="replace").read(), re.M)
         if m and "TODO" not in m.group(1) and len(m.group(1).strip()) > 30:
             warn.append("FabListing/listing.md: title is %d characters (about 30 or fewer is ideal)" % len(m.group(1).strip()))
-        if re.search(r"TODO", open(lst, encoding="utf-8", errors="replace").read()):
-            notes.append("FabListing/listing.md still has TODO fields")
+    for rel in ("Documentation/README.md", "Documentation/AUTHOR.md", "FabListing/listing.md", "FabListing/third_party.md"):
+        dp = os.path.join(base, *rel.split("/"))
+        if os.path.isfile(dp):
+            t = open(dp, encoding="utf-8", errors="replace").read()
+            n = len(re.findall(r"TODO", t))
+            if n:
+                warn.append("%s/%s still has %d TODO field(s): not ready to publish (run  fab_pack.py listing-fill  and fill the rest)" % (brel, rel, n))
+            if rel == "FabListing/listing.md" and re.search(r"third_party|third-party\.md|README\.md|SETTINGS\.md|listing\.md", t.split("## Tags")[0].split("## Description")[-1]):
+                warn.append("%s/FabListing/listing.md: the Description names a file of the package (third_party.md...): it is customer text, remove that sentence (third-party content goes in the portal's own field)" % brel)
+            if rel == "Documentation/README.md" and "SETTINGS.md" in t and not os.path.isfile(os.path.join(base, "Documentation", "SETTINGS.md")):
+                warn.append("%s/Documentation/README.md points to SETTINGS.md, which does not exist (this product has no Verse settings): run  fab_pack.py listing-fill" % brel)
+            if rel == "FabListing/third_party.md" and "(nothing detected)" in t:
+                try:
+                    import fab_assets
+                    if fab_assets.source_authors(root):
+                        warn.append("%s/FabListing/third_party.md says nothing detected, but the textures come from other authors: run  fab_pack.py listing-fill  (it lists them)" % brel)
+                except Exception:
+                    pass
     return block, warn, notes
 
 
@@ -287,17 +304,101 @@ def third_party_md(root):
     rows = ["| What | Where | Licence | Declared |", "|---|---|---|---|"]
     for d in found:
         rows.append("| %s | Content/%s | TODO: check the licence | no |" % (d, d))
-    if not found:
+    try:
+        import fab_assets
+        authors = fab_assets.source_authors(root)
+    except Exception:
+        authors = []
+    for a in authors:
+        rows.append("| Textures or sounds sourced from the author `%s` (found in their source paths) | Content/... | TODO: licence of this author | no |" % a)
+    if not found and not authors:
         rows.append("| (nothing detected) | | | |")
     return ("# Third-party software and assets\n\nFab asks you to declare everything in the product that you did not create. "
             "Add one row for every sourced asset, plugin or library.\n\n" + "\n".join(rows) + "\n")
+
+
+def fill_readme(root, product=None, apply=True):
+    """Fill the TODO lines of Documentation/README.md that the code and assets answer (what is inside, setup steps, plugins), and drop the
+    pointer to SETTINGS.md when the product has no Verse settings. A line the owner wrote is never touched. Returns what it did."""
+    base = product_folder(root, product)
+    path = os.path.join(base, "Documentation", "README.md")
+    if not os.path.isfile(path):
+        return []
+    name = os.path.basename(base)
+    vf = verse_files(root)
+    groups = {}
+    for b, d, fs in os.walk(base):
+        d[:] = [x for x in d if x not in ("Documentation", "FabListing")]
+        n = sum(1 for f in fs if f.endswith(".uasset"))
+        if n:
+            rel = os.path.relpath(b, base).replace(os.sep, "/")
+            groups[rel if rel != "." else "(root)"] = n
+    inside = "\n".join("- `%s/%s`: %d asset(s)" % (name, k, v) if k != "(root)" else "- `%s`: %d asset(s)" % (name, v) for k, v in sorted(groups.items()))
+    if vf:
+        inside += "\n- Verse files: " + ", ".join("`%s`" % os.path.basename(v) for v in vf)
+    third = [d for d in THIRD_PARTY_DIRS if os.path.isdir(os.path.join(root, "Content", d))]
+    text = open(path, encoding="utf-8").read()
+    done = []
+    def sub(old_re, new, what):
+        nonlocal text
+        if re.search(old_re, text, re.M):
+            text = re.sub(old_re, lambda m: new, text, count=1, flags=re.M)
+            done.append(what)
+    if inside:
+        sub(r"^TODO: list the devices.*$", inside, "what is inside")
+    sub(r"^- Other plugins or Epic libraries: TODO.*$", "- Other plugins or Epic libraries: " + (", ".join(third) if third else "none"), "plugins")
+    sub(r"^1\. TODO: copy the content.*$", "1. Download the product from Fab and add it to your project (or copy the folder `Content/%s` into your project's Content folder)." % name, "setup 1")
+    if not vf:
+        sub(r"^2\. TODO: place the device.*$", "2. Open the Content Browser, find the assets in `%s` and use them in your level (drag a mesh, or apply a material instance to a mesh)." % name, "setup 2")
+        sub(r"^3\. TODO: set the options.*$", "3. Adjust the parameters in the Details panel of the asset (for a material: open the material instance and change its parameters).", "setup 3")
+        sub(r"^TODO$(?=\s*\n\s*## Known limits)", "Apply the assets as described in Setup. Each material instance exposes its parameters (colour, opacity, pattern) in the Details panel.", "usage")
+    text = text.replace(" (see SETTINGS.md)", "") if not vf else text
+    if apply and done:
+        open(path, "w", encoding="utf-8", newline="\n").write(text)
+    return done
+
+
+def fill_technical(root, product=None, apply=True):
+    """Fill the TODO lines of 'Technical details' in FabListing/listing.md with what the product really contains (Verse code, assets).
+    Only lines that still say TODO are touched. Returns [(field, value)] it filled (or would fill)."""
+    path = os.path.join(product_folder(root, product), "FabListing", "listing.md")
+    if not os.path.isfile(path):
+        return []
+    vf = verse_files(root)
+    code = "\n".join(open(p, encoding="utf-8", errors="replace").read() for p in vf)
+    n_assets = sum(1 for b, d, fs in os.walk(os.path.join(root, "Content")) if not any(x in b for x in ("__External", "Collections", "Developers", os.sep + "Claude"))
+                   for f in fs if f.endswith(".uasset"))
+    has = lambda pat: bool(re.search(pat, code, re.I))
+    vals = {
+        "Modular / extensible": "yes",
+        "Includes UI components": "yes" if has(r"widget|canvas|ui_|text_block|button") else "no",
+        "Network integration ready": "yes" if has(r"https?|fetch|web_request|llm") else "no",
+        "AI features": "yes" if has(r"\bllm\b|npc_conversation|ai_") else "no",
+        "Code framework": "Other",
+        "Projects": "1",
+        "C++ classes": "0",
+        "Input methods": "Other" if not vf else "Gamepad, Keyboard, Mouse",
+        "Additional information": ("Assets only, no Verse code: %d assets, ready to use as they are." % n_assets) if not vf else ("%d Verse files, %d assets; settings are in Documentation/SETTINGS.md." % (len(vf), n_assets)),
+    }
+    text = open(path, encoding="utf-8").read()
+    done = []
+    out = []
+    for line in text.split("\n"):
+        m = re.match(r"- ([^:]+): TODO.*$", line)
+        if m and m.group(1) in vals:
+            done.append((m.group(1), vals[m.group(1)]))
+            line = "- %s: %s" % (m.group(1), vals[m.group(1)])
+        out.append(line)
+    if apply and done:
+        open(path, "w", encoding="utf-8", newline="\n").write("\n".join(out))
+    return done
 
 
 def files_to_make(root):
     name = os.path.basename(root.rstrip("/\\"))
     return {
         "Documentation/README.md": "# %s\n\nTODO: one paragraph: what the product is and who it is for.\n\n## What is inside\n\nTODO: list the devices, widgets, materials and Verse files the customer receives.\n\n## Requirements\n\n- UEFN version: TODO\n- Other plugins or Epic libraries: TODO\n\n## Setup\n\n1. TODO: copy the content into your project.\n2. TODO: place the device in the level.\n3. TODO: set the options (see SETTINGS.md).\n\n## Usage\n\nTODO\n\n## Known limits\n\nTODO\n" % name,
-        "FabListing/listing.md": "# Fab listing texts (copy them into the Fab portal)\n\nTitle: TODO (about 30 characters or fewer)\n\nShort description: TODO\n\n## Description\n\nTODO: what it does, what is included, how it is used. Declare third-party software and assets (see third_party.md).\n\n## Tags\n\nTODO\n\n## Technical details\n\nThese are the fields of the portal form (format UEFN Source, category Game Systems). Allowed values are in brackets.\n\n- Modular / extensible: TODO (yes or no)\n- Includes UI components: TODO (yes or no)\n- Network integration ready: TODO (yes or no)\n- AI features: TODO (yes or no)\n- Code framework: TODO (Blueprint, C++ or Other: Verse is Other)\n- Projects: TODO (number)\n- C++ classes: TODO (number, 0 for a Verse product)\n- Input methods: TODO (any of Gamepad, Keyboard, Mouse, Other)\n- Additional information: TODO\n- Verse files: %d\n" % len(verse_files(root)),
+        "FabListing/listing.md": "# Fab listing texts (copy them into the Fab portal)\n\nTitle: TODO (about 30 characters or fewer)\n\nShort description: TODO\n\n## Description\n\nTODO: what it does, what is included, how it is used. Text for customers only: never mention files of this package (third_party.md, README...) or the kit; third-party content goes in the portal's own field, from third_party.md.\n\n## Tags\n\nTODO\n\n## Technical details\n\nThese are the fields of the portal form (format UEFN Source, category Game Systems). Allowed values are in brackets.\n\n- Modular / extensible: TODO (yes or no)\n- Includes UI components: TODO (yes or no)\n- Network integration ready: TODO (yes or no)\n- AI features: TODO (yes or no)\n- Code framework: TODO (Blueprint, C++ or Other: Verse is Other)\n- Projects: TODO (number)\n- C++ classes: TODO (number, 0 for a Verse product)\n- Input methods: TODO (any of Gamepad, Keyboard, Mouse, Other)\n- Additional information: TODO\n- Verse files: %d\n" % len(verse_files(root)),
         "Documentation/AUTHOR.md": author_md(),
         "FabListing/third_party.md": third_party_md(root),
     }
@@ -497,7 +598,7 @@ def make_grid(folder, out=None, cols=None, size=(1920, 1080), bg="#1a1a1a", gap=
 
 
 def main(argv):
-    if not argv or argv[0] not in ("check", "docs", "zip", "grid", "signature", "header"):
+    if not argv or argv[0] not in ("check", "docs", "zip", "listing-fill", "grid", "signature", "header"):
         print(__doc__)
         return 2
     if argv[0] == "signature":
@@ -548,6 +649,18 @@ def main(argv):
             print("note: " + x)
         print("package check: %s" % ("%d problem(s) block the upload" % len(b) if b else "nothing blocks the upload") + ("; %d warning(s)" % len(w) if w else ""))
         return 1 if b else 0
+    if argv[0] == "listing-fill":
+        done = fill_technical(root, product, "--dry" not in argv)
+        rd = fill_readme(root, product, "--dry" not in argv)
+        print("filled in README.md: " + (", ".join(rd) or "nothing"))
+        print("filled in listing.md: " + (", ".join("%s=%s" % d for d in done) or "nothing (no TODO left, or no listing.md yet)"))
+        tp = os.path.join(product_folder(root, product), "FabListing", "third_party.md")   # a table that still says "nothing detected" is refreshed; one the owner edited is not
+        if os.path.isfile(tp) and "(nothing detected)" in open(tp, encoding="utf-8").read():
+            new = third_party_md(root)
+            if "(nothing detected)" not in new and "--dry" not in argv:
+                open(tp, "w", encoding="utf-8", newline="\n").write(new)
+                print("third_party.md: now lists the authors found in the texture source paths (licences are yours to fill in)")
+        return 0
     if argv[0] == "zip":
         out, problems = zip_package(root)
         for x in problems:

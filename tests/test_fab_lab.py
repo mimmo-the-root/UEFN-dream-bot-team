@@ -87,5 +87,29 @@ try:
     ok("FAB PRODUCT" in r.stdout and "by itself" in r.stdout and ki.registered_kind(rb) == "fab", "session start tells the agent it is a Fab product and remembers it")
     ok("Is this a map" not in r.stdout, "no map-or-product question for it")
     ok(fl._current_kit_version() == open(os.path.join(ROOT, "project-template", "Claude", "KIT-VERSION")).read().strip(), "console compares with the profile version")
+    # v1.111.1: 8766 belongs to another console (the kit's own): the product's console takes the next free port and the hook stays fast
+    import time as _t
+    asked, started = [], []
+    lab_path = fl.ensure_lab(fab)
+    def fake_whoami(pt, timeout=2):
+        asked.append(timeout)
+        if pt == 8766:
+            return {"project": "elsewhere", "kit_version": "x", "caps": []}
+        if pt in started:
+            return {"project": lab_path, "kit_version": fl._current_kit_version(), "caps": ["fab_product"]}
+        return None
+    def fake_console(root, port=8766, foreground=False):
+        started.append(port)
+        return True, ""
+    o_who, o_con = fl._whoami, fl.console
+    fl._whoami, fl.console = fake_whoami, fake_console
+    try:
+        t0 = _t.time()
+        url = fl.autostart(fab, open_browser=False) if os.name != "nt" else None
+        if os.name != "nt":
+            ok(url == "http://127.0.0.1:8767/" and started == [8767], "console of the product starts on the next free port when 8766 is taken")
+            ok(_t.time() - t0 < 8 and max(asked) <= 0.5, "port probes are fast (the session hook has 30 s)")
+    finally:
+        fl._whoami, fl.console = o_who, o_con
 finally:
     shutil.rmtree(base, ignore_errors=True)

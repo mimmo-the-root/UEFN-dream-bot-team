@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "genre": "llm-npc-conversations",
-  "pack_version": 6,
+  "pack_version": 7,
   "patterns": [
     {
       "id": "p-28db0f5d1daf",

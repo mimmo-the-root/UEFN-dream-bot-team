@@ -135,6 +135,42 @@ def user_names(path):
     return {m.group(1).decode("utf-8", "replace") for m in USER_RE.finditer(data) if m.group(1) not in SKIP_USERS and not re.fullmatch(rb"[xX]+", m.group(1))}  # a name replaced by xxxx is already cleaned
 
 
+def _owner_names():
+    h = os.path.basename(os.path.expanduser("~")).lower()
+    return {h, os.environ.get("USERNAME", "").lower(), os.environ.get("USER", "").lower()} - {""}
+
+
+def authors_file(root):
+    import fab_lab
+    return os.path.join(fab_lab.lab_dir(root), "third-party-authors.json")
+
+
+def source_authors(root, remember=True):
+    """Names of other people found in the source paths of the assets ('C:/Users/<name>/...': the author of a texture or sound that was
+    not made here). Cleaning erases the names from the files, so every scan keeps them in the lab (outside the project): the list stays
+    complete after the clean. Returns a sorted list; the owner's own Windows name is not an author."""
+    import json
+    found = set()
+    try:
+        found = set(json.load(open(authors_file(root), encoding="utf-8")))
+    except (OSError, ValueError):
+        pass
+    content = os.path.join(root, "Content")
+    for base, dirs, files in os.walk(content):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        for f in files:
+            if f.endswith((".uasset", ".umap")):
+                found |= user_names(os.path.join(base, f))
+    found = {n for n in found if n.lower() not in _owner_names()}
+    if remember and found:
+        try:
+            os.makedirs(os.path.dirname(authors_file(root)), exist_ok=True)
+            json.dump(sorted(found), open(authors_file(root), "w", encoding="utf-8"))
+        except OSError:
+            pass
+    return sorted(found)
+
+
 def mount_of(path):
     return path.split("/")[1] if path.startswith("/") and path.count("/") >= 2 else ""
 
@@ -281,6 +317,10 @@ def clean(root, apply=True, backup_dir=None):
     content = os.path.join(root, "Content")
     others = other_project_names(root)
     changed, problems = [], []
+    try:
+        source_authors(root)   # remember who the sources were before the names are erased
+    except Exception:
+        pass
     for base, dirs, files in os.walk(content):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for f in files:

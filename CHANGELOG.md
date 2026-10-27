@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.111.1 — Fab products: reliable start, checked documents, /fab-check
+
+- **Fab product session start no longer times out.** The console autostart probed four ports one by one and, with 8766 taken by another console, waited far beyond the 30 s of the session hook, so the agent got no Fab context. Probes are now fast and the product's console takes the first free port.
+- **`/fab-check` proposes the fixes and does the one that needs UEFN closed.** After the report it lists a fix for every problem and asks which to apply. New `fab_clean_cycle.py`: with the owner's yes it closes UEFN politely, cleans the texture source paths (backup outside the project), reopens the project, waits until it is open and re-checks; it never forces a close that asks to save unless told.
+- **The Fab check verifies the documents and `/fab-check` fixes them.** A TODO left in README, AUTHOR, listing or third_party, a README that points to a SETTINGS.md that does not exist, or a third_party.md that says "nothing detected" while the textures come from other authors are now reported. `fab_pack.py listing-fill` fills the Technical details from the product, fills the README parts the assets answer (what is inside, setup, plugins) and lists the texture authors in third_party.md (the names are kept in the lab, so they survive the path clean).
+- **Fab console shows the whole listing description** (it was cut at 300 characters with "...", although it is the text you copy into the portal).
+- **New command `/fab-check`** (user level, installed by `update-my-profile.cmd`): runs the Fab package check, the asset scan and the listing checklist, and reports in plain words.
+
 ## v1.111.0 — One workflow to share: states, buttons and release
 
 - **Lessons reach the kit at each release, by themselves.** `publish.ps1` runs `promote-genre-skills.py --community-only`: the lessons you approved are written as community packs in the repo (privacy checked per file; a file with findings is skipped and reported) and users receive them as one proposal per skill in To approve. The Lessons tab has an *In the kit* column and a *Not in the kit yet* filter. A recipe of yours that is already in the kit shows *in the kit* on the Recipes tab and leaves To share.
