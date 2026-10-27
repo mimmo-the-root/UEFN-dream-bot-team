@@ -248,7 +248,41 @@ tr.flash td{animation:jflash 2.2s ease-out 1;}
 .t0card .act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .t0card .cmd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);}
 .t0card .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
-#nextAction.t0{display:grid;grid-template-columns:minmax(0,3fr) minmax(220px,1fr);gap:14px;padding:0;border:0;background:transparent;animation:none;box-shadow:none;align-items:stretch;}
+#nextAction.t0{display:block;padding:0;border:0;background:transparent;animation:none;box-shadow:none;margin:0;}
+.nxrow{display:grid;grid-template-columns:minmax(0,3fr) minmax(250px,1fr);gap:14px;margin:0 0 14px;align-items:stretch;}
+.nxrow>.nx{margin:0;}.nxrow>#nextAction.t0 .t0box{height:100%;}
+.demobox2{grid-column:2;border:1px solid var(--cyan);border-radius:10px;padding:14px 16px;background:var(--panel);box-shadow:0 0 0 1px rgba(75,216,255,.22),0 0 16px rgba(75,216,255,.1);display:flex;flex-direction:column;gap:8px;}
+.demobox2.run{border-color:rgba(57,255,136,.6);box-shadow:0 0 0 1px rgba(57,255,136,.3),0 0 22px rgba(57,255,136,.18);}
+.demobox2 .dl2{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--dim);}
+.demobox2 h3{margin:0;font-size:13px;color:var(--cyan);}.demobox2.run h3{color:var(--green);}
+.demobox2 .why{font-size:11.5px;color:var(--dim);line-height:1.5;}
+.dtiles{display:flex;gap:8px;}
+.dtile{flex:1;border:1px solid var(--line-soft);border-radius:10px;padding:8px 4px;text-align:center;background:var(--panel2);}
+.dtile b{display:block;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text);line-height:1.15;}
+.dtile span{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);}
+.demobox2.run .dtile b{color:var(--green);animation:jglow 2s ease-in-out infinite;}
+.demobox2 .dp{font-size:11.5px;color:var(--dim);}.demobox2 #demoPhaseClock{color:var(--text);font-variant-numeric:tabular-nums;}
+.demobox2 .dt{font-size:10.5px;color:var(--dim);line-height:1.5;min-height:1em;}.demobox2 #demoClockInfo{font-size:10px;color:var(--dim);}
+.dcmds{display:flex;flex-direction:column;gap:6px;margin-top:2px;}
+.dcmds .act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}.dcmds small{font-size:10px;color:var(--dim);}
+.dcmds .cmd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);}
+.dcmds .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
+@keyframes mhripple{0%{transform:scale(.8);opacity:.7}100%{transform:scale(2);opacity:0}}
+@keyframes mhbreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes mhspin{to{transform:rotate(360deg)}}
+.mhrow{display:flex;justify-content:space-between;gap:10px;align-items:center;}
+.mh{position:relative;width:62px;height:62px;flex:none;display:flex;align-items:center;justify-content:center;}
+.mh-r{position:absolute;inset:0;border-radius:50%;border:1.5px solid #ff7a4a;opacity:0;animation:mhripple 3.2s ease-out infinite;}
+.mh-r:nth-child(2){animation-delay:1.05s;border-color:#ffb454;}.mh-r:nth-child(3){animation-delay:2.1s;border-color:#ff5cd1;}
+.mh-core{position:relative;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.14),transparent 60%),linear-gradient(160deg,#121a2c,#080c14);border:2px solid #ff7a4a;box-shadow:0 0 18px rgba(255,122,74,.45),inset 0 0 12px rgba(255,122,74,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.mh-g{font-size:22px;line-height:1;animation:mhbreathe 2.6s ease-in-out infinite;filter:drop-shadow(0 0 6px rgba(255,122,74,.65));}
+.mh-l{font-size:5.5px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;margin-top:2px;white-space:nowrap;}
+.mh-led{position:absolute;top:-1px;right:-1px;width:9px;height:9px;border-radius:50%;background:#4a5568;}
+.demobox2.run .mh-core{border-color:var(--green);box-shadow:0 0 22px rgba(57,255,136,.55),inset 0 0 12px rgba(57,255,136,.2);}
+.demobox2.run .mh-r{border-color:var(--green);animation-duration:1.6s;}
+.demobox2.run .mh-g{animation-duration:1.2s;}.demobox2.run .mh-led{background:var(--green);box-shadow:0 0 8px rgba(57,255,136,.85);}
+@media (prefers-reduced-motion:reduce){.mh-r,.mh-g{animation:none!important;}}
+@media (max-width:900px){.nxrow{grid-template-columns:1fr;}.demobox2{grid-column:1;}}
 .t0box{border:1px solid var(--line-soft);border-radius:10px;padding:16px 18px;background:var(--panel);display:flex;flex-direction:column;gap:8px;}
 .t0box.go{border-color:var(--amber);box-shadow:0 0 0 1px rgba(255,180,84,.25),0 0 18px rgba(255,180,84,.12);}
 .t0box.learn{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(75,216,255,.22),0 0 16px rgba(75,216,255,.1);}
@@ -259,7 +293,6 @@ tr.flash td{animation:jflash 2.2s ease-out 1;}
 .t0box .cmd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);}
 .t0box .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
 .t0box.go .cmd{font-size:16px;padding:5px 12px;}
-@media (max-width:900px){#nextAction.t0{grid-template-columns:1fr;}}
 @media (prefers-reduced-motion:reduce){.stw.now,.stp-b.now,.jd.now,.nx,.flowrow.run::after,.demobox.run #demoClock,.jbar.live i,.jpill.jlive,tr.flash td{animation:none!important;}}
 </style>
 </head>
@@ -323,8 +356,14 @@ tr.flash td{animation:jflash 2.2s ease-out 1;}
     </div>
 
     <!-- v1.114: next action + one row of tabs. The blocks below keep their ids and their renderers; they are only grouped into panels. -->
-    <div class="card nx" id="nextAction" style="display:none;"></div>
-    <div class="flowrow" id="flowRow"><div class="stp" id="pageSteps" role="tablist" aria-label="Workflow"></div><div class="demobox" id="demoBox" style="display:none;"><div class="dl">Demo · total</div><b id="demoClock">--:--:--</b><div class="dp"><span id="demoPhase"></span> <b id="demoPhaseClock"></b></div><div id="demoClockInfo"></div></div></div>
+    <div class="nxrow" id="nxRow"><div class="card nx" id="nextAction" style="display:none;"></div>
+    <div class="demobox2" id="demoBox"><div class="mhrow"><div><div class="dl2">Live demo · real time</div><h3>Put the kit's speed to the test</h3></div>
+        <div class="mh" title="Chief of staff: it runs the demo"><i class="mh-r"></i><i class="mh-r"></i><i class="mh-r"></i><div class="mh-core"><span class="mh-g">🤖</span><span class="mh-l">chief of staff</span><span class="mh-led"></span></div></div></div>
+      <div class="why" id="demoPitch">Watch a whole game go from idea to delivery with the clock running: spec, plan, environment, build, audit. Then learn from the demo how to use the kit at its best.</div>
+      <div class="dtiles"><div class="dtile"><b id="demoH">00</b><span>Hours</span></div><div class="dtile"><b id="demoM">00</b><span>Minutes</span></div><div class="dtile"><b id="demoS">00</b><span>Seconds</span></div></div>
+      <div class="dp"><span id="demoPhase">Ready: the clock starts with the demo</span> <b id="demoPhaseClock"></b></div><div class="dt" id="demoTask"></div><div id="demoClockInfo"></div>
+      <div class="dcmds" id="demoCmds"><div class="act"><span class="cmd">/demo</span><button class="btn" type="button" data-cmd="/demo">Copy text</button><small>with you</small></div><div class="act"><span class="cmd">/demo --auto</span><button class="btn" type="button" data-cmd="/demo --auto">Copy text</button><small>on its own</small></div></div></div></div>
+    <div class="flowrow" id="flowRow"><div class="stp" id="pageSteps" role="tablist" aria-label="Workflow"></div></div>
     <div class="pt" id="pageTabs" role="tablist"></div>
     <div class="pp" data-p="idea" id="pIdea"></div>
     <div class="pp" data-p="spec" id="pSpec"></div>
@@ -1504,17 +1543,14 @@ function jDelivery(st){
     '<a href="#" onclick="openPreview(\'delivery\');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open DELIVERY-GATE.md →</a><div style="font-size:11.5px;color:var(--dim);margin-top:6px;">Claude never ticks a box: the private release and the publish are yours.</div></div>';
   return jGhost(ok, html, 'Not started. <code>/consegna</code> writes the list of what only you can do, then <code>/ambiente --playtest</code> writes the playtest checklist.');
 }
+function t0Act(c, note){ return '<div class="act"><span class="cmd">' + escH(c) + '</span><button class="btn" type="button" data-cmd="' + escH(c) + '">Copy text</button></div>' + (note ? '<div class="why">' + escH(note) + '</div>' : ''); }
 function t0Boxes(){
-  const act = (c, note) => '<div class="act"><span class="cmd">' + escH(c) + '</span><button class="btn" type="button" data-cmd="' + escH(c) + '">Copy text</button></div>' + (note ? '<div class="why">' + escH(note) + '</div>' : '');
-  return '<div class="t0box go"><div class="label">Next action <span id="nxProj"></span></div><h3>Start your new map</h3><div class="why">Tell Claude Code your game idea, or ask for one. It asks the minimum, scores the idea, writes the spec and takes you step by step to a playable map. Nothing runs by itself and every change waits for your approval.</div>' + act("/spec") + '<div class="sub">What happens next</div><div class="why">1 Idea and spec: the players are asked first, the idea is scored.<br>2 Plan: devices, assets, Island settings and the scenery.<br>3 Tasks, then the environment and the build in UEFN, task by task.<br>4 Audit, Fab and island compliance, then the delivery list. This page follows every step by itself.</div></div>' +
-    '<div class="t0box learn"><div class="label">Learn the kit</div><h3>Start with the product demo</h3><div class="why">A small pilot game, the whole flow from idea to delivery, timed. Run it in a new empty test project.</div>' +
-    '<div class="sub">With you</div>' + act("/demo", "it asks at each approval") + '<div class="sub">On its own</div>' + act("/demo --auto", "no questions, the clock runs here") + '</div>';
+  return '<div class="t0box go"><div class="label">Next action <span id="nxProj"></span></div><h3>Start your new map</h3><div class="why">Tell Claude Code your game idea, or ask for one. It asks the minimum, scores the idea, writes the spec and takes you step by step to a playable map. Nothing runs by itself and every change waits for your approval.</div>' + t0Act("/spec") +
+    '<div class="sub">What happens next</div><div class="why">1 Idea and spec: the players are asked first, the idea is scored.<br>2 Plan: devices, assets, Island settings and the scenery.<br>3 Tasks, then the environment and the build in UEFN, task by task.<br>4 Audit, Fab and island compliance, then the delivery list. This page follows every step by itself.</div></div>';
 }
 function t0Card(st){
-  return '<div class="t0wrap" style="display:grid;grid-template-columns:minmax(0,3fr) minmax(220px,1fr);gap:14px;">' + t0Boxes().replace('id="nxProj"','') + '</div>';
-  const n = jNext(st);
-  return '<div class="card t0card"><div class="label">New map</div><div style="margin-top:6px;line-height:1.5;">Nothing is built yet, so there is nothing to follow here but the start. You have two ways in. Paste the text in Claude Code: nothing runs by itself and every change waits for your approval.</div><div class="acts">' +
-    n.acts.map(a => '<div class="act"><b style="min-width:210px;">' + escH(a.l) + '</b><span class="cmd">' + escH(a.cmd) + '</span><button class="btn" type="button" data-cmd="' + escH(a.cmd) + '">Copy text</button></div>').join("") + '</div></div>';
+  return '<div class="t0wrap" style="display:grid;grid-template-columns:minmax(0,3fr) minmax(220px,1fr);gap:14px;">' + t0Boxes().replace('id="nxProj"','') +
+    '<div class="t0box learn"><div class="label">Learn the kit</div><h3>Start with the product demo</h3><div class="why">The whole flow on a pilot game, timed. Run it in a new empty test project. The clock is on this page, next to the next action.</div><div class="sub">With you</div>' + t0Act("/demo", "it asks at each approval") + '<div class="sub">On its own</div>' + t0Act("/demo --auto", "no questions") + '</div></div>';
 }
 function bindCopy(root){
   Array.prototype.forEach.call(root.querySelectorAll("[data-cmd]"), b => { b.onclick = function(){ const t = b.getAttribute("data-cmd"); try{ navigator.clipboard.writeText(t).then(() => { b.textContent = "Copied"; }, () => { b.textContent = "Select and copy it"; }); }catch(e){ b.textContent = "Select and copy it"; } }; });
@@ -1779,13 +1815,19 @@ setInterval(refreshDocs, 5000);
 (function(){
   var T = null;
   function f(x){ x = Math.max(0, Math.round(x)); return ("0"+Math.floor(x/3600)).slice(-2)+":"+("0"+Math.floor(x%3600/60)).slice(-2)+":"+("0"+x%60).slice(-2); }
-  function tick(){ var box = document.getElementById("demoBox"), c = document.getElementById("demoClock"), i = document.getElementById("demoClockInfo"), ph = document.getElementById("demoPhase"), pc = document.getElementById("demoPhaseClock"); if (!c || !box) return;
-    if (!T){ box.style.display = "none"; return; }
-    box.style.display = ""; box.classList.toggle("run", !T.end);
-    var now = Date.now()/1000, end = T.end || now; c.textContent = f(end - T.start);
-    if (T.phase && !T.end){ ph.textContent = stepName(phaseStep(T.phase.label)) || T.phase.label; pc.textContent = f(now - T.phase.start); }
-    else { ph.textContent = T.end ? "everything ready" : "between phases"; pc.textContent = ""; }
-    i.textContent = (T.end ? "stopped" : "running") + " · " + T.mode + " · " + T.marks.length + " phases done"; }
+  function f2(n){ return ("0"+Math.max(0,Math.floor(n))).slice(-2); }
+  function tick(){ var box = document.getElementById("demoBox"); if (!box) return;
+    var H = document.getElementById("demoH"), M = document.getElementById("demoM"), S = document.getElementById("demoS"), ph = document.getElementById("demoPhase"), pc = document.getElementById("demoPhaseClock"), tk = document.getElementById("demoTask"), i = document.getElementById("demoClockInfo"), cm = document.getElementById("demoCmds"), pi = document.getElementById("demoPitch");
+    if (!T){ box.classList.remove("run"); H.textContent = M.textContent = S.textContent = "00"; ph.textContent = "Ready: the clock starts with the demo"; pc.textContent = ""; tk.textContent = ""; i.textContent = ""; cm.style.display = ""; pi.style.display = ""; return; }
+    var now = Date.now()/1000, end = T.end || now, el = Math.max(0, end - T.start); box.classList.toggle("run", !T.end);
+    H.textContent = f2(el/3600); M.textContent = f2(el%3600/60); S.textContent = f2(el%60);
+    cm.style.display = T.end ? "" : "none"; pi.style.display = T.end ? "" : "none";
+    var k = (T.phase && !T.end) ? phaseStep(T.phase.label) : null, det = "";
+    if (T.phase && !T.end){ ph.textContent = "Now: " + (stepName(k) || T.phase.label); pc.textContent = f(now - T.phase.start);
+      if (lastSt){ if (k==="build"){ var a = lastSt.tasks.filter(function(x){ return statusBucket(x.status)==="active"; })[0]; det = a ? "Task running: " + a.id + " " + (a.feature||"").replace(/~~/g,"").slice(0,70) : lastSt.tasks.length ? lastSt.done + " of " + lastSt.tasks.length + " tasks done" : ""; }
+        else if (k==="env"){ var r = lastSt.envRows.filter(function(x){ return x.status!=="built"; })[0]; det = r ? "Scenery: " + r.el : lastSt.envRows.length ? "Scenery: all built" : ""; } } }
+    else { ph.textContent = T.end ? "Everything ready in " + f(el) : "Between phases"; pc.textContent = ""; }
+    tk.textContent = det; i.textContent = (T.end ? "stopped" : "running") + " · " + T.mode + " · " + T.marks.length + " phases done"; }
   async function poll(){ try{ var d = await fetchDoc("demotimer"); T = null;
       if (d && d.exists && !d.error){ var m = /<!-- data:(.*?) -->/.exec(d.content); if (m) T = JSON.parse(m[1]); } }catch(e){ T = null; }
     delete docCache["demotimer"]; tick(); }

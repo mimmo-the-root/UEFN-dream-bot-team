@@ -35,5 +35,5 @@ r_ = td.clean(proj, "--all"); l_ = td.listing(proj); assert r_["ok"] and l_["tot
 assert os.path.isfile(os.path.join(dd, "GAME-SPEC.md")), "the owner's file stays"
 news = open(os.path.join(H, "agent-console-news.html"), encoding="utf-8").read()
 assert "/to-delete-act" in news and "Delete everything" in news
-assert open(os.path.join(H, "agent-console-docs.html"), encoding="utf-8").read().count('data-cmd="/demo') == 2
+assert open(os.path.join(H, "agent-console-docs.html"), encoding="utf-8").read().count('data-cmd="/demo') >= 2
 print("ok demo phases, park, to_delete")

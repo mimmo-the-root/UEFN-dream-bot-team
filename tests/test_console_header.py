@@ -19,7 +19,7 @@ for p in pages:
     ok(t.count("<!-- kit-head:begin -->") == 1 and "kh-strip" in t, n + ": one shared header block with the island strip")
     ok('href="/manual/commands.html">All commands</a>' in t, n + ": footer link to all commands")
 docs = open(os.path.join(H, "agent-console-docs.html"), encoding="utf-8").read()
-ok(all(k in docs for k in ('id="pageSteps"', 'id="demoBox"', 'id="pEnv"', 'id="pBuild"', 'id="pAudit"', 'id="pDelivery"', 'id="statusT0"')), "the Docs page has the arrows, the demo box beside them, the four new steps and the new-map block")
+ok(all(k in docs for k in ('id="pageSteps"', 'id="demoBox"', 'id="demoH"', 'id="demoTask"', 'id="pEnv"', 'id="pBuild"', 'id="pAudit"', 'id="pDelivery"', 'id="statusT0"')), "the Docs page has the arrows, the demo box beside them, the four new steps and the new-map block")
 ok("data-p=\"env\"" in docs and "jGhost(" in docs, "empty sections are shown as ghosts, not hidden")
 # the demo uses the same keys the page maps to arrows
 demo = open(os.path.join(ROOT, "user-level-commands", "demo.md"), encoding="utf-8").read()
