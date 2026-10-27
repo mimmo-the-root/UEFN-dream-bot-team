@@ -41,7 +41,11 @@ try:
         d0docs = os.path.join(d0, "Claude", "docs"); os.makedirs(d0docs)
         open(os.path.join(d0docs, "ROADMAP.md"), "w").write("# Roadmap\n\n## Tasks\n\n" + hdr + "| T-001 | Core gameplay loop | To do | x | P1 | P0-R1 |\n| T-002 | Music loop | To do | x | P2 | P0-R1 |\n")
         z = score.compute(d0)
-        ok(all(max(x["B"]) == 0 and max(x["V"]) == 0 for x in z["criteria"]), "T0: nothing started = every criterion at 0, no free points for feasibility, scope or docs")
+        zc = {x["id"]: x for x in z["criteria"]}
+        ok(all(max(x["V"]) == 0 for x in z["criteria"] if x["id"] != "scope"), "T0: nothing started = no free points for feasibility, docs or anything built")
+        ok(zc["scope"]["V"][0] == 5.0, "scope is measured as soon as there is a plan")
+        open(os.path.join(d0docs, "GAME-SPEC.md"), "w").write("# Spec\n" + "The idea and the loop in some detail. " * 12)
+        ok({x["id"]: x for x in score.compute(d0)["criteria"]}["docs"]["V"][0] > 0, "documentation advances once the spec is written")
     finally:
         shutil.rmtree(d0, ignore_errors=True)
     # snapshot: R1 is closed, R2 is not

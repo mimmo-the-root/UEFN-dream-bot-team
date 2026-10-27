@@ -157,7 +157,7 @@ def compute(project):
     cs = criteria(project)
     ts = tasks(project)
     if not ts or not cs:
-        return {"available": False, "reason": "Not started: the score needs a plan. Run /spec for the idea, then /piano for the tasks: every criterion starts at 0 and fills in as the work is done."}
+        return {"available": False, "reason": "Not started: the score needs a plan. Run /spec for the idea, then /game-plan for the tasks: every criterion starts at 0 and fills in as the work is done."}
     rels = sorted({t["rel"] for t in ts}, key=_rel_key)
     cur = next((i for i, r in enumerate(rels) if any(not t["done"] for t in ts if t["rel"] == r)), len(rels) - 1)
     ix = {r: i for i, r in enumerate(rels)}
@@ -192,6 +192,8 @@ def compute(project):
     n = len(rels)
     # nothing done and nothing in progress yet = not started: criteria that start with free points (feasibility, scope, docs) stay at 0
     started = any(t["done"] or t["prog"] for t in ts)
+    # documentation is work too: it counts as soon as the spec or the plan is written
+    docs_started = started or any(os.path.getsize(os.path.join(project, "Claude", "docs", n)) > 200 for n in ("GAME-SPEC.md", "PLAN.md") if os.path.isfile(os.path.join(project, "Claude", "docs", n)))
     out_c = []
     open_pen = sum(b["pen"] for b in bs)
     for c in cs:
@@ -221,9 +223,7 @@ def compute(project):
             first, now = max(1, st.get("planned", len(ts))), len(ts)
             cv = 5.0 if now <= first else round(5.0 * first / now, 2)
             T, B, V = [5.0] * n, [cv] * n, [cv] * n
-            ev.append("planned %d task(s) when first measured, %d now" % (first, now) if started else "not started: it is measured once work begins")
-            if not started:
-                B = [0.0] * n; V = [0.0] * n
+            ev.append("planned %d task(s) when first measured, %d now" % (first, now))
         elif kind == "ship":
             tv = _val(sum(1 for t in mine if t["done"]), d)
             cv = ver if ver is not None else tv
@@ -237,8 +237,8 @@ def compute(project):
             T = [5.0] * n
             B = [round(dval, 2) if k == cur else 0.0 for k in range(n)]
             V = list(B)
-            ev.append(dwhy if started else "not started: it is measured once work begins")
-            if not started:
+            ev.append(dwhy if docs_started else "not started: it counts once the spec or the plan is written")
+            if not docs_started:
                 B = [0.0] * n; V = [0.0] * n
         if kind != "tasks":
             ev.extend("%s %s" % (t["id"], "done" if t["done"] else "open") for t in mine[:4])
