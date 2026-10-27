@@ -21,7 +21,8 @@ def find_spec(arg):
         return arg
     base = arg or os.getcwd()
     for cand in (os.path.join(base, "Claude", "docs", "GAME-SPEC.md"), os.path.join(base, "docs", "GAME-SPEC.md"),
-                 os.path.join(base, "GAME-SPEC.md"), os.path.join(base, "Content", "Claude", "docs", "GAME-SPEC.md")):
+                 os.path.join(base, "GAME-SPEC.md"), os.path.join(base, "Content", "Claude", "docs", "GAME-SPEC.md"),
+                 os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs", "GAME-SPEC.md")):
         if os.path.isfile(cand):
             return cand
     return None

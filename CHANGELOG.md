@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.113.0 — From the spec to the tasks: `/piano`, `/compiti`, `/coerenza`
+
+- **New command `/piano`.** Only with an approved spec. It writes `CONSTITUTION.md` (principles with their reason, forbidden words, names and budget, scope limits, and the closed list of minor bugs the kit may fix by itself) and `PLAN.md`: one section per story with devices (recipe, skill or explore), the assets inventory (present, import, create), the manual steps only you can do, the build order in two passes and the first task that reduces each risk. One approval.
+- **New command `/compiti`.** Breaks the plan into tasks through `planner-docs`, keeping the ROADMAP table contract: the story `[S1]`, parallel `[P]`, dependencies `(after T-001)` and the risk `[R1]` live in the Feature cell. `intent-gate` checks every task; the first three tasks must cover every high risk.
+- **New command `/coerenza` and `plan_check.py`.** A read-only check of spec, plan and tasks with a severity per finding (CRITICAL, HIGH, MEDIUM, LOW, 50 at most). A conflict with the constitution is always CRITICAL. It finds stories without a plan or a task, tasks without a verifiable criterion, missing or circular dependencies, and high risks no early task reduces.
+- **New templates `CONSTITUTION.md` and `PLAN.md`.** `spec_check.py` and `plan_check.py` now also find the project's docs when run from `Claude/hooks`.
+- Tested in the Lab project with the Epic farm example: coherent spec, plan and tasks pass; a task that adds a forbidden leaderboard is a CRITICAL.
+
 ## v1.112.0 — Start a game from the spec: `/spec`, spec check, risks
 
 - **New command `/spec`.** A game starts from an idea (yours, or three proposed): minimal card, the genre you confirm (in a jam, proposed from the theme), three variants scored with `/concept-card` (60 to go on, your call to force), the loop in five lines, spec v0, technical risks, one approval. A new mechanic is a new story (P2, P3) with its own test; a change to an approved spec asks you again.

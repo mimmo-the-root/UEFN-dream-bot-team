@@ -56,8 +56,9 @@ the project's own documents (demo data):
 
 ![Pipeline diagram](docs/images/pipeline-diagram.png)
 
-## What's new (v1.102 - v1.112.0)
+## What's new (v1.102 - v1.113.0)
 
+- **From the spec to the tasks (1.113).** `/piano` writes the principles (`CONSTITUTION.md`) and the plan (`PLAN.md`: devices, assets that exist, steps only you can do, two build passes); `/compiti` makes tasks with a test, a story, dependencies and parallel marks; `/coerenza` checks spec, plan and tasks read-only, and a conflict with the principles is always CRITICAL.
 - **Start a game from the spec (1.112).** `/spec` takes an idea (yours or three proposed), asks the minimum, lets you confirm the genre, scores three variants, writes the loop in five lines and a `GAME-SPEC.md` with measurable criteria, assumptions and a table of technical risks, and asks for one approval. `spec_check.py` is its test list; `--gate` is the door to planning (score 60 or more, or your forced yes) and `--jam` checks the theme line.
 - **One workflow for everything you can share (1.111).** Lessons, recipes, skills and the UEFN MCP proof share the same states (collected, ready, shared, private) and the same buttons in every tab, with Promote all / Keep all private. Contribute to the community is on by default (nothing leaves without your click), GitHub opens with the file name, title and description filled in, lessons reach the kit at each release by themselves, and the maintainer has a Maintainer / Contributor view switch.
 - **Skills page by tabs, LEARN, recipes (1.110).** One page for maps and Fab products: queues (To approve, To share), knowledge (Lessons, Recipes, Skills), sources (Maps & products, This map / product), UEFN MCP and Community. A LEARN button for maps and for Fab products, recipes prepared by the kit from your Verse code and shared both ways through the community, a folder called FAB is a Fab product by itself, and the assets are cleaned of user and project names before `check` and `zip`.
