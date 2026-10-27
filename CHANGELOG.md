@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.112.0 — Start a game from the spec: `/spec`, spec check, risks
+
+- **New command `/spec`.** A game starts from an idea (yours, or three proposed): minimal card, the genre you confirm (in a jam, proposed from the theme), three variants scored with `/concept-card` (60 to go on, your call to force), the loop in five lines, spec v0, technical risks, one approval. A new mechanic is a new story (P2, P3) with its own test; a change to an approved spec asks you again.
+- **New `GAME-SPEC.md` template and `spec_check.py`.** The spec says what and why, never how. The check is its test list: a P1 story with an independent test and a Given/when/then, measurable success criteria, assumptions, a risk table with levels, no open `[NEEDS CLARIFICATION]`. `--gate` is what planning will run: approval and a score of 60 or more (or your forced yes). `--jam`: the theme line warns before 11 November and blocks after.
+- **`project-bootstrap` and the manual point to `/spec`.** `SPEC.md` stays the spec deduced from code; the new game spec is a separate file, so an existing-map check never mistakes one for the other.
+- Tested in the Lab project with the Epic farm example (Chicken Roundup): empty template blocked, spec ready, gate before and after approval, jam before and after the theme day.
+
 ## v1.111.1 — Fab products: reliable start, checked documents, /fab-check
 
 - **Fab product session start no longer times out.** The console autostart probed four ports one by one and, with 8766 taken by another console, waited far beyond the 30 s of the session hook, so the agent got no Fab context. Probes are now fast and the product's console takes the first free port.

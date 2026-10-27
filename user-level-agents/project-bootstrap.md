@@ -164,6 +164,8 @@ Stop and return, as your result (without writing to files, except where indicate
 - Are there technical or time constraints (e.g. deadline, device/performance limits)?
 - What needs to be in the very first playable version (MVP) to be able to test it?
 
+**New in 1.112: the spec comes first.** Do not collect these answers by hand when the owner has (or wants) an idea: tell them to run `/spec`. It does the idea, genre, scored variants, 5-line loop, `Claude/docs/GAME-SPEC.md` (a separate file: `SPEC.md` stays the spec deduced from code, so this check does not take a new game for an existing one), technical risks and one approval, and `python Claude/hooks/spec_check.py --gate` says whether it may go to planning. Fill ROADMAP and STATUS from the approved `GAME-SPEC.md`.
+
 If the owner answers in the same conversation, use the answers to populate:
 - `Claude/docs/ROADMAP.md`: project goal, "Current MVP / release target," what's out of scope for
   now, and the `Tasks` table itself — one row per MVP feature the owner described, each with a

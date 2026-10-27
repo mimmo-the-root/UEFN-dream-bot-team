@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.111.0"
+   "tag": "v1.111.1"
   },
   "state": {
    "genres": [],
@@ -24,14 +24,13 @@
  "release": {
   "date": "2026-10-27",
   "items": [
-   "Fab product session start no longer times out. The console autostart probed four ports one by one and, with 8766 taken by another console, waited far beyond the 30 s of the session hook, so the agent got no Fab context. Probes are now fast and the product's console takes the first free port.",
-   "`/fab-check` proposes the fixes and does the one that needs UEFN closed. After the report it lists a fix for every problem and asks which to apply. New `fab_clean_cycle.py`: with the owner's yes it closes UEFN politely, cleans the texture source paths (backup outside the project), reopens the project, waits until it is open and re-checks; it never forces a close that asks to save unless told.",
-   "The Fab check verifies the documents and `/fab-check` fixes them. A TODO left in README, AUTHOR, listing or third_party, a README that points to a SETTINGS.md that does not exist, or a third_party.md that says \"nothing detected\" while the textures come from other authors are now reported. `fab_pack.py listing-fill` fills the Technical details from the product, fills the README parts the assets answer (what is inside, setup, plugins) and lists the texture authors in third_party.md (the names are kept in the lab, so they survive the path clean).",
-   "Fab console shows the whole listing description (it was cut at 300 characters with \"...\", although it is the text you copy into the portal).",
-   "New command `/fab-check` (user level, installed by `update-my-profile.cmd`): runs the Fab package check, the asset scan and the listing checklist, and reports in plain words."
+   "New command `/spec`. A game starts from an idea (yours, or three proposed): minimal card, the genre you confirm (in a jam, proposed from the theme), three variants scored with `/concept-card` (60 to go on, your call to force), the loop in five lines, spec v0, technical risks, one approval. A new mechanic is a new story (P2, P3) with its own test; a change to an approved spec asks you again.",
+   "New `GAME-SPEC.md` template and `spec_check.py`. The spec says what and why, never how. The check is its test list: a P1 story with an independent test and a Given/when/then, measurable success criteria, assumptions, a risk table with levels, no open `[NEEDS CLARIFICATION]`. `--gate` is what planning will run: approval and a score of 60 or more (or your forced yes). `--jam`: the theme line warns before 11 November and blocks after.",
+   "`project-bootstrap` and the manual point to `/spec`. `SPEC.md` stays the spec deduced from code; the new game spec is a separate file, so an existing-map check never mistakes one for the other.",
+   "Tested in the Lab project with the Epic farm example (Chicken Roundup): empty template blocked, spec ready, gate before and after approval, jam before and after the theme day."
   ],
-  "tag": "v1.111.1",
-  "title": "v1.111.1 \u2014 Fab products: reliable start, checked documents, /fab-check"
+  "tag": "v1.112.0",
+  "title": "v1.112.0 \u2014 Start a game from the spec: `/spec`, spec check, risks"
  },
  "schema": 1,
  "skills": [],
