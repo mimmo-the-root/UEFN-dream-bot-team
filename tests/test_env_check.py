@@ -67,7 +67,7 @@ gd = mkdocs(plan)
 assert rg.main(["init", os.path.dirname(os.path.dirname(gd))]) == 0
 gt = open(os.path.join(gd, "DELIVERY-GATE.md"), encoding="utf-8").read()
 blk, wr = rg.check(gt)
-assert len(blk) >= 8 and any("Memory used" in x for x in blk) and "Island Settings: Max players = 4" in gt
+assert len(blk) >= 14 and any("Memory used" in x for x in blk) and any("Compliance" in x or "Third-party" in x for x in blk) and any("Cooked for Platforms" in x for x in blk) and "## 2. Compliance" in gt and "Island Settings: Max players = 4" in gt
 ticked = gt.replace("- [ ]", "- [x]").replace("<NN>%", "90%")
 blk, wr = rg.check(ticked)
 assert not blk and wr and "90%" in wr[0]
@@ -111,3 +111,7 @@ for name, words in (("audit", ("audit_log.py", "codebase-auditor", "Self-healing
     for w_ in words:
         assert w_.lower() in c.lower(), (name, w_)
 print("ok v114")
+# a stop without a start is refused
+os.environ["CLAUDE_PROJECT_DIR"] = bt
+assert rl.main(["stop", "nope"]) == 1 and rl.main(["start", "x"]) == 0 and rl.main(["stop", "x"]) == 0
+print("ok run_log")

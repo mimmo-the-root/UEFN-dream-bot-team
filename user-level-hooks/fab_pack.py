@@ -82,7 +82,7 @@ def find_root(base):
     return None
 
 
-def auto_clean(root):
+def auto_clean(root, apply=True):
     """Names of Windows users and of the owner's other projects inside the assets are replaced (same length) before every check and zip,
     with a backup outside the project. Returns (notes, problems)."""
     try:
@@ -90,7 +90,7 @@ def auto_clean(root):
         import fab_assets
         import fab_lab
         bk = os.path.join(fab_lab.lab_dir(root), "asset-backup", time.strftime("%Y%m%d-%H%M%S"))
-        changed, problems = fab_assets.clean(root, True, bk)
+        changed, problems = fab_assets.clean(root, apply, bk)
     except Exception:
         return [], []
     notes = []
@@ -99,7 +99,10 @@ def auto_clean(root):
         for _, c in changed:
             for k, v in c.items():
                 tot[k] = tot.get(k, 0) + v
-        notes.append("cleaned by itself in %d asset(s): %s (same size; the originals are in %s)" % (len(changed), ", ".join("%s x%d" % (k.split(":", 1)[1], v) for k, v in sorted(tot.items())), bk))
+        if not apply:
+            notes.append("%d asset(s) would be cleaned of a personal name (GDPR, ***anonymized***): a check never changes a map's files; run `fab_assets.py <project> --clean` when you want it" % len(changed))
+            return notes, problems
+        notes.append("cleaned by itself in %d asset(s): %s (same size; the originals are in %s)" % (len(changed), ", ".join("%s x%d" % ("***anonymized***" if k.startswith("user:") else k.split(":", 1)[1], v) for k, v in sorted(tot.items())), bk))
     return notes, problems
 
 
@@ -112,7 +115,8 @@ def check(root, product=None):
         for where in (root, content):
             if os.path.exists(os.path.join(where, n)):
                 block.append("%s is in the project (%s): a Fab package must not contain it" % (n, os.path.relpath(os.path.join(where, n), root).replace(os.sep, "/")))
-    cn, cp = auto_clean(root)
+    # a MAP project (it has Content/Claude) is never changed by a check: only a Fab product is cleaned by itself (v1.114)
+    cn, cp = auto_clean(root, apply=not os.path.isdir(os.path.join(content, "Claude")))
     notes += cn
     warn += cp
     try:  # traces of another project inside the assets (v1.110): the thing Epic's validation rejected twice

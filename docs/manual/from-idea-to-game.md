@@ -75,7 +75,7 @@ The kit ships a complete example, built from the Epic farm game: the idea, the s
 
 1. In UEFN make a **new empty project** just for tests (Fortnite > Create).
 2. Open Claude Code in its `Content` folder and install the kit (`/kit-update`).
-3. On the Docs page, **Documents** tab, press **Copy /demo --load** and paste it in the chat. The files go to `Claude/docs/` and the tabs Idea, Spec and Plan fill up.
+3. On the Docs page, **Documents** tab, press **Copy /demo** (the flow with you, asking at each approval) or **Copy /demo --auto** (no questions: the AI approves every step and finishes by itself) and paste it in the chat. A stopwatch runs from start to the moment everything is ready; the Docs page shows it, handy for timing a promo video. **Copy /demo --load** only puts the files in `Claude/docs/`.
 4. Prefer to keep your docs as they are? Press **Copy /demo**: the files go to `Claude/docs/demo-chicken-roundup/` and nothing else is touched.
 
 `/demo --load` refuses when the project already has a spec, a plan or tasks, and it never overwrites a file. To run the demo again, discard the test project, make a new one and repeat from step 1.

@@ -165,6 +165,9 @@ DOC_FILES = {
     "gamespec": "GAME-SPEC.md",
     "constitution": "CONSTITUTION.md",
     "plan": "PLAN.md",
+    "audit": "AUDIT.md",
+    "demotimer": "DEMO-TIMER.md",
+    "delivery": "DELIVERY-GATE.md",
 }
 GENRE_FILE = os.path.join(DOCS_DIR, ".genre")
 COMMUNITY_SUMMARY_FILE = os.path.join(os.path.dirname(ROOT), "community", "community-summary.json")

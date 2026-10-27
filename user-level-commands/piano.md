@@ -14,6 +14,7 @@ You plan the game. The spec says WHAT; the plan says HOW. Work in `Claude/docs/`
 
 **2. Plan (`PLAN.md`).** Copy `Claude/docs-template/PLAN.md` and write ONE section per story of the spec (`## S1 - ...`, S1 is Story 1):
 - Devices: for each need, use `python ~/.claude/hooks/skills_lib.py recipes mechanics` and the skills `uefn-level-devices`, `uefn-device-gotchas`, `uefn-lessons` to mark it `recipe` (proven), `skill` (documented) or `explore` (try it in the Lab first). A device that exists comes before a new Verse file.
+- Placement: follow rule 7 of `~/.claude/CLAUDE.md` and the skill `uefn-device-gotchas` (`demodisplay-sizing.md`). Each custom Verse device gets one `DemoDisplay` stand outside the play area, grouped by function; devices that only configure it (Timer, HUD, Score, Round and Team settings) go on the stand, off the scene. Devices whose position is gameplay (spawners, volumes, player spawn pads, storm) stay in place and are only named in the stand's description. Write the placement per device in the story (`stand` or `in place`).
 - Verse files: name and one line each, or `none`.
 - Assets inventory: first look at what exists (project, Fortnite and Fab libraries through the MCP when the editor is open); mark each asset `present`, `import` or `create`. Never invent an asset by its name.
 - Manual steps: everything only the owner can do (`@editable` references, editor settings), each with how to verify.

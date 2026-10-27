@@ -14,6 +14,7 @@
 
 ## Forbidden
 - <a word or short phrase the plan and the tasks must never contain, one per line>
+- Personal data: where a personal name would be written (texts, reports, file names the user owns), write `***anonymized***` in English (GDPR, Regulation (EU) 2016/679, data minimisation). Never applied to assets made by Epic, only to the user's own files.
 
 ## Names and budget
 - Folders and assets: letters, digits and underscore, paths of 140 characters at most.

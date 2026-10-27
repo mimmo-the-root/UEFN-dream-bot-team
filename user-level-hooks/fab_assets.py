@@ -132,7 +132,7 @@ def user_names(path):
             data = f.read()
     except OSError:
         return set()
-    return {m.group(1).decode("utf-8", "replace") for m in USER_RE.finditer(data) if m.group(1) not in SKIP_USERS and not re.fullmatch(rb"[xX]+", m.group(1))}  # a name replaced by xxxx is already cleaned
+    return {m.group(1).decode("utf-8", "replace") for m in USER_RE.finditer(data) if m.group(1) not in SKIP_USERS and not re.fullmatch(rb"[xX*]+", m.group(1))}  # a name already replaced by asterisks (or by the older x) is cleaned
 
 
 def _owner_names():
@@ -250,9 +250,9 @@ def scan(root):
             warns.append("%d asset(s) still carry the internal name of another project (/%s/...), for example %s: they were copied by hand. "
                          "Open and save them in the editor to rewrite the name (the editor only does it when it saves)" % (len(files), m, files[0]))
     for u, files in sorted(users.items()):
-        warns.append("%d asset(s) keep the source path of the Windows user '%s' (the editor records where a file was imported from), for example %s: "
+        warns.append("%d asset(s) keep the source path of a Windows user (%s) (the editor records where a file was imported from), for example %s: "
                      "it exposes a real user name in the package, and it shows where the file came from (declare third-party content)"
-                     % (len(files), u, files[0]))
+                     % (len(files), "***anonymized***", files[0]))
     if unread:
         notes.append("%d asset file(s) not understood by the scan (other layout): %s" % (len(unread), ", ".join(unread[:3])))
     return blocks, warns, notes
@@ -260,9 +260,9 @@ def scan(root):
 
 # ---- automatic clean (v1.110) -----------------------------------------------------------------------------------------------
 # The editor records where a file was imported from ('C:/Users/<name>/Downloads/x.png', '.../<other project>/...'). Fab's review sees
-# it. The kit replaces those names with x of the SAME length (the file size and every offset stay the same: nothing else moves), after
+# it. The kit replaces those names with * of the SAME length (privacy rule: GDPR, Regulation (EU) 2016/679, data minimisation; in texts and reports the same thing is written ***anonymized***) (the file size and every offset stay the same: nothing else moves), after
 # a backup kept OUTSIDE the project. Only names inside a path are touched, never a package name or an import.
-SKIP_DIRS = ("__ExternalActors__", "__ExternalObjects__", "Collections", "Developers", "Claude")
+SKIP_DIRS = ("__ExternalActors__", "__ExternalObjects__", "Collections", "Developers", "Claude", "Fortnite", "FortniteGame", "Engine", "Epic")  # the last four: Epic-created content is never touched, only the owner's files (GDPR rule of the kit)
 
 
 def other_project_names(root):
@@ -285,7 +285,7 @@ def other_project_names(root):
 
 
 def _x(n, wide):
-    return ("x" * n).encode("utf-16-le" if wide else "ascii")
+    return ("*" * n).encode("utf-16-le" if wide else "ascii")
 
 
 def _clean_bytes(data, others):
@@ -296,7 +296,7 @@ def _clean_bytes(data, others):
         def rep(m):
             counts[group_label(m)] = counts.get(group_label(m), 0) + 1
             a, b_ = m.span(1)
-            return m.group(0)[:a - m.start()] + b"x" * (b_ - a) + m.group(0)[b_ - m.start():]
+            return m.group(0)[:a - m.start()] + b"*" * (b_ - a) + m.group(0)[b_ - m.start():]
         out = pat.sub(rep, out)
     sub(USER_RE, lambda m: "user:" + m.group(1).decode("utf-8", "replace"))
     for n in others:
@@ -335,7 +335,7 @@ def clean(root, apply=True, backup_dir=None):
             except OSError:
                 continue
             new, counts = _clean_bytes(data, others)
-            counts = {k: v for k, v in counts.items() if v and not re.fullmatch(r"(user|project):[xX]+", k)}
+            counts = {k: v for k, v in counts.items() if v and not re.fullmatch(r"(user|project):[xX*]+", k)}
             if not counts or new == data:
                 continue
             assert len(new) == len(data)
@@ -361,6 +361,13 @@ def main(argv):
     if not argv:
         print(__doc__)
         return 2
+    if "--clean" in argv:  # only when the owner asks: the owner's own files, personal names overwritten by asterisks (GDPR)
+        import time
+        bk = os.path.join(os.path.expanduser("~"), ".claude", "fab-lab", "asset-backup", time.strftime("%Y%m%d-%H%M%S"))
+        changed, problems = clean(argv[0], True, bk)
+        print("cleaned %d asset(s) (personal names are now asterisks of the same length, written ***anonymized*** in reports); originals kept in your profile outside the project" % len(changed))
+        for x in problems:
+            print("warning: " + x)
     b, w, n = scan(argv[0])
     for x in b:
         print("BLOCK: " + x)

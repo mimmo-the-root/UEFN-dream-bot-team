@@ -311,21 +311,36 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
       <a href="#" onclick="openPreview('status');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full STATUS.md →</a>
     </div>
 
+    <div class="card" style="margin-bottom:22px;" id="deliveryCard">
+      <div class="label" style="margin-bottom:8px;">Delivery check — audit, compliance (Fab and island), gate</div>
+      <div style="font-size:12.5px;color:var(--dim);line-height:1.8;" id="deliveryBody">loading…</div>
+      <a href="#" onclick="openPreview('audit');return false;" style="display:inline-block;margin-top:10px;margin-right:16px;font-size:11.5px;color:var(--blue);">Open AUDIT.md →</a>
+      <a href="#" onclick="openPreview('delivery');return false;" style="display:inline-block;margin-top:10px;margin-right:16px;font-size:11.5px;color:var(--blue);">Open DELIVERY-GATE.md (manual steps) →</a>
+      <a href="agent-console-fab.html" style="display:inline-block;margin-top:10px;font-size:11.5px;color:var(--blue);">Fab compliance details →</a>
+    </div>
+
     </div>
     <div class="pp" data-p="docs">
     <!-- DOCS GRID — matches Claude/docs/*.md written/read by planner-docs (see
          Claude/docs-template/ for the blank versions of these files, and
          user-level-agents/planner-docs.md for who owns which one). -->
     <div class="card" id="demoCard" style="margin-bottom:14px;">
-      <div class="label" style="margin-bottom:6px;">Pilot demo — Chicken Roundup (the whole flow, ready)</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">A complete example from the Epic farm game: spec, constitution, plan, tasks and playtest checklist. Run it again whenever you want to see what each step produces. Nothing of yours is overwritten.</div>
+      <div class="label" style="margin-bottom:6px;">Pilot demo — Chicken Roundup (the whole flow, timed)</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">The demo runs the whole flow on the pilot game: idea, spec, constitution, plan, tasks, playtest checklist. A stopwatch starts with the demo and stops when everything is ready, so you can time it (for a promo video).</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;">
         <button class="btn" data-cmd="/demo" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo</button>
-        <span style="font-size:11px;color:var(--muted);">puts the files in <code>Claude/docs/demo-chicken-roundup/</code></span>
-        <button class="btn" data-cmd="/demo --load" style="font:inherit;font-size:11px;border:1px solid var(--line);color:var(--fg,#ddd);background:var(--panel2);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --load</button>
-        <span style="font-size:11px;color:var(--muted);">in a NEW empty test project (not your real map): fills Idea, Spec and Plan</span>
+        <span style="font-size:11px;color:var(--muted);">with you: it asks at each approval</span>
+        <button class="btn" data-cmd="/demo --auto" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --auto</button>
+        <span style="font-size:11px;color:var(--muted);">no questions: starts and finishes by itself</span>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px;">How: create a new empty UEFN project just for tests (Claude Code opened in its folder, kit installed), paste the command in its chat. Want it again? Delete that test project, create another one and run <code>/demo --load</code>.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;">
+        <button class="btn" data-cmd="/demo --copy" style="font:inherit;font-size:11px;border:1px solid var(--line);color:var(--fg,#ddd);background:var(--panel2);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --copy</button>
+        <span style="font-size:11px;color:var(--muted);">only the files, in <code>Claude/docs/demo-chicken-roundup/</code></span>
+        <button class="btn" data-cmd="/demo --load" style="font:inherit;font-size:11px;border:1px solid var(--line);color:var(--fg,#ddd);background:var(--panel2);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --load</button>
+        <span style="font-size:11px;color:var(--muted);">files into a NEW empty test project</span>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;"><span class="label" style="margin:0;">Demo timer</span><b id="demoClock" style="font-size:20px;font-variant-numeric:tabular-nums;">--:--:--</b><span id="demoClockInfo" style="font-size:11px;color:var(--muted);">not started</span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;">How: create a new empty UEFN project just for tests (Claude Code opened in its folder, kit installed), paste the command in its chat. Want it again? Delete that test project, create another one and run <code>/demo</code>. Laps: <a href="#" onclick="openPreview('demotimer');return false;" style="color:var(--blue);">DEMO-TIMER.md</a>.</div>
     </div>
     <div class="label" style="margin-bottom:8px;">Documentation — click to open in readable form</div>
     <div class="docs-grid" id="docsGrid">
@@ -390,7 +405,7 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
 const DOC_TITLES = {
   status: "STATUS.md", roadmap: "ROADMAP.md", bugs: "BUGS.md",
   spec: "SPEC.md", retention: "RETENTION-NOTES.md", release: "RELEASE-READINESS.md",
-  gamespec: "GAME-SPEC.md", constitution: "CONSTITUTION.md", plan: "PLAN.md",
+  gamespec: "GAME-SPEC.md", constitution: "CONSTITUTION.md", plan: "PLAN.md", demotimer: "DEMO-TIMER.md", audit: "AUDIT.md", delivery: "DELIVERY-GATE.md",
 };
 const docCache = {}; // key -> {exists, content} once fetched
 const DOC_FETCH_TIMEOUT_MS = 6000; // bounded timeout — no fetch here is ever allowed to hang a
@@ -655,7 +670,7 @@ function parseBugsBacklog(raw){
           const cells = lines[j].split("|").slice(1,-1).map(c => c.trim());
           const row = {};
           header.forEach((h, idx) => row[h] = cells[idx] || "");
-          if (Object.values(row).some(v => v)) tableRows.push(row);
+          if (Object.values(row).some(v => v) && !/\(example/i.test(row[header[0]] || "")) tableRows.push(row);
           rowClosed = /\|\s*$/.test(lines[j]);
           j++;
         } else if (tableRows.length && !rowClosed && !/^#{1,6}\s/.test(lines[j]) && !(/^\|.*\|\s*$/.test(lines[j]) && lines[j+1] && /^\|[\s:|-]+\|\s*$/.test(lines[j+1]))){
@@ -1274,6 +1289,7 @@ function jIdea(st){
   const forced = /^y/i.test(jFld(s["score and approval"], "Forced"));
   return '<div class="jgrid"><div class="card"><div class="label">Idea</div><div style="line-height:1.5;margin-top:6px;">' + escH(jPh(s["idea"]) ? "(not written yet)" : s["idea"]) + '</div>' +
     '<div class="label" style="margin-top:14px;">Genre ' + (jPh(jFld(st.head,"Genre")) ? jPill("not confirmed","ja") : jPill("confirmed","jg")) + '</div><div style="margin-top:4px;">' + escH(jPh(jFld(st.head,"Genre")) ? "-" : jFld(st.head,"Genre")) + '</div>' +
+    '<div class="label" style="margin-top:14px;">Players ' + (jPh(jFld(st.head,"Players")) || !/\d/.test(jFld(st.head,"Players")) ? jPill("not asked yet","ja") : jPill("set","jg")) + '</div><div style="margin-top:4px;">' + escH(/\d/.test(jFld(st.head,"Players")) && !jPh(jFld(st.head,"Players")) ? jFld(st.head,"Players") + (jPh(jFld(st.head,"Teams")) ? "" : " · teams: " + jFld(st.head,"Teams")) : "-") + '</div>' +
     '<div class="label" style="margin-top:14px;">Loop (MVP)</div><dl class="jloop">' + ["Action","Rule","Reward","End","Replay"].map(k => '<dt>' + k + '</dt><dd>' + escH(jPh(jFld(loop,k)) ? "-" : jFld(loop,k)) + '</dd>').join("") + '</dl></div>' +
     '<div class="jstack"><div class="card"><div class="label">Score of the idea</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;"><span style="font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;">' + (n===null ? "-" : n) + '</span><span style="color:var(--dim);">of 100</span><div class="jbar"><i style="width:' + (n||0) + '%"></i><u style="left:60%" title="threshold 60"></u></div></div><div style="font-size:11px;color:var(--dim);margin-top:6px;">Threshold 60' + (n!==null && n<60 ? (forced ? " · forced by you" : " · below: raise it or force") : "") + '</div></div></div></div>';
 }
@@ -1293,8 +1309,10 @@ function jPlan(st){
   if (!st.planExists) return '<div class="card"><div class="label">Plan</div><div style="margin-top:6px;color:var(--dim);">No plan yet. ' + (st.hasSpec && st.specApproved ? 'Run <code>/piano</code>.' : 'It starts after the spec is approved.') + '</div></div>';
   const parts = st.p.split(/\n##\s+(?=S\d+\b)/).slice(1).map(x => x.replace(/\n##\s+(?!S\d)[\s\S]*$/, ""));
   const rows = parts.map(x => { const t = /^(S\d+)\s*-\s*(.*)/.exec(x) || [,"S","" ]; const dev = jRows((/###\s+Devices\s*\n([\s\S]*?)(?=\n###|$)/.exec(x)||[,""])[1]).filter(r => /^(recipe|skill|explore)$/i.test(r[1]||"")); const as = jRows((/###\s+Assets inventory\s*\n([\s\S]*?)(?=\n###|$)/.exec(x)||[,""])[1]).filter(r => /^(present|import|create)$/i.test(r[1]||"")); const man = /###\s+Manual steps[^\n]*\n([\s\S]*?)(?=\n###|$)/.exec(x); return '<tr><td><b>' + t[1] + '</b> ' + escH(t[2]) + '</td><td>' + dev.length + (dev.some(r => /explore/i.test(r[1])) ? " (to explore)" : "") + '</td><td>' + as.length + '</td><td>' + (man && /\S/.test(man[1]) ? "yes" : "none") + '</td></tr>'; }).join("");
+  const isl = jRows((/\n##\s+Island settings\s*\n([\s\S]*?)(?=\n##\s|$)/.exec(st.p)||[,""])[1]).filter(r => r[0] && !/^(setting|-+)$/i.test(r[0]) && r.join("").indexOf("<")<0);
   const bo = ["Pass 1","Pass 2","Try one sample first"].map(k => { const m = new RegExp("^-\\s*" + k + "[^:\\n]*:\\s*(.*)$","im").exec(st.p); return m ? m[1] : null; }).filter(Boolean);
   return '<div class="card" style="margin-bottom:16px;"><div class="label">Plan by story ' + (st.planApproved ? jPill("approved","jg") : jPill("to approve","ja")) + ' ' + (st.consOk ? jPill("principles approved","jg") : jPill("principles to approve","ja")) + '</div><div class="jscroll"><table class="jtab"><tr><th>Story</th><th>Devices</th><th>Assets</th><th>By hand</th></tr>' + rows + '</table></div></div>' +
+    (isl.length ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings (set by hand in UEFN Island Settings)</div><div class="jscroll"><table class="jtab"><tr><th>Setting</th><th>Value</th></tr>' + isl.map(r => '<tr><td>' + escH(r[0]) + '</td><td>' + escH(r[1]||"") + '</td></tr>').join("") + '</table></div></div>' : (/Players:\s*[2-9]/.test(st.head) ? '<div class="card" style="margin-bottom:16px;"><div class="label">Island settings ' + jPill("missing","ja") + '</div><div style="margin-top:6px;color:var(--dim);">The spec has several players: <code>/piano</code> writes the Island settings table (max players, teams, respawn).</div></div>' : '')) +
     '<div class="card"><div class="label">Build order</div><div class="jchk">' + bo.map((b,i) => '<div><span class="jno">' + (i<2 ? i+1 : "·") + '</span>' + escH(b) + '</div>').join("") + '</div></div>';
 }
 function jTabs(st, next){
@@ -1321,6 +1339,27 @@ async function renderJourney(){
   } catch(e){ /* the existing blocks keep working if this part fails */ curTab = curTab || "road"; document.querySelectorAll(".pp").forEach(x => x.classList.toggle("on", x.getAttribute("data-p")===curTab)); }
 }
 
+
+async function renderDelivery(){
+  const el = document.getElementById("deliveryBody"); if (!el) return;
+  try{
+    const [a, d] = await Promise.all(["audit","delivery"].map(fetchDoc));
+    const out = [];
+    if (a.exists && !a.error){
+      const open = (a.content.match(/^\|\s*\d+\s*\|\s*(minor|medium|major)\s*\|.*\|\s*(open|for the owner)\s*\|\s*$/gim)||[]).length;
+      out.push("Audit: " + (open ? '<b style="color:var(--amber,#e0a030);">' + open + ' open finding(s)</b> — run /audit' : "no open findings"));
+    } else out.push("Audit: not run yet — after the build, run <code>/audit</code>.");
+    if (d.exists && !d.error){
+      const all = (d.content.match(/- \[[ xX]\]/g)||[]).length, done = (d.content.match(/- \[[xX]\]/g)||[]).length;
+      const mem = /Memory used:\s*(\d+)\s*%/i.exec(d.content);
+      out.push("Gate: " + done + "/" + all + " lines ticked by the owner" + (mem ? " · memory " + mem[1] + "%" : " · memory not written yet") + (all && done===all && mem ? " — ready for the private release" : ""));
+      const sc = /-\s*Scan:\s*(.*)/i.exec(d.content); out.push("Compliance scan: " + (sc && sc[1].trim() ? escH(sc[1].trim()) : "not run (run /audit)"));
+    } else out.push("Gate: not started — <code>/consegna</code> writes the list of what only the owner can do.");
+    out.push("Manual steps: open DELIVERY-GATE.md — Claude never ticks a box, you do.");
+    el.innerHTML = out.map(x => "<div>" + x + "</div>").join("");
+  } catch(e){ el.textContent = "Could not read the delivery files."; }
+}
+renderDelivery();
 renderJourney();
 renderRecentPriorities();
 markMissingDocs();
@@ -1468,6 +1507,19 @@ setInterval(refreshDocs, 5000);
   var a=document.createElement("a");a.href="agent-console-fab.html";a.textContent="Checklist";if(sc.className&&sc.className!=="on")a.className=sc.className;sc.parentNode.appendChild(a);}).catch(function(){});})();
 </script>
 <!-- fab-tab:end -->
-<script>(function(){document.querySelectorAll("#demoCard .btn").forEach(function(b){b.onclick=function(){var t=b.getAttribute("data-cmd"),o=b.textContent;try{navigator.clipboard.writeText(t).then(function(){b.textContent="Copied";setTimeout(function(){b.textContent=o;},1500);},function(){b.textContent="Select: "+t;});}catch(e){b.textContent="Select: "+t;}};});})();</script>
+<script>(function(){document.querySelectorAll("#demoCard .btn").forEach(function(b){b.onclick=function(){var t=b.getAttribute("data-cmd"),o=b.textContent;try{navigator.clipboard.writeText(t).then(function(){b.textContent="Copied";setTimeout(function(){b.textContent=o;},1500);},function(){b.textContent="Select: "+t;});}catch(e){b.textContent="Select: "+t;}};});})();
+(function(){
+  var T = null;
+  function f(x){ x = Math.max(0, Math.round(x)); return ("0"+Math.floor(x/3600)).slice(-2)+":"+("0"+Math.floor(x%3600/60)).slice(-2)+":"+("0"+x%60).slice(-2); }
+  function tick(){ var c = document.getElementById("demoClock"), i = document.getElementById("demoClockInfo"); if (!c) return;
+    if (!T){ c.textContent = "--:--:--"; i.textContent = "not started: run /demo or /demo --auto"; return; }
+    var end = T.end || (Date.now()/1000); c.textContent = f(end - T.start);
+    i.textContent = (T.end ? "stopped, everything ready" : "running") + " · " + T.mode + " · " + T.marks.length + " steps"; }
+  async function poll(){ try{ var d = await fetchDoc("demotimer"); T = null;
+      if (d && d.exists && !d.error){ var m = /<!-- data:(.*?) -->/.exec(d.content); if (m) T = JSON.parse(m[1]); } }catch(e){ T = null; }
+    delete docCache["demotimer"]; tick(); }
+  poll(); setInterval(poll, 5000); setInterval(tick, 1000);
+})();
+</script>
 </body>
 </html>

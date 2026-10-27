@@ -9,6 +9,8 @@ This is a Fab product (a UEFN project registered as Fab). Find its root: the fol
 2. `fab_assets.py "<root>"` (imports and names from other projects, Windows user names in paths)
 3. `fab_checklist.py "<root>"` (listing checklist)
 
+**Privacy (GDPR).** A Windows user name, an email or a home path is never written in the report: write `***anonymized***`. The clean touches only the owner's own files, never assets created by Epic.
+
 **Step 1 - report** in plain language, at most 8 lines: what is OK in one line, then each problem.
 
 The check also verifies the DOCUMENTS for publication (README.md, AUTHOR.md, listing.md, third_party.md): a TODO left in any of them, a README that points to a SETTINGS.md that does not exist, a third_party.md that says "nothing detected" while the textures come from other authors. All of these are problems to fix, not notes.

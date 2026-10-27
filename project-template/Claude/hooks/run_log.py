@@ -71,6 +71,9 @@ def main(argv):
         return 2
     note = argv[argv.index("--note") + 1] if "--note" in argv else ""
     tokens = argv[argv.index("--tokens") + 1] if "--tokens" in argv else 0
+    if argv[0] == "stop" and not any(r["phase"] == argv[1] and r["start"] and not r["stop"] for r in rows()):
+        print("Refused: the phase '%s' is not open (open phases: %s)" % (argv[1], ", ".join(r["phase"] for r in rows() if r["start"] and not r["stop"]) or "none"))
+        return 1
     add(argv[0], argv[1], note, tokens)
     print("%s: %s" % (argv[0], argv[1]))
     return 0

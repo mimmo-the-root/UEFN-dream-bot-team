@@ -18,7 +18,9 @@ Does not work: the commands that come with the project scaffold (`/verse-check`,
 
 ## Names inside the assets
 
-The editor remembers where a file was imported from, so a texture can carry a Windows user name or the name of another of your projects. Before every `check` and `zip` the kit replaces those names with `x` of the same length (the file size does not change), keeps the original in your profile outside the project, and says what it cleaned. Nothing else in an asset is touched.
+The editor remembers where a file was imported from, so a texture can carry a Windows user name or the name of another of your projects. Before every `check` and `zip` the kit replaces those names with asterisks of the same length (the file size does not change), keeps the original in your profile outside the project, and says what it cleaned; in its own reports the name is written `***anonymized***`. Nothing else in an asset is touched.
+
+**Privacy rule (GDPR).** Regulation (EU) 2016/679 (the GDPR, in force in the European Union) asks to process only the personal data that is needed (data minimisation, Article 5(1)(c)); a Windows user name, an email address or a home folder path in a file that you share is personal data. In every text the kit writes (reports, listings, documents, logs, commit messages) a personal identifier is written `***anonymized***`. In your own binary assets, where the length of the text cannot change, the name is overwritten with asterisks of the same length (the file keeps its size). The rule applies ONLY to your own files: assets created by Epic (libraries, templates, Fortnite and Engine content) are never touched, to avoid problems with the editor and with Epic's validation. Anonymised data is outside the scope of the GDPR (Recital 26). This is not legal advice.
 
 ## What Epic asks of a Fab upload
 

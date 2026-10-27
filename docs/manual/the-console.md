@@ -52,7 +52,7 @@ The project's own documents, read from `Claude/docs/`: the game idea, spec and p
 - Three progress bars at the top: **Roadmap progress**, **Bug fixing progress** and **Release status**.
 - **Next action** (new in 1.114): the one thing to do now, with a **Copy command** button; paste it in the chat.
 - **Tabs**: Idea, Spec and Plan (the start of a game), then Roadmap, Bugs, Status and Documents. A dot shows the step: grey not started, amber now, green done. The page opens on the tab of the next action and remembers the last one you used. A project that already has tasks and no game spec shows only the last four tabs.
-- **Pilot demo** (Documents tab): the buttons **Copy /demo** and **Copy /demo --load** bring the Chicken Roundup example into a test project.
+- **Pilot demo** (Documents tab): the buttons **Copy /demo** (with you), **Copy /demo --auto** (no questions) and **Copy /demo --load** run or bring the Chicken Roundup example into a test project; a **Demo timer** clock starts with the demo and stops when everything is ready.
 - **Roadmap, open tasks by release**: what is still to do, grouped by the release it belongs to.
 - **Open bugs, sorted by severity**: the worst first, with status.
 - **Recent status**: the priorities and the actions that wait for you, taken from `STATUS.md`.

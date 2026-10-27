@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
-"""Pre-delivery gate (v1.114): what Claude cannot do itself, a private release, the memory check, and the owner's flags. Engine of /consegna.
+"""Pre-delivery gate (v1.114): what Claude cannot do itself, a private release, the memory check, and the owner's flags. Engine of /consegna. Compliance (Fab rules, island rules, privacy) is part of it.
 
   python Claude/hooks/release_gate.py init [Content folder]     # write Claude/docs/DELIVERY-GATE.md from PLAN.md (never overwrites)
   python Claude/hooks/release_gate.py check [Content folder]    # exit 1 until the owner confirmed everything
 
 DELIVERY-GATE.md has three lists, each line `- [ ]` that ONLY the owner turns into `- [x]`: (1) configuration Claude cannot do (the manual steps of
 the plan, the Island settings, Beta Access, Python scripting), (2) the private release (publish as private, test with the code), (3) memory:
-`- Memory used: NN%` written by the owner from UEFN. Claude never ticks a box. 100% or more blocks; 85% or more warns."""
+`- Memory used: NN%` written by the owner from UEFN (Project Size in the toolbar and Memory Usage in Publishing Validation). Claude never ticks a box. 100% or more blocks; 85% or more warns."""
 import os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import env_check, plan_check, spec_check
 
+COMPLIANCE = ("Third-party content (Fab assets, other authors, music) is declared in the island description and every licence allows use in a published island",
+              "Island name, description, thumbnail and tags are ready, and every step the Creator Portal asks (including the rating questionnaire) is complete",
+              "No personal data in the project files: names and paths are ***anonymized*** (GDPR, Regulation (EU) 2016/679); Epic's own assets were not touched")
+VALIDATION = ("Experimental Features", "Memory Usage", "Download Size", "Asset Status", "Cooked for Platforms")
 PRIVATE = ("Publish the island as PRIVATE (Fortnite > Publish, visibility private); write the island code here: ",
            "Open the island with the code, from the Fortnite client, and check it starts",
            "The private release is NOT made public before the playtest below passes")
@@ -28,9 +32,16 @@ def build(d):
         L.append("- [ ] " + s)
     for n, s in e["manual"]:
         L.append("- [ ] S%d: %s" % (n, s))
-    L += ["", "## 2. Private release"] + ["- [ ] " + s for s in PRIVATE]
-    L += ["", "## 3. Memory", "- [ ] In UEFN open the memory view of the island (Tools, Memory) with the map loaded and read the percentage",
-          "- Memory used: <NN>%", "", "## 4. Playtest",
+    L += ["", "## 2. Compliance (Fab rules and island rules)", "<!-- Claude runs the read-only scan (fab_assets.py) and writes its result under `Scan`; the boxes are yours. -->",
+          "- Scan: <not run yet: Claude runs `python ~/.claude/hooks/fab_assets.py <project>` and writes N blocks, M warnings here>"]
+    for s_ in COMPLIANCE:
+        L.append("- [ ] " + s_)
+    L += ["", "## 3. Private release"] + ["- [ ] " + s_ for s_ in PRIVATE]
+    L += ["", "## 4. Publishing Validation and memory",
+          "<!-- In UEFN the panel Publishing Validation lists five checks after you upload the private build. -->"]
+    for s_ in VALIDATION:
+        L.append("- [ ] Publishing Validation: " + s_ + " is green")
+    L += ["- Memory used: <NN>%", "", "## 5. Playtest",
           "- [ ] PLAYTEST.md filled with %s player(s), every row ok or turned into a task" % (e.get("players") or "the planned number of"), ""]
     return "\n".join(L)
 

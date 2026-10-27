@@ -16,6 +16,9 @@ A Fab product is a small UEFN project whose components the customer adds to thei
 - English letters, digits and underscore only in folder and file names; clear names, not generic ones such as `Assets` or `NewFolder`; no unused folders.
 - Declare third-party software and assets in the listing.
 
+## Privacy rule (GDPR)
+Personal identifiers (Windows user name, email, home folder path) are written `***anonymized***` in every text, report and document; in the owner's own binary assets they are overwritten with asterisks of the same length. Regulation (EU) 2016/679 (GDPR), data minimisation. Only the owner's files: never an asset created by Epic (libraries, templates, Fortnite and Engine content).
+
 ## The helper (run it, do not recount by hand)
 - `python ~/.claude/hooks/fab_pack.py check <project>`: what blocks the upload (exit 1), warnings (empty folders, third-party content such as VerseUIKit, another project's names in the assets), notes (information only, such as `.lore` files that `zip` already leaves out).
 - `python ~/.claude/hooks/fab_pack.py docs <project> [--apply]`: dry run first, then writes, INSIDE Content in the folder that holds the product's assets (`Content/<Product>/`), `Documentation/` (README.md, SETTINGS.md) and `FabListing/` (listing.md, third_party.md, screenshots.md). It never overwrites; `Documentation/SETTINGS.md` is regenerated from the code (the `@editable` settings with defaults and each file's Summary) until the owner edits it.

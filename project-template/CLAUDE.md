@@ -51,6 +51,7 @@ with the real assets and project:
 `settings.json`; leave it where it is, don't move it into `Claude/`.)
 
 ## Rules for this project's agents
+- **Privacy (GDPR, Regulation (EU) 2016/679, data minimisation).** In every text you write (reports, docs, listings, logs, commits) a personal identifier such as a Windows user name, an email or a home folder path is written `***anonymized***`. In the owner's own binary assets the name is overwritten with asterisks of the same length. Never touch assets created by Epic (libraries, templates, Fortnite and Engine content): only the owner's files.
 - **Plan-first (rule 13 in `~/.claude/CLAUDE.md`): no code without a tracked task.** Every task
   `coder` works on must already have a row in `Claude/docs/ROADMAP.md`'s `Tasks` table (ID, Status,
   acceptance criteria). No row yet → describe it in one line so **planner-docs** can open it

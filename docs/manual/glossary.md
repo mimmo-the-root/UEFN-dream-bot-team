@@ -82,3 +82,6 @@ Unreal Editor for Fortnite.
 
 ## Verse
 The programming language of UEFN.
+
+## ***anonymized***
+The word the kit writes in place of a personal identifier (a Windows user name, an email, a home path) in reports, documents and logs, following the GDPR (Regulation (EU) 2016/679) principle of data minimisation. In binary assets the name is overwritten with asterisks of the same length. It applies only to your own files, never to assets created by Epic.

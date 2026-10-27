@@ -71,7 +71,7 @@ Lessons, Recipes, Skills, Maps & products, This map / This product, UEFN MCP and
 
 ### Try the pilot demo
 
-The kit ships Chicken Roundup (from the Epic farm example): spec, constitution, plan, six tasks and a playtest checklist, all passing the kit's checks. **Do not use your real map**: make a new empty UEFN project for tests, open Claude Code in its `Content` folder, run `/kit-update`, then `/demo --load` (or press the button on the Docs page, Documents tab). `/demo` alone copies the files into `Claude/docs/demo-chicken-roundup/` and touches nothing else. To run it again, use a fresh test project.
+The kit ships Chicken Roundup (from the Epic farm example): spec, constitution, plan, six tasks and a playtest checklist, all passing the kit's checks. **Do not use your real map**: make a new empty UEFN project for tests, open Claude Code in its `Content` folder, run `/kit-update`, then `/demo` (the flow with you) or `/demo --auto` (no questions, the AI approves every step), timed by a stopwatch shown on the Docs page; `/demo --load` only loads the files and `/demo --copy` copies them into `Claude/docs/demo-chicken-roundup/`. To run it again, use a fresh test project.
 
 **The Flow page** — the pipeline as a U-shaped board: one card and one agent icon per station, tokens per agent, Control Tower and Pipeline pulse (demo data):
 
