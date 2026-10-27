@@ -115,8 +115,8 @@ def main(argv):
                         page.click('#pageTabs .tab[data-t="%s"]' % tab)
                         page.wait_for_timeout(300)
                         page.screenshot(path=os.path.join(out, "shot-docs-%s.png" % tab), full_page=False)
-                    if not page.is_visible('#demoCard'):
-                        bad.append("docs: the pilot demo card is not visible on the Documents tab")
+                    if not page.is_visible('#demoBox'):
+                        bad.append("docs: the demo box is not visible on the Docs page")
                 page.close()
             br.close()
     finally:

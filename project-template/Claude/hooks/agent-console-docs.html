@@ -421,6 +421,11 @@ tr.flash td{animation:jflash 2.2s ease-out 1;}
       </div>
     </div>
     <div class="pp" data-p="status">
+    <div class="card" id="statusTasks" style="margin-bottom:22px;">
+      <div class="label" style="margin-bottom:6px;">Tasks and status</div>
+      <div id="statusTaskTable" style="font-size:11.5px;color:var(--dim);">loading…</div>
+      <a href="#" onclick="openPreview('roadmap');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full ROADMAP.md →</a>
+    </div>
     <div id="statusT0"></div>
     <!-- RECENT STATUS: task/bug priorities + owner-action items, not raw STATUS.md lines
          (v1.80.0 — was a plain STATUS.md "Current state" excerpt) -->
@@ -443,17 +448,6 @@ tr.flash td{animation:jflash 2.2s ease-out 1;}
     <!-- DOCS GRID — matches Claude/docs/*.md written/read by planner-docs (see
          Claude/docs-template/ for the blank versions of these files, and
          user-level-agents/planner-docs.md for who owns which one). -->
-    <div class="card" id="demoCard" style="margin-bottom:14px;">
-      <div class="label" style="margin-bottom:6px;">Pilot demo — Chicken Roundup (the whole flow, timed)</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Two buttons, the same complete round on the pilot game: idea, spec, plan, tasks, the map built in UEFN, audit, delivery list and playtest checklist. The only difference is that the automatic one never stops to ask. A stopwatch starts with it and stops when everything is ready, so you can time it (for a promo video).</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;">
-        <button class="btn" data-cmd="/demo" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo</button>
-        <span style="font-size:11px;color:var(--muted);">with you: it asks at each approval</span>
-        <button class="btn" data-cmd="/demo --auto" style="font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;">Copy /demo --auto</button>
-        <span style="font-size:11px;color:var(--muted);">automatic: no questions, starts and finishes by itself</span>
-      </div>
-            <div style="font-size:11px;color:var(--muted);margin-top:8px;">How: create a new empty UEFN project just for tests (Claude Code opened in its folder, kit installed), paste the command in its chat. Want it again? Just run it again: the files of the previous demo are moved to <code>_to_delete</code> (you clean them from the What&#39;s new page). Laps: <a href="#" onclick="openPreview('demotimer');return false;" style="color:var(--blue);">DEMO-TIMER.md</a>.</div>
-    </div>
     <div class="label" style="margin-bottom:8px;">Documentation — click to open in readable form</div>
     <div class="docs-grid" id="docsGrid">
       <div class="card doc-card" data-key="gamespec" onclick="openPreview('gamespec')"><div class="t">🎯</div><div class="n">GAME-SPEC.md<span class="newb">NEW</span></div><div class="d">Idea, loop, stories, risks</div></div>
@@ -1200,6 +1194,23 @@ async function renderRoadmapTaskList(){
   applyLiveBadges();
 }
 
+async function renderStatusTasks(){
+  const el = document.getElementById('statusTaskTable'); if (!el) return;
+  const head = '<table class="datatable"><tr><th style="width:56px;">ID</th><th>Task</th><th style="width:150px;">Status</th><th style="width:90px;">Release</th><th style="width:70px;">Priority</th></tr>';
+  const empty = msg => { el.innerHTML = head + '<tr><td colspan="5" style="color:var(--dim);font-style:italic;padding:14px 8px;">' + msg + '</td></tr></table>'; };
+  const roadmap = await fetchDoc('roadmap');
+  if (roadmap.error){ el.innerHTML = '<span style="color:var(--red);">Could not reach the local server.</span>'; return; }
+  let rows = [];
+  if (roadmap.exists){ try{ rows = parseRoadmapTasks(roadmap.content); }catch(e){ rows = []; } }
+  rows = rows.filter(r => statusBucket(r.status) !== "outOfScope");
+  if (!rows.length){ empty('No tasks yet. After the plan is approved, <code>/compiti</code> fills this table: one row per task with its status.'); return; }
+  rows.sort((a, b) => idNum(a.id) - idNum(b.id));
+  el.innerHTML = head + rows.map(r => {
+    const badge = statusBadgeForTask(r.status), pri = priorityPill(r.priority);
+    return '<tr data-id="' + escH((r.id || "").trim()) + '"><td><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "(untitled)").replace(/~~/g, "")) + '</td><td><span class="badge ' + badge.cls + '" title="' + escH(r.status || "") + '"><span class="dot"></span>' + escH(badge.label) + '</span></td><td>' + escH(r.release || "-") + '</td><td><span class="pill ' + pri.cls + '">' + escH(pri.label) + '</span></td></tr>';
+  }).join("") + '</table>';
+}
+
 async function renderBugBacklog(){
   const el = document.getElementById('bugBacklogList');
   const bugs = await fetchDoc('bugs');
@@ -1590,7 +1601,7 @@ async function renderJourney(){
     document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st);
     const rh = document.getElementById("roadHint"); if (rh) rh.innerHTML = st.tasks.length ? "" : '<div class="ghost"><div class="gh-hint">No tasks yet. <code>/compiti</code> breaks the approved plan into tasks with a check for each one: the timeline and the list below fill in by themselves.</div></div>';
     const s0 = document.getElementById("statusT0"), sm = document.getElementById("statusMain"), dc = document.getElementById("deliveryCard");
-    if (s0){ s0.innerHTML = st.t0 ? t0Card(st) : ""; bindCopy(s0); } if (sm) sm.style.display = st.t0 ? "none" : ""; if (dc) dc.style.display = st.t0 ? "none" : "";
+    if (s0){ s0.innerHTML = ""; bindCopy(s0); } if (sm) sm.style.display = st.t0 ? "none" : ""; if (dc) dc.style.display = st.t0 ? "none" : "";
     const box = document.getElementById("nextAction");
     if (next && next.t0){ box.style.display = ""; box.className = "t0 nx-t0"; box.id = "nextAction"; box.innerHTML = t0Boxes(); bindCopy(box); if (window.__projName){ const p = document.getElementById("nxProj"); if (p) p.textContent = "· " + window.__projName; } }
     else if (next){ box.style.display = ""; box.className = "card nx" + (next.live ? " live" : "");
@@ -1641,7 +1652,7 @@ markMissingDocs();
 renderHero();
 renderTimeline();
 renderPhasesAndBacklog();
-renderRoadmapTaskList();
+renderRoadmapTaskList(); renderStatusTasks();
 renderBugBacklog();
 pollLiveRail();
 setInterval(pollLiveRail, 2000);
@@ -1661,7 +1672,7 @@ async function refreshDocs(){
     keys.forEach((k, i) => { if (!fresh[i].error && old[k] !== (fresh[i].exists + '|' + fresh[i].content)) changed = true; });
     if (!changed) return;
     renderJourney(); renderRecentPriorities(); markMissingDocs(); renderHero(); renderTimeline();
-    renderPhasesAndBacklog(); renderRoadmapTaskList(); renderBugBacklog();
+    renderPhasesAndBacklog(); renderRoadmapTaskList(); renderStatusTasks(); renderBugBacklog();
   } catch(e){ /* a failed refresh leaves the page as it was */ }
   finally { docsRefreshing = false; }
 }
@@ -1823,8 +1834,7 @@ setInterval(refreshDocs, 5000);
   var a=document.createElement("a");a.href="agent-console-fab.html";a.textContent="Checklist";if(sc.className&&sc.className!=="on")a.className=sc.className;sc.parentNode.appendChild(a);}).catch(function(){});})();
 </script>
 <!-- fab-tab:end -->
-<script>(function(){document.querySelectorAll("#demoCard .btn").forEach(function(b){b.onclick=function(){var t=b.getAttribute("data-cmd"),o=b.textContent;try{navigator.clipboard.writeText(t).then(function(){b.textContent="Copied";setTimeout(function(){b.textContent=o;},1500);},function(){b.textContent="Select: "+t;});}catch(e){b.textContent="Select: "+t;}};});})();
-(function(){
+<script>(function(){
   var T = null;
   function f(x){ x = Math.max(0, Math.round(x)); return ("0"+Math.floor(x/3600)).slice(-2)+":"+("0"+Math.floor(x%3600/60)).slice(-2)+":"+("0"+x%60).slice(-2); }
   function f2(n){ return ("0"+Math.max(0,Math.floor(n))).slice(-2); }
