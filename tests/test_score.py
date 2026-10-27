@@ -35,6 +35,15 @@ try:
     # extra criterion approved through the skill
     open(os.path.join(docs, "score-criteria-extra.json"), "w").write(json.dumps([{"id": "walk", "n": "Walkie", "keywords": ["walkie"], "w": 3}]))
     ok("walk" in {x["id"] for x in score.compute(d)["criteria"]}, "approved extra criteria are added")
+    # T0: a plan with nothing started scores 0 everywhere, no free points
+    d0 = tempfile.mkdtemp()
+    try:
+        d0docs = os.path.join(d0, "Claude", "docs"); os.makedirs(d0docs)
+        open(os.path.join(d0docs, "ROADMAP.md"), "w").write("# Roadmap\n\n## Tasks\n\n" + hdr + "| T-001 | Core gameplay loop | To do | x | P1 | P0-R1 |\n| T-002 | Music loop | To do | x | P2 | P0-R1 |\n")
+        z = score.compute(d0)
+        ok(all(max(x["B"]) == 0 and max(x["V"]) == 0 for x in z["criteria"]), "T0: nothing started = every criterion at 0, no free points for feasibility, scope or docs")
+    finally:
+        shutil.rmtree(d0, ignore_errors=True)
     # snapshot: R1 is closed, R2 is not
     ok(score.snapshot(d) == 1 and score.snapshot(d) == 0, "one history row per closed release, never twice")
     ok(len(open(os.path.join(d, "Claude", "logs", "score-history.jsonl")).read().splitlines()) == 1, "history file has one row")
