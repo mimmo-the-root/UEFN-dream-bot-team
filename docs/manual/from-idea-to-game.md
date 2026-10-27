@@ -69,16 +69,18 @@ The page keeps its header and the three progress rings (Roadmap, Bug fixing, Rel
 
 ## The pilot demo: Chicken Roundup
 
-The kit ships a complete example, built from the Epic farm game: the idea, the spec, the constitution, the plan, six tasks and the playtest checklist. It is real and every file passes the kit's own checks. Use it to see what each step produces before you start your own game.
+The demo is the whole kit at work, on a small game built from the Epic farm example. It does the **complete round**: idea, spec (with the number of players asked first), plan with the Island settings, tasks, the environment check, the map built in UEFN task by task, the audit with the Fab and island compliance scan, the delivery list and the playtest checklist. It stops before the private release and the publish, which are yours.
 
-**Do not load it in your real map.** The demo needs a test project:
+There are two ways to run it and the work is exactly the same: **`/demo`** asks you at every approval, **`/demo --auto`** never stops to ask (the AI approves every point on your behalf and writes it next to the approval). A stopwatch runs from the start to the moment everything is ready; the Docs page shows the total big and, smaller, the phase that is running with its own time. Handy for timing a promo video.
+
+**Do not run it in your real map.** The demo needs a test project:
 
 1. In UEFN make a **new empty project** just for tests (Fortnite > Create).
 2. Open Claude Code in its `Content` folder and install the kit (`/kit-update`).
-3. On the Docs page, **Documents** tab, press **Copy /demo** (interactive: it asks you at each approval) or **Copy /demo --auto** (no questions: the AI approves every step and finishes by itself) and paste it in the chat. There is nothing else to choose: the demo loads the pilot files by itself, and if an earlier demo is there its files are moved to `_to_delete`. A stopwatch runs from the start to the moment everything is ready: the Docs page shows the total big and, smaller, the phase that is running with its own time. Handy for timing a promo video.
-4. Prefer to keep your docs as they are? Press **Copy /demo**: the files go to `Claude/docs/demo-chicken-roundup/` and nothing else is touched.
+3. On the Docs page, **Documents** tab, press **Copy /demo** or **Copy /demo --auto** and paste it in the chat. That is all.
 
-The demo refuses when the project already has your own spec, a plan or tasks, and it never overwrites a file. To run it again in the same test project, just run it again: the files of the earlier demo are moved to `_to_delete`.
+
+The demo refuses when the project already has your own spec, a plan or tasks, and it never overwrites a file. To run it again in the same test project, just run it again: the files of the earlier demo are moved to `_to_delete`. It never launches UEFN and never deletes anything.
 
 ## When something is not clear
 
