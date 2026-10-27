@@ -248,6 +248,18 @@ tr.flash td{animation:jflash 2.2s ease-out 1;}
 .t0card .act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .t0card .cmd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);}
 .t0card .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
+#nextAction.t0{display:grid;grid-template-columns:minmax(0,3fr) minmax(220px,1fr);gap:14px;padding:0;border:0;background:transparent;animation:none;box-shadow:none;align-items:stretch;}
+.t0box{border:1px solid var(--line-soft);border-radius:10px;padding:16px 18px;background:var(--panel);display:flex;flex-direction:column;gap:8px;}
+.t0box.go{border-color:var(--amber);box-shadow:0 0 0 1px rgba(255,180,84,.25),0 0 18px rgba(255,180,84,.12);}
+.t0box.learn{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(75,216,255,.22),0 0 16px rgba(75,216,255,.1);}
+.t0box h3{margin:0;font-size:15px;color:var(--amber);}.t0box.learn h3{color:var(--cyan);font-size:13px;}
+.t0box .why{font-size:11.5px;color:var(--dim);line-height:1.5;}
+.t0box .sub{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);margin-top:4px;}
+.t0box .act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.t0box .cmd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);}
+.t0box .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
+.t0box.go .cmd{font-size:16px;padding:5px 12px;}
+@media (max-width:900px){#nextAction.t0{grid-template-columns:1fr;}}
 @media (prefers-reduced-motion:reduce){.stw.now,.stp-b.now,.jd.now,.nx,.flowrow.run::after,.demobox.run #demoClock,.jbar.live i,.jpill.jlive,tr.flash td{animation:none!important;}}
 </style>
 </head>
@@ -1452,7 +1464,14 @@ function jDelivery(st){
     '<a href="#" onclick="openPreview(\'delivery\');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open DELIVERY-GATE.md →</a><div style="font-size:11.5px;color:var(--dim);margin-top:6px;">Claude never ticks a box: the private release and the publish are yours.</div></div>';
   return jGhost(ok, html, 'Not started. <code>/consegna</code> writes the list of what only you can do, then <code>/ambiente --playtest</code> writes the playtest checklist.');
 }
+function t0Boxes(){
+  const act = (c, note) => '<div class="act"><span class="cmd">' + escH(c) + '</span><button class="btn" type="button" data-cmd="' + escH(c) + '">Copy text</button></div>' + (note ? '<div class="why">' + escH(note) + '</div>' : '');
+  return '<div class="t0box go"><div class="label">Next action <span id="nxProj"></span></div><h3>Start your new map</h3><div class="why">Tell Claude Code your game idea, or ask for one. It asks the minimum, scores the idea, writes the spec and takes you step by step to a playable map. Nothing runs by itself and every change waits for your approval.</div>' + act("/spec") + '<div class="sub">What happens next</div><div class="why">1 Idea and spec: the players are asked first, the idea is scored.<br>2 Plan: devices, assets, Island settings and the scenery.<br>3 Tasks, then the environment and the build in UEFN, task by task.<br>4 Audit, Fab and island compliance, then the delivery list. This page follows every step by itself.</div></div>' +
+    '<div class="t0box learn"><div class="label">Learn the kit</div><h3>Start with the product demo</h3><div class="why">A small pilot game, the whole flow from idea to delivery, timed. Run it in a new empty test project.</div>' +
+    '<div class="sub">With you</div>' + act("/demo", "it asks at each approval") + '<div class="sub">On its own</div>' + act("/demo --auto", "no questions, the clock runs here") + '</div>';
+}
 function t0Card(st){
+  return '<div class="t0wrap" style="display:grid;grid-template-columns:minmax(0,3fr) minmax(220px,1fr);gap:14px;">' + t0Boxes().replace('id="nxProj"','') + '</div>';
   const n = jNext(st);
   return '<div class="card t0card"><div class="label">New map</div><div style="margin-top:6px;line-height:1.5;">Nothing is built yet, so there is nothing to follow here but the start. You have two ways in. Paste the text in Claude Code: nothing runs by itself and every change waits for your approval.</div><div class="acts">' +
     n.acts.map(a => '<div class="act"><b style="min-width:210px;">' + escH(a.l) + '</b><span class="cmd">' + escH(a.cmd) + '</span><button class="btn" type="button" data-cmd="' + escH(a.cmd) + '">Copy text</button></div>').join("") + '</div></div>';
@@ -1485,7 +1504,8 @@ async function renderJourney(){
     const s0 = document.getElementById("statusT0"), sm = document.getElementById("statusMain"), dc = document.getElementById("deliveryCard");
     if (s0){ s0.innerHTML = st.t0 ? t0Card(st) : ""; bindCopy(s0); } if (sm) sm.style.display = st.t0 ? "none" : ""; if (dc) dc.style.display = st.t0 ? "none" : "";
     const box = document.getElementById("nextAction");
-    if (next){ box.style.display = ""; box.className = "card nx" + (next.live ? " live" : "");
+    if (next && next.t0){ box.style.display = ""; box.className = "t0 nx-t0"; box.id = "nextAction"; box.innerHTML = t0Boxes(); bindCopy(box); if (window.__projName){ const p = document.getElementById("nxProj"); if (p) p.textContent = "· " + window.__projName; } }
+    else if (next){ box.style.display = ""; box.className = "card nx" + (next.live ? " live" : "");
       box.innerHTML = '<div><div class="label">Next action <span id="nxProj"></span></div><b>' + escH(next.txt) + '</b>' + (next.acts.length || next.note ? '<div style="font-size:11px;color:var(--dim);margin-top:4px;">' + escH(next.note || "Text to copy: nothing runs by itself, you paste it in Claude Code and every change still waits for your approval.") + '</div>' : '') + '</div>' +
         '<div class="acts">' + next.acts.map(a => '<div class="act">' + (a.l ? '<small>' + escH(a.l) + '</small>' : '') + '<span class="cmd">' + escH(a.cmd) + '</span><button class="btn" type="button" data-cmd="' + escH(a.cmd) + '">Copy text</button></div>').join("") + '</div>';
       bindCopy(box); if (window.__projName){ const p = document.getElementById("nxProj"); if (p) p.textContent = "· " + window.__projName; } }
