@@ -50,7 +50,7 @@ The project's own documents, read from `Claude/docs/`: the game idea, spec and p
 **What you see**
 
 - Three progress bars at the top: **Roadmap progress**, **Bug fixing progress** and **Release status**.
-- **Next action** (new in 1.114): the one thing to do now, with a **Copy command** button; paste it in the chat.
+- **Next action** (new in 1.114): the one thing to do now, with a **Copy text** button. It is only a text: nothing runs by itself; you paste it in Claude Code and every change still waits for your approval. The project name shows next to it and in the connection line (for a UEFN project the name of the folder above `Content`).
 - **Tabs**: Idea, Spec and Plan (the start of a game), then Roadmap, Bugs, Status and Documents. A dot shows the step: grey not started, amber now, green done. The page opens on the tab of the next action and remembers the last one you used. A project that already has tasks and no game spec shows only the last four tabs.
 - **Pilot demo** (Documents tab): the two buttons **Copy /demo** (interactive) and **Copy /demo --auto** (no questions) run the Chicken Roundup example into a test project; the **Demo timer** shows the total time on top and, smaller below, the running phase with its own time; it stops when everything is ready.
 - **Files parked for cleaning** (What's new page): the kit never deletes your files; replaced or old ones wait in the `_to_delete` folder of the project. **Open the folder to inspect** shows it in the file manager; **Delete everything** or **Delete this one** (one parked folder at a time, with a second click to confirm) cleans it when you decide. Old projects are migrated automatically on `/kit-update`: the old demo copy folder is moved there.

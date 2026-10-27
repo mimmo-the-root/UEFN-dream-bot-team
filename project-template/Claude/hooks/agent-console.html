@@ -1792,7 +1792,7 @@ async function pollWhoami(){
       // Basename only (last path segment, either slash style) — the full path is more than
       // this small label needs and would just get truncated anyway; the point is "so you can
       // tell at a glance which project this console is reading," not a full path readout.
-      const name = w.project.replace(/[\\/]+$/, "").split(/[\\/]/).pop();
+      const segs = w.project.replace(/[\\/]+$/, "").split(/[\\/]/); let name = segs.pop(); if (/^content$/i.test(name) && segs.length) name = segs.pop(); // the UEFN project folder is "<name>\\Content": show <name>
       const el = document.getElementById("panelProject");
       if (el && name) el.textContent = "📁 " + name;
       const legendNameEl = document.getElementById("legendProjectName");

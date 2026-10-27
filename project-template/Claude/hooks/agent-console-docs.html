@@ -1274,7 +1274,7 @@ function jNext(st){
   if (!st.planApproved) return {txt:"Approve the plan", cmd:"/piano", step:"plan"};
   if (!st.tasks.length) return {txt:"Break the plan into tasks", cmd:"/compiti", step:"road"};
   const nx = st.tasks.find(t => /^to do|^da fare/i.test(t.status||""));
-  return nx ? {txt:"Next task: " + nx.id + " " + (nx.feature||"").replace(/\s*[\[(].*$/,""), cmd:"coder " + nx.id, step:"road"} : null;
+  return nx ? {txt:"Next task: " + nx.id + " " + (nx.feature||"").replace(/\s*[\[(].*$/,""), cmd:"Implement " + nx.id + " with the coder agent. Show me the plan first and ask before each change.", step:"road"} : null;
 }
 function jIdea(st){
   if (!st.hasSpec) return '<div class="card"><div class="label">Idea</div><div style="margin-top:6px;color:var(--dim);">Not started. Run <code>/spec</code>: it takes an idea (yours or three proposed), asks the minimum and writes <code>GAME-SPEC.md</code>.</div></div>';
@@ -1326,7 +1326,7 @@ async function renderJourney(){
     if (curTab === null){ let saved = null; try{ saved = localStorage.getItem("docsTab"); }catch(e){} curTab = saved || (next && ["idea","spec","plan"].indexOf(next.step)>=0 ? next.step : "road"); }
     document.getElementById("pIdea").innerHTML = jIdea(st); document.getElementById("pSpec").innerHTML = jSpec(st); document.getElementById("pPlan").innerHTML = jPlan(st);
     const box = document.getElementById("nextAction");
-    if (next){ box.style.display = ""; box.innerHTML = '<div><div class="label">Next action</div><b>' + escH(next.txt) + '</b></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span class="cmd">' + escH(next.cmd) + '</span><button class="btn" id="nxCopy" type="button">Copy command</button></div>';
+    if (next){ box.style.display = ""; box.innerHTML = '<div><div class="label">Next action <span id="nxProj"></span></div><b>' + escH(next.txt) + '</b><div style="font-size:11px;color:var(--dim);margin-top:4px;">What you see on the right is only a text to copy. Nothing runs by itself: you paste it in Claude Code and every change still waits for your approval.</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><span class="cmd">' + escH(next.cmd) + '</span><button class="btn" id="nxCopy" type="button">Copy text</button></div>';
       document.getElementById("nxCopy").onclick = function(){ const b = this; try{ navigator.clipboard.writeText(next.cmd).then(() => { b.textContent = "Copied"; }, () => { b.textContent = "Select and copy it"; }); }catch(e){ b.textContent = "Select and copy it"; } }; }
     else box.style.display = "none";
     jTabs(st, next);
@@ -1516,6 +1516,12 @@ setInterval(refreshDocs, 5000);
     delete docCache["demotimer"]; tick(); }
   poll(); setInterval(poll, 5000); setInterval(tick, 1000);
 })();
+
+(function(){ fetch("/whoami").then(function(r){return r.json();}).then(function(w){
+  if(!w||typeof w.project!=="string")return; var g=w.project.replace(/[\\/]+$/,"").split(/[\\/]/), n=g.pop(); if(/^content$/i.test(n)&&g.length)n=g.pop();
+  var c=document.getElementById("connStatus"); if(c) c.innerHTML += " · project: <b>"+escH(n)+"</b>";
+  window.__projName=n; var t=0, iv=setInterval(function(){ var p=document.getElementById("nxProj"); if(p){ p.textContent="· "+n; clearInterval(iv); } else if(++t>20) clearInterval(iv); }, 500);
+}).catch(function(){}); })();
 </script>
 </body>
 </html>
