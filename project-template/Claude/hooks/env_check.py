@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Environment and playtest helper (v1.114): the engine of /ambiente. READ ONLY, it never edits a file.
+"""Environment and playtest helper (v1.114): the engine of /environment. READ ONLY, it never edits a file.
 
   python Claude/hooks/env_check.py [Content folder]              # environment readout from the plan
   python Claude/hooks/env_check.py [Content folder] --playtest   # playtest checklist from the approved spec
@@ -89,7 +89,7 @@ def main(argv):
         return 0
     e = environment(d)
     if e is None:
-        print("No PLAN.md: run /piano first.")
+        print("No PLAN.md: run /game-plan first.")
         return 1
     print("Environment readout (nothing was changed)")
     print("Assets: %d in the plan, %d to import or create" % (len(e["assets"]), len(e["to_get"])))
@@ -103,7 +103,7 @@ def main(argv):
         print("  - " + s)
     print(e["lore"])
     if not e["approved"]:
-        print("The plan is not approved yet: /piano first.")
+        print("The plan is not approved yet: /game-plan first.")
     return 0
 
 

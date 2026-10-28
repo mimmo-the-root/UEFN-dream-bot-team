@@ -15,6 +15,8 @@ You prepare the ground before building. Work in `Claude/docs/`; run scripts from
 
 **Playtest.** `python env_check.py --playtest` writes the checklist from the approved spec: per story the expected result and what you observe, per success criterion a box. Save it as `Claude/docs/PLAYTEST.md`. After the owner plays, fill "observed". Every failed row becomes a regression task in `ROADMAP.md` (Feature cell with its `[S#]` tag). Minor failures follow the Self-healing block of `CONSTITUTION.md`.
 
+**Devices.** Rules of `CONSTITUTION.md` (Names and budget): every device you place goes into an Outliner folder by role (`set_actor_folder`) and gets a `Role_Index` label (`set_label`) at the moment you place it; read both back with `get_actors_in_folder` and `find_actors` before you say the row is built, and give every message or text field the exact text of the plan. The label must also equal the name of the Verse field that points to the device (read the Verse file; array fields get `Name_1..n`), so the owner links references by choosing the same name. A device at the root of the Outliner or with a default name is a failed row.
+
 **Island settings.** The plan lists them: say them one by one to the owner (Max players, Teams, Respawn...) as a checklist to set in UEFN Island Settings, and after the owner says done, read them back through the MCP when it can; otherwise ask the owner to confirm each one. Never assume they are set.
 
 **Review.** After the environment readout and after the playtest checklist, ask `qa-regression` to read the result against the spec (players, success criteria); fix the gaps before moving on.

@@ -96,6 +96,9 @@ $docFiles = @{
     "audit"     = "AUDIT.md"
     "demotimer" = "DEMO-TIMER.md"
     "delivery"  = "DELIVERY-GATE.md"
+    "genre"     = ".genre"
+    "genreprop" = "map/genre-proposal.json"
+    "learnlog"  = "map/learn-log.json"
 }
 $projectGenreFile = Join-Path $docsDir ".genre"
 $islandCodeFile = Join-Path $docsDir ".island-code"
@@ -467,7 +470,7 @@ $RequestHandler = {
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)
             }
-        } elseif ($request.Url.AbsolutePath -eq "/to-delete" -or $request.Url.AbsolutePath -eq "/to-delete-act" -or $request.Url.AbsolutePath -eq "/kit-numbers" -or $request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm" -or $request.Url.AbsolutePath -eq "/community-state" -or $request.Url.AbsolutePath -eq "/community-act" -or $request.Url.AbsolutePath -eq "/community-summary" -or $request.Url.AbsolutePath -eq "/agent-costs" -or $request.Url.AbsolutePath -eq "/uefn-mcp-map" -or $request.Url.AbsolutePath -eq "/score-data") {
+        } elseif ($request.Url.AbsolutePath -eq "/to-delete" -or $request.Url.AbsolutePath -eq "/to-delete-act" -or $request.Url.AbsolutePath -eq "/kit-numbers" -or $request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm" -or $request.Url.AbsolutePath -eq "/gate-tick" -or $request.Url.AbsolutePath -eq "/map-learn" -or $request.Url.AbsolutePath -eq "/community-state" -or $request.Url.AbsolutePath -eq "/community-act" -or $request.Url.AbsolutePath -eq "/community-summary" -or $request.Url.AbsolutePath -eq "/agent-costs" -or $request.Url.AbsolutePath -eq "/uefn-mcp-map" -or $request.Url.AbsolutePath -eq "/score-data") {
             $sk = { param($Lib, $CliArgs)
                 foreach ($cand in @(@("py","-3"), @("python"), @("python3"))) {
                     $exe = Get-Command $cand[0] -ErrorAction SilentlyContinue
@@ -525,6 +528,11 @@ $RequestHandler = {
                             $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "to_delete.py") $a
                         } elseif ($path -eq "/skills-check") {
                             $a = @("check"); if ($g) { $a += $g }
+                        } elseif ($path -eq "/gate-tick") {
+                            $onoff = "off"; if ($d.on) { $onoff = "on" }
+                            $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "release_gate.py") @("tick", $State.ProjectDir, [string]$d.line, $onoff, [string]$d.h, [string]$d.file)
+                        } elseif ($path -eq "/map-learn") {
+                            $a = @("map-learn", "--project", $State.ProjectDir)
                         } elseif ($path -eq "/genre-confirm") {
                             $a = @("confirm-genre", $g, "--variant", [string]$d.variant, "--project", $State.ProjectDir)
                         } elseif ($path -eq "/community-act") {
@@ -538,7 +546,7 @@ $RequestHandler = {
                             if ($d.statement) { $a += @("--statement", [string]$d.statement) }
                             foreach ($x in @($d.exclude)) { if ($x) { $a += @("--exclude", [string]$x) } }
                         }
-                        if ($path -ne "/to-delete-act") { $json = & $sk $State.SkillsLibPath $a }
+                        if ($path -ne "/to-delete-act" -and $path -ne "/gate-tick") { $json = & $sk $State.SkillsLibPath $a }
                     } catch { $code = 400; $json = '{"ok": false, "error": "bad request"}' }
                 }
             }

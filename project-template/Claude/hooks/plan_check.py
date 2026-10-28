@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Coherence check of spec, plan and tasks (v1.113): the engine of /coerenza. READ ONLY, it never edits a file.
+"""Coherence check of spec, plan and tasks (v1.113): the engine of /consistency. READ ONLY, it never edits a file.
 
   python Claude/hooks/plan_check.py [Content folder] [--stage plan|tasks] [--today YYYY-MM-DD]
 
@@ -134,14 +134,14 @@ def check(d, stage="all", today=None):
         add("CRITICAL", "Spec is not ready for planning: " + x)
     st = stories(spec)
     if not const:
-        add("HIGH", "No CONSTITUTION.md: /piano writes it first")
+        add("HIGH", "No CONSTITUTION.md: /game-plan writes it first")
     else:
         if re.search(r"<[^>\n]+>", re.sub(r"<!--.*?-->", "", const, flags=re.S)):
             add("HIGH", "CONSTITUTION.md still has template placeholders")
         if not re.search(r"-\s*Approved:\s*yes", const, re.I):
             add("MEDIUM", "CONSTITUTION.md is not approved by the owner")
     if not plan:
-        add("HIGH", "No PLAN.md: run /piano")
+        add("HIGH", "No PLAN.md: run /game-plan")
         return sorted(F, key=lambda f: ORDER.index(f[0]))[:50]
     if re.search(r"<[^>\n]+>", re.sub(r"<!--.*?-->", "", plan, flags=re.S)):
         add("HIGH", "PLAN.md still has template placeholders")
@@ -197,7 +197,7 @@ def check(d, stage="all", today=None):
     if stage != "plan":
         real = [t for t in ts if "example" not in t["feature"].lower()]
         if not real:
-            add("HIGH", "No task in ROADMAP.md: run /compiti")
+            add("HIGH", "No task in ROADMAP.md: run /task-list")
         ids = {t["id"] for t in real}
         for n, title, p in st:
             if not any(n in t["story"] for t in real):

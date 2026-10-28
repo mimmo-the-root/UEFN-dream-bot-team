@@ -5,7 +5,7 @@
 
 Quality checks (always): the idea, the 5-line loop, a P1 story with an independent test and a Given/When/Then,
 measurable success criteria, assumptions, a risk table, no open [NEEDS CLARIFICATION], no template placeholder left.
---gate (what /piano runs): also needs `Approved: yes` and `Score` of 60 or more (or `Forced: yes`, the owner's decision).
+--gate (what /game-plan runs): also needs `Approved: yes` and `Score` of 60 or more (or `Forced: yes`, the owner's decision).
 --jam (or `Mode: jam`): the line "How the theme enters the game" is checked: empty is a warning before the theme is
 announced (2026-11-11) and blocks after it.
 Exit 1 when something blocks. The spec says WHAT and WHY; nothing here judges how the game is built."""

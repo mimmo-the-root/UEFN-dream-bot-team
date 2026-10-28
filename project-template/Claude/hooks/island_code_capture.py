@@ -11,6 +11,8 @@ def main():
     except Exception:
         return 0
     prompt = str(data.get("prompt") or "")
+    if re.search(r"priv", prompt, re.I):   # a private test code is not the island code: never record it
+        return 0
     codes = list(dict.fromkeys(re.findall(r"(?<![\d-])\d{4}-\d{4}-\d{4}(?![\d-])", prompt)))
     if not codes:
         return 0

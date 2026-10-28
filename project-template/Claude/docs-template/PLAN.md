@@ -1,7 +1,7 @@
 # Plan: <GAME NAME>
 
-<!-- Written by /piano from the approved GAME-SPEC.md. HOW the game is built: devices, Verse, assets, order.
-     One section per story of the spec (S1 = Story 1). Checked by plan_check.py (/coerenza). -->
+<!-- Written by /game-plan from the approved GAME-SPEC.md. HOW the game is built: devices, Verse, assets, order.
+     One section per story of the spec (S1 = Story 1). Checked by plan_check.py (/consistency). -->
 
 - Status: Draft
 - Approved: no

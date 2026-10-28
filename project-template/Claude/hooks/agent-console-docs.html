@@ -56,6 +56,8 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
 .tnode .dot.done{background:var(--green);}
 .tnode .dot.active{width:18px;height:18px;background:var(--amber);box-shadow:0 0 10px var(--yellow-glow);animation:pulse 1.8s infinite;}
 .tnode .dot.todo{background:var(--line);border:2px solid var(--dim);}
+.tnode .dot.blocked{width:18px;height:18px;background:var(--red);box-shadow:0 0 10px rgba(255,77,94,.6);}
+.tnode .lbl.blocked{color:var(--red);font-weight:700;}
 .tnode .lbl{font-size:10px;color:var(--dim);margin-top:8px;}
 .tnode .lbl.active{color:var(--amber);font-weight:700;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
@@ -131,6 +133,8 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
 .pt .tab{border:1px solid var(--line);border-radius:6px;padding:4px 10px;font:inherit;font-size:11px;color:var(--dim);background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px;}
 .pt .tab:hover{color:var(--text);border-color:var(--line-soft);}
 .pt .tab.on{color:var(--text);border-color:var(--blue);}
+.pt .tab .istar{color:#ffd23f;font-size:13px;line-height:1;text-shadow:0 0 6px rgba(255,210,63,.55);}
+.pt .tab .ithumb{color:var(--red);display:inline-flex;align-items:center;}
 .pt .tab:focus-visible,.nx .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
 .pt .sep{width:1px;align-self:stretch;background:var(--line);margin:0 4px;}
 .pt .cnt{color:var(--dim);font-size:10px;}
@@ -216,12 +220,19 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
 .stp-b.done{background:var(--green);color:#04210f;font-weight:700;}
 .stp-b.now{background:linear-gradient(100deg,#c97b00 0%,var(--amber) 35%,#ffd98a 50%,var(--amber) 65%,#c97b00 100%);background-size:220% 100%;animation:jshim 2.6s linear infinite;color:#1a1000;font-weight:700;}
 .stp-b.blocked{background:linear-gradient(100deg,#a3202c,#ff4d5e 50%,#a3202c);background-size:220% 100%;animation:jshim 2.2s linear infinite;color:#fff;font-weight:700;}
+.gi{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line,#2a3140);border-radius:8px;margin-top:6px;}.gi.sub{margin-left:26px;padding:4px 10px;}.gi.done{opacity:.55;}.gi.nxt{border-color:var(--amber);box-shadow:0 0 0 1px rgba(255,190,60,.25);}.gbox{width:18px;height:18px;margin-top:2px;flex:none;cursor:pointer;accent-color:var(--green);}.gtt{font-size:13px;line-height:1.45;}.gbd{font-size:12px;color:var(--dim);margin-top:3px;line-height:1.5;}.gmore{margin:6px 0 0;padding-left:18px;font-size:12px;color:var(--text);line-height:1.55;}.gmore li{margin:3px 0;}.sub.gh{margin-top:16px;}.sub.gh.play{color:var(--cyan);border-bottom:1px solid var(--cyan);padding-bottom:3px;letter-spacing:.06em;}.gplay{font-size:12px;color:var(--dim);margin:6px 0 2px;}.ginfo{font-size:11.5px;color:var(--dim);margin-top:6px;}.gend{margin-top:18px;padding-top:12px;border-top:1px solid var(--line,#2a3140);}.gerr{color:var(--red);font-size:12px;margin-bottom:6px;}.gpre{margin:4px 0 8px;display:flex;flex-direction:column;gap:6px;}.gx{display:flex;gap:10px;align-items:baseline;font-size:12.5px;padding:7px 10px;border-radius:8px;border:1px solid var(--red);}.gx.amber{border-color:var(--amber);}.gxm{font-weight:700;color:var(--red);}.gx.amber .gxm{color:var(--amber);}
+.nxg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0 4px;}.nxg div{font-size:12px;line-height:1.5;color:var(--text);border-left:2px solid var(--amber);padding-left:10px;}.nxg b{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:2px;}
+.nxsteps{margin:10px 0 4px;padding-left:22px;font-size:12.5px;color:var(--text);line-height:1.55;}.nxsteps li::marker{color:var(--red);font-weight:700;}
+.jwarn{color:var(--amber);font-weight:700;margin-right:8px;}
 .nx.blocked{border-color:var(--red);box-shadow:0 0 22px rgba(255,77,94,.3);}.nx.blocked b{color:var(--red);}
 .blkbox{border:1px solid var(--red);border-radius:10px;background:rgba(255,77,94,.08);padding:12px 14px;margin:10px 0 4px;font-size:12px;line-height:1.6;}.blkbox b{color:var(--red);}
 .stp-b .stp-n{font-size:9.5px;opacity:.7;border:1px solid currentColor;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex:none;}
 .stp-b .jd{color:currentColor;background:currentColor;}.stp-b .jd.todo{background:transparent;border:1px solid currentColor;}
 .stp-b .jd.now{animation:jdp 1.3s ease-in-out infinite;}
 .stp-b.done .jd{box-shadow:0 0 6px rgba(4,33,15,.5);}
+.stp{overflow:visible;flex-wrap:nowrap;padding:4px 4px 6px;}.stw{flex:1 1 0;min-width:0;margin-left:-9px;}.stw.f{margin-left:0;}
+.stp-b{width:100%;flex-direction:column;gap:3px;padding:7px 16px 7px 20px;white-space:normal;text-align:center;justify-content:center;}.stw.f .stp-b{padding-left:10px;}
+.stp-b .stt{display:flex;align-items:center;gap:5px;justify-content:center;}.stp-b .stl{font-size:10.5px;line-height:1.15;overflow-wrap:anywhere;}
 .stp-b .cnt{font-size:10px;opacity:.8;}
 .pt .tab .jd.now{animation:jdp 1.3s ease-in-out infinite;color:var(--amber);}
 .demobox{border:1px solid var(--line);border-radius:10px;padding:8px 14px;background:var(--panel);text-align:right;min-width:178px;flex:none;}
@@ -376,9 +387,11 @@ tr.flash td{animation:jflash 2.2s ease-out 1;}
     <div class="pt" id="pageTabs" role="tablist"></div>
     <div class="pp" data-p="idea" id="pIdea"></div>
     <div class="pp" data-p="spec" id="pSpec"></div>
+    <div class="pp" data-p="genre" id="pGenre"></div>
     <div class="pp" data-p="plan" id="pPlan"></div>
     <div class="pp" data-p="env" id="pEnv"></div>
     <div class="pp" data-p="build" id="pBuild"></div>
+    <div class="pp" data-p="learn" id="pLearn"></div>
     <div class="pp" data-p="audit" id="pAudit"></div>
     <div class="pp" data-p="delivery" id="pDelivery"></div>
     <div class="pp" data-p="owner" id="pOwner"></div>
@@ -1108,12 +1121,12 @@ async function renderTimeline(){
     const id = t.id || "?";
     const statusRaw = (t.status || "To do").trim();
     const bucket = statusBucket(statusRaw);
-    const dotClass = bucket === "active" ? "active" : (bucket === "done" ? "done" : "todo");
+    const dotClass = bucket === "active" ? "active" : (bucket === "done" ? "done" : (bucket === "blocked" ? "blocked" : "todo"));
     const node = document.createElement('div');
     node.className = 'tnode';
     node.innerHTML =
       '<div class="dot ' + dotClass + '"></div>' +
-      '<div class="lbl' + (dotClass==='active' ? ' active' : '') + '">' + escHtml(id) + '<br>' + escHtml(statusRaw) + '</div>' +
+      '<div class="lbl' + (dotClass==='active' ? ' active' : (dotClass==='blocked' ? ' blocked' : '')) + '">' + escHtml(id) + '<br>' + escHtml(statusRaw) + '</div>' +
       (taskKind(t) === 'bug' ? '<span class="tkind bug">🐞 bug fix</span>' : '<span class="tkind feature">⚙ feature</span>') +
       '<div class="tip">' + escHtml(t.feature || "") + '</div>';
     frag.appendChild(node);
@@ -1378,9 +1391,9 @@ async function markMissingDocs(){
 
 
 // v1.114: the workflow as arrows. Idea, Spec, Plan, Tasks, Environment, Build, Audit and Delivery read the real files (GAME-SPEC, PLAN, ROADMAP, AUDIT, DELIVERY-GATE) and, while the demo runs, the stopwatch file.
-const STEPS = [["idea","Idea"],["spec","Spec"],["plan","Plan"],["road","Tasks"],["env","Environment"],["build","Build"],["audit","Audit"],["delivery","Delivery"],["owner","Your turn"]];
+const STEPS = [["idea","Idea"],["spec","Spec"],["genre","Genre"],["plan","Plan"],["road","Tasks"],["env","Environment"],["build","Build"],["learn","Learn"],["audit","Audit"],["delivery","Delivery"],["owner","Your turn"]];
 const SECOND = [["bugs","Bugs"],["status","Status"],["docs","Documents"]];
-const PHASE_KEY = {idea:"idea",spec:"spec",plan:"plan",constitution:"plan",tasks:"road",compiti:"road",environment:"env",ambiente:"env",build:"build",audit:"audit",delivery:"delivery",consegna:"delivery",playtest:"delivery"};
+const PHASE_KEY = {idea:"idea",spec:"spec",genre:"genre",learn:"learn",plan:"plan",constitution:"plan",tasks:"road",compiti:"road",environment:"env",ambiente:"env",build:"build",audit:"audit",delivery:"delivery",consegna:"delivery",playtest:"delivery"};
 function phaseStep(l){ const w = String(l||"").toLowerCase().match(/[a-z]+/); return w ? (PHASE_KEY[w[0]] || null) : null; }
 function stepName(k){ const s = STEPS.find(x => x[0]===k); return s ? s[1] : (k||""); }
 let curTab = null, lastNow = null, prevSnap = {}, ideaSel = 0, lastSt = null;
@@ -1399,9 +1412,10 @@ function jPh(v){ return !v || /^</.test(String(v).trim()); }
 function jRows(txt){ return String(txt||"").split("\n").filter(l => /^\|/.test(l.trim()) && !/^\|\s*(-|Risk|Device|Asset)/i.test(l.trim())).map(l => l.trim().replace(/^\||\|$/g,"").split("|").map(c => c.trim())); }
 function jPill(t, c){ return '<span class="jpill ' + (c||"") + '">' + escH(t) + '</span>'; }
 async function jState(){
-  const [g, p, c, r, au, dl, tm] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer"].map(fetchDoc));
+  const [g, p, c, r, au, dl, tm, gn, gp, ll] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer","genre","genreprop","learnlog"].map(fetchDoc));
   const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
   const tasks = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
+  st.roadRaw = r.exists ? r.content : "";
   st.tasks = tasks; st.done = tasks.filter(t => /^(done|fatto)/i.test(t.status||"")).length;
   const hs = st.hasSpec ? jSecs(g.content) : {};
   st.s = hs; st.head = st.hasSpec ? g.content.split("\n## ")[0] : "";
@@ -1420,29 +1434,130 @@ async function jState(){
   st.gateAll = (st.gate.match(/- \[[ xX]\]/g)||[]).length; st.gateDone = (st.gate.match(/- \[[xX]\]/g)||[]).length;
   st.ideas = jParseIdeas(jSecs(g.exists ? g.content : "")["ideas"]);
   st.t0 = !st.hasSpec && !tasks.length;
+  // v1.115: Genre and Learn are steps of their own. Genre is done when the owner confirmed it (the proposal says "confirmed"), or when there is no proposal and a genre is written; Learn only exists on a map that has a learning log.
+  st.genreFile = gn.exists ? String(gn.content||"").trim() : ""; st.genreProp = null; try{ if (gp.exists) st.genreProp = JSON.parse(gp.content); }catch(e){ st.genreProp = null; }
+  st.genreDone = st.genreProp ? st.genreProp.status === "confirmed" : !!(st.genreFile || (st.hasSpec && !jPh(jFld(st.head,"Genre"))));
+  st.isMap = !!(ll.exists && !ll.error); st.learnItems = []; try{ if (st.isMap) st.learnItems = (JSON.parse(ll.content).items || []); }catch(e){ st.learnItems = []; }
+  st.learnDone = !st.isMap || (st.genreDone && st.learnItems.filter(x => x.kind !== "GENRE").length > 0);
+  if (st.T){ st.genreDone = true; st.learnDone = true; } /* the demo is a clean run: Genre and Learn pass by themselves and nothing is left for the owner */
   return st;
 }
+// v1.115: the gate as a plain checklist. Every `- [ ]` / `- [x]` line of DELIVERY-GATE.md becomes a box the OWNER ticks here (the page writes the box; Claude never does), with the lines under it as the how-to.
+function gHash(t){ let h = 5381; String(t||"").trim().replace(/[^\x20-\x7e]/g, "").split("").forEach(c => { h = ((h * 33) + c.charCodeAt(0)) >>> 0; }); return String(h); }
+function gMd(t){ return escH(plainTxt(t)).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>"); }
+function gateItems(st){
+  const out = []; let sec = "", cur = null;
+  String(st.gate||"").split("\n").forEach((l, i) => {
+    const h = /^##\s+(.*)/.exec(l); if (h){ sec = h[1].replace(/^\d+\.\s*/, ""); cur = null; return; }
+    const b = /^(\s*)- \[([ xX])\]\s*(.*)$/.exec(l);
+    if (b){ const tt = /^\*\*(.*?)\*\*\s*(.*)$/.exec(b[3]); cur = {sec, line:i+1, sub:b[1].length>0, done:/x/i.test(b[2]), title:tt ? tt[1] : b[3], body:tt ? tt[2] : "", hash:gHash(b[3]), more:[], play:/playtest/i.test(b[3]) || /playtest/i.test(sec)}; out.push(cur); return; }
+    const d = /^\s+-\s+(.*)$/.exec(l); if (d && cur){ cur.more.push(d[1]); return; }
+    const n = /^-\s+(Scan|Memory used)\b(.*)$/.exec(l); if (n){ out.push({sec, info:true, txt:n[1] + n[2]}); cur = null; }
+  });
+  return out;
+}
 function ownerItems(st){
-  const out = [];
+  const out = []; if (st.T) return out;
   blockedTasks(st).forEach(t => out.push({g:"Build", txt:t.id + ": " + blockedWhy(t)}));
   try{ const m = /<!-- data:(\[[\s\S]*?\]) -->/.exec(st.audit||""); if (m) JSON.parse(m[1]).filter(f => /for the owner/i.test(f.state||"")).forEach(f => out.push({g:"Audit findings for you", txt:f.text, cls:f.cls})); }catch(e){}
-  let sec = ""; String(st.gate||"").split("\n").forEach(l => { const h = /^##\s+(.*)/.exec(l); if (h) sec = h[1].replace(/^\d+\.\s*/, ""); const b = /^- \[ \]\s*(.*)$/.exec(l); if (b) out.push({g:sec || "Delivery", txt:b[1]}); });
+  gateItems(st).filter(x => !x.info && !x.done).forEach(x => out.push({g:x.sec || "Delivery", txt:x.title}));
+  return out;
+}
+// roadmap tasks that are the owner's own (playtest, decisions): a box each, the click writes "confirmed by the owner" into ROADMAP.md
+function ownerTasks(st){
+  const out = [];
+  String(st.roadRaw||"").split("\n").forEach((l, i) => {
+    if (!/^\|\s*T-\d+/.test(l)) return;
+    const c = l.trim().replace(/^\||\|$/g,"").split("|"); if (c.length < 3) return;
+    const stt = c[2].trim(), txt = c[1];
+    if (!/owner (task|playtest|decision|decides?)|^\s*decide\b|^\s*owner\b/i.test(txt + " " + stt)) return;
+    out.push({line:i+1, id:c[0].trim(), title:plainTxt(txt), done:/^done/i.test(stt), h:gHash(c[0] + "|" + c[1])});
+  });
+  return out;
+}
+// audit findings for the owner become boxes too: confirming one writes "confirmed by the owner" into AUDIT.md, and it stops being asked
+function auditOwnerItems(st){
+  const out = [];
+  String(st.audit||"").split("\n").forEach((l, i) => {
+    if (!/^\|\s*\d+\s*\|/.test(l)) return;
+    const c = l.trim().replace(/^\||\|$/g,"").split("|"); if (c.length < 6) return;
+    const stt = c[c.length-1].trim();
+    if (!/^(for the owner|confirmed by the owner)$/i.test(stt)) return;
+    out.push({line:i+1, title:plainTxt(c[3]), where:c[2].trim(), done:/^confirmed/i.test(stt), h:gHash(c[0] + "|" + c[3])});
+  });
   return out;
 }
 function jOwner(st){
-  const it = ownerItems(st), ok = st.gateExists && st.gateAll>0;
-  const groups = []; it.forEach(x => { let g = groups.find(y => y.n===x.g); if (!g){ g = {n:x.g, a:[]}; groups.push(g); } g.a.push(x); });
-  const html = '<div class="card"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">What is left for you</span><span class="bigcount">' + it.length + '</span><span class="cnt">' + (it.length ? "things only you can do" : "nothing left") + '</span></div>' +
-    (it.length ? '<div style="font-size:12px;color:var(--dim);margin:6px 0 10px;">Claude never does these and never ticks a box. Do them in UEFN and Fortnite, tick the boxes in DELIVERY-GATE.md, then tell Claude Code.</div>' : '<div style="color:var(--green);margin-top:8px;">Everything is done: the map is ready for the private release check.</div>') +
-    groups.map(g => '<div class="sub" style="margin-top:12px;">' + escH(g.n) + ' <span class="cnt">' + g.a.length + '</span></div><div class="jchk">' + g.a.map(x => '<div><span class="jno">☐</span>' + (x.cls ? '<span class="jpill ' + (x.cls==="major" ? "jred" : "jamber") + '">' + escH(x.cls) + '</span> ' : '') + escH(x.txt) + '</div>').join("") + '</div>').join("") +
+  const gi = gateItems(st); if (st.T) gi.forEach(x => { if (!x.info){ x.done = true; x.demo = true; } });
+  const boxes = gi.filter(x => !x.info), ok = st.gateExists && boxes.length>0;
+  const left = ownerItems(st).length, tot = boxes.length, dn = boxes.filter(x => x.done).length;
+  const first = boxes.find(x => !x.done && !x.sub);
+  const otk = ownerTasks(st);
+  const pre = []; if (!st.T) blockedTasks(st).forEach(t => pre.push('<div class="gx red"><span class="gxm">!</span><div><b>' + escH(t.id) + '</b> ' + gMd(blockedWhy(t)) + '</div></div>'));
+  let html = '<div class="card"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">Your checklist</span><span class="bigcount">' + dn + '/' + tot + '</span><span class="cnt">' + (st.T ? "demo: every box is flagged for you, nothing to do" : left ? left + " left, in this order" : "all done") + '</span></div>' +
+    '<div class="jbar" style="margin:8px 0 4px;max-width:420px;"><i style="width:' + (tot ? Math.round(100*dn/tot) : 0) + '%"></i></div>' +
+    '<div style="font-size:12px;color:var(--dim);margin:6px 0 10px;">Do the items from the top. Tick a box only after you did it: the page writes the tick into DELIVERY-GATE.md. Claude never ticks for you.</div>' + (pre.length ? '<div class="gpre">' + pre.join("") + '</div>' : "");
+  if (otk.length){ html += '<div class="sub gh">Tasks that are yours: tick when you have done and checked them</div>' + otk.map(t => '<div class="gi' + (t.done ? " done" : "") + '"><input type="checkbox" class="gbox" data-file="roadmap" data-line="' + t.line + '" data-h="' + t.h + '"' + (t.done ? " checked" : "") + (st.T ? " disabled" : "") + ' aria-label="I did it"><div class="gtx"><div class="gtt">' + escH(t.title) + (t.done ? ' <span class="jok">done</span>' : "") + '</div></div></div>').join(""); }
+  const aot = auditOwnerItems(st);
+  if (aot.length){ html += '<div class="sub gh">Points found by the quality check: do or check, then tick</div>' + aot.map(t => '<div class="gi' + (t.done ? " done" : "") + '"><input type="checkbox" class="gbox" data-file="audit" data-line="' + t.line + '" data-h="' + t.h + '"' + (t.done ? " checked" : "") + (st.T ? " disabled" : "") + ' aria-label="I did it"><div class="gtx"><div class="gtt">' + gMd(t.title) + (t.done ? ' <span class="jok">done</span>' : "") + '</div></div></div>').join(""); }
+  let lastG = null;
+  gi.forEach(x => {
+    const g = x.sec || "Delivery", lab = (x.play && !x.info ? "PLAYTEST" : g);
+    if (lab !== lastG){ lastG = lab; html += '<div class="sub gh' + (lab==="PLAYTEST" ? " play" : "") + '">' + escH(lab) + '</div>' + (lab==="PLAYTEST" ? '<div class="gplay">You play. Open Play in the editor (or the Fortnite client for the 4-player one), watch the Output Log, and tick only what you saw working. If something fails, write what you saw: Claude turns it into a task, it changes nothing alone.</div>' : ""); }
+    if (x.info){ html += '<div class="ginfo">' + gMd(x.txt) + '</div>'; return; }
+    html += '<div class="gi' + (x.done ? " done" : "") + (x.sub ? " sub" : "") + (x === first ? " nxt" : "") + '"><input type="checkbox" class="gbox" data-line="' + x.line + '" data-h="' + x.hash + '"' + (x.done ? " checked" : "") + (x.demo ? " disabled" : "") + ' aria-label="I did it"><div class="gtx"><div class="gtt">' + (x === first ? '<span class="jpill ja">NEXT</span> ' : '') + gMd(x.title) + (x.done ? ' <span class="jok">done</span>' : "") + '</div>' +
+      (x.body && !x.done ? '<div class="gbd">' + gMd(x.body) + '</div>' : '') + (x.more.length && !x.done ? '<ul class="gmore">' + x.more.map(m => '<li>' + gMd(m) + '</li>').join("") + '</ul>' : '') + '</div></div>';
+  });
+  html += '<div class="gend"><div class="label">When the boxes are ticked</div><div style="font-size:12px;color:var(--dim);margin:4px 0 8px;">Tell Claude Code, so it reads the file back, runs the gate check and goes on (the playtest findings become tasks through the mailbox).</div><div class="act"><span class="cmd">Done: I ticked my boxes in DELIVERY-GATE.md. Read the file, run release_gate.py check, tell me what is still open, and queue a fix task for every playtest row that failed.</span><button class="btn" type="button" data-cmd="Done: I ticked my boxes in DELIVERY-GATE.md. Read the file, run release_gate.py check, tell me what is still open, and queue a fix task for every playtest row that failed.">Copy text</button></div></div>' +
     '<a href="#" onclick="openPreview(\'delivery\');return false;" style="display:inline-block;margin-top:12px;margin-right:16px;font-size:11.5px;color:var(--blue);">Open DELIVERY-GATE.md →</a><a href="#" onclick="openPreview(\'audit\');return false;" style="display:inline-block;margin-top:12px;font-size:11.5px;color:var(--blue);">Open AUDIT.md →</a></div>';
-  return jGhost(ok, html, 'Not reached yet. When the build and the audit are done, this page lists what only you can do: assign what the MCP could not, Island settings, the private release, the playtest with real players.');
+  return jGhost(ok, html, 'Not reached yet. When the build and the audit are done, this page is a plain checklist of what only you can do: Island settings, the playtest, the private release.');
 }
-function blockedTasks(st){ return (st.tasks||[]).filter(t => statusBucket(t.status)==="blocked"); }
+function gateBind(root){
+  if (!root) return;
+  Array.prototype.forEach.call(root.querySelectorAll(".gbox"), c => { c.onchange = function(){
+    const on = c.checked; c.disabled = true;
+    fetch("/gate-tick", {method:"POST", headers:{"Content-Type":"application/json","X-Skills-Action":"1"}, body:JSON.stringify({line:+c.getAttribute("data-line"), h:c.getAttribute("data-h"), on:on, file:c.getAttribute("data-file") || ""})})
+      .then(r => r.json()).then(j => { if (!j.ok){ c.checked = !on; c.disabled = false; const e = root.querySelector(".gend"); if (e) e.insertAdjacentHTML("afterbegin", '<div class="gerr">' + escH(j.error || "did not work") + '</div>'); } else { Object.keys(docCache).forEach(k => delete docCache[k]); renderJourney(); } })
+      .catch(() => { c.checked = !on; c.disabled = false; }); }; });
+}
+function jGenre(st){
+  const gp = st.genreProp, gslug = gp ? gp.genre : st.genreFile;
+  const head = '<div class="card"><div class="label">Genre of the game ' + (st.genreDone ? jPill("confirmed","jg") : jPill("to confirm","ja")) + '</div>';
+  if (!gslug) return head + '<div style="margin-top:8px;color:var(--dim);">No genre yet. <code>/spec</code> asks for it; the kit proposes one after reading the map.</div></div>';
+  const row = (k, v) => '<dt>' + k + '</dt><dd>' + escH(v || "-") + '</dd>';
+  return head + '<dl class="jloop" style="margin-top:8px;">' + row("Genre", gslug) + row("Map type", gp && gp.variant) + row("Why", gp && gp.why) + '</dl>' +
+    (st.genreDone ? '<div style="font-size:12px;color:var(--dim);margin-top:8px;">Confirmed. The Learn step turns what the build teaches into lessons and recipes of this genre.</div>' :
+    '<div style="font-size:12px;color:var(--dim);margin:10px 0 8px;">Read it once: it decides which lessons and recipes the kit may use and which ones it writes. To change genre or map type, use the Skills page. If it is right, press the button.</div><button class="btn" type="button" id="genreGo">Confirm: ' + escH(gslug) + (gp && gp.variant ? ' / ' + escH(gp.variant) : '') + '</button> <span id="genreErr" style="color:var(--red);font-size:12px;"></span>') + '</div>';
+}
+function genreBind(root, st){
+  const b = root && root.querySelector("#genreGo"); if (!b) return;
+  b.onclick = function(){ b.disabled = true; const gp = st.genreProp || {};
+    fetch("/genre-confirm", {method:"POST", headers:{"Content-Type":"application/json","X-Skills-Action":"1"}, body:JSON.stringify({genre:gp.genre || st.genreFile, variant:gp.variant})})
+      .then(r => r.json()).then(j => { if (j.ok){ Object.keys(docCache).forEach(k => delete docCache[k]); renderJourney(); } else { b.disabled = false; root.querySelector("#genreErr").textContent = j.error || "did not work"; } })
+      .catch(() => { b.disabled = false; root.querySelector("#genreErr").textContent = "Could not reach the local server"; }); };
+}
+function jLearn(st){
+  const items = st.learnItems.filter(x => x.kind !== "GENRE");
+  const kinds = {}; items.forEach(x => kinds[x.kind] = (kinds[x.kind]||0) + 1);
+  return jGhost(st.isMap, '<div class="card"><div class="label">What the kit learned from this map ' + (st.learnDone ? jPill("done","jg") : jPill("to do","ja")) + '</div>' +
+    '<div style="font-size:12px;color:var(--dim);margin:6px 0 8px;">After the build the kit reads the map: Verse code, devices, island settings, the documents. It saves lessons and the recipes of the genre, which you review on the Skills page (tab This map).</div>' +
+    (items.length ? '<div class="jchk">' + items.slice(-12).map(x => '<div><span class="jok">✓</span><span class="jpill">' + escH(x.kind) + '</span> ' + escH(x.text) + '</div>').join("") + '</div>' : '<div style="color:var(--dim);">Nothing read yet.</div>') +
+    '<div style="margin-top:10px;"><button class="btn" type="button" id="learnGo"' + (st.genreDone ? "" : " disabled") + '>Learn now</button> <span id="learnErr" style="color:var(--red);font-size:12px;">' + (st.genreDone ? "" : "Confirm the genre first.") + '</span></div></div>', 'This step belongs to a map project: the kit has no learning log here.');
+}
+function learnBind(root){
+  const b = root && root.querySelector("#learnGo"); if (!b) return;
+  b.onclick = function(){ b.disabled = true;
+    fetch("/map-learn", {method:"POST", headers:{"Content-Type":"application/json","X-Skills-Action":"1"}, body:"{}"})
+      .then(r => r.json()).then(j => { root.querySelector("#learnErr").textContent = j.ok ? "Asked. The agent writes it at the end of its next answer; this page updates by itself." : (j.error || "did not work"); if (!j.ok) b.disabled = false; })
+      .catch(() => { b.disabled = false; root.querySelector("#learnErr").textContent = "Could not reach the local server"; }); };
+}
+// the console shows business words: tags, "(after T-001)", "Technical:" parts and code names in backticks never reach the owner's eyes
+function plainTxt(t){ return String(t||"").replace(/\s*Technical:[\s\S]*$/i,"").replace(/\s*\[[^\]]*\]/g,"").replace(/\s*\((after|depends)[^)]*\)/ig,"").replace(/\.?\s*Describes the old[\s\S]*$/i,"").replace(/`([^`]+)`/g,"$1").replace(/\s{2,}/g," ").trim(); }
+function blockedTasks(st){ if (st.T) return []; return (st.tasks||[]).filter(t => statusBucket(t.status)==="blocked"); }
 function blockedWhy(t){ const m = /blocked:\s*(.*)$/i.exec(String(t.feature||"")); return m ? m[1].replace(/~~/g,"") : String(t.status||"").replace(/^blocked\s*[:-]?\s*/i,""); }
 function jSteps(st){
   const T = st.T;
-  const fileDone = {idea: st.ideaDone, spec: st.specApproved, plan: st.planApproved, road: st.tasks.length>0, env: st.envRows.length>0 && st.envRows.every(r => r.status==="built"),
+  const fileDone = {idea: st.ideaDone, spec: st.specApproved, genre: st.specApproved && st.genreDone, learn: st.tasks.length>0 && st.done===st.tasks.length && st.learnDone, plan: st.planApproved, road: st.tasks.length>0, env: st.envRows.length>0 && st.envRows.every(r => r.status==="built"),
     build: st.tasks.length>0 && st.done===st.tasks.length, audit: st.auditExists && st.auditOpen===0, delivery: st.gateExists && st.gateAll>0, owner: st.gateExists && st.gateAll>0 && ownerItems(st).length===0};
   const marked = {}; if (T) (T.marks||[]).forEach(m => { const k = phaseStep(m.label); if (k) marked[k] = 1; });
   const pk = st.demoOn && T.phase ? phaseStep(T.phase.label) : null;
@@ -1455,26 +1570,50 @@ function jSteps(st){
   if (blockedTasks(st).length && st.done < st.tasks.length){ let after = false; STEPS.forEach(s => { if (s[0]==="build"){ state.build = "blocked"; after = true; } else if (after && state[s[0]]==="now" && s[0]!=="owner") state[s[0]] = "todo"; }); if (!(T && T.end)) now = "build"; }
   return {state, now, count: STEPS.filter(s => state[s[0]]==="done").length};
 }
+// the concrete things the owner has to do, one line each (the bold title of every unticked owner item of DELIVERY-GATE.md's section 1, then the audit findings for the owner); never the generic reason alone
+function ownerSteps(st){
+  const out = [];
+  let sec = ""; String(st.gate||"").split("\n").forEach(l => { const h = /^##\s+(.*)/.exec(l); if (h) sec = h[1]; const b = /^- \[ \]\s*\*\*(.*?)\*\*/.exec(l); if (b && /^1\b|configuration/i.test(sec)) out.push(b[1].replace(/\.$/, "")); });
+  try{ const m = /<!-- data:(\[[\s\S]*?\]) -->/.exec(st.audit||""); if (m) JSON.parse(m[1]).filter(f => /for the owner/i.test(f.state||"")).forEach(f => out.push(String(f.text||"").slice(0, 140))); }catch(e){}
+  if (!out.length) blockedTasks(st).forEach(t => out.push(blockedWhy(t)));
+  return out.filter((x, i) => out.indexOf(x) === i);
+}
+// v1.115: every step speaks business language: where we are, what Claude does now, what you check, what happens after. No tool or agent names.
+const GUIDE = {
+  idea:{what:"Claude turns your idea into a one-page description of the game: what the player does, how they win, why they replay.", you:"Read it and say if it is the game you want.", then:"The description is approved and Claude writes the detailed specification."},
+  spec:{what:"Claude writes what the game must do, with simple tests that tell us when each part works.", you:"Approve the specification, or tell Claude what to change.", then:"The kit asks you to confirm the genre."},
+  genre:{what:"The kit proposes the type of game (for example party mini-games) so it can reuse what it learned on similar maps.", you:"Check the proposal in the Genre step and press Confirm.", then:"The plan starts, and the kit can start learning from this map."},
+  plan:{what:"Claude decides in which order to build the game, which devices and assets are needed and which settings you will check.", you:"Read the plan and approve it.", then:"Claude splits the plan into small tasks."},
+  road:{what:"Claude breaks the plan into small tasks, each with a clear check that says it works.", you:"Nothing: look at the list if you want.", then:"The environment and the game are built task by task."},
+  env:{what:"Claude places the scenery and the devices the game needs in the editor.", you:"Nothing, unless Claude says a device must be linked by hand.", then:"The game logic is built."},
+  build:{what:"Claude builds the next piece of the game and tests that it works.", you:"Read the short summary Claude gives you and say OK, or ask for a change.", then:"The task is ticked off by itself and the next one starts."},
+  learn:{what:"The kit reads what was built and keeps the useful lessons for your next maps.", you:"Nothing: it runs by itself. You review the lessons later on the Skills page.", then:"The quality check starts."},
+  audit:{what:"Claude checks the whole game against the rules (Fortnite rules, Fab rules, naming) and fixes what it can by itself.", you:"Only the points Claude cannot fix: they appear in Your turn with exact steps.", then:"The delivery list is prepared."},
+  delivery:{what:"Claude prepares the final checklist for publishing.", you:"Nothing yet.", then:"Your turn: the list of things only you can do."},
+  owner:{what:"Everything Claude could do is done. What is left needs you: settings in the editor, playing the game, the private release.", you:"Go through the checklist from the top and tick each box when done.", then:"Claude reads your ticks, turns problems found while playing into new tasks and goes on."}
+};
 function jNext(st){
   const A = (txt, cmd, step) => ({txt, step, acts:[{cmd}]});
   const bl = blockedTasks(st);
-  if (bl.length) return {txt:"Stopped: " + bl.length + " task(s) need you before the game can start", step:"build", blocked:true, acts:[{l:"When you have done it, tell Claude Code", cmd:"Done: I assigned the device references myself. Read them back, rebuild, and only then continue with the blocked tasks. Do not start the game session before every reference is assigned."}], note:"What to do: " + blockedWhy(bl[0]) + ". Nothing else runs until you do it."};
+  if (bl.length) return {txt:"Stopped: " + bl.length + " task(s) need you before the game can start", step:"build", blocked:true, acts:[{l:"When you have done it, tell Claude Code", cmd:"Done: I assigned the device references myself. Read them back, rebuild, and only then continue with the blocked tasks. Do not start the game session before every reference is assigned."}], note:"Nothing else runs until you do these. Do them in UEFN, then paste the text below.", steps:ownerSteps(st)};
   if (st.demoOn){ const k = st.T.phase ? phaseStep(st.T.phase.label) : null; return {txt:"Demo running" + (k ? ": " + stepName(k) : ""), step:k, acts:[], live:true, note:"Claude Code is working. Nothing to do here: this page follows it by itself and opens each step when the one before is finished."}; }
   if (st.t0) return {t0:true, txt:"New map: two ways to start", step:"idea", acts:[{l:"Your own game", cmd:"/spec"}, {l:"Watch the kit work, with you", cmd:"/demo"}, {l:"Watch it work alone", cmd:"/demo --auto"}]};
-  if (!st.hasSpec) return A("Start from an idea", "/spec", "idea");
-  if (!st.specApproved) return A(st.ideaDone ? "Finish and approve the spec" : "Write the idea and the loop", "/spec", st.ideaDone ? "spec" : "idea");
-  if (!st.consOk || !st.planExists) return A("Write the principles and the plan", "/game-plan", "plan");
-  if (!st.planApproved) return A("Approve the plan", "/game-plan", "plan");
-  if (!st.tasks.length) return A("Break the plan into tasks", "/task-list", "road");
+  if (!st.hasSpec) return A("Start by describing your game idea", "/spec", "idea");
+  if (!st.specApproved) return A(st.ideaDone ? "Read the specification and approve it" : "Describe the idea and how a round plays", "/spec", st.ideaDone ? "spec" : "idea");
+  if (!st.genreDone) return {txt:"Confirm the genre of the game", step:"genre", acts:[], note:"Open the Genre step and press Confirm: the kit learns only after you confirm. Nothing about this map is saved as a lesson before."};
+  if (!st.consOk || !st.planExists) return A("Let Claude write the build plan", "/game-plan", "plan");
+  if (!st.planApproved) return A("Read the build plan and approve it", "/game-plan", "plan");
+  if (!st.tasks.length) return A("Let Claude split the plan into small tasks", "/task-list", "road");
   if (st.envRows.length && st.envRows.some(r => r.status!=="built")) return A("Build the environment: " + st.envRows.filter(r => r.status!=="built").length + " scenery row(s) not built", "/environment", "env");
   const ip = st.tasks.find(t => /^in progress|^in corso/i.test(t.status||""));
-  if (ip) return {txt:"In progress: " + ip.id + " " + (ip.feature||"").replace(/\s*[\[(].*$/,""), step:"build", acts:[], live:true, note:"The coder agent is on it. The Build page updates by itself when it finishes."};
+  if (ip) return {txt:"Claude is building: " + plainTxt(ip.feature), step:"build", where:"Building the game: piece " + (st.done+1) + " of " + st.tasks.length, acts:[], live:true, note:"Nothing to do now. When it is finished this page ticks it off by itself and shows the next piece."};
   const nx = st.tasks.find(t => /^to do|^da fare/i.test(t.status||""));
-  if (nx) return {txt:"Next task: " + nx.id + " " + (nx.feature||"").replace(/\s*[\[(].*$/,""), step:"build", acts:[{cmd:"Implement " + nx.id + " with the coder agent. Show me the plan first and ask before each change."}]};
-  if (!st.auditExists) return A("Audit the build", "/audit", "audit");
-  if (st.auditOpen) return A(st.auditOpen + " audit finding(s) open", "/audit", "audit");
-  if (!st.gateExists) return A("Prepare the delivery", "/delivery", "delivery");
-  const oi = ownerItems(st); if (oi.length) return {txt:"Your turn: " + oi.length + " thing(s) only you can do", step:"owner", acts:[], note:"Open the Your turn step: the list of what is left, with what to do in UEFN and Fortnite. When it is done, tell Claude Code."};
+  if (nx) return {txt:"Next piece of the game: " + plainTxt(nx.feature), step:"build", where:"Building the game: piece " + (st.done+1) + " of " + st.tasks.length + " (" + st.done + " finished)", acts:[{l:"To start, send this to Claude Code", cmd:"Go ahead with " + nx.id + ". First tell me in simple words what you will build and how we will know it works, then wait for my OK before you change anything."}], note:"Nothing starts on its own: you decide when."};
+  if (!st.learnDone) return {txt:"Let the kit learn from this map", step:"learn", acts:[{l:"Or press Learn now in the Learn step", cmd:"/learn-map"}], note:"The kit reads the map, the Verse code and the lessons of the build, and writes the recipes. No AI cost on your side: the agent does it once, at the end of its next answer."};
+  if (!st.auditExists) return A("Run the quality check of the whole game", "/audit", "audit");
+  if (st.auditOpen) return A(st.auditOpen + " point(s) of the quality check are still open: Claude fixes them", "/audit", "audit");
+  if (!st.gateExists) return A("Prepare the final checklist for publishing", "/delivery", "delivery");
+  const oi = ownerItems(st); if (oi.length) return {txt:"Your turn: " + oi.length + " thing(s) only you can do", step:"owner", acts:[], note:"Open the Your turn step: a checklist in order, with what to do in the editor and in Fortnite. Tick each box when done, then tell Claude."};
   return null;
 }
 function jIdea0(st){
@@ -1517,12 +1656,13 @@ function jParseIdeas(raw){
 }
 function jVerdictPill(v){ v = String(v||"").toLowerCase(); return !v || jPh(v) ? "" : /^build/.test(v) ? jPill(v, "jg") : /smaller/.test(v) ? jPill(v, "ja") : jPill(v, "jr"); }
 function jStatusPill(s){ return s === "chosen" ? jPill("chosen ★", "jg") : s === "dropped" ? jPill("dropped", "") : s === "alternative" ? jPill("alternative", "ja") : ""; }
+const THUMB_DOWN = '<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M15 3H6c-.8 0-1.5.5-1.8 1.2l-3 7c-.1.3-.2.5-.2.8v2c0 1.1.9 2 2 2h6.3l-1 4.5c-.1.4 0 .8.3 1.1.3.3.7.5 1.1.5.4 0 .8-.2 1.1-.5L16.4 15c.4-.4.6-.9.6-1.4V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>';
 function jIdeaTabs(st){
   const ideas = st.ideas, n = ideas.length, ghost = n === 0;
   if (ghost && st.hasSpec) return "";
   const sel = (ideaSel === "cmp" && n > 1) ? "cmp" : Math.min(typeof ideaSel === "number" ? ideaSel : 0, Math.max(0, n - 1));
   const items = ghost ? [{title:"", score:null, status:""}] : ideas;
-  const bar = '<div class="pt idt" role="tablist" aria-label="Ideas">' + items.map((x, i) => '<button class="tab' + (sel===i ? " on" : "") + '" type="button" data-i="' + i + '">Idea ' + (i+1) + (x.score !== null ? ' <span class="cnt">' + x.score + '</span>' : '') + (x.status === "chosen" ? ' ★' : '') + '</button>').join("") +
+  const bar = '<div class="pt idt" role="tablist" aria-label="Ideas">' + items.map((x, i) => '<button class="tab' + (sel===i ? " on" : "") + '" type="button" data-i="' + i + '">Idea ' + (i+1) + (x.score !== null ? ' <span class="cnt">' + x.score + '</span>' : '') + (x.status === "chosen" ? ' <span class="istar" title="chosen" aria-label="chosen">★</span>' : (items.some(y => y.status === "chosen") ? ' <span class="ithumb" title="not chosen" aria-label="not chosen">' + THUMB_DOWN + '</span>' : '')) + '</button>').join("") +
     (n > 1 ? '<button class="tab' + (sel==="cmp" ? " on" : "") + '" type="button" data-i="cmp">Compare</button>' : '') + '</div>';
   let body;
   if (sel === "cmp"){
@@ -1574,10 +1714,17 @@ function jBuild(st){
 }
 function jAudit(st){
   const ok = st.auditExists, sc = /-\s*Scan:\s*(.*)/i.exec(st.gate);
-  const html = '<div class="jgrid"><div class="card"><div class="label">Audit ' + (ok ? (st.auditOpen ? '<span class="jpill jamber">' + st.auditOpen + ' open</span>' : '<span class="jpill jgreen">no open findings</span>') : '<span class="jpill">not run</span>') + '</div>' +
-    '<div class="jchk"><div><span class="' + (ok ? "jok" : "jno") + '">' + (ok ? "✓" : "·") + '</span>Bugs and rules of the kit (Verse headers, naming, DemoDisplay, authority)</div><div><span class="jno">·</span>Placement: gameplay devices in place, support devices on the stand</div><div><span class="jno">·</span>Fab compliance scan' + (sc && sc[1].trim() ? ": " + escH(sc[1].trim()) : "") + '</div><div><span class="jno">·</span>Island rules (Publishing Validation, texts, memory)</div></div>' +
+  let fs = []; try{ const m = /<!-- data:(\[[\s\S]*?\]) -->/.exec(st.audit||""); if (m) fs = JSON.parse(m[1]); }catch(e){}
+  const open = fs.filter(f => /open|for the owner/i.test(f.state||""));
+  const kind = f => { const t = String(f.text||"") + " " + String(f.where||""); return /fab|licen|third-party|asset name/i.test(t) ? "fab" : /placement|stand|demodisplay|support device/i.test(t) ? "place" : /island|memory|publishing|time limit|respawn|player/i.test(t) ? "island" : "rules"; };
+  const cnt = {rules:0, place:0, fab:0, island:0}; open.forEach(f => cnt[kind(f)]++);
+  const scanTxt = sc && sc[1].trim() && !/^(<|pending)/i.test(sc[1].trim()) ? sc[1].trim() : "";
+  const row = (k, txt) => '<div><span class="' + (!ok ? "jno" : (cnt[k] ? "jwarn" : "jok")) + '">' + (!ok ? "·" : (cnt[k] ? "!" : "✓")) + '</span>' + txt + (ok && cnt[k] ? ' <span class="jpill jamber">' + cnt[k] + ' open</span>' : '') + '</div>';
+  const fabLine = 'Fab compliance scan' + (scanTxt ? ": " + escH(scanTxt) : (ok ? ": not run yet, <code>/audit</code> runs it by itself" : ""));
+  const html = '<div class="jgrid"><div class="card"><div class="label">Audit ' + (ok ? (open.length ? '<span class="jpill jamber">' + open.length + ' open</span>' : (st.auditOpen ? '<span class="jpill jamber">' + st.auditOpen + ' open</span>' : '<span class="jpill jgreen">no open findings</span>')) : '<span class="jpill">not run</span>') + '</div>' +
+    '<div class="jchk">' + row("rules", "Bugs and rules of the kit (Verse headers, naming, DemoDisplay, authority)") + row("place", "Placement: gameplay devices in place, support devices on the stand") + row("fab", fabLine) + row("island", "Island rules (Publishing Validation, texts, memory)") + '</div>' +
     '<a href="#" onclick="openPreview(\'audit\');return false;" style="display:inline-block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open AUDIT.md →</a> <a href="agent-console-fab.html" style="margin-left:14px;font-size:11.5px;color:var(--blue);">Fab compliance details →</a></div>' +
-    '<div class="card"><div class="label">How it works</div><div style="font-size:12px;color:var(--dim);line-height:1.6;margin-top:6px;"><code>/audit</code> fixes the minor findings by itself, within limits, and lists the serious ones for you with a recommendation. The scan reads the map without changing it.</div></div></div>';
+    '<div class="card"><div class="label">How it works</div><div style="font-size:12px;color:var(--dim);line-height:1.6;margin-top:6px;"><code>/audit</code> runs the Fab and island scans by itself, fixes what is a known rule (<code>/audit fix</code> does only that), and lists for you only what a person must do. The scans read the map without changing it.</div></div></div>';
   return jGhost(ok, html, 'Not run yet. After the build, <code>/audit</code> checks the game against the rules, Fab and the island compliance, and this page lists what it found.');
 }
 function jDelivery(st){
@@ -1611,8 +1758,8 @@ bindCopy(document.getElementById("demoBox"));
 function jTabs(st, next){
   const ss = jSteps(st);
   document.getElementById("pageSteps").innerHTML = STEPS.map((t, i) => { const s = ss.state[t[0]];
-    return '<span class="stw ' + s + (i===0 ? " f" : "") + '"><button class="stp-b ' + s + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '" title="' + (s==="done" ? "finished" : s==="now" ? "in progress" : s==="blocked" ? "stopped: needs you" : "not started") + '"><span class="jd ' + s + '"></span><span class="stp-n">' + (i+1) + '</span>' + t[1] +
-      (t[0]==="build" && st.tasks.length ? ' <span class="cnt">' + st.done + '/' + st.tasks.length + '</span>' : "") + '</button></span>'; }).join("");
+    return '<span class="stw ' + s + (i===0 ? " f" : "") + '"><button class="stp-b ' + s + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '" title="' + (s==="done" ? "finished" : s==="now" ? "in progress" : s==="blocked" ? "stopped: needs you" : "not started") + '"><span class="stt"><span class="jd ' + s + '"></span><span class="stp-n">' + (i+1) + '</span></span><span class="stl">' + t[1] +
+      (t[0]==="build" && st.tasks.length ? ' <span class="cnt">' + st.done + '/' + st.tasks.length + '</span>' : "") + '</span></button></span>'; }).join("");
   document.getElementById("pageTabs").innerHTML = SECOND.map(t => '<button class="tab' + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '">' + t[1] + '</button>').join("");
   Array.prototype.forEach.call(document.querySelectorAll("#pageSteps .stp-b, #pageTabs .tab"), b => { b.onclick = () => { curTab = b.getAttribute("data-t"); try{ localStorage.setItem("docsTab", curTab); }catch(e){} jShow(); }; });
   document.getElementById("flowRow").classList.toggle("run", st.demoOn);
@@ -1628,7 +1775,8 @@ async function renderJourney(){
     lastNow = ss.now;
     lastSt = st; paintIdea(); document.getElementById("pSpec").innerHTML = jSpec(st); document.getElementById("pPlan").innerHTML = jPlan(st);
     document.getElementById("pEnv").innerHTML = jEnv(st); document.getElementById("pBuild").innerHTML = jBuild(st);
-    document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st); document.getElementById("pOwner").innerHTML = jOwner(st);
+    document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st); document.getElementById("pOwner").innerHTML = jOwner(st); gateBind(document.getElementById("pOwner")); bindCopy(document.getElementById("pOwner"));
+    document.getElementById("pGenre").innerHTML = jGenre(st); genreBind(document.getElementById("pGenre"), st); document.getElementById("pLearn").innerHTML = jLearn(st); learnBind(document.getElementById("pLearn"));
     const rh = document.getElementById("roadHint"); if (rh) rh.innerHTML = st.tasks.length ? "" : '<div class="ghost"><div class="gh-hint">No tasks yet. <code>/task-list</code> breaks the approved plan into tasks with a check for each one: the timeline and the list below fill in by themselves.</div></div>';
     const s0 = document.getElementById("statusT0"), sm = document.getElementById("statusMain"), dc = document.getElementById("deliveryCard");
     if (s0){ s0.innerHTML = ""; bindCopy(s0); } if (sm) sm.style.display = st.t0 ? "none" : ""; if (dc) dc.style.display = st.t0 ? "none" : "";
@@ -1636,7 +1784,7 @@ async function renderJourney(){
     if (next && next.t0){ box.style.display = ""; box.className = "t0 nx-t0"; box.id = "nextAction"; box.innerHTML = t0Boxes(); bindCopy(box); if (window.__projName){ const p = document.getElementById("nxProj"); if (p) p.textContent = "· " + window.__projName; } }
     else if (next){ box.style.display = ""; box.className = "card nx" + (next.live ? " live" : "") + (next.blocked ? " blocked" : "");
       box.innerHTML = '<div><div class="label">Next action <span id="nxProj"></span></div><b>' + escH(next.txt) + '</b>' + (next.acts.length || next.note ? '<div style="font-size:11px;color:var(--dim);margin-top:4px;">' + escH(next.note || "Text to copy: nothing runs by itself, you paste it in Claude Code and every change still waits for your approval.") + '</div>' : '') + '</div>' +
-        '<div class="acts">' + next.acts.map(a => '<div class="act">' + (a.l ? '<small>' + escH(a.l) + '</small>' : '') + '<span class="cmd">' + escH(a.cmd) + '</span><button class="btn" type="button" data-cmd="' + escH(a.cmd) + '">Copy text</button></div>').join("") + '</div>';
+        (function(){ const g = GUIDE[next.step]; if (!g || next.blocked || next.live && !next.where) return ''; return '<div class="nxg">' + (next.where ? '<div><b>Where we are</b>' + escH(next.where) + '</div>' : '') + '<div><b>What Claude does</b>' + escH(g.what) + '</div><div><b>Your checkpoint</b>' + escH(g.you) + '</div><div><b>Then</b>' + escH(g.then) + '</div></div>'; })() + (next.steps && next.steps.length ? '<ol class="nxsteps">' + next.steps.map(x => '<li>' + escH(x) + '</li>').join("") + '</ol>' : '') + '<div class="acts">' + next.acts.map(a => '<div class="act">' + (a.l ? '<small>' + escH(a.l) + '</small>' : '') + '<span class="cmd">' + escH(a.cmd) + '</span><button class="btn" type="button" data-cmd="' + escH(a.cmd) + '">Copy text</button></div>').join("") + '</div>';
       bindCopy(box); if (window.__projName){ const p = document.getElementById("nxProj"); if (p) p.textContent = "· " + window.__projName; } }
     else box.style.display = "none";
     jTabs(st, next); jShow();

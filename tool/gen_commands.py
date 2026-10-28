@@ -7,16 +7,16 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DIRS = [os.path.join(ROOT, "user-level-commands"), os.path.join(ROOT, "project-template", ".claude", "commands")]
 OUT = os.path.join(ROOT, "docs", "manual", "commands.md")
 GROUPS = [
-    ("From idea to game, in order", ["spec", "piano", "compiti", "coerenza", "ambiente", "audit", "consegna"]),
+    ("From idea to game, in order", ["spec", "game-plan", "task-list", "consistency", "environment", "audit", "delivery"]),
     ("See the kit work", ["demo"]),
     ("Fab and jam", ["fab-check", "concept-card", "jam-check", "devlog", "text-scan", "ui-kit-check"]),
     ("Verse and the editor", ["verse-check", "verse-map", "editor-changes", "mcp-snapshot", "learn-map"]),
     ("Safety and continuity", ["restore-point", "handoff"]),
     ("The kit itself", ["kit-update", "kit-doctor"]),
 ]
-WHEN = {"spec": "You have an idea, or none: start here.", "piano": "The spec is approved.", "compiti": "The plan is approved.",
-        "coerenza": "Before building: do spec, plan and tasks agree?", "ambiente": "Before building and before the playtest.",
-        "audit": "A build is ready: check it against the rules, Fab and island compliance.", "consegna": "Before the private release.",
+WHEN = {"spec": "You have an idea, or none: start here.", "game-plan": "The spec is approved.", "task-list": "The plan is approved.",
+        "consistency": "Before building: do spec, plan and tasks agree?", "environment": "Before building and before the playtest.",
+        "audit": "A build is ready: check it against the rules, Fab and island compliance.", "delivery": "Before the private release.",
         "demo": "You want to watch the whole flow on a pilot game, in a new empty test project."}
 
 

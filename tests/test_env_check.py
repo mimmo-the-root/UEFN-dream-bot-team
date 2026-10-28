@@ -107,7 +107,7 @@ rl.add("stop", "1 spec", note="ok", tokens=500, now=1000 + 600, base=bt)
 rl.add("start", "2 plan", now=2000, base=bt)
 r = rl.report(bt)
 assert "| 1 spec | 10.0 | 500 | ok |" in r and "| 2 plan | open" in r
-for name, words in (("audit", ("audit_log.py", "codebase-auditor", "Self-healing")), ("consegna", ("release_gate.py", "never ticks", "Memory")),):
+for name, words in (("audit", ("audit_log.py", "codebase-auditor", "Self-healing")), ("delivery", ("release_gate.py", "never ticks", "Memory")),):
     c = rd("user-level-commands", name + ".md")
     assert c.startswith("---") and "description:" in c, name
     for w_ in words:

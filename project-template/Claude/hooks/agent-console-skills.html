@@ -141,7 +141,7 @@ details.kproj{margin:26px 0 0;}details.kproj>summary{cursor:pointer;color:var(--
 .kck{display:flex;gap:8px;align-items:flex-start;padding:3px 0;font-size:12px}.kck input{margin-top:3px}.kdiff{margin-top:6px;font-size:12px}
 .knote{font-size:12px;color:var(--amber);border:1px dashed rgba(255,180,84,.45);border-radius:8px;padding:8px 12px;margin-bottom:10px}
 .kerr{color:var(--red);font-size:11px}.khint{margin-top:10px;font-size:11.5px;color:var(--dim)}.khint a{color:var(--cyan,#4dd0e1)}
-tr.kme td{background:rgba(255,180,84,.06)}
+tr.kme td{background:rgba(255,180,84,.14);border-top:1px solid var(--amber);border-bottom:1px solid var(--amber)}tr.kme td:first-child{border-left:3px solid var(--amber)}tr.kme td b{color:var(--amber)}
 @media(max-width:900px){.kstrip{grid-template-columns:1fr 1fr}}
 </style>
 <div id="kitwrap">
@@ -496,8 +496,8 @@ load(); setInterval(load, 4000);
   var main=!!document.getElementById("sessionTimer"), ownStrip=!!document.getElementById("islandTitle");
   var CMDS={"agent-console.html":[["/spec","start a game from an idea"],["/demo","watch the whole flow work"],["/kit-doctor","check the kit"]],
     "agent-console-skills.html":[["/learn-map","learn now from this map"]],"agent-console-news.html":[["/kit-update","update the kit now"]],
-    "agent-console-fab.html":[["/fab-check","check the product against Fab"]],"agent-console-score.html":[["/audit","check the build"],["/consegna","prepare the delivery"]],
-    "agent-console-flow.html":[["/handoff","write a hand-over for a fresh session"]],"agent-console-stats.html":[["/consegna","before the private release"]]};
+    "agent-console-fab.html":[["/fab-check","check the product against Fab"]],"agent-console-score.html":[["/audit","check the build"],["/delivery","prepare the delivery"]],
+    "agent-console-flow.html":[["/handoff","write a hand-over for a fresh session"]],"agent-console-stats.html":[["/delivery","before the private release"]]};
   var here=(location.pathname.split("/").pop()||"agent-console.html"), cl=CMDS[here]||[];
   var cmdHtml=cl.length?'<span class="kh-cmds">Commands here: '+cl.map(function(c){return '<code title="click to copy" data-kc="'+esc(c[0])+'">'+esc(c[0])+'</code> '+esc(c[1]);}).join(" · ")+' · <a href="/manual/commands.html">all commands</a></span>':"";
   var box=document.createElement("div"); box.id="kitHead";
@@ -887,7 +887,7 @@ function renderMaps(){
  var box=$("kMaps");if(!box)return;if(!SD||SD.error){box.innerHTML="";return;}
  var all=SD.projects||[],cur=(SD.current_project||"").toLowerCase();
  box.innerHTML='<div class="kfilters" id="mfbar">'+fil("mf",MF,[["all","All",all.length],["map","Maps",all.filter(function(p){return p.kind==="map";}).length],["fab","Fab products",all.filter(function(p){return p.kind==="fab";}).length]])+'<span class="grow"></span><input id="mq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(MQ)+'"></div><div id="mpTbl"></div><div class="khint">Every project the kit has learned from or is learning from. A map teaches lessons, a blueprint and recipes; a Fab product teaches recipes and the how-to of its editor work. The bar is how much of the learning is done.</div>';
- var draw=function(){var q=MQ.trim().toLowerCase(),list=all.filter(function(p){return (MF==="all"||p.kind===MF)&&(!q||(p.name+" "+p.genre).toLowerCase().indexOf(q)>=0);});
+ var draw=function(){var q=MQ.trim().toLowerCase(),list=all.slice().sort(function(x,y){var mx=x.name.toLowerCase()===cur,my=y.name.toLowerCase()===cur;return mx!==my?(mx?-1:1):x.name.toLowerCase().localeCompare(y.name.toLowerCase());}).filter(function(p){return (MF==="all"||p.kind===MF)&&(!q||(p.name+" "+p.genre).toLowerCase().indexOf(q)>=0);});
   var pg=Math.min(MPG,Math.max(0,Math.ceil(list.length/5)-1));MPG=pg;
   $("mpTbl").innerHTML='<table class="ktable"><tr><th>Project</th><th>Type</th><th>Skill</th><th>Lessons</th><th>Recipes</th><th>Learning</th></tr>'+(list.length?list.slice(pg*5,pg*5+5).map(function(p){var me=p.name.toLowerCase()===cur;return '<tr'+(me?' class="kme"':'')+'><td><b>'+esc(p.name)+'</b>'+(me?' '+chipB("this one","a"):'')+(p.first_seen?'<div class="ksub">first seen '+esc(p.first_seen)+'</div>':'')+'</td><td>'+chipB(p.kind==="fab"?"Fab product":"map",p.kind==="fab"?"v":"b")+'</td><td>'+((p.skills&&p.skills.length)?p.skills.map(function(x){return esc(x);}).join(", "):(p.genre?esc(p.genre):'<span class="ksub">nothing learned yet</span>'))+'</td><td>'+p.lessons+'</td><td>'+p.recipes+'</td><td style="min-width:120px"><div class="pbar" style="margin:2px 0"><i style="width:'+p.pct+'%;background:'+(p.pct>=100?'var(--green)':'var(--amber)')+'"></i></div><div class="ksub">'+p.pct+'%</div></td></tr>';}).join(""):'<tr><td colspan="6" class="kempty">'+(all.length?"Nothing matches.":"No project yet.")+'</td></tr>')+'</table>'+pgr("mp",pg,list.length);
   bindCommon($("mpTbl"),draw);};

@@ -2597,6 +2597,7 @@ def _cli(argv=None):
     s = sub.add_parser("variants-merge"); s.add_argument("genre", nargs="?", default=""); s.add_argument("--project", default="")
     s = sub.add_parser("learning"); s.add_argument("--project", default=".")
     s = sub.add_parser("propose-genre"); s.add_argument("genre"); s.add_argument("--variant", required=True); s.add_argument("--why", default=""); s.add_argument("--project", default=".")
+    s = sub.add_parser("map-learn"); s.add_argument("--project", default=".")
     s = sub.add_parser("confirm-genre"); s.add_argument("genre"); s.add_argument("--variant", required=True); s.add_argument("--project", default=".")
     s = sub.add_parser("profile"); s.add_argument("genre"); s.add_argument("--map", required=True); s.add_argument("--file", required=True); s.add_argument("--project", default="")
     s = sub.add_parser("similar"); s.add_argument("genre"); s.add_argument("--threshold", type=float, default=0.5)
@@ -2669,6 +2670,8 @@ def _cli(argv=None):
             r = console_learning(os.path.abspath(a.project))
         elif a.cmd == "propose-genre":
             r = propose_genre(os.path.abspath(a.project), a.genre, a.variant, a.why)
+        elif a.cmd == "map-learn":
+            r = dict(map_learn_request(os.path.abspath(a.project)), ok=True)
         elif a.cmd == "confirm-genre":
             r = confirm_genre(os.path.abspath(a.project), a.genre, a.variant)
         elif a.cmd == "profile":

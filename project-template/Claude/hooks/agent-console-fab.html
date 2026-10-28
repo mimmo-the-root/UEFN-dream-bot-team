@@ -218,8 +218,8 @@ load();setInterval(load,20000);
   var main=!!document.getElementById("sessionTimer"), ownStrip=!!document.getElementById("islandTitle");
   var CMDS={"agent-console.html":[["/spec","start a game from an idea"],["/demo","watch the whole flow work"],["/kit-doctor","check the kit"]],
     "agent-console-skills.html":[["/learn-map","learn now from this map"]],"agent-console-news.html":[["/kit-update","update the kit now"]],
-    "agent-console-fab.html":[["/fab-check","check the product against Fab"]],"agent-console-score.html":[["/audit","check the build"],["/consegna","prepare the delivery"]],
-    "agent-console-flow.html":[["/handoff","write a hand-over for a fresh session"]],"agent-console-stats.html":[["/consegna","before the private release"]]};
+    "agent-console-fab.html":[["/fab-check","check the product against Fab"]],"agent-console-score.html":[["/audit","check the build"],["/delivery","prepare the delivery"]],
+    "agent-console-flow.html":[["/handoff","write a hand-over for a fresh session"]],"agent-console-stats.html":[["/delivery","before the private release"]]};
   var here=(location.pathname.split("/").pop()||"agent-console.html"), cl=CMDS[here]||[];
   var cmdHtml=cl.length?'<span class="kh-cmds">Commands here: '+cl.map(function(c){return '<code title="click to copy" data-kc="'+esc(c[0])+'">'+esc(c[0])+'</code> '+esc(c[1]);}).join(" · ")+' · <a href="/manual/commands.html">all commands</a></span>':"";
   var box=document.createElement("div"); box.id="kitHead";
