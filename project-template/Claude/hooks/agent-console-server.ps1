@@ -467,7 +467,7 @@ $RequestHandler = {
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)
             }
-        } elseif ($request.Url.AbsolutePath -eq "/to-delete" -or $request.Url.AbsolutePath -eq "/to-delete-act" -or $request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm" -or $request.Url.AbsolutePath -eq "/community-state" -or $request.Url.AbsolutePath -eq "/community-act" -or $request.Url.AbsolutePath -eq "/community-summary" -or $request.Url.AbsolutePath -eq "/agent-costs" -or $request.Url.AbsolutePath -eq "/uefn-mcp-map" -or $request.Url.AbsolutePath -eq "/score-data") {
+        } elseif ($request.Url.AbsolutePath -eq "/to-delete" -or $request.Url.AbsolutePath -eq "/to-delete-act" -or $request.Url.AbsolutePath -eq "/kit-numbers" -or $request.Url.AbsolutePath -eq "/skills-data" -or $request.Url.AbsolutePath -eq "/skills-act" -or $request.Url.AbsolutePath -eq "/skills-check" -or $request.Url.AbsolutePath -eq "/learning-data" -or $request.Url.AbsolutePath -eq "/genre-confirm" -or $request.Url.AbsolutePath -eq "/community-state" -or $request.Url.AbsolutePath -eq "/community-act" -or $request.Url.AbsolutePath -eq "/community-summary" -or $request.Url.AbsolutePath -eq "/agent-costs" -or $request.Url.AbsolutePath -eq "/uefn-mcp-map" -or $request.Url.AbsolutePath -eq "/score-data") {
             $sk = { param($Lib, $CliArgs)
                 foreach ($cand in @(@("py","-3"), @("python"), @("python3"))) {
                     $exe = Get-Command $cand[0] -ErrorAction SilentlyContinue
@@ -496,6 +496,12 @@ $RequestHandler = {
                 $json = & $sk $State.SkillsLibPath @("learning", "--project", $State.ProjectDir)
             } elseif ($path -eq "/community-state") {
                 $json = & $sk $State.SkillsLibPath @("community", "state", "--project", $State.ProjectDir)
+            } elseif ($path -eq "/kit-numbers") {
+                $ksFile = Join-Path (Split-Path (Split-Path $State.SkillsLibPath -Parent) -Parent) "community\kit-stats.json"
+                $o = [ordered]@{ agents = $null; skills = $null; lessons = $null; recipes = $null; mcp_tools = $null; version = $null }
+                try { if (Test-Path $ksFile) { $k = [System.IO.File]::ReadAllText($ksFile, [System.Text.Encoding]::UTF8) | ConvertFrom-Json; $o.agents = $k.agents; $o.skills = $k.skills; $o.lessons = $k.lessons; $o.recipes = $k.recipes_proven; $o.mcp_tools = $k.mcp_tools; $o.version = $k.version } } catch { }
+                try { $sm = (& $sk $State.SkillsLibPath @("summary")) | ConvertFrom-Json; if ([int]$sm.totals.patterns -gt 0) { $o.lessons = [int]$sm.totals.patterns } } catch { }
+                $json = $o | ConvertTo-Json -Compress
             } elseif ($path -eq "/community-summary") {
                 $sumFile = Join-Path (Split-Path (Split-Path $State.SkillsLibPath -Parent) -Parent) "community\community-summary.json"
                 if (Test-Path $sumFile) { $json = [System.IO.File]::ReadAllText($sumFile, [System.Text.Encoding]::UTF8) } else { $json = "{}" }

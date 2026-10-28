@@ -381,6 +381,28 @@ def _read_jsonl(path):
     return entries
 
 
+def _kit_numbers():
+    """Numbers for the Console's kit strip. agents, skills, MCP tools and proven recipes come from the copy of kit-stats.json that ships with the kit
+    (Claude/community/kit-stats.json, written by tool/build_kit_stats.py); lessons are counted from the lessons this machine really has
+    (the shipped ones plus yours), and fall back to the shipped number. Never raises: a missing number is None and the page leaves it out."""
+    out = {"agents": None, "skills": None, "lessons": None, "recipes": None, "mcp_tools": None, "version": None}
+    try:
+        with open(os.path.join(os.path.dirname(ROOT), "community", "kit-stats.json"), encoding="utf-8") as f:
+            k = json.load(f)
+        out.update({"agents": k.get("agents"), "skills": k.get("skills"), "lessons": k.get("lessons"), "recipes": k.get("recipes_proven"),
+                    "mcp_tools": k.get("mcp_tools"), "version": k.get("version")})
+    except (OSError, ValueError, AttributeError):
+        pass
+    try:
+        if skills_lib is not None:
+            n = skills_lib.summary()["totals"]["patterns"]
+            if isinstance(n, int) and n > 0:
+                out["lessons"] = n
+    except Exception:
+        pass
+    return out
+
+
 def _read_json_object(path, default):
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
@@ -508,6 +530,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self._send_json_status(200, skills_lib.recipe_inbox() if skills_lib else {"pending": [], "decided": 0})
             except Exception as e:
                 self._send_json_status(200, {"pending": [], "decided": 0, "error": "%s" % e})
+        elif self.path.startswith("/kit-numbers"):
+            self._send_json_bytes(json.dumps(_kit_numbers()).encode("utf-8"))
         elif self.path.startswith("/community-state"):
             # The switch "Contribute to the community", what was shared, and whether this project's map is published.
             try:

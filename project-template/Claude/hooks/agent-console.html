@@ -73,6 +73,16 @@
   /* New legend box, replacing the old decorative termbar dots: total agent count plus a live
      idle/working/broken/waiting breakdown, updated by updateLegendCounts() alongside the node
      LEDs themselves so the two never disagree. */
+  /* Kit strip: the repo's numbers on the Console. Chips look like the README badges; the lower row shows the badges the legend does not (no duplicates). */
+  .kchips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+  .kchip{display:inline-flex;font-size:11px;line-height:1;border-radius:3px;overflow:hidden;font-weight:600;white-space:nowrap;}
+  .kchip i{font-style:normal;padding:4px 7px;background:#2b3448;color:#cfd8ea;}
+  .kchip b{padding:4px 7px;color:#06120a;background:var(--green);}
+  .kchip.info b{background:var(--cyan);}
+  .kitbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-4px 0 16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);}
+  .kitbar img{height:20px;border-radius:3px;display:block;}
+  .kitbar .kb-note{font-size:11px;color:var(--dim);margin-right:6px;}
+  .kchip[hidden],.kchips[hidden],.kitbar img[hidden]{display:none !important;}
   .stat.legend{flex:1.5;min-width:230px;}
   .stat.legend .label b{color:var(--text);font-weight:600;}
   .legend-project{font-size:10px;letter-spacing:.3px;color:var(--cyan);text-transform:uppercase;
@@ -429,11 +439,31 @@
         <span class="legend-item"><i class="legend-dot red"></i>broken <b id="legendBroken">0</b></span>
         <span class="legend-item"><i class="legend-dot yellow"></i>waiting <b id="legendWaiting">0</b></span>
       </div>
+      <div class="kchips" id="kitChips" hidden>
+        <span class="kchip" id="kcSkills" hidden><i>skills</i><b>0</b></span>
+        <span class="kchip" id="kcLessons" hidden><i>genre lessons</i><b>0</b></span>
+        <span class="kchip" id="kcRecipes" hidden><i>proven recipes</i><b>0</b></span>
+      </div>
     </div>
     <div class="stat alert" id="approvalAlert">
       <div class="label">⚠ approval required</div>
       <div class="value" id="approvalWho">release-gate is waiting on you</div>
     </div>
+  </div>
+
+  <div class="kitbar" id="kitBar" aria-label="Kit badges">
+    <span class="kb-note">Kit</span>
+    <span class="kchip info" id="kcMcp" hidden><i>UEFN MCP tools mapped</i><b>0</b></span>
+    <img alt="license MIT" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" onerror="this.hidden=true">
+    <img alt="latest release" src="https://img.shields.io/github/v/release/mimmo-the-root/UEFN-dream-bot-team?style=flat-square" onerror="this.hidden=true">
+    <img alt="tests" src="https://img.shields.io/github/actions/workflow/status/mimmo-the-root/UEFN-dream-bot-team/tests.yml?branch=main&label=tests&style=flat-square" onerror="this.hidden=true">
+    <img alt="stars" src="https://img.shields.io/github/stars/mimmo-the-root/UEFN-dream-bot-team?style=flat-square" onerror="this.hidden=true">
+    <img alt="kit downloads" src="https://img.shields.io/github/downloads/mimmo-the-root/UEFN-dream-bot-team/total?style=flat-square&label=kit%20downloads&color=success" onerror="this.hidden=true">
+    <img alt="UEFN: Unreal Editor for Fortnite" src="https://img.shields.io/badge/UEFN-Unreal_Editor_for_Fortnite-blueviolet?style=flat-square&logo=fortnite&logoColor=white" onerror="this.hidden=true">
+    <img alt="Verse code" src="https://img.shields.io/badge/Verse-code-informational?style=flat-square" onerror="this.hidden=true">
+    <img alt="Claude Code kit" src="https://img.shields.io/badge/Claude_Code-kit-orange?style=flat-square" onerror="this.hidden=true">
+    <img alt="Fortnite maps" src="https://img.shields.io/badge/Fortnite-maps-blue?style=flat-square" onerror="this.hidden=true">
+    <img alt="sitemap" src="https://img.shields.io/badge/sitemap-xml-lightgrey?style=flat-square" onerror="this.hidden=true">
   </div>
 
   <!-- Miniflow: a compact horizontal rail showing where the CURRENT task sits in the plan-first
@@ -1991,6 +2021,25 @@ setInterval(tickTimers, 1000);
 (function(){fetch("/whoami").then(function(r){return r.json();}).then(function(w){
   if(!w||!w.fab)return;var sc=document.querySelector('a[href="agent-console-score.html"]');if(!sc||document.querySelector('a[href="agent-console-fab.html"]'))return;
   var a=document.createElement("a");a.href="agent-console-fab.html";a.textContent="Checklist";if(sc.className&&sc.className!=="on")a.className=sc.className;sc.parentNode.appendChild(a);}).catch(function(){});})();
+
+  // Kit numbers (skills, genre lessons, proven recipes next to the agent count; MCP tools in the badge strip). From /kit-numbers, never invented:
+  // a number the server cannot read stays hidden.
+  (function(){
+    function put(id, n, onlyIfPositive){
+      var el = document.getElementById(id); if (!el) return false;
+      if (typeof n !== "number" || (onlyIfPositive && n <= 0)) { el.hidden = true; return false; }
+      el.querySelector("b").textContent = n; el.hidden = false; return true;
+    }
+    async function load(){
+      try{
+        var d = await (await fetch("/kit-numbers", {cache:"no-store"})).json();
+        var a = put("kcSkills", d.skills, true), b = put("kcLessons", d.lessons, true), c = put("kcRecipes", d.recipes, true);
+        var box = document.getElementById("kitChips"); if (box) box.hidden = !(a || b || c);
+        put("kcMcp", d.mcp_tools, true);
+      }catch(e){}
+    }
+    load(); setInterval(load, 60000);
+  })();
 </script>
 <!-- fab-tab:end -->
 </body>
