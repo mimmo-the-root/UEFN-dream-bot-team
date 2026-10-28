@@ -12,7 +12,7 @@ What the kit learned about how a map of your kind is built: layout, game loop, d
 The local web page, at `http://127.0.0.1:8765/`, that shows the agents working. See [The console](ch:the-console).
 
 ## Constitution
-The one-page rules of a game, written by `/piano` in `CONSTITUTION.md`: principles with their reason, forbidden words, names and budget, and the Self-healing block. A plan or task that breaks it is a CRITICAL finding. See [From an idea to a playable game](ch:from-idea-to-game).
+The one-page rules of a game, written by `/game-plan` in `CONSTITUTION.md`: principles with their reason, forbidden words, names and budget, and the Self-healing block. A plan or task that breaks it is a CRITICAL finding. See [From an idea to a playable game](ch:from-idea-to-game).
 
 ## Content folder
 The `Content/` folder of a UEFN project. Claude Code is started here, and the kit's project files live inside it.
@@ -51,7 +51,7 @@ Model Context Protocol, the way Claude talks to a running UEFN editor. The serve
 Chicken Roundup, a complete example (spec, constitution, plan, tasks, playtest checklist) shipped with the kit. `/demo` (or `/demo --auto`) runs it in a new empty test project, never into your real map.
 
 ## Plan
-`PLAN.md`, written by `/piano`: per story the devices, Verse files, assets, manual steps, build order and the task that reduces each risk.
+`PLAN.md`, written by `/game-plan`: per story the devices, Verse files, assets, manual steps, build order and the task that reduces each risk.
 
 ## Plan first
 The rule that no code is written before a task with acceptance criteria is open in `ROADMAP.md`.

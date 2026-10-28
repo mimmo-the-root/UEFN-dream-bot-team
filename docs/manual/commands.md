@@ -7,12 +7,12 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 | Command | What it does | When |
 |---|---|---|
 | `/spec [idea or material] [--new-idea] [--improve N] [--jam] [--days N] [--theme "..."]` | Start a game from an idea, or iterate its spec: genre, scored idea, 5-line loop, spec v0, technical risks, one approval | You have an idea, or none: start here. |
-| `/piano [--jam]` | Turn the approved game spec into the principles (CONSTITUTION.md) and the technical plan (PLAN.md), with one approval | The spec is approved. |
-| `/compiti` | Break the approved plan into tasks (T-xxx) with verifiable criteria, stories, dependencies and parallel marks, ready for coder | The plan is approved. |
-| `/coerenza` | Read-only coherence check of spec, plan and tasks with a severity per finding, before building or after a change | Before building: do spec, plan and tasks agree? |
-| `/ambiente [--playtest]` | Check the environment for the planned game (read only), fix safe things, list what only the owner can do, then the playtest checklist | Before building and before the playtest. |
+| `/game-plan [--jam]` | Turn the approved game spec into the principles (CONSTITUTION.md) and the technical plan (PLAN.md), with one approval | The spec is approved. |
+| `/task-list` | Break the approved plan into tasks (T-xxx) with verifiable criteria, stories, dependencies and parallel marks, ready for coder | The plan is approved. |
+| `/consistency` | Read-only coherence check of spec, plan and tasks with a severity per finding, before building or after a change | Before building: do spec, plan and tasks agree? |
+| `/environment [--playtest]` | Check the environment for the planned game (read only), fix safe things, list what only the owner can do, then the playtest checklist | Before building and before the playtest. |
 | `/audit` | Audit the finished game for bugs: fix the minor ones by itself within the limits, list the serious ones for the owner | A build is ready: check it against the rules, Fab and island compliance. |
-| `/consegna` | Before delivery: the list of what only the owner can do, the private release, the memory check with the owner's flags, then the playtest | Before the private release. |
+| `/delivery` | Before delivery: the list of what only the owner can do, the private release, the memory check with the owner's flags, then the playtest | Before the private release. |
 
 ## See the kit work
 

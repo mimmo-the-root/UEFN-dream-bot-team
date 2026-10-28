@@ -32,5 +32,8 @@ First of all: uefn-mcp-lab-guard, uefn-mcp-heavy-calls; on validation failure: u
 ## Hand-off in (from the orchestrator)
 `task` (one sentence), `recipe_keys` (keys of recipes.json: `args`, `needs`, `cleanup`), `lab` (GUID root and `<mount>/<Task>_X` folder), `budget` (max calls/minutes), `stop_on`.
 
+## What a PASS proves
+A session with no player in it (`StartGame` while nobody joined, editor still in editing mode) is a SMOKE test of the build and the session plumbing only. Say so in the reply: `verdict PASS (smoke, no player, no gameplay evidence)`. Gameplay is proven only by `[SIGNAL]` lines read from the editor log or by the owner's playtest in the Fortnite client; without either, never write that the loop works.
+
 ## Reply (fixed format, max 10 lines)
 `verdict` PASS/FAIL/BLOCKED; `steps` {tool, args-summary, ok|rejected|refused|no_answer, sec}; `read_back`; `cleanup` (+ final empty check); `new_findings` (exact error, never hypotheses).

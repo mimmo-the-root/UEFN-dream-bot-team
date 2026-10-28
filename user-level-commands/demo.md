@@ -25,6 +25,8 @@ The demo does the COMPLETE round of the kit on the pilot game Chicken Roundup (t
 
 Update the roadmap task statuses (To do, In progress, Done) the moment they change, edit the file right away and not at the end: the Docs page follows them live and a row that stays `To do` while you work looks like a stuck demo.
 
+**A playtest needs a player.** `StartSession` / `StartGame` / `StopGame` through the MCP start a match with nobody in it: the editor stays in editing mode, nothing of the gameplay runs for a person and no game log proves the loop. Never report that as a playtest or as a task being verified; verify a task with a clean `BuildAll`, the read-back of the device properties and, if the Verse has `[SIGNAL]` log lines, the lines in the editor log. The real playtest is the owner's, in the Fortnite client, with the checklist of `PLAYTEST.md` (phase `delivery`). Each `StopGame` also wakes the automatic post-playtest checks, which waste a run on an empty match.
+
 Never launch or relaunch UEFN; if it or the MCP is not reachable, stop the clock and say why. Never delete: park in `_to_delete`. When the last file exists run `python demo_timer.py stop`, then `python demo_timer.py report`.
 
 At the end say in a few lines what was made, the total time, the slowest phase, what the audit found and what is left for the owner. Do not edit the demo reference files.
