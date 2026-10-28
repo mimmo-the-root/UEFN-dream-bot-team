@@ -215,6 +215,9 @@ main{max-width:1280px;margin:0 auto;padding:0 16px 40px;}
 .stp-b.on::after{content:"";position:absolute;left:22px;right:22px;bottom:0;height:3px;border-radius:2px;background:var(--blue);}
 .stp-b.done{background:var(--green);color:#04210f;font-weight:700;}
 .stp-b.now{background:linear-gradient(100deg,#c97b00 0%,var(--amber) 35%,#ffd98a 50%,var(--amber) 65%,#c97b00 100%);background-size:220% 100%;animation:jshim 2.6s linear infinite;color:#1a1000;font-weight:700;}
+.stp-b.blocked{background:linear-gradient(100deg,#a3202c,#ff4d5e 50%,#a3202c);background-size:220% 100%;animation:jshim 2.2s linear infinite;color:#fff;font-weight:700;}
+.nx.blocked{border-color:var(--red);box-shadow:0 0 22px rgba(255,77,94,.3);}.nx.blocked b{color:var(--red);}
+.blkbox{border:1px solid var(--red);border-radius:10px;background:rgba(255,77,94,.08);padding:12px 14px;margin:10px 0 4px;font-size:12px;line-height:1.6;}.blkbox b{color:var(--red);}
 .stp-b .stp-n{font-size:9.5px;opacity:.7;border:1px solid currentColor;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;flex:none;}
 .stp-b .jd{color:currentColor;background:currentColor;}.stp-b .jd.todo{background:transparent;border:1px solid currentColor;}
 .stp-b .jd.now{animation:jdp 1.3s ease-in-out infinite;}
@@ -299,7 +302,7 @@ tr.flash td{animation:jflash 2.2s ease-out 1;}
 .t0box .cmd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);}
 .t0box .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
 .t0box.go .cmd{font-size:16px;padding:5px 12px;}
-@media (prefers-reduced-motion:reduce){.stw.now,.stp-b.now,.jd.now,.nx,.flowrow.run::after,.demobox.run #demoClock,.jbar.live i,.jpill.jlive,tr.flash td{animation:none!important;}}
+@media (prefers-reduced-motion:reduce){.stw.now,.stp-b.now,.stp-b.blocked,.jd.now,.nx,.flowrow.run::after,.demobox.run #demoClock,.jbar.live i,.jpill.jlive,tr.flash td{animation:none!important;}}
 </style>
 </head>
 <body>
@@ -1418,6 +1421,8 @@ async function jState(){
   st.t0 = !st.hasSpec && !tasks.length;
   return st;
 }
+function blockedTasks(st){ return (st.tasks||[]).filter(t => statusBucket(t.status)==="blocked"); }
+function blockedWhy(t){ const m = /blocked:\s*(.*)$/i.exec(String(t.feature||"")); return m ? m[1].replace(/~~/g,"") : String(t.status||"").replace(/^blocked\s*[:-]?\s*/i,""); }
 function jSteps(st){
   const T = st.T;
   const fileDone = {idea: st.ideaDone, spec: st.specApproved, plan: st.planApproved, road: st.tasks.length>0, env: st.envRows.length>0 && st.envRows.every(r => r.status==="built"),
@@ -1428,10 +1433,14 @@ function jSteps(st){
   let now = pk;
   if (!now && !(T && T.end)){ const f = STEPS.find(s => !done[s[0]]); now = f ? f[0] : null; }
   const state = {}; STEPS.forEach(s => state[s[0]] = s[0]===now ? "now" : (done[s[0]] ? "done" : "todo"));
+  // a task blocked on something only the owner can do: the flow stops here, in red, and nothing after it counts as running
+  if (blockedTasks(st).length && !done.build){ let after = false; STEPS.forEach(s => { if (s[0]==="build"){ state.build = "blocked"; after = true; } else if (after && state[s[0]]==="now") state[s[0]] = "todo"; }); now = "build"; }
   return {state, now, count: STEPS.filter(s => state[s[0]]==="done").length};
 }
 function jNext(st){
   const A = (txt, cmd, step) => ({txt, step, acts:[{cmd}]});
+  const bl = blockedTasks(st);
+  if (bl.length) return {txt:"Stopped: " + bl.length + " task(s) need you before the game can start", step:"build", blocked:true, acts:[{l:"When you have done it, tell Claude Code", cmd:"Done: I assigned the device references myself. Read them back, rebuild, and only then continue with the blocked tasks. Do not start the game session before every reference is assigned."}], note:"What to do: " + blockedWhy(bl[0]) + ". Nothing else runs until you do it."};
   if (st.demoOn){ const k = st.T.phase ? phaseStep(st.T.phase.label) : null; return {txt:"Demo running" + (k ? ": " + stepName(k) : ""), step:k, acts:[], live:true, note:"Claude Code is working. Nothing to do here: this page follows it by itself and opens each step when the one before is finished."}; }
   if (st.t0) return {t0:true, txt:"New map: two ways to start", step:"idea", acts:[{l:"Your own game", cmd:"/spec"}, {l:"Watch the kit work, with you", cmd:"/demo"}, {l:"Watch it work alone", cmd:"/demo --auto"}]};
   if (!st.hasSpec) return A("Start from an idea", "/spec", "idea");
@@ -1538,7 +1547,7 @@ function jBuild(st){
   const n = st.tasks.length, real = n > 0, pct = real ? Math.round(100*st.done/n) : 0, tm = /T-\d+/i.exec(st.demoOn && st.T && st.T.phase ? String(st.T.phase.label||"") : ""), curId = tm ? tm[0].toUpperCase() : "", /* the timer says which task is being built: shown as in progress even if the roadmap row has not been updated yet */ act = !!curId || st.tasks.some(t => statusBucket(t.status)==="active");
   const rows = real ? st.tasks : [{id:"T-001", feature:"(first task of the plan)", status:"To do"}, {id:"T-002", feature:"(next task)", status:"To do"}, {id:"T-003", feature:"(next task)", status:"To do"}];
   const html = '<div class="card"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">Build, task by task</span><span class="bigcount">' + st.done + '<span style="font-size:16px;color:var(--dim);"> / ' + n + '</span></span><span style="color:var(--dim);font-size:11.5px;">' + pct + '% done' + (act ? ' · working now' : '') + '</span></div>' +
-    '<div class="jbar' + (act ? " live" : "") + '" style="margin:10px 0 12px;"><i style="width:' + pct + '%"></i></div><table class="jt"><tr><th>ID</th><th>Task</th><th>Status</th></tr>' +
+    (blockedTasks(st).length ? '<div class="blkbox"><b>Stopped: your turn.</b> ' + blockedTasks(st).length + ' task(s) are blocked by something only you can do: ' + escH(blockedWhy(blockedTasks(st)[0])) + '. The game session must not start until it is done; then tell Claude Code.</div>' : '') + '<div class="jbar' + (act ? " live" : "") + '" style="margin:10px 0 12px;"><i style="width:' + pct + '%"></i></div><table class="jt"><tr><th>ID</th><th>Task</th><th>Status</th></tr>' +
     rows.map(t => { const key = "t:" + t.id, ch = prevSnap[key] !== undefined && prevSnap[key] !== t.status; prevSnap[key] = t.status;
       return '<tr class="' + (ch ? "flash" : "") + '"><td><b>' + escH(t.id) + '</b></td><td>' + escH((t.feature||"").replace(/~~/g,"")) + '</td><td>' + ((curId && String(t.id).toUpperCase()===curId && statusBucket(t.status)==="todo") ? '<span class="jpill jlive">In progress</span> <small style="color:var(--dim);">from the timer</small>' : bucketPill(t.status)) + '</td></tr>'; }).join("") + '</table>' +
     '<a href="#" onclick="openPreview(\'roadmap\');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full ROADMAP.md →</a></div>';
@@ -1583,7 +1592,7 @@ bindCopy(document.getElementById("demoBox"));
 function jTabs(st, next){
   const ss = jSteps(st);
   document.getElementById("pageSteps").innerHTML = STEPS.map((t, i) => { const s = ss.state[t[0]];
-    return '<span class="stw ' + s + (i===0 ? " f" : "") + '"><button class="stp-b ' + s + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '" title="' + (s==="done" ? "finished" : s==="now" ? "in progress" : "not started") + '"><span class="jd ' + s + '"></span><span class="stp-n">' + (i+1) + '</span>' + t[1] +
+    return '<span class="stw ' + s + (i===0 ? " f" : "") + '"><button class="stp-b ' + s + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '" title="' + (s==="done" ? "finished" : s==="now" ? "in progress" : s==="blocked" ? "stopped: needs you" : "not started") + '"><span class="jd ' + s + '"></span><span class="stp-n">' + (i+1) + '</span>' + t[1] +
       (t[0]==="build" && st.tasks.length ? ' <span class="cnt">' + st.done + '/' + st.tasks.length + '</span>' : "") + '</button></span>'; }).join("");
   document.getElementById("pageTabs").innerHTML = SECOND.map(t => '<button class="tab' + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '">' + t[1] + '</button>').join("");
   Array.prototype.forEach.call(document.querySelectorAll("#pageSteps .stp-b, #pageTabs .tab"), b => { b.onclick = () => { curTab = b.getAttribute("data-t"); try{ localStorage.setItem("docsTab", curTab); }catch(e){} jShow(); }; });
@@ -1606,7 +1615,7 @@ async function renderJourney(){
     if (s0){ s0.innerHTML = ""; bindCopy(s0); } if (sm) sm.style.display = st.t0 ? "none" : ""; if (dc) dc.style.display = st.t0 ? "none" : "";
     const box = document.getElementById("nextAction");
     if (next && next.t0){ box.style.display = ""; box.className = "t0 nx-t0"; box.id = "nextAction"; box.innerHTML = t0Boxes(); bindCopy(box); if (window.__projName){ const p = document.getElementById("nxProj"); if (p) p.textContent = "· " + window.__projName; } }
-    else if (next){ box.style.display = ""; box.className = "card nx" + (next.live ? " live" : "");
+    else if (next){ box.style.display = ""; box.className = "card nx" + (next.live ? " live" : "") + (next.blocked ? " blocked" : "");
       box.innerHTML = '<div><div class="label">Next action <span id="nxProj"></span></div><b>' + escH(next.txt) + '</b>' + (next.acts.length || next.note ? '<div style="font-size:11px;color:var(--dim);margin-top:4px;">' + escH(next.note || "Text to copy: nothing runs by itself, you paste it in Claude Code and every change still waits for your approval.") + '</div>' : '') + '</div>' +
         '<div class="acts">' + next.acts.map(a => '<div class="act">' + (a.l ? '<small>' + escH(a.l) + '</small>' : '') + '<span class="cmd">' + escH(a.cmd) + '</span><button class="btn" type="button" data-cmd="' + escH(a.cmd) + '">Copy text</button></div>').join("") + '</div>';
       bindCopy(box); if (window.__projName){ const p = document.getElementById("nxProj"); if (p) p.textContent = "· " + window.__projName; } }
