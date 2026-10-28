@@ -381,6 +381,7 @@ tr.flash td{animation:jflash 2.2s ease-out 1;}
     <div class="pp" data-p="build" id="pBuild"></div>
     <div class="pp" data-p="audit" id="pAudit"></div>
     <div class="pp" data-p="delivery" id="pDelivery"></div>
+    <div class="pp" data-p="owner" id="pOwner"></div>
     <div class="pp" data-p="road">
     <div id="roadHint"></div>
     <!-- PHASES (from ROADMAP.md "## Phases"): hidden when the project has no such section yet -->
@@ -1377,7 +1378,7 @@ async function markMissingDocs(){
 
 
 // v1.114: the workflow as arrows. Idea, Spec, Plan, Tasks, Environment, Build, Audit and Delivery read the real files (GAME-SPEC, PLAN, ROADMAP, AUDIT, DELIVERY-GATE) and, while the demo runs, the stopwatch file.
-const STEPS = [["idea","Idea"],["spec","Spec"],["plan","Plan"],["road","Tasks"],["env","Environment"],["build","Build"],["audit","Audit"],["delivery","Delivery"]];
+const STEPS = [["idea","Idea"],["spec","Spec"],["plan","Plan"],["road","Tasks"],["env","Environment"],["build","Build"],["audit","Audit"],["delivery","Delivery"],["owner","Your turn"]];
 const SECOND = [["bugs","Bugs"],["status","Status"],["docs","Documents"]];
 const PHASE_KEY = {idea:"idea",spec:"spec",plan:"plan",constitution:"plan",tasks:"road",compiti:"road",environment:"env",ambiente:"env",build:"build",audit:"audit",delivery:"delivery",consegna:"delivery",playtest:"delivery"};
 function phaseStep(l){ const w = String(l||"").toLowerCase().match(/[a-z]+/); return w ? (PHASE_KEY[w[0]] || null) : null; }
@@ -1421,20 +1422,37 @@ async function jState(){
   st.t0 = !st.hasSpec && !tasks.length;
   return st;
 }
+function ownerItems(st){
+  const out = [];
+  blockedTasks(st).forEach(t => out.push({g:"Build", txt:t.id + ": " + blockedWhy(t)}));
+  try{ const m = /<!-- data:(\[[\s\S]*?\]) -->/.exec(st.audit||""); if (m) JSON.parse(m[1]).filter(f => /for the owner/i.test(f.state||"")).forEach(f => out.push({g:"Audit findings for you", txt:f.text, cls:f.cls})); }catch(e){}
+  let sec = ""; String(st.gate||"").split("\n").forEach(l => { const h = /^##\s+(.*)/.exec(l); if (h) sec = h[1].replace(/^\d+\.\s*/, ""); const b = /^- \[ \]\s*(.*)$/.exec(l); if (b) out.push({g:sec || "Delivery", txt:b[1]}); });
+  return out;
+}
+function jOwner(st){
+  const it = ownerItems(st), ok = st.gateExists && st.gateAll>0;
+  const groups = []; it.forEach(x => { let g = groups.find(y => y.n===x.g); if (!g){ g = {n:x.g, a:[]}; groups.push(g); } g.a.push(x); });
+  const html = '<div class="card"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">What is left for you</span><span class="bigcount">' + it.length + '</span><span class="cnt">' + (it.length ? "things only you can do" : "nothing left") + '</span></div>' +
+    (it.length ? '<div style="font-size:12px;color:var(--dim);margin:6px 0 10px;">Claude never does these and never ticks a box. Do them in UEFN and Fortnite, tick the boxes in DELIVERY-GATE.md, then tell Claude Code.</div>' : '<div style="color:var(--green);margin-top:8px;">Everything is done: the map is ready for the private release check.</div>') +
+    groups.map(g => '<div class="sub" style="margin-top:12px;">' + escH(g.n) + ' <span class="cnt">' + g.a.length + '</span></div><div class="jchk">' + g.a.map(x => '<div><span class="jno">☐</span>' + (x.cls ? '<span class="jpill ' + (x.cls==="major" ? "jred" : "jamber") + '">' + escH(x.cls) + '</span> ' : '') + escH(x.txt) + '</div>').join("") + '</div>').join("") +
+    '<a href="#" onclick="openPreview(\'delivery\');return false;" style="display:inline-block;margin-top:12px;margin-right:16px;font-size:11.5px;color:var(--blue);">Open DELIVERY-GATE.md →</a><a href="#" onclick="openPreview(\'audit\');return false;" style="display:inline-block;margin-top:12px;font-size:11.5px;color:var(--blue);">Open AUDIT.md →</a></div>';
+  return jGhost(ok, html, 'Not reached yet. When the build and the audit are done, this page lists what only you can do: assign what the MCP could not, Island settings, the private release, the playtest with real players.');
+}
 function blockedTasks(st){ return (st.tasks||[]).filter(t => statusBucket(t.status)==="blocked"); }
 function blockedWhy(t){ const m = /blocked:\s*(.*)$/i.exec(String(t.feature||"")); return m ? m[1].replace(/~~/g,"") : String(t.status||"").replace(/^blocked\s*[:-]?\s*/i,""); }
 function jSteps(st){
   const T = st.T;
   const fileDone = {idea: st.ideaDone, spec: st.specApproved, plan: st.planApproved, road: st.tasks.length>0, env: st.envRows.length>0 && st.envRows.every(r => r.status==="built"),
-    build: st.tasks.length>0 && st.done===st.tasks.length, audit: st.auditExists && st.auditOpen===0, delivery: st.gateExists && st.gateAll>0 && st.gateDone===st.gateAll};
+    build: st.tasks.length>0 && st.done===st.tasks.length, audit: st.auditExists && st.auditOpen===0, delivery: st.gateExists && st.gateAll>0, owner: st.gateExists && st.gateAll>0 && ownerItems(st).length===0};
   const marked = {}; if (T) (T.marks||[]).forEach(m => { const k = phaseStep(m.label); if (k) marked[k] = 1; });
   const pk = st.demoOn && T.phase ? phaseStep(T.phase.label) : null;
-  const done = {}; STEPS.forEach(s => done[s[0]] = !!(fileDone[s[0]] || marked[s[0]] || (T && T.end)));
+  const done = {}; STEPS.forEach(s => done[s[0]] = s[0]==="owner" ? !!fileDone.owner : !!(fileDone[s[0]] || marked[s[0]] || (T && T.end)));
   let now = pk;
   if (!now && !(T && T.end)){ const f = STEPS.find(s => !done[s[0]]); now = f ? f[0] : null; }
+  else if (!now && T && T.end && !done.owner && st.gateExists) now = "owner"; /* the demo ended: what is left is yours */
   const state = {}; STEPS.forEach(s => state[s[0]] = s[0]===now ? "now" : (done[s[0]] ? "done" : "todo"));
   // a task blocked on something only the owner can do: the flow stops here, in red, and nothing after it counts as running
-  if (blockedTasks(st).length && !done.build){ let after = false; STEPS.forEach(s => { if (s[0]==="build"){ state.build = "blocked"; after = true; } else if (after && state[s[0]]==="now") state[s[0]] = "todo"; }); now = "build"; }
+  if (blockedTasks(st).length && st.done < st.tasks.length){ let after = false; STEPS.forEach(s => { if (s[0]==="build"){ state.build = "blocked"; after = true; } else if (after && state[s[0]]==="now" && s[0]!=="owner") state[s[0]] = "todo"; }); if (!(T && T.end)) now = "build"; }
   return {state, now, count: STEPS.filter(s => state[s[0]]==="done").length};
 }
 function jNext(st){
@@ -1456,6 +1474,7 @@ function jNext(st){
   if (!st.auditExists) return A("Audit the build", "/audit", "audit");
   if (st.auditOpen) return A(st.auditOpen + " audit finding(s) open", "/audit", "audit");
   if (!st.gateExists) return A("Prepare the delivery", "/delivery", "delivery");
+  const oi = ownerItems(st); if (oi.length) return {txt:"Your turn: " + oi.length + " thing(s) only you can do", step:"owner", acts:[], note:"Open the Your turn step: the list of what is left, with what to do in UEFN and Fortnite. When it is done, tell Claude Code."};
   return null;
 }
 function jIdea0(st){
@@ -1609,7 +1628,7 @@ async function renderJourney(){
     lastNow = ss.now;
     lastSt = st; paintIdea(); document.getElementById("pSpec").innerHTML = jSpec(st); document.getElementById("pPlan").innerHTML = jPlan(st);
     document.getElementById("pEnv").innerHTML = jEnv(st); document.getElementById("pBuild").innerHTML = jBuild(st);
-    document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st);
+    document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st); document.getElementById("pOwner").innerHTML = jOwner(st);
     const rh = document.getElementById("roadHint"); if (rh) rh.innerHTML = st.tasks.length ? "" : '<div class="ghost"><div class="gh-hint">No tasks yet. <code>/task-list</code> breaks the approved plan into tasks with a check for each one: the timeline and the list below fill in by themselves.</div></div>';
     const s0 = document.getElementById("statusT0"), sm = document.getElementById("statusMain"), dc = document.getElementById("deliveryCard");
     if (s0){ s0.innerHTML = ""; bindCopy(s0); } if (sm) sm.style.display = st.t0 ? "none" : ""; if (dc) dc.style.display = st.t0 ? "none" : "";
