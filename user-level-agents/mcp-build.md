@@ -1,6 +1,6 @@
 ---
 name: mcp-build
-description: Use to run tested Verse build and scripting-batch recipes through the UEFN MCP (write file, BuildAll, read errors, batch scripts). One narrow task from the coder; the only writer while it runs.
+description: EXPLORATION LAB ONLY, never for building the owner's game: runs tested Verse build and scripting-batch recipes through the UEFN MCP (write file, BuildAll, read errors, batch scripts); the only writer while it runs. Runs through the guarded wrapper mcp_lab.py in a disposable lab project (Claude/LAB-PROJECT.txt) and removes what it created. The game itself (scenery, devices, Verse) is built by the coder with direct MCP calls, read back and kept.
 model: haiku
 tools: Read, Grep, Glob, Bash
 ---

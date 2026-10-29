@@ -64,11 +64,11 @@ Five of the twenty-two are sub-agents that do the hands-on work through UEFN's M
 
 | Sub-agent | Model | Job |
 |---|---|---|
-| mcp-build | Haiku | Verse writes, `BuildAll`, scripting batches. |
+| mcp-build | Haiku | Exploration lab: Verse writes, `BuildAll`, scripting batches, in a disposable lab project. Not used to build your game. |
 | mcp-session | Sonnet | Play-in-editor smoke test and the log verdict. |
-| mcp-level | Sonnet | Actors, devices, event bindings, entities, meshes, physics assets. |
+| mcp-level | Sonnet | Exploration lab: actors, devices, event bindings, entities, meshes, physics assets, in a disposable lab project. Not used to build your game. |
 | mcp-ui-assets | Haiku | Widget Blueprints, assets and data tables. |
-| mcp-material-vfx | Haiku | Materials, material instances and Niagara. |
+| mcp-material-vfx | Haiku | Exploration lab: materials, material instances and Niagara, in a disposable lab project. Not used to build your game. |
 
 ## What reports tell you
 

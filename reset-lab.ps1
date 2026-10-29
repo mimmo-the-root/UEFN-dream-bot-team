@@ -4,9 +4,9 @@
  Close UEFN, Cod and any terminal or Explorer window open inside the Lab first.
  Switches:  -Yes (no questions)   -DryRun (checks only, changes nothing)   -OpenUefn (opens the project at the end)
  Paths:     -Projects (default C:\UEFN_Progetti)  -LabName (default root_ai_lab)  -Zip (default: newest _spike\<LabName>-clean-*.zip)
- What it does: stops the kit console, keeps the built farm (rename, or a verified robocopy copy if Windows refuses the rename),
- restores the clean Lab from the zip, runs update-my-profile.cmd, and reads back the second brain. Nothing is ever deleted
- except the clean Lab's own leftovers; if the restore fails after a rename, the farm is put back.
+ What it does: stops the kit console, keeps the built farm as a ZIP outside the projects folder (UEFN lists every .uefnproject it
+ finds under the projects folder, so a second project folder there shows up as a duplicate), restores the clean Lab from the
+ zip in place (no rename needed), runs update-my-profile.cmd, and reads back the second brain.
 #>
 param(
     [string]$Projects = "C:\UEFN_Progetti",
@@ -20,7 +20,7 @@ $ErrorActionPreference = "Stop"
 $Kit = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Lab = Join-Path $Projects $LabName
 $Stamp = Get-Date -Format "yyyyMMdd-HHmm"
-$Farm = Join-Path $Projects ($LabName + "_farm-" + $Stamp)
+$FarmZip = Join-Path $Kit ("_private\lab-backup\" + $LabName + "-farm-" + $Stamp + ".zip")
 if (-not $Zip) {
     $z = Get-ChildItem (Join-Path $Kit "_spike") -Filter ($LabName + "-clean-*.zip") -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
     if ($z) { $Zip = $z.FullName }
@@ -29,20 +29,31 @@ if (-not $Zip) {
 function Step($t) { Write-Host ("`n== " + $t) -ForegroundColor Cyan }
 function Fail($m) { Write-Host ("STOP: " + $m) -ForegroundColor Red; exit 1 }
 function CountFiles($p) { (Get-ChildItem $p -Recurse -File -Force -ErrorAction SilentlyContinue | Measure-Object).Count }
+function ZipFileCount($z) {
+    $zf = [System.IO.Compression.ZipFile]::OpenRead($z)
+    $n = @($zf.Entries | Where-Object { $_.Name -ne "" }).Count
+    $zf.Dispose()
+    return $n
+}
 function Robo($src, $dst, $flags) {
     & robocopy $src $dst @flags /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
     if ($LASTEXITCODE -ge 8) { throw ("robocopy failed with code " + $LASTEXITCODE) }
 }
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 Step "Checks"
 if (-not $Zip -or -not (Test-Path $Zip)) { Fail ("no clean zip found (looked for _spike\" + $LabName + "-clean-*.zip). Pass -Zip <path>.") }
 if (-not (Test-Path $Lab)) { Fail ("Lab not found: " + $Lab) }
 if (Get-Process -Name "UnrealEditorFortnite*" -ErrorAction SilentlyContinue) { Fail "UEFN is open: close it and run again." }
 $console = @(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'agent-console-server' })
-Write-Host ("zip:  " + $Zip)
-Write-Host ("lab:  " + $Lab + "   (" + (CountFiles $Lab) + " files)")
-Write-Host ("farm: " + $Farm)
+$projects = @(Get-ChildItem $Projects -Recurse -Filter "*.uefnproject" -Depth 3 -ErrorAction SilentlyContinue)
+Write-Host ("zip:       " + $Zip)
+Write-Host ("lab:       " + $Lab + "   (" + (CountFiles $Lab) + " files)")
+Write-Host ("farm zip:  " + $FarmZip)
 Write-Host ("kit console processes running: " + $console.Count)
+Write-Host ("projects UEFN will list under " + $Projects + ": " + $projects.Count)
+foreach ($p in $projects) { Write-Host ("   " + $p.FullName) }
+if ($projects.Count -gt 1) { Write-Host "More than one: the extra ones show up in UEFN as duplicates. This script keeps only the Lab; zip and remove the others (see the end)." -ForegroundColor Yellow }
 if ($DryRun) { Write-Host "`nDry run: nothing changed." -ForegroundColor Yellow; exit 0 }
 if (-not $Yes) {
     $r = Read-Host "Cod, UEFN and every terminal or Explorer window inside the Lab are closed? (y/n)"
@@ -54,40 +65,30 @@ Step "Stop the kit console"
 foreach ($p in $console) { Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue }
 Start-Sleep -Seconds 1
 
-Step "Keep the built farm"
-$renamed = $false
-try {
-    Rename-Item $Lab (Split-Path $Farm -Leaf) -ErrorAction Stop
-    $renamed = $true
-    Write-Host ("renamed to " + $Farm)
+Step "Keep the built farm as a zip (never as a second project folder)"
+New-Item -ItemType Directory -Force (Split-Path $FarmZip) | Out-Null
+[System.IO.Compression.ZipFile]::CreateFromDirectory($Lab, $FarmZip, [System.IO.Compression.CompressionLevel]::Optimal, $true)
+$have = CountFiles $Lab
+$inZip = ZipFileCount $FarmZip
+if ($have -ne $inZip) {
+    Remove-Item $FarmZip -Force -ErrorAction SilentlyContinue
+    Fail ("the zip has " + $inZip + " files, the Lab has " + $have + ". Nothing was changed in the Lab.")
 }
-catch {
-    Write-Host "Windows refused the rename (something holds the folder): copying it instead." -ForegroundColor Yellow
-    $n1 = CountFiles $Lab
-    Robo $Lab $Farm @("/E", "/COPY:DAT")
-    $n2 = CountFiles $Farm
-    if ($n1 -ne $n2) { Fail ("the copy has " + $n2 + " files, the Lab has " + $n1 + ". Nothing was changed in the Lab.") }
-    Write-Host ("copied " + $n2 + " files to " + $Farm)
-}
+Write-Host ("farm saved: " + $FarmZip + " (" + $inZip + " files)")
 
-Step "Restore the clean Lab from the zip"
+Step "Restore the clean Lab from the zip, in place"
 $tmp = Join-Path $env:TEMP ("lab-clean-" + $Stamp)
 $failed = $false
 try {
     Expand-Archive $Zip -DestinationPath $tmp -Force
     $src = Join-Path $tmp $LabName
     if (-not (Test-Path (Join-Path $src ($LabName + ".uefnproject")))) { throw ("the zip does not look right (no " + $LabName + ".uefnproject)") }
-    if ($renamed) { Copy-Item $src $Lab -Recurse -Force } else { Robo $src $Lab @("/MIR") }
+    Robo $src $Lab @("/MIR")
 }
 catch {
     $failed = $true
     Write-Host ("ERROR: " + $_.Exception.Message) -ForegroundColor Red
-    if ($renamed) {
-        if (Test-Path $Lab) { Remove-Item $Lab -Recurse -Force }
-        Rename-Item $Farm $LabName
-        Write-Host ("the farm is back at " + $Lab)
-    }
-    else { Write-Host ("a copy of the farm is at " + $Farm + "; the Lab may be half cleaned: fix the cause and run again.") }
+    Write-Host ("The farm is safe in " + $FarmZip + ". The Lab may be half cleaned: fix the cause and run again.")
 }
 finally { if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue } }
 if ($failed) { exit 1 }
@@ -97,13 +98,16 @@ if (-not (Test-Path (Join-Path $Lab ($LabName + ".uefnproject")))) { Fail "the p
 foreach ($x in @("Content\Claude", "Content\CLAUDE.md")) {
     if (Test-Path (Join-Path $Lab $x)) { Fail ($x + " still exists: the Lab is not clean.") }
 }
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-$zf = [System.IO.Compression.ZipFile]::OpenRead($Zip)
-$expected = @($zf.Entries | Where-Object { $_.Name -ne "" }).Count
-$zf.Dispose()
+$expected = ZipFileCount $Zip
 $have = CountFiles $Lab
 if ($have -ne $expected) { Fail ("the Lab has " + $have + " files, the zip has " + $expected + ".") }
 Write-Host ("clean: " + $have + " files, no Claude folder, no CLAUDE.md")
+$left = @(Get-ChildItem $Projects -Recurse -Filter "*.uefnproject" -Depth 3 -ErrorAction SilentlyContinue)
+if ($left.Count -gt 1) {
+    Write-Host ("WARNING: UEFN will list " + $left.Count + " projects:") -ForegroundColor Yellow
+    foreach ($p in $left) { Write-Host ("   " + $p.FullName) }
+    Write-Host "Zip each extra folder outside the projects folder and remove it. See reset-lab.ps1 header."
+}
 
 Step "Kit into your profile (update-my-profile.cmd)"
 Push-Location $Kit
@@ -126,7 +130,7 @@ if (Test-Path $cm) {
 
 Step "Done"
 Write-Host ("Clean Lab ready in " + $Lab)
-Write-Host ("The built farm is in " + $Farm)
+Write-Host ("The built farm is in " + $FarmZip + "  (restore it by extracting that zip, outside the projects folder, only if you need it)")
 Write-Host ""
 Write-Host "Now:" -ForegroundColor Yellow
 Write-Host "  1) Open UEFN with the project; wait for the editor and the MCP connection."

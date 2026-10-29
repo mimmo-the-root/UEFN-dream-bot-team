@@ -1,6 +1,6 @@
 ---
 name: mcp-material-vfx
-description: Use for materials, material instances and Niagara systems through the UEFN MCP: create, set parameters and modules, read back and restore. One narrow task from the coder.
+description: EXPLORATION LAB ONLY, never for building the owner's game: experiments with materials, material instances and Niagara systems through the UEFN MCP (create, set parameters and modules, read back and restore). Runs through the guarded wrapper mcp_lab.py in a disposable lab project (Claude/LAB-PROJECT.txt) and removes what it created. The game itself (scenery, devices, Verse) is built by the coder with direct MCP calls, read back and kept.
 model: haiku
 tools: Read, Grep, Glob, Bash
 ---

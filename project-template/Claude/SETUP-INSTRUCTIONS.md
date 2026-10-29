@@ -123,14 +123,14 @@ anything else.
    the project's first analysis (if code already exists) or to gather requirements (if the
    level is still empty).
 
-9. **Mention the optional Agent Console**: this scaffold also ships `Claude/hooks/
-   agent-console.html` plus `agent-console-log.ps1`/`.sh` (already wired into
-   `.claude/settings.json`'s `PreToolUse`/`PostToolUse`, matched on `"Task|Agent"`, no setup
-   needed) and `agent-console-server.ps1`/`.py` (a small local server). From the NEXT session
-   onward, a `SessionStart` hook (`session-start-reminder.ps1`/`.sh`, also already wired) asks
-   the owner automatically whether they want it open — you don't need to do anything about that
-   here, just mention the console exists in your final setup summary so the owner isn't
-   surprised the first time that question shows up.
+9. **Open the Agent Console now**: this scaffold ships `Claude/hooks/agent-console.html`, `agent-console-log.ps1`/`.sh`
+   (already wired into `.claude/settings.json`) and `agent-console-server.ps1`/`.py` (a small local server). The
+   `SessionStart` hook (`session-start-reminder.ps1`/`.sh`, also already wired) starts the console for this project and opens
+   it in the owner's browser by itself at every new session. It does not ask. That hook is not active yet in this first
+   session, so start the console now: from the project's `Content` folder run
+   `powershell -NoProfile -ExecutionPolicy Bypass -File Claude/hooks/session-start-reminder.ps1` (macOS or Linux:
+   `bash Claude/hooks/session-start-reminder.sh`). It starts the server and opens the browser. In your final setup summary say:
+   "The console is open; it opens by itself every time you start a session." Never ask the owner whether they want it open.
 
 If anything in these steps is unclear, or an expected tool doesn't exist, stop and ask the
 owner how to proceed instead of guessing.
