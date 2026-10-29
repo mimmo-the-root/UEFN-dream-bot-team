@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "genre": "party-mini-games",
-  "pack_version": 28,
+  "pack_version": 41,
   "patterns": [
     {
       "id": "p-792c4eb18855",
@@ -284,6 +284,149 @@
       "statement": "Per-player HUD bar with retry and leave race",
       "condition": "a Verse device must show a map code or favorite prompt HUD to all players",
       "action": "attach a widget bar per player with a retry loop waiting for player UI, raced against PlayerRemoved, cycling name and favorite prompt on a timer with a minimum interval",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-cc78ce74a7ed",
+      "variant": "base",
+      "statement": "Zone entry plus owner lookup awards a delivery point",
+      "condition": "a score or reward must be given for entering a zone",
+      "action": "use a volume_device AgentEntersEvent to detect the entry and look the entering agent up in the follower map before awarding the point",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-e756bb67ef42",
+      "variant": "base",
+      "statement": "Count actors of big prefabs early; memory check can be tight",
+      "condition": "the level uses large prefab buildings",
+      "action": "count child actors (a single house can be hundreds) and check the publishing memory figure early",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "performance",
+      "support": 1
+    },
+    {
+      "id": "p-68585273e871",
+      "variant": "base",
+      "statement": "Tame-and-deliver kit: wildlife spawners, one volume, one fenced pen",
+      "condition": "a mini-game needs players to bring creatures into a zone",
+      "action": "use a wildlife spawner with taming on, a volume as delivery zone and a fence with one gate; each spawner covers its own spawn area so several spawners spread the creatures over the map",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-794ef7c64954",
+      "variant": "carry-and-deliver",
+      "statement": "Detect a non-player with an event and a poll, log which fired",
+      "condition": "a zone must notice a wild creature or non-player entering",
+      "action": "use the zone event plus a half-second 'is it inside' check and log which one fired",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-78240390dcbd",
+      "variant": "base",
+      "statement": "Gate scoring events on the round state enum; end round from timer success",
+      "condition": "a round ends on a timer and players score by delivering something",
+      "action": "subscribe to the timer SuccessEvent, switch an enum state (Lobby, Playing, Ended) and ignore scoring events when state is not Playing",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-db145d8df843",
+      "variant": "base",
+      "statement": "Track owner-to-follower map and a delivered set to score each creature once",
+      "condition": "per-player follower or tamed-creature mechanics with several spawners",
+      "action": "keep a [agent]agent map of owner to followed creature plus a delivered set; on delivery untame through every spawner and clear that owner's entry so a creature scores once",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-da57f9ad134f",
+      "variant": "carry-and-deliver",
+      "statement": "Plan owner link steps early; prove a tag lookup before relying on it",
+      "condition": "a game script needs device links that the level tools cannot fill",
+      "action": "list the owner link steps from the start of the plan and prefer a lookup by tag only after it is proven in a real play",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "launch-checklist",
+      "support": 1
+    },
+    {
+      "id": "p-3991e79b9609",
+      "variant": "base",
+      "statement": "Read back every device reference, then check the wiring log line",
+      "condition": "references to placed devices are assigned by hand in the Details panel",
+      "action": "read the references back through the MCP (all fields filled) and check the log self-check line before calling the map playable",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "launch-checklist",
+      "support": 1
+    },
+    {
+      "id": "p-c978a200fe90",
+      "variant": "carry-and-deliver",
+      "statement": "Parked is not disabled",
+      "condition": "a device is removed from play",
+      "action": "move it out of the level or turn it off; a spare folder does not disable it",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-bb9d346f810c",
+      "variant": "carry-and-deliver",
+      "statement": "Refill the field on delivery, not only between rounds",
+      "condition": "a carried creature or item can be lost or delivered during a round",
+      "action": "top the field up when a delivery happens, not only between rounds",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-afadaff16dfb",
+      "variant": "carry-and-deliver",
+      "statement": "Turn off the island round limit when the script loops rounds",
+      "condition": "the script loops its own rounds",
+      "action": "switch off the island round limit so the loop never ends the game",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-55fefe23d91f",
+      "variant": "carry-and-deliver",
+      "statement": "Redundant delivery detection plus a delivered-once set",
+      "condition": "players score by delivering a carried or following creature to a zone",
+      "action": "detect delivery with three redundant detectors (capture-area delivered event, zone/area enter events, and a 0.5 s poll of followers) and mark each creature as delivered once so it cannot score twice",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-6d78f0b86a89",
+      "variant": "carry-and-deliver",
+      "statement": "Read bounds after setting a device size",
+      "condition": "a classic device size is set through the tool",
+      "action": "set one value, read the bounds, then compute the rest because sizes are multiples of a base unit",
       "tier": "hypothesis",
       "status": "active",
       "section": "devices",
