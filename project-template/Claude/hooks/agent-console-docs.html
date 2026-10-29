@@ -420,6 +420,7 @@ tr.flash td{position:relative;}tr.flash td::before{content:"";position:absolute;
     <div class="pp" data-p="plan" id="pPlan"></div>
     <div class="pp" data-p="env" id="pEnv"></div>
     <div class="pp" data-p="build" id="pBuild"></div>
+    <div class="pp" data-p="you" id="pYou"></div>
     <div class="pp" data-p="learn" id="pLearn"></div>
     <div class="pp" data-p="audit" id="pAudit"></div>
     <div class="pp" data-p="delivery" id="pDelivery"></div>
@@ -1289,7 +1290,7 @@ async function renderRecentPriorities(){
   }
   document.getElementById('connStatus').innerHTML = '<span class="ok">✓</span> reading Claude/docs/ from the local server';
   try{
-    const out = [];
+    const out = []; let roadmapOwner = [];
     const row = (tag, html) => out.push('<div class="actionrow" style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--line-soft);"><span style="font-size:9.5px;color:var(--amber);border:1px solid rgba(255,180,84,.3);border-radius:4px;padding:1px 6px;white-space:nowrap;height:fit-content;">' + tag + '</span><span>' + html + '</span></div>');
     if (roadmap.exists){
       const all = parseRoadmapTasks(roadmap.content).filter(t => statusBucket(t.status) !== "outOfScope");
@@ -1298,7 +1299,8 @@ async function renderRecentPriorities(){
       const blocked = openT.filter(t => statusBucket(t.status) === "blocked");
       const mvp = openT.filter(t => priorityPill(t.priority).label === "MVP");
       if (active.length) row("IN PROGRESS", active.map(t => '<b>' + escH(t.id) + '</b> ' + escH((t.feature || "").replace(/~~/g,"").slice(0, 90))).join("<br>"));
-      if (blocked.length) row("BLOCCATI", blocked.map(t => '<b>' + escH(t.id) + '</b>').join(", ") + " — serve sblocco");
+      if (blocked.length) row("BLOCCATI", blocked.map(t => '<b>' + escH(t.id) + '</b> ' + escH((t.feature || "").replace(/~~/g,"").slice(0, 70)) + ' <span style="color:var(--dim);">— ' + escH(String(t.status || "").replace(/^\S+\s*[-:\u2013\u2014]?\s*/, "").slice(0, 140)) + '</span>').join("<br>"));
+      roadmapOwner = openT.filter(t => { const st = String(t.status || ""); return (/^(blocked|bloccat)/i.test(st) && /owner|\byou\b|your|manual|details|by hand|tuo|a mano/i.test(st)) || (/^in progress/i.test(st) && /waits? for (the |your )?(owner|you)|owner'?s playtest|waiting for the owner/i.test(st)); });
       row("TASK PRIORITY", mvp.length + " MVP tasks open out of " + openT.length + " open in total.");
     }
     if (bugs.exists){
@@ -1316,6 +1318,7 @@ async function renderRecentPriorities(){
       if (m){ const after = status.content.slice(m.index + m[0].length); const nx = /^##\s/m.exec(after); sec = nx ? after.slice(0, nx.index) : after; }
       const acts = sec.split("\n").filter(l => /\b(owner|a tuo carico|azione (?:richiesta|owner)|action required|waiting on you|da verificare in play|serve (?:il tuo|tua))\b/i.test(l)).slice(0, 4);
       if (acts.length) acts.forEach(l => row("OWNER ACTION", inlineEsc(l.replace(/^[-*\s]+/, ""))));
+      else if (roadmapOwner.length) roadmapOwner.slice(0, 4).forEach(t => row("OWNER ACTION", '<b>' + escH(t.id) + '</b> ' + escH(String(t.status || "").replace(/^\S+\s*[-:\u2013\u2014]?\s*/, "").slice(0, 200))));
       else row("OWNER ACTION", '<span style="color:var(--dim);">No explicit owner action in STATUS.md.</span>');
     } else row("STATUS", "STATUS.md has not been created yet.");
     el.innerHTML = out.join("") || "<i>Nothing to report yet.</i>";
@@ -1410,12 +1413,12 @@ async function markMissingDocs(){
 
 
 // v1.114: the workflow as arrows. Idea, Spec, Plan, Tasks, Environment, Build, Audit and Delivery read the real files (GAME-SPEC, PLAN, ROADMAP, AUDIT, DELIVERY-GATE) and, while the demo runs, the stopwatch file.
-const STEPS = [["idea","Idea"],["spec","Spec"],["genre","Genre"],["plan","Plan"],["road","Tasks"],["env","Environment"],["build","Build"],["learn","Learn"],["audit","Audit"],["delivery","Delivery"],["owner","Your turn"]];
+const STEPS = [["idea","Idea"],["spec","Spec"],["genre","Genre"],["plan","Plan"],["road","Tasks"],["env","Environment"],["build","Build"],["you","Your turn"],["learn","Learn"],["audit","Audit"],["delivery","Delivery"],["owner","Play and confirm"]];
 const SECOND = [["bugs","Bugs"],["status","Status"],["docs","Documents"]];
-const PHASE_KEY = {idea:"idea",spec:"spec",genre:"genre",learn:"learn",plan:"plan",constitution:"plan",tasks:"road",compiti:"road",environment:"env",ambiente:"env",build:"build",audit:"audit",delivery:"delivery",consegna:"delivery",playtest:"delivery"};
+const PHASE_KEY = {idea:"idea",spec:"spec",genre:"genre",learn:"learn",plan:"plan",constitution:"plan",tasks:"road",compiti:"road",environment:"env",ambiente:"env",build:"build",you:"you",owner:"you",audit:"audit",delivery:"delivery",consegna:"delivery",playtest:"delivery"};
 function phaseStep(l){ const w = String(l||"").toLowerCase().match(/[a-z]+/); return w ? (PHASE_KEY[w[0]] || null) : null; }
 function stepName(k){ const s = STEPS.find(x => x[0]===k); return s ? s[1] : (k||""); }
-let curTab = null, lastNow = null, prevSnap = {}, ideaSel = 0, lastSt = null;
+let userPickAt = 0, curTab = null, lastNow = null, prevSnap = {}, ideaSel = 0, lastSt = null;
 const MAX_IDEAS = 5;
 function jSecs(raw){
   const out = {}; let cur = null;
@@ -1431,10 +1434,10 @@ function jPh(v){ return !v || /^</.test(String(v).trim()); }
 function jRows(txt){ return String(txt||"").split("\n").filter(l => /^\|/.test(l.trim()) && !/^\|\s*(-|Risk|Device|Asset)/i.test(l.trim())).map(l => l.trim().replace(/^\||\|$/g,"").split("|").map(c => c.trim())); }
 function jPill(t, c){ return '<span class="jpill ' + (c||"") + '">' + escH(t) + '</span>'; }
 async function jState(){
-  const [g, p, c, r, au, dl, tm, gn, gp, ll] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer","genre","genreprop","learnlog"].map(fetchDoc));
+  const [g, p, c, r, au, dl, tm, gn, gp, ll, osd] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer","genre","genreprop","learnlog","ownersteps"].map(fetchDoc));
   const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
   const tasks = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
-  st.roadRaw = r.exists ? r.content : "";
+  st.roadRaw = r.exists ? r.content : ""; st.osRaw = osd.exists && !osd.error ? osd.content : "";
   st.tasks = tasks; st.done = tasks.filter(t => /^(done|fatto)/i.test(t.status||"")).length;
   const hs = st.hasSpec ? jSecs(g.content) : {};
   st.s = hs; st.head = st.hasSpec ? g.content.split("\n## ")[0] : "";
@@ -1506,14 +1509,55 @@ function auditOwnerItems(st){
   });
   return out;
 }
+
+// v1.116: OWNER-STEPS.md. Two sections written by the agents (owner_steps.py): Setup = the build waits for these (step 8 "Your turn"), Gameplay = the final confirmation (last step). The owner presses Done; nothing else ticks.
+function osItems(st){
+  const out = []; let sec = "", cur = null;
+  String(st.osRaw||"").split("\n").forEach((l, i) => {
+    const h = /^##\s+(\w+)/.exec(l); if (h){ sec = h[1].toLowerCase(); cur = null; return; }
+    const b = /^- \[([ xX])\]\s*(.*)$/.exec(l);
+    if (b && (sec==="setup" || sec==="gameplay")){ const tt = /^\*\*(.*?)\*\*\s*(.*)$/.exec(b[2]); cur = {sec, line:i+1, done:/x/i.test(b[1]), title:tt ? tt[1] : b[2], body:tt ? tt[2] : "", hash:gHash(b[2]), more:[]}; out.push(cur); return; }
+    const d = /^\s+-\s+(.*)$/.exec(l); if (d && cur) cur.more.push(d[1]);
+  });
+  return out;
+}
+function osRows(list, btn){
+  return list.map(x => '<div class="gi' + (x.done ? " done" : "") + '"><div class="gtx"><div class="gtt">' + gMd(x.title) + (x.done ? ' <span class="jpill jg">done</span>' : "") + '</div>' +
+    (x.body && !x.done ? '<div class="gbd">' + gMd(x.body) + '</div>' : "") + (x.more.length && !x.done ? '<ul class="gmore">' + x.more.map(m => '<li>' + gMd(m) + '</li>').join("") + '</ul>' : "") + '</div>' +
+    '<button class="btn osbtn" type="button" data-line="' + x.line + '" data-h="' + x.hash + '" data-on="' + (x.done ? "0" : "1") + '">' + (x.done ? "Undo" : btn) + '</button></div>').join("");
+}
+function jYou(st){
+  const its = osItems(st).filter(x => x.sec==="setup"), dn = its.filter(x => x.done).length, open = its.length - dn, bl = blockedTasks(st);
+  if (!its.length && !bl.length) return '<div class="ghost"><div class="gh-hint">Nothing needs you right now. When the build reaches something only you can do (a device field the tools cannot fill, a choice), the agent writes the checklist here, stops, and goes on by itself when you press <b>Done</b> on every item.</div></div>';
+  return '<div class="card"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">Your turn: do these, then press Done</span><span class="bigcount">' + dn + '/' + its.length + '</span>' + (open ? jPill("the build is waiting for you","jr") : jPill("all done: the build goes on","jg")) + '</div>' +
+    '<div class="jbar" style="margin:8px 0 4px;max-width:420px;"><i style="width:' + (its.length ? Math.round(100*dn/its.length) : 0) + '%"></i></div>' +
+    '<div style="font-size:12px;color:var(--dim);margin:6px 0 10px;">Work from the top. Press Done only after you did it in the editor. When the last one is done the agent continues by itself with the rest of the steps.</div>' +
+    (bl.length ? '<div class="gpre">' + bl.map(t => '<div class="gx red"><span class="gxm">!</span><div><b>' + escH(t.id) + '</b> ' + gMd(blockedWhy(t)) + '</div></div>').join("") + '</div>' : "") +
+    osRows(its, "Done") + '</div>';
+}
+function osBind(root){
+  if (!root) return;
+  Array.prototype.forEach.call(root.querySelectorAll(".osbtn"), b => { b.onclick = function(){
+    b.disabled = true;
+    fetch("/gate-tick", {method:"POST", headers:{"Content-Type":"application/json","X-Skills-Action":"1"}, body:JSON.stringify({line:+b.getAttribute("data-line"), h:b.getAttribute("data-h"), on:b.getAttribute("data-on")==="1", file:"owner"})})
+      .then(r => r.json()).then(j => { if (j.ok){ Object.keys(docCache).forEach(k => delete docCache[k]); renderJourney(); } else { b.disabled = false; b.insertAdjacentHTML("afterend", ' <span class="gerr">' + escH(j.error || "did not work") + '</span>'); } })
+      .catch(() => { b.disabled = false; }); }; });
+}
+function jAlong(st){
+  if (!st.T) return "";
+  const a = gateItems(st).filter(x => !x.info && !x.sub);
+  if (!a.length) return "";
+  return '<div class="card" style="margin-top:14px;"><div class="label">Checked by the agent during the build</div><div style="font-size:12px;color:var(--dim);margin:4px 0 8px;">Settings and facts the agent read back from the editor while building. They are not asked of you again.</div><div class="jchk">' + a.map(x => '<div><span class="jok">✓</span> ' + gMd(x.title) + '</div>').join("") + '</div></div>';
+}
 function jOwner(st){
-  const gi = gateItems(st); if (st.T) gi.forEach(x => { if (!x.info){ x.done = true; x.demo = true; } });
-  const boxes = gi.filter(x => !x.info), ok = st.gateExists && boxes.length>0;
+  let gi = gateItems(st); if (st.T){ gi.forEach(x => { if (!x.info){ x.done = true; x.demo = true; } }); gi = gi.filter(x => !x.demo && !x.info); }
+  const boxes = gi.filter(x => !x.info), ok = st.gateExists;
+  const gp = osItems(st).filter(x => x.sec==="gameplay"), gpOpen = gp.filter(x => !x.done).length;
   const left = ownerItems(st).length, tot = boxes.length, dn = boxes.filter(x => x.done).length;
   const first = boxes.find(x => !x.done && !x.sub);
   const otk = ownerTasks(st);
   const pre = []; if (!st.T) blockedTasks(st).forEach(t => pre.push('<div class="gx red"><span class="gxm">!</span><div><b>' + escH(t.id) + '</b> ' + gMd(blockedWhy(t)) + '</div></div>'));
-  let html = '<div class="card"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">Your checklist</span><span class="bigcount">' + dn + '/' + tot + '</span><span class="cnt">' + (st.T ? "demo: every box is flagged for you, nothing to do" : left ? left + " left, in this order" : "all done") + '</span></div>' +
+  let html = '<div class="card"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">Gameplay: you play, then confirm</span>' + (gp.length ? (gpOpen ? jPill("waiting for your play","jr") : jPill("confirmed","jg")) : jPill("not ready yet","ja")) + '</div><div style="font-size:12px;color:var(--dim);margin:6px 0 10px;">Open Play in the editor, play one full round, and watch what happens. Press the button only if it works. If something fails, do not press it: tell the agent what you saw, it becomes a task and you play again.</div>' + (gp.length ? osRows(gp, "Gameplay works: confirm") : '<div class="ginfo">The agent adds the gameplay check here when the build and the audit are done.</div>') + '</div><div class="card" style="margin-top:14px;"><div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;"><span class="label">Other checks for you</span><span class="bigcount">' + (tot ? dn + '/' + tot : "") + '</span><span class="cnt">' + (st.T && !tot ? "nothing else is asked of you" : left ? left + " left, in this order" : "all done") + '</span></div>' +
     '<div class="jbar" style="margin:8px 0 4px;max-width:420px;"><i style="width:' + (tot ? Math.round(100*dn/tot) : 0) + '%"></i></div>' +
     '<div style="font-size:12px;color:var(--dim);margin:6px 0 10px;">Do the items from the top. Tick a box only after you did it: the page writes the tick into DELIVERY-GATE.md. Claude never ticks for you.</div>' + (pre.length ? '<div class="gpre">' + pre.join("") + '</div>' : "");
   if (otk.length){ html += '<div class="sub gh">Tasks that are yours: tick when you have done and checked them</div>' + otk.map(t => '<div class="gi' + (t.done ? " done" : "") + '"><input type="checkbox" class="gbox" data-file="roadmap" data-line="' + t.line + '" data-h="' + t.h + '"' + (t.done ? " checked" : "") + (st.T ? " disabled" : "") + ' aria-label="I did it"><div class="gtx"><div class="gtt">' + escH(t.title) + (t.done ? ' <span class="jok">done</span>' : "") + '</div></div></div>').join(""); }
@@ -1576,8 +1620,8 @@ function blockedTasks(st){ if (st.T) return []; return (st.tasks||[]).filter(t =
 function blockedWhy(t){ const m = /blocked:\s*(.*)$/i.exec(String(t.feature||"")); return m ? m[1].replace(/~~/g,"") : String(t.status||"").replace(/^blocked\s*[:-]?\s*/i,""); }
 function jSteps(st){
   const T = st.T;
-  const fileDone = {idea: st.ideaDone, spec: st.specApproved, genre: st.specApproved && st.genreDone, learn: st.tasks.length>0 && st.done===st.tasks.length && st.learnDone, plan: st.planApproved, road: st.tasks.length>0, env: st.envRows.length>0 && st.envRows.every(r => r.status==="built"),
-    build: st.tasks.length>0 && st.done===st.tasks.length, audit: st.auditExists && st.auditOpen===0, delivery: st.gateExists && st.gateAll>0, owner: st.gateExists && st.gateAll>0 && ownerItems(st).length===0};
+  const fileDone = {idea: st.ideaDone, spec: st.specApproved, genre: st.specApproved && st.genreDone, learn: st.tasks.length>0 && st.done===st.tasks.length && st.learnDone, you: (function(){ const o = osItems(st).filter(x => x.sec==="setup"); return o.length ? o.every(x => x.done) : (st.tasks.length>0 && st.done===st.tasks.length && !blockedTasks(st).length); })(), plan: st.planApproved, road: st.tasks.length>0, env: st.envRows.length>0 && st.envRows.every(r => r.status==="built"),
+    build: st.tasks.length>0 && st.done===st.tasks.length, audit: st.auditExists && st.auditOpen===0, delivery: st.gateExists && st.gateAll>0, owner: (function(){ const g = osItems(st).filter(x => x.sec==="gameplay"); return g.length>0 && g.every(x => x.done) && ownerItems(st).length===0; })()};
   const marked = {}; if (T) (T.marks||[]).forEach(m => { const k = phaseStep(m.label); if (k) marked[k] = 1; });
   const pk = st.demoOn && T.phase ? phaseStep(T.phase.label) : null;
   const done = {}; STEPS.forEach(s => done[s[0]] = s[0]==="owner" ? !!fileDone.owner : !!(fileDone[s[0]] || marked[s[0]] || (T && T.end)));
@@ -1587,6 +1631,8 @@ function jSteps(st){
   const state = {}; STEPS.forEach(s => state[s[0]] = s[0]===now ? "now" : (done[s[0]] ? "done" : "todo"));
   // a task blocked on something only the owner can do: the flow stops here, in red, and nothing after it counts as running
   if (blockedTasks(st).length && st.done < st.tasks.length){ let after = false; STEPS.forEach(s => { if (s[0]==="build"){ state.build = "blocked"; after = true; } else if (after && state[s[0]]==="now" && s[0]!=="owner") state[s[0]] = "todo"; }); if (!(T && T.end)) now = "build"; }
+  const osOpen = osItems(st).filter(x => x.sec==="setup" && !x.done).length;
+  if (osOpen){ let after = false; STEPS.forEach(s => { if (s[0]==="you"){ state.you = "blocked"; after = true; } else if (after && state[s[0]]==="now") state[s[0]] = "todo"; }); now = "you"; }
   return {state, now, count: STEPS.filter(s => state[s[0]]==="done").length};
 }
 // the concrete things the owner has to do, one line each (the bold title of every unticked owner item of DELIVERY-GATE.md's section 1, then the audit findings for the owner); never the generic reason alone
@@ -1784,7 +1830,7 @@ function jTabs(st, next){
     return '<span class="stw ' + s + (i===0 ? " f" : "") + '"><button class="stp-b ' + s + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '" title="' + (s==="done" ? "finished" : s==="now" ? "in progress" : s==="blocked" ? "stopped: needs you" : "not started") + '"><span class="stt"><span class="jd ' + s + '"></span><span class="stp-n">' + (i+1) + '</span></span><span class="stl">' + t[1] +
       (t[0]==="build" && st.tasks.length ? ' <span class="cnt">' + st.done + '/' + st.tasks.length + '</span>' : "") + '</span></button></span>'; }).join("");
   document.getElementById("pageTabs").innerHTML = SECOND.map(t => '<button class="tab' + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '">' + t[1] + '</button>').join("");
-  Array.prototype.forEach.call(document.querySelectorAll("#pageSteps .stp-b, #pageTabs .tab"), b => { b.onclick = () => { curTab = b.getAttribute("data-t"); try{ localStorage.setItem("docsTab", curTab); }catch(e){} jShow(); }; });
+  Array.prototype.forEach.call(document.querySelectorAll("#pageSteps .stp-b, #pageTabs .tab"), b => { b.onclick = () => { userPickAt = Date.now(); curTab = b.getAttribute("data-t"); try{ localStorage.setItem("docsTab", curTab); }catch(e){} jShow(); }; });
   document.getElementById("flowRow").classList.toggle("run", st.demoOn);
   return ss;
 }
@@ -1794,11 +1840,11 @@ async function renderJourney(){
     const st = await jState(), next = jNext(st);
     const ss = jSteps(st);
     if (curTab === null){ let saved = null; try{ saved = localStorage.getItem("docsTab"); }catch(e){} curTab = (st.demoOn && ss.now) ? ss.now : (saved || ss.now || "idea"); }
-    else if (lastNow !== null && ss.now && ss.now !== lastNow && (STEPS.some(s => s[0]===curTab))) curTab = ss.now; // a step finished: the next one opens by itself
+    else if (lastNow !== null && ss.now && ss.now !== lastNow && (Date.now() - userPickAt > 45000) && (STEPS.some(s => s[0]===curTab))) curTab = ss.now; // a step finished: the next one opens by itself
     lastNow = ss.now;
     lastSt = st; paintIdea(); document.getElementById("pSpec").innerHTML = jSpec(st); document.getElementById("pPlan").innerHTML = jPlan(st);
-    document.getElementById("pEnv").innerHTML = jEnv(st); document.getElementById("pBuild").innerHTML = jBuild(st);
-    document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st); document.getElementById("pOwner").innerHTML = jOwner(st); gateBind(document.getElementById("pOwner")); bindCopy(document.getElementById("pOwner"));
+    document.getElementById("pEnv").innerHTML = jEnv(st); document.getElementById("pBuild").innerHTML = jBuild(st) + jAlong(st); { const py = document.getElementById("pYou"); if (py){ py.innerHTML = jYou(st); osBind(py); } }
+    document.getElementById("pAudit").innerHTML = jAudit(st); document.getElementById("pDelivery").innerHTML = jDelivery(st); document.getElementById("pOwner").innerHTML = jOwner(st); gateBind(document.getElementById("pOwner")); osBind(document.getElementById("pOwner")); bindCopy(document.getElementById("pOwner"));
     document.getElementById("pGenre").innerHTML = jGenre(st); genreBind(document.getElementById("pGenre"), st); document.getElementById("pLearn").innerHTML = jLearn(st); learnBind(document.getElementById("pLearn"));
     const rh = document.getElementById("roadHint"); if (rh) rh.innerHTML = st.tasks.length ? "" : '<div class="ghost"><div class="gh-hint">No tasks yet. <code>/task-list</code> breaks the approved plan into tasks with a check for each one: the timeline and the list below fill in by themselves.</div></div>';
     const s0 = document.getElementById("statusT0"), sm = document.getElementById("statusMain"), dc = document.getElementById("deliveryCard");
@@ -2023,7 +2069,7 @@ setInterval(refreshDocs, 5000);
     ]).then(function(a){
       var n = (a[0] && a[0].pending && a[0].pending.length) || 0, gp = !!(a[1] && a[1].genre_state && a[1].genre_state.status === "pending");
       put("agent-console-skills.html", n + (gp ? 1 : 0), n + " lesson(s) or pack(s) waiting for your yes" + (gp ? ", and a genre to confirm" : ""));
-      var wait = rows(a[2]).filter(function(r){ return !/^out of scope/i.test(r[2] || "") && !/^later$/i.test(r[r.length - 1] || "") && /^in progress/i.test(r[2] || "") && /waits? for (the |your )?(owner|you)|owner'?s playtest|waiting for the owner/i.test(r[2] || ""); }).length;
+      var wait = rows(a[2]).filter(function(r){ return !/^out of scope/i.test(r[2] || "") && !/^later$/i.test(r[r.length - 1] || "") && ((/^in progress/i.test(r[2] || "") && /waits? for (the |your )?(owner|you)|owner'?s playtest|waiting for the owner/i.test(r[2] || "")) || (/^(blocked|bloccat)/i.test(r[2] || "") && /owner|\byou\b|your|manual|details|by hand|tuo|a mano/i.test(r[2] || ""))); }).length;
       put("agent-console-docs.html", wait, wait + " task(s) wait for you (your playtest or your decision)");
     });
   }

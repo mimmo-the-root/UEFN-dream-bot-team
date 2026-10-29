@@ -93,6 +93,7 @@ $docFiles = @{
     "gamespec"  = "GAME-SPEC.md"
     "constitution" = "CONSTITUTION.md"
     "plan"      = "PLAN.md"
+    "ownersteps" = "OWNER-STEPS.md"
     "audit"     = "AUDIT.md"
     "demotimer" = "DEMO-TIMER.md"
     "delivery"  = "DELIVERY-GATE.md"

@@ -26,18 +26,19 @@
 ## Build order
 - Pass 1 (structure): S1 first: the farm, the pen and the flow of the loop; the loop is playable at the end of this pass, then S2.
 - Pass 2 (details): sounds for the delivery, a nicer pen, effects.
-- Try one sample first: one chicken and one pen checked alone before the flock.
+- Try one sample first: one chicken and the egg checked alone before the flock.
+- First step of the build: list the actors of the map and delete the default player pads, then place the new ones.
 
 ## S1 - Round up the chickens
 ### Devices
 | Device or system | Status | Note |
 |---|---|---|
-| Wildlife Spawner V2 for the chickens (6 in the field, 1 on the pen) | recipe | SCENERY.md; read and set the animal, the default was a wolf |
-| Pen volume that counts deliveries | skill | uefn-level-devices |
+| Wildlife Spawner V2 for the chickens (7 in the field, none inside the pen zone) | recipe | SCENERY.md; read and set the animal, the default was a wolf |
+| Egg prop with a Damage Volume V2 (creatures only): each chicken that enters is removed and its spawner's elimination event scores the point | recipe | SCENERY.md, section The egg |
 | Score manager and round timer | recipe | proven recipe |
 
 ### Verse files
-- chicken_roundup.verse: round start, delivery count, score, end of round.
+- chicken_roundup.verse: round start, one point for each chicken eliminated by the egg, score, end of round.
 
 ### Assets inventory
 | Asset | Status | Source |
@@ -47,13 +48,13 @@
 | Delivery sound | create | project |
 
 ### Manual steps (only the owner can do them)
-- Assign the spawner array and the pen references in the Details panel, then tell Claude.
+- Assign the spawner array and the other device references in the Details panel, then press Done in the console (Your turn).
 
 ## S2 - Two chickens at once
 ### Devices
 | Device or system | Status | Note |
 |---|---|---|
-| Same pen volume | skill | each chicken counts once |
+| Same egg | recipe | each chicken counts once (one spawner, one chicken) |
 
 ### Verse files
 - none: the count in chicken_roundup.verse already handles it.

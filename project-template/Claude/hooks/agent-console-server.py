@@ -165,6 +165,7 @@ DOC_FILES = {
     "gamespec": "GAME-SPEC.md",
     "constitution": "CONSTITUTION.md",
     "plan": "PLAN.md",
+    "ownersteps": "OWNER-STEPS.md",
     "audit": "AUDIT.md",
     "demotimer": "DEMO-TIMER.md",
     "delivery": "DELIVERY-GATE.md",
@@ -712,6 +713,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             data = json.loads(self.rfile.read(min(n, 4096)).decode("utf-8") or "{}")
             if data.get("file") == "audit":
                 res = release_gate.tick_audit(os.path.join(DOCS_DIR, "AUDIT.md"), int(data.get("line") or 0), bool(data.get("on")), str(data.get("h") or ""))
+            elif data.get("file") == "owner":
+                res = release_gate.tick(os.path.join(DOCS_DIR, "OWNER-STEPS.md"), int(data.get("line") or 0), bool(data.get("on")), str(data.get("h") or ""))
             elif data.get("file") == "roadmap":
                 res = release_gate.tick_task(os.path.join(DOCS_DIR, "ROADMAP.md"), int(data.get("line") or 0), bool(data.get("on")), str(data.get("h") or ""))
             else:

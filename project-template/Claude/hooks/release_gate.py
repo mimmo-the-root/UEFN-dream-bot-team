@@ -166,6 +166,8 @@ def main(argv):
         import json
         if len(argv) > 5 and argv[5] == "audit":
             print(json.dumps(tick_audit(os.path.join(d, "AUDIT.md"), argv[2], argv[3] == "on", argv[4])))
+        elif len(argv) > 5 and argv[5] == "owner":
+            print(json.dumps(tick(os.path.join(d, "OWNER-STEPS.md"), argv[2], argv[3] == "on", argv[4])))
         elif len(argv) > 5 and argv[5] == "roadmap":
             print(json.dumps(tick_task(os.path.join(d, "ROADMAP.md"), argv[2], argv[3] == "on", argv[4])))
         else:

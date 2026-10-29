@@ -30,13 +30,30 @@ Proven in a real build of this pilot (an editor session with the MCP, read back 
 ## Devices that worked (place with `PlaceDevice`, then `set_label` and `set_actor_folder` at once)
 | Role | Class | Notes |
 |---|---|---|
-| The chickens | `Device_WildlifeSpawner_V2` (6 spread over the field, 1 on the pen) | Never assume the animal: read it and set it (the default was a wolf). Keep spawn counts low. Not an Item Spawner and not a trigger |
-| Delivery zone | `Volume` (14 x 14 m) and `Device_CaptureArea_V2` | the pen detects delivery |
+| The chickens | `Device_WildlifeSpawner_V2` (6 spread over the field, none in the pen; `spawnCount` 1, type index 0 = chicken, `values` of `set_properties` is a JSON string) | Never assume the animal: read it and set it (the default was a wolf). Keep spawn counts low. Not an Item Spawner and not a trigger |
+| Scoring object | the egg prop `PPID_CR_Legacy_CP_Prop_Egg_Bottom` + `PID_Device_DamageVolume_V2` | see the section The egg: no Capture Area, no Volume, no spawner in the pen |
 | Round | `Device_Timer_V2`, `Device_ScoreManager_V2`, two `Device_HUDMessage_V2`, `Device_VFXSpawner`, one Audio Player | referenced by the Verse manager |
-| Players | `BP_Creative_Player_Spawner_Prop`, one per player | 4 pads at least 300 cm apart, not overlapping |
+| Players | `BP_Creative_Player_Spawner_Prop`, one per player | a new map already has `Player 1 Spawn Pad` and `Player 2 Spawn Pad` near x -378..0, y -157..-128: find them (`find_actors`, name `Spawn Pad`) and DELETE them with `remove_from_scene` FIRST, then place `PID_Device_PlayerSpawnPad` x4 (labels `PlayerSpawner_1..4`, folder `Devices/Players`, y 1500, x -1500 -1100 -700 -300, z 20) and read back that only those 4 remain |
 | Island | `Device_ExperienceSettings_V2_UEFN` | owner step: max players 4, one team, 1 round, 3 minutes |
 Classic devices accept the object property tools only with a text value. Device references of the Verse manager may be refused by the MCP: list them for the owner.
 
 ## Order that worked
 1. One sample of each piece, far apart in an empty corner (folder `Farm_Sample`); measure the bounds and write them down.
 2. Ground tiles over the play area. 3. The barn as one playset, then the house pieces. 4. The pen fence with a gate (leave a 5 m gap if the gate piece is closed). 5. Props and trees. 6. Devices. 7. Read back every step and capture the viewport from above and at eye level.
+
+## Placement check (after every device and prop: MOVE, do not just report)
+- After placing, read the location of every device and compare it with the zones that matter: the egg and its damage volume, the spawn area, the play boundary.
+- A device that is in the wrong place is MOVED (read, change the location, set, read back) in the same step. Writing "it is inside the pen" in the notes without moving it is a failure. A chicken spawner at the egg, a pad inside a fence or a prop inside a spawn pad are all moved, then checked again.
+- Existing devices of the template map are reused first (list the actors before placing anything): move them to the right place, rename them, and add only what is missing.
+
+## The egg (owner decision, replaces the capture area: simple on purpose)
+- Put `PPID_CR_Legacy_CP_Prop_Egg_Bottom` (label `PenEgg`, folder `Devices/Pen`) in the middle of the pen at x 980, y 2984, z 16, scale 2 (about 104 x 104 x 72 cm). On it put `PID_Device_DamageVolume_V2` (`/CRD_VolumetricRegion/SetupAssets/TID/DamageVolume/`, label `PenDamageVolume`, folder `Devices/Pen`) at x 980, y 2984, z 26, actor scale 0.6, `zone Shape` Cylinder, `zoneHeight`/`zoneWidth`/`zoneDepth` 0.3 (a cylinder hugging the egg, about 94 cm wide).
+- Damage configuration: `affectsCreatures` true, `affectsPlayers` false, `affectsVehicles` false, `affectsGuards` false, `damage` 500; leave `enabledOnPhase` at Gameplay Only (`bEnabled` reads false in the editor and cannot be set: that is normal). Read it back and write it in `map/DEVICES.md`.
+- Behind the egg put `PPID_CR_Legacy_WildWest_Scarecrow_01` (label `PenScarecrow`, folder `Environment/Props`) at x 1008, y 3172, z 16, yaw 180 as the landmark.
+- Score: a chicken that goes into the egg is eliminated and the `EliminatedEvent` of the six chicken spawners gives one point in the Verse manager (each spawner makes one chicken, so each counts once). No `capture_area_device`: it fires for agents and a chicken is not one.
+- Support devices (timer 180, Score Manager, two HUD Message, the Verse manager) go on the DemoDisplay stand at y -3000 to -3300, never in the field. Island settings the MCP can set: `roundTimeLimit_Override` true, `roundTimeLimit` 3; teams and environment damage are owner steps.
+- A mechanic is `Done` only after a log line proves it (`[SIGNAL] chicken in egg N`) in a real play by the owner; before that it is `built, not played`.
+
+## What the owner placed by hand (read first, keep, remember)
+- Before building, list the actors and the folders. Anything the owner placed or configured himself (assets, the egg, the damage volume and its settings) is NOT moved, deleted or rebuilt. Read its transform and settings and write them in `map/DEVICES.md` under "Placed by the owner", so a later step or a new session reuses them instead of guessing.
+- If the owner changes the mechanic, the spec (`GAME-SPEC.md` Assumptions), the plan, the roadmap, the Verse and the playtest list are updated in the same pass, and the old device is removed from the map.

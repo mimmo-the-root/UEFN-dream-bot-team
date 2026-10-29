@@ -113,6 +113,7 @@
 
   .stat.alert{display:none;border-color:var(--red);box-shadow:0 0 16px var(--red-glow);}
   .stat.alert.show{display:block;position:relative;}.stat.alert.show::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 26px var(--red-glow);pointer-events:none;animation:alertPulse 1.1s ease-in-out infinite;}@media (prefers-reduced-motion:reduce){.stat.alert.show::after{animation:none;}}
+  .ownerbox{display:block;border-color:var(--amber,#ffb454);margin-top:8px}.ownerbox[hidden]{display:none}.ownerbox .label{color:var(--amber,#ffb454)}.ownerbox ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.55}.ownerbox li b{color:var(--amber,#ffb454)}.ownerbox li span{color:var(--dim)}
   .stat.alert .label{color:var(--red);}
   .stat.alert .value{color:var(--red);text-shadow:0 0 8px var(--red-glow);font-size:14px;}
   @keyframes alertPulse{0%,100%{opacity:.25;}50%{opacity:1;}}
@@ -475,6 +476,10 @@ p,.hint,.desc,.sub{max-width:65ch;}
     <div class="stat alert" id="approvalAlert">
       <div class="label">⚠ approval required</div>
       <div class="value" id="approvalWho">release-gate is waiting on you</div>
+    </div>
+    <div class="stat ownerbox" id="ownerSteps" hidden>
+      <div class="label">Your turn: steps only you can do</div>
+      <ul id="ownerList"></ul>
     </div>
   </div>
 
@@ -1891,6 +1896,35 @@ poll();
 pollWhoami();
 setInterval(poll, 1000);
 setInterval(pollWhoami, 5000);
+/* owner-steps:begin - "Your turn": real steps that wait for the developer, read from ROADMAP.md (blocked rows or rows waiting for the owner) and from the "Owner action" lines of STATUS.md. Never invented. */
+(function(){
+  function doc(k){ return fetch("/doc?name=" + k, {cache: "no-store"}).then(function(r){ return r.json(); }).then(function(d){ return d && !d.error && d.exists !== false ? String(d.content || "") : ""; }).catch(function(){ return ""; }); }
+  function cut(t, n){ t = String(t || "").replace(/~~/g, "").replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 1) + "\u2026" : t; }
+  function steps(road, stat){
+    var out = [];
+    String(road).split("\n").forEach(function(l){
+      if (!/^\|\s*T-\d+/.test(l)) return;
+      var c = l.split("|").slice(1, -1).map(function(x){ return x.trim(); });
+      var st = c[2] || "";
+      var blocked = /^(blocked|bloccat)/i.test(st) && /owner|\byou\b|your|manual|details|by hand|tuo|a mano/i.test(st);
+      var waits = /^in progress/i.test(st) && /waits? for (the |your )?(owner|you)|owner'?s playtest|waiting for the owner/i.test(st);
+      if (blocked || waits) out.push({id: c[0], what: cut(c[1], 80), why: cut(st.replace(/^\S+\s*[-:\u2013\u2014]?\s*/, ""), 160)});
+    });
+    var m = /^##\s*Current state\s*$/im.exec(stat);
+    if (m){ var after = stat.slice(m.index + m[0].length), nx = /^##\s/m.exec(after), sec = nx ? after.slice(0, nx.index) : after;
+      sec.split("\n").forEach(function(l){ if (/owner action\s*:/i.test(l)){ var t = cut(l.replace(/^[-*\s]*(\*\*)?owner actions?(\*\*)?\s*:\s*(\*\*)?/i, ""), 200); if (t && !/^\(empty/i.test(t)) out.push({id: "", what: t, why: ""}); } }); }
+    return out.slice(0, 6);
+  }
+  function draw(list){
+    var box = document.getElementById("ownerSteps"), ul = document.getElementById("ownerList"); if (!box || !ul) return;
+    box.hidden = !list.length;
+    ul.innerHTML = list.map(function(s){ return "<li>" + (s.id ? "<b>" + esc(s.id) + "</b> " : "") + esc(s.what) + (s.why ? " <span>\u2014 " + esc(s.why) + "</span>" : "") + "</li>"; }).join("");
+  }
+  function tick(){ Promise.all([doc("roadmap"), doc("status")]).then(function(a){ draw(steps(a[0], a[1])); }); }
+  tick(); setInterval(tick, 8000);
+})();
+/* owner-steps:end */
+
 setInterval(tickTimers, 1000);
 </script>
 <script>
@@ -2036,7 +2070,7 @@ setInterval(tickTimers, 1000);
     ]).then(function(a){
       var n = (a[0] && a[0].pending && a[0].pending.length) || 0, gp = !!(a[1] && a[1].genre_state && a[1].genre_state.status === "pending");
       put("agent-console-skills.html", n + (gp ? 1 : 0), n + " lesson(s) or pack(s) waiting for your yes" + (gp ? ", and a genre to confirm" : ""));
-      var wait = rows(a[2]).filter(function(r){ return !/^out of scope/i.test(r[2] || "") && !/^later$/i.test(r[r.length - 1] || "") && /^in progress/i.test(r[2] || "") && /waits? for (the |your )?(owner|you)|owner'?s playtest|waiting for the owner/i.test(r[2] || ""); }).length;
+      var wait = rows(a[2]).filter(function(r){ return !/^out of scope/i.test(r[2] || "") && !/^later$/i.test(r[r.length - 1] || "") && ((/^in progress/i.test(r[2] || "") && /waits? for (the |your )?(owner|you)|owner'?s playtest|waiting for the owner/i.test(r[2] || "")) || (/^(blocked|bloccat)/i.test(r[2] || "") && /owner|\byou\b|your|manual|details|by hand|tuo|a mano/i.test(r[2] || ""))); }).length;
       put("agent-console-docs.html", wait, wait + " task(s) wait for you (your playtest or your decision)");
     });
   }

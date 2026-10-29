@@ -161,6 +161,9 @@ The routine end-of-session case, now anchored to task IDs instead of freeform re
    at the current MVP/release Priority), Done so far this release, and the Recommended next step
    (the next task worth starting, or what's blocking one). This is what makes reopening the project
    tomorrow, or on a different machine, immediately legible — don't leave it stale.
+   Whenever a task is Blocked or waits for the owner (a field only the owner can fill, a playtest,
+   a decision), the **Owner actions** line must say it, starting with `Owner action:` and naming the
+   exact device, field or choice. The console's "Your turn" card and the Docs page list these lines.
 7. Add a new dated entry AT THE TOP of the **Log** section below that block, in reverse
    chronological order: what was completed, known issues still open, recommended next step (and
    any Genre Skill promotion from step 4, or UI example ingestion from step 5). Don't rewrite or

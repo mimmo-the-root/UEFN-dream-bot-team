@@ -168,7 +168,7 @@ Promise.all([j("/community-summary"),j("/community-state")]).then(function(a){re
     ]).then(function(a){
       var n = (a[0] && a[0].pending && a[0].pending.length) || 0, gp = !!(a[1] && a[1].genre_state && a[1].genre_state.status === "pending");
       put("agent-console-skills.html", n + (gp ? 1 : 0), n + " lesson(s) or pack(s) waiting for your yes" + (gp ? ", and a genre to confirm" : ""));
-      var wait = rows(a[2]).filter(function(r){ return !/^out of scope/i.test(r[2] || "") && !/^later$/i.test(r[r.length - 1] || "") && /^in progress/i.test(r[2] || "") && /waits? for (the |your )?(owner|you)|owner'?s playtest|waiting for the owner/i.test(r[2] || ""); }).length;
+      var wait = rows(a[2]).filter(function(r){ return !/^out of scope/i.test(r[2] || "") && !/^later$/i.test(r[r.length - 1] || "") && ((/^in progress/i.test(r[2] || "") && /waits? for (the |your )?(owner|you)|owner'?s playtest|waiting for the owner/i.test(r[2] || "")) || (/^(blocked|bloccat)/i.test(r[2] || "") && /owner|\byou\b|your|manual|details|by hand|tuo|a mano/i.test(r[2] || ""))); }).length;
       put("agent-console-docs.html", wait, wait + " task(s) wait for you (your playtest or your decision)");
     });
   }
