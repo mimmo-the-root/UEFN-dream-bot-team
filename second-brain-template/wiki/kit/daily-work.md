@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.114.0
-updated: kit-1.114.0
+created: kit-1.115.0
+updated: kit-1.115.0
 sources: [docs/manual/daily-work.md]
 type: kit
 status: current
@@ -120,4 +120,4 @@ New projects come with a short list of pre-approved commands in `.claude/setting
 Every project's `STATUS.md` has the same format, so a short script can scan all your project folders and build one table with the last update, the next step and the open issues. The kit does not ship it because it depends on how you lay out your disk.
 
 ## Sources
-- The kit manual, chapter "A working day" (docs/manual/daily-work.md), kit v1.114.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "A working day" (docs/manual/daily-work.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.

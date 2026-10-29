@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.114.0
-updated: kit-1.114.0
+created: kit-1.115.0
+updated: kit-1.115.0
 sources: [docs/manual/how-the-kit-thinks.md]
 type: kit
 status: current
@@ -184,4 +184,4 @@ The goal was never a system that does not need you. It is a system that needs yo
 - [[skills-and-lessons|Skills and lessons]]
 
 ## Sources
-- The kit manual, chapter "How the kit thinks" (docs/manual/how-the-kit-thinks.md), kit v1.114.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "How the kit thinks" (docs/manual/how-the-kit-thinks.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.

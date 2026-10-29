@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.114.0
-updated: kit-1.114.0
+created: kit-1.115.0
+updated: kit-1.115.0
 sources: [docs/manual/epic-ai-megajam.md]
 type: kit
 status: current
@@ -89,4 +89,4 @@ The steps are the ones in *A working day*, section "Starting a new game: from th
 The kit checks what it can see in your files. It cannot know the private version code, the video, the licences or whether your idea honours the theme, so `/jam-check` lists them from the rules for you to tick. The "How AI was used" part of the dev log is your own account of what you decided: the kit proposes a draft and you correct it.
 
 ## Sources
-- The kit manual, chapter "2026 Epic AI MegaJam" (docs/manual/epic-ai-megajam.md), kit v1.114.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "2026 Epic AI MegaJam" (docs/manual/epic-ai-megajam.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.

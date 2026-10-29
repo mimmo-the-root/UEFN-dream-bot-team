@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.114.0
-updated: kit-1.114.0
+created: kit-1.115.0
+updated: kit-1.115.0
 sources: [docs/manual/from-idea-to-game.md]
 type: kit
 status: current
@@ -86,4 +86,4 @@ The demo refuses when the project already has your own spec, a plan or tasks, an
 - A tab is missing: the project has tasks and no `GAME-SPEC.md`; run `/spec` or the demo in a test project.
 
 ## Sources
-- The kit manual, chapter "From an idea to a playable game" (docs/manual/from-idea-to-game.md), kit v1.114.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "From an idea to a playable game" (docs/manual/from-idea-to-game.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.

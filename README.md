@@ -80,8 +80,9 @@ One design system for every page: colour means status (green done, amber your tu
 
 Also: **Stats** (time and tokens), **Score** (the game against its plan, criterion by criterion), **News** (what changed in the kit) and **Fab** (is the product package ready).
 
-## What's new (v1.108 - v1.114.0)
+## What's new (v1.108 - v1.115.0)
 
+- **v1.115, genre guides and design rules.** Starting guides for strategy (tower defense), shooter, deathrun and platformer, adventure and RPG, simulation and tycoon, plus survival and roguelike; seven mechanic recipes (loot box, waves, shop, levels, needs, ordered steps, checkpoints); short design rules for feel, layout, camera and sound, and enemies; the Motion button and the light across the top work again.
 - **v1.114, study and design.** `/spec` and `/game-plan` start from the kit's knowledge and write their sources; `/environment` lists what only you can do; one design system for all console pages (`console-ui` skill and `ui_lint.py`), lighter pulses, aligned numbers, no side stripes; the idea and philosophy in words and pictures.
 - **v1.113, from spec to tasks.** `/game-plan`, `/task-list`, `/consistency`.
 - **v1.112, start from an idea.** `/spec` with genre, three variants and measurable criteria.

@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.114.0
-updated: kit-1.114.0
+created: kit-1.115.0
+updated: kit-1.115.0
 sources: [docs/manual/mcp-engine.md]
 type: kit
 status: current
@@ -134,4 +134,4 @@ These are written in the skills too, so the agents avoid them.
 - **UEFN 42.40 asks two new questions** that block the editor until you answer: a trust prompt when a project opens and a notice to enable Python Editor Scripting.
 
 ## Sources
-- The kit manual, chapter "The MCP engine" (docs/manual/mcp-engine.md), kit v1.114.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "The MCP engine" (docs/manual/mcp-engine.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.

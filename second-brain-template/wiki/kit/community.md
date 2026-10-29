@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.114.0
-updated: kit-1.114.0
+created: kit-1.115.0
+updated: kit-1.115.0
 sources: [docs/manual/community.md]
 type: kit
 status: current
@@ -51,4 +51,4 @@ Your handle is shown on your lessons. The score grows when your lessons are conf
 Use **Submit an issue** on the What's new page, or the *Wrong community lesson* form on GitHub. A lesson that is wrong or unsafe is revoked and leaves everyone's skills at the next update.
 
 ## Sources
-- The kit manual, chapter "Community" (docs/manual/community.md), kit v1.114.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Community" (docs/manual/community.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.
