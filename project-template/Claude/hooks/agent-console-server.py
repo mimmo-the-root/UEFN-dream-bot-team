@@ -388,7 +388,7 @@ def _kit_numbers():
     """Numbers for the Console's kit strip. agents, skills, MCP tools and proven recipes come from the copy of kit-stats.json that ships with the kit
     (Claude/community/kit-stats.json, written by tool/build_kit_stats.py); lessons are counted from the lessons this machine really has
     (the shipped ones plus yours), and fall back to the shipped number. Never raises: a missing number is None and the page leaves it out."""
-    out = {"agents": None, "skills": None, "lessons": None, "recipes": None, "mcp_tools": None, "version": None}
+    out = {"agents": None, "skills": None, "lessons": None, "recipes": None, "mcp_tools": None, "version": None, "brain": None}
     try:
         with open(os.path.join(os.path.dirname(ROOT), "community", "kit-stats.json"), encoding="utf-8") as f:
             k = json.load(f)
@@ -401,6 +401,7 @@ def _kit_numbers():
             n = skills_lib.summary()["totals"]["patterns"]
             if isinstance(n, int) and n > 0:
                 out["lessons"] = n
+            out["brain"] = skills_lib.second_brain_state()
     except Exception:
         pass
     return out

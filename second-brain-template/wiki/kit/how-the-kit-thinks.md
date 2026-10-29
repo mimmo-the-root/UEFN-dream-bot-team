@@ -126,28 +126,9 @@ When something goes wrong, the kit proposes a lesson. You approve it. It stays p
 
 ### The second brain: where the kit keeps what it knows
 
-Every new chat starts blank. The plan, the decisions and what worked last week are gone unless they live somewhere the helpers can read. The kit's answer is a **second brain**: one folder of plain text files, outside any project, that the helpers read and also write. The next session, and the next map, start where the last one stopped.
+Every new chat starts blank. The kit's answer is a **second brain**: one folder of plain text files, outside any project, that the helpers read and also write. The next session, and the next map, start where the last one stopped.
 
-We studied the *LLM wiki* idea, tried it on UEFN and bent it to this kit. It has three rooms and a rulebook:
-
-| Part | What it holds | Who writes it |
-| --- | --- | --- |
-| `raw/` | Sources: a project's spec and bugs, a Verse snippet, an article. Read, never edited | You, or a finished project |
-| `wiki/` | Pages that link to each other: one page per mechanic, device, lesson or chapter of the kit, plus `hot.md` (a dozen lines: what is going on now) and an index | One helper, the librarian |
-| `output/` | Answers and drafts that can be thrown away | Any helper |
-| `CLAUDE.md` | The rules of the vault: page format, the update-in-place rule, the workflows | You, once |
-
-**What goes in.** What worked (a pickup, a round timer, a score panel in Verse), what did not work (kept as counter-evidence), the lessons of every map, and **the kit's own knowledge**: the kit ships a ready-made `wiki/kit/` built from this very manual, so the second brain Cod reads already knows how the kit works. One brain serves every project; each project only needs the vault path.
-
-**How the helpers use it.**
-1. At the start of a session a hook prints `wiki/hot.md` and how many raw sources wait to be ingested.
-2. Before asking you a question, a helper looks for the answer in the second brain and in the genre lessons. If it finds one, it proposes it and asks only for a yes.
-3. The read order is always the same: `hot.md`, then the index, then the topic index, then the page. It never reads the vault for a general coding question, so it stays cheap.
-4. When a helper builds something reusable it hands it to the librarian. The librarian updates the one page for that mechanic (the old version moves to a dated history, a different but valid approach is kept as a variant) and rewrites `hot.md`.
-
-**What keeps it honest.** The model that writes the wiki must not be the only one checking it, so the checks are plain scripts that cost no tokens: broken links, pages with no source, sources edited after they were ingested (their pages are listed as stale), and every quoted claim must exist word for word in the raw file it cites. After a page is written, a hook runs them and the answer comes back in the same turn. The checks prove the page copies its source, not that the source is right: a wrong source makes a faithfully wrong page, so disagreements are written down under counter-evidence instead of being smoothed over.
-
-**Where it is weak.** It is off until you give it a folder (one line in your `~/.claude/CLAUDE.md`), and the kit works without it. With fewer than about fifty pages it behaves like a good search, no more. Pages go stale, so run the audit now and then. It is files only: open and edit every page yourself.
+It holds what worked (a pickup, a round timer, a score panel in Verse), what did not (kept as counter-evidence), the lessons of every map and **the kit's own knowledge**, so the second brain Cod reads already knows how the kit works. A hook puts the short cache `wiki/hot.md` in front of the helpers at the start of a session, they read in a fixed order (hot, index, topic, page) and never for a plain coding question, and plain scripts that cost no tokens check every page: broken links, sources edited after they were ingested, and every quoted claim must exist word for word in its source. Those checks prove a page copies its source, not that the source is right, so disagreements are written down instead of smoothed over. It is off until you give it a folder, and the kit works without it. The full story, with the five steps to turn it on and the free checks, is in [[the-second-brain|The second brain]].
 
 ### The screen is alive
 
@@ -196,6 +177,7 @@ The goal was never a system that does not need you. It is a system that needs yo
 *The model brings the intelligence. The workshop brings the structure. Together they build maps you can trust.*
 
 ## Related articles
+- [[the-second-brain|The second brain]]
 - [[quick-start|Quick start]]
 - [[from-idea-to-game|From an idea to a playable game]]
 - [[the-console|The console]]

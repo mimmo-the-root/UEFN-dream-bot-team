@@ -2388,6 +2388,46 @@ def projects_overview():
     return sorted(rows.values(), key=lambda r: (r["kind"], r["name"].lower()))
 
 
+def second_brain_state():
+    """The second brain, for the Console badge: {"on": bool, "pages": N, "pending": N}. Off while rule 11 still has the placeholder.
+    Counts wiki pages (not index/hot/log) and the raw sources not yet ingested (the same registry as vault_check.py status). Never raises."""
+    out = {"on": False, "pages": 0, "pending": 0}
+    try:
+        home = os.environ.get("UEFN_HOME") or os.path.join(os.path.expanduser("~"), ".claude")
+        vault = os.environ.get("SECOND_BRAIN", "")
+        if not vault:
+            m = re.search(r"\*\*Second brain path\*\*:\s*`([^`]*)`", open(os.path.join(home, "CLAUDE.md"), encoding="utf-8").read())
+            vault = m.group(1) if m else ""
+        if not vault or vault == "<SECOND_BRAIN_PATH>" or not os.path.isdir(os.path.join(vault, "wiki")):
+            return out
+        out["on"] = True
+        skip = ("index.md", "wiki-index.md", "indice_wiki.md", "indice.md", "hot.md", "log.md")
+        for base, dirs, files in os.walk(os.path.join(vault, "wiki")):
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            out["pages"] += sum(1 for f in files if f.endswith(".md") and f not in skip)
+        try:
+            man = json.load(open(os.path.join(vault, ".brain", "manifest.json"), encoding="utf-8"))
+        except (OSError, ValueError):
+            man = {}
+        seen, pend = set(), 0
+        for base, dirs, files in os.walk(os.path.join(vault, "raw")):
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            for f in files:
+                p = os.path.join(base, f)
+                key = os.path.relpath(p, vault).replace("\\", "/")
+                stem, ext = os.path.splitext(key)
+                if stem.endswith("_COMPILED"):
+                    key = stem[:-len("_COMPILED")] + ext
+                seen.add(key)
+                h = hashlib.sha256(open(p, "rb").read()).hexdigest()[:16]
+                if key not in man or man[key].get("sha") != h:
+                    pend += 1
+        out["pending"] = pend + sum(1 for k in man if k not in seen)
+    except Exception:
+        pass
+    return out
+
+
 def is_maintainer():
     """True on the computer of the kit maintainer (update-my-profile.cmd / publish.ps1 leave skills/maintainer.json there). The maintainer releases from the console at publish time, so nothing is sent through GitHub."""
     if os.environ.get("UEFN_MAINTAINER") == "1":
@@ -2565,6 +2605,7 @@ def _cli(argv=None):
     ap = argparse.ArgumentParser(prog="skills_lib.py", description=__doc__.split("\n")[1])
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("summary")
+    sub.add_parser("brain")
     s = sub.add_parser("init"); s.add_argument("genre")
     s = sub.add_parser("render"); s.add_argument("genre")
     s = sub.add_parser("check"); s.add_argument("genre", nargs="?")
@@ -2608,7 +2649,9 @@ def _cli(argv=None):
     s = sub.add_parser("contribute"); s.add_argument("genre"); s.add_argument("pattern")
     a = ap.parse_args(argv)
     try:
-        if a.cmd == "summary":
+        if a.cmd == "brain":
+            r = second_brain_state()
+        elif a.cmd == "summary":
             r = summary()
         elif a.cmd == "community":
             r = (community_info(os.path.abspath(a.project)) if a.project else community_state()) if a.what == "state" else set_community(a.what == "on")

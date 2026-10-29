@@ -92,7 +92,7 @@ How to rebuild something (a device, a mechanic, a map template, a material), ste
 A snapshot of your Verse code and documents made with `/restore-point`.
 
 ## Second brain
-A folder of plain text files (an Obsidian vault) outside any project, kept by `second-brain-librarian`. It holds what worked, what did not, the lessons and the kit's own knowledge, and every project reads it. Off until you give it a folder.
+A folder of plain text files (an Obsidian vault) outside any project, kept by `second-brain-librarian`. It holds what worked, what did not, the lessons and the kit's own knowledge, and every project reads it. Off until you give it a folder. See [[the-second-brain|The second brain]].
 
 ## Hot cache
 `wiki/hot.md` in the second brain: a dozen lines on what you are working on, what changed last and what is still open. It is the first thing read in every session.
@@ -119,6 +119,7 @@ The programming language of UEFN.
 - [[community|Community]]
 - [[skills-and-lessons|Skills and lessons]]
 - [[mcp-engine|The MCP engine]]
+- [[the-second-brain|The second brain]]
 - [[skill-catalog|Skills catalog]]
 
 ## Sources

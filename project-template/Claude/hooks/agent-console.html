@@ -87,6 +87,9 @@
   .kchip i{font-style:normal;padding:5px 8px;background:#2b3448;color:#cfd8ea;}
   .kchip b{padding:5px 8px;color:#06120a;background:var(--green);}
   .kchip.info b{background:var(--cyan);}
+  .kchip.warn b{background:var(--amber,#ffb454);}
+  .kchip.off b{background:#3a4358;color:#cfd8ea;}
+  .kchip svg{display:inline-block;}
   .kitbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:-4px 0 16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);}
   .kitbar img{height:20px;border-radius:3px;display:block;}
   .kitbar .kb-note{font-size:11px;color:var(--dim);margin-right:6px;}
@@ -459,6 +462,7 @@ p,.hint,.desc,.sub{max-width:65ch;}
         <span class="kchip" id="kcSkills" hidden><i>skills</i><b>0</b></span>
         <span class="kchip" id="kcLessons" hidden><i>genre lessons</i><b>0</b></span>
         <span class="kchip" id="kcRecipes" hidden><i>proven recipes</i><b>0</b></span>
+        <span class="kchip" id="kcBrain" hidden title=""><i><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-2px;margin-right:5px"><path d="M5.2 3.2a2.4 2.4 0 0 0-2.3 2.9A2.5 2.5 0 0 0 3.6 11a2.3 2.3 0 0 0 4.4.6V4.2A2.4 2.4 0 0 0 5.2 3.2zM10.8 3.2A2.4 2.4 0 0 0 8 4.2v7.4a2.3 2.3 0 0 0 4.4-.6 2.5 2.5 0 0 0 .7-4.9 2.4 2.4 0 0 0-2.3-2.9z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>second brain</i><b>off</b></span>
       </div></div>
       <div class="legend-rows">
         <span class="legend-item"><i class="legend-dot grey"></i>idle <b id="legendIdle">0</b></span>
@@ -2135,7 +2139,15 @@ circle[stroke-dashoffset],circle[stroke-dasharray]{transition:stroke-dashoffset 
       try{
         var d = await (await fetch("/kit-numbers", {cache:"no-store"})).json();
         var a = put("kcSkills", d.skills, true), b = put("kcLessons", d.lessons, true), c = put("kcRecipes", d.recipes, true);
-        var box = document.getElementById("kitChips"); if (box) box.hidden = !(a || b || c);
+        var br = document.getElementById("kcBrain"), bn = false;
+        if (br && d.brain && typeof d.brain === "object") {
+          var on = !!d.brain.on, pg = d.brain.pages | 0, pd = d.brain.pending | 0;
+          br.querySelector("b").textContent = on ? (pg + (pg === 1 ? " page" : " pages") + (pd > 0 ? " \u00b7 " + pd + " to ingest" : "")) : "off";
+          br.className = "kchip" + (on ? (pd > 0 ? " warn" : "") : " off");
+          br.title = on ? "The second brain is on: " + pg + " wiki pages" + (pd > 0 ? ", " + pd + " raw source(s) not ingested yet (ask second-brain-librarian to compile)" : ", nothing waiting to be ingested") : "The second brain is off. Set its folder in rule 11 of ~/.claude/CLAUDE.md (manual chapter: The second brain).";
+          br.hidden = false; bn = true;
+        } else if (br) { br.hidden = true; }
+        var box = document.getElementById("kitChips"); if (box) box.hidden = !(a || b || c || bn);
         put("kcMcp", d.mcp_tools, true);
       }catch(e){}
     }

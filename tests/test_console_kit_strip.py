@@ -4,7 +4,7 @@ root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 def rd(*p): return open(os.path.join(root, *p), encoding="utf-8").read()
 bad = []
 page = rd("project-template", "Claude", "hooks", "agent-console.html")
-for needle in ('id="kitChips"', 'id="kcSkills"', 'id="kcLessons"', 'id="kcRecipes"', 'id="kitBar"', 'id="kcMcp"', '/kit-numbers'):
+for needle in ('id="kitChips"', 'id="kcSkills"', 'id="kcLessons"', 'id="kcRecipes"', 'id="kitBar"', 'id="kcMcp"', '/kit-numbers', 'id="kcBrain"'):
     if needle not in page: bad.append("agent-console.html lacks " + needle)
 # no duplicates: the strip must not repeat the numbers shown in the legend
 bar = page[page.index('id="kitBar"'):page.index('<!-- Miniflow')]

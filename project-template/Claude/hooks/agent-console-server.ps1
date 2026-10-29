@@ -501,9 +501,10 @@ $RequestHandler = {
                 $json = & $sk $State.SkillsLibPath @("community", "state", "--project", $State.ProjectDir)
             } elseif ($path -eq "/kit-numbers") {
                 $ksFile = Join-Path (Split-Path (Split-Path $State.SkillsLibPath -Parent) -Parent) "community\kit-stats.json"
-                $o = [ordered]@{ agents = $null; skills = $null; lessons = $null; recipes = $null; mcp_tools = $null; version = $null }
+                $o = [ordered]@{ agents = $null; skills = $null; lessons = $null; recipes = $null; mcp_tools = $null; version = $null; brain = $null }
                 try { if (Test-Path $ksFile) { $k = [System.IO.File]::ReadAllText($ksFile, [System.Text.Encoding]::UTF8) | ConvertFrom-Json; $o.agents = $k.agents; $o.skills = $k.skills; $o.lessons = $k.lessons; $o.recipes = $k.recipes_proven; $o.mcp_tools = $k.mcp_tools; $o.version = $k.version } } catch { }
                 try { $sm = (& $sk $State.SkillsLibPath @("summary")) | ConvertFrom-Json; if ([int]$sm.totals.patterns -gt 0) { $o.lessons = [int]$sm.totals.patterns } } catch { }
+                try { $o.brain = (& $sk $State.SkillsLibPath @("brain")) | ConvertFrom-Json } catch { }
                 $json = $o | ConvertTo-Json -Compress
             } elseif ($path -eq "/community-summary") {
                 $sumFile = Join-Path (Split-Path (Split-Path $State.SkillsLibPath -Parent) -Parent) "community\community-summary.json"

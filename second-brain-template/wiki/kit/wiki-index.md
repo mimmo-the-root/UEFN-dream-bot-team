@@ -18,6 +18,7 @@ How the Dream Bot Team kit works, in the kit's own words. Rebuilt from the manua
 - [[skill-catalog|Skills catalog]]
 - [[skills-and-lessons|Skills and lessons]]
 - [[the-console|The console]]
+- [[the-second-brain|The second brain]]
 - [[troubleshooting|Troubleshooting]]
 - [[uefn-map-project|A UEFN map project]]
 - [[welcome|What this kit is]]
