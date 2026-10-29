@@ -30,7 +30,7 @@ print("ok")
 # pilot demo (v1.114): shipped files pass the kit's own checks; copy never overwrites; load only in an empty project
 import demo_pilot as dp, spec_check, plan_check
 dd = os.path.join(ROOT, "project-template", "Claude", "reference", "demo-chicken-roundup")
-assert set(dp.files()) == {"GAME-SPEC.md", "CONSTITUTION.md", "PLAN.md", "ROADMAP.md", "PLAYTEST.md", "README.md"}
+assert set(dp.files()) == {"GAME-SPEC.md", "CONSTITUTION.md", "PLAN.md", "ROADMAP.md", "PLAYTEST.md", "README.md", "SCENERY.md"}
 blk, _, _ = spec_check.check(open(os.path.join(dd, "GAME-SPEC.md"), encoding="utf-8").read())
 assert not blk, blk
 tmp = tempfile.mkdtemp()

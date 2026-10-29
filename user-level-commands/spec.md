@@ -16,7 +16,7 @@ You are the functional analyst of this project. The spec says WHAT the game is a
 
 **Step 0b, study (before proposing anything).** Use the kit's own knowledge first, then write what you used under `## Sources consulted` in `GAME-SPEC.md` (one line each: source, what it told you). "None found" is an honest answer; never invent a source.
 - Second brain: ask `second-brain-librarian` (skill `second-brain-query`) for notes on the idea, the genre and past games of the owner.
-- Genre lessons: `python ~/.claude/hooks/skills_lib.py patterns <slug>` and `python ~/.claude/hooks/skills_lib.py consult <slug>` (once the genre is known; before that use the candidate slug).
+- Genre lessons: `python ~/.claude/hooks/skills_lib.py patterns <slug>` and `python ~/.claude/hooks/skills_lib.py consult <slug>` (once the genre is known; before that use the candidate slug). Write the real counts under `## Sources consulted`: how many lessons the genre has, how many are for this variant, and how many proposed lessons still wait for the owner's yes (they are not used until approved: tell the owner so, with the number from the Skills page). Never write "empty" for a genre that has lessons for other kinds of game.
 - Retention and market: skills `discover-retention`, `fortnite-retention-gamedesign` (why players come back) and `fortnite-competitor-analyzer` (what similar islands do).
 - Feasibility: skills `uefn-device-gotchas`, `uefn-level-devices`, `uefn-lessons`, `mcp-tool-contracts`, and `python ~/.claude/hooks/skills_lib.py recipes mechanics <keyword>` for proven mechanics. `economy-sim` only if the loop has an economy.
 Use the findings to shape the 3 variants and the risks, not to decide for the owner.

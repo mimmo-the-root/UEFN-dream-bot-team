@@ -1,0 +1,21 @@
+"""mcp_heavy_guard.py refuses the known huge UEFN MCP reads and lets the filtered ones through."""
+import json, os, subprocess, sys
+H = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "project-template", "Claude", "hooks")
+G = os.path.join(H, "mcp_heavy_guard.py")
+ok = lambda c, m: (print(("PASS " if c else "FAIL ") + m), c or sys.exit(1))
+def run(tool, args, env=None, raw=None):
+    e = dict(os.environ); e.update(env or {})
+    p = raw if raw is not None else json.dumps({"tool_input": {"toolset_name": "x", "tool_name": tool, "arguments": args}})
+    r = subprocess.run([sys.executable, G], input=p, capture_output=True, text=True, env=e)
+    return r.returncode, (json.loads(r.stdout)["hookSpecificOutput"] if r.stdout.strip() else None)
+rc, o = run("find_assets", {}); ok(rc == 0 and o and o["permissionDecision"] == "deny" and "120 MB" in o["permissionDecisionReason"], "find_assets with no filter is refused")
+rc, o = run("find_assets", {"recursive": True}); ok(o and o["permissionDecision"] == "deny", "find_assets with only a flag is refused")
+rc, o = run("find_assets", {"folder_path": "/CR_Legacy/Playsets/PlaysetProps", "name": "Haybale_01"}); ok(o is None, "find_assets with folder_path and name passes")
+rc, o = run("find_assets", {"asset_type": {"refPath": "/Script/Engine.DataTable"}}); ok(o is None, "find_assets with asset_type passes")
+rc, o = run("find_assets", json.dumps({}) ); ok(o and o["permissionDecision"] == "deny", "arguments given as a JSON string are read too")
+rc, o = run("GetLogEntries", {"maxEntries": 0}); ok(o and o["permissionDecision"] == "deny", "GetLogEntries maxEntries 0 without pattern is refused")
+rc, o = run("GetLogEntries", {"maxEntries": 0, "pattern": "Error"}); ok(o is None, "GetLogEntries with a pattern passes")
+rc, o = run("PlaceDevice", {}); ok(o is None, "other tools are never touched")
+rc, o = run("find_assets", {}, env={"UEFN_KIT_GUARD": "0"}); ok(o is None, "UEFN_KIT_GUARD=0 switches it off")
+rc, o = run("find_assets", {}, raw="not json"); ok(rc == 0 and o is None, "bad input never blocks")
+print("heavy guard tests OK")

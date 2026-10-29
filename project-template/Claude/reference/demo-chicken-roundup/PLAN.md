@@ -14,6 +14,7 @@
 | Join in progress | on | friends can join a running round |
 
 ## Environment
+(Status words: planned, built, placeholder. "built" only with real assets from SCENERY.md; a cube is a placeholder.)
 | Element | Where | Status |
 |---|---|---|
 | Farm ground and grass | the whole play area | built |
@@ -31,7 +32,7 @@
 ### Devices
 | Device or system | Status | Note |
 |---|---|---|
-| Creature spawner for the chickens | explore | try it in a test project first |
+| Wildlife Spawner V2 for the chickens (6 in the field, 1 on the pen) | recipe | SCENERY.md; read and set the animal, the default was a wolf |
 | Pen volume that counts deliveries | skill | uefn-level-devices |
 | Score manager and round timer | recipe | proven recipe |
 

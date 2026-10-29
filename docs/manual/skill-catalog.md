@@ -56,7 +56,7 @@ Fourteen skills built from the 388 tools of Epic's MCP, tested in a lab project.
 | `uefn-mcp-lab-guard` | How an agent tries MCP tools safely in the lab project: GUID path form, what the guard refuses and why, never work around a refusal. |
 | `uefn-validation-failure-diagnosis` | What to do when `StartSession` fails with `Validation failed` (for example a stray TargetPoint actor) and how to read the validation log. |
 | `uefn-create-use-remove-one-script` | Create, use and remove a test object in ONE script call, so a failure never leaves clutter in the level. |
-| `uefn-mcp-heavy-calls` | Cost limits for heavy MCP reads and writes: which calls are slow or large, and how to batch or filter them. |
+| `uefn-mcp-heavy-calls` | Cost limits for heavy MCP reads and writes: which calls are slow or large, and how to batch or filter them. The worst two are also refused by a hook. |
 | `uefn-ui-widgets` | Widget Blueprints through the MCP: widget tree, text, Verse fields, MVVM bindings, animations. |
 | `uefn-assets-data` | Create, find, copy, move and delete assets and data tables through the MCP. |
 | `uefn-editor-logs` | Read only the NEW editor log lines after an action; log filters and the client-log limits. |

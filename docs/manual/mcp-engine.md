@@ -75,6 +75,10 @@ To learn what a tool really does, the kit has a lab module (`Claude/hooks/mcp_la
 
 What an exploration finds is written once, per area, in the kit (`mcp-tool-contracts/references/areas/`), so nobody repeats the work. The mission to give to the explorer is in `mcp-tool-contracts/references/exploration-mission.md`.
 
+## Calls the kit refuses
+
+Two reads are known to be huge: `find_assets` with no filter (about 120 MB, the connection to the editor closes) and `GetLogEntries` with `maxEntries` 0 and no pattern (about 2.4 MB). A hook (`mcp_heavy_guard.py`) refuses them before they reach the editor and says what to pass instead: a `folder_path` plus a `name`, an `asset_type` or `tags`, or a `pattern`. It costs nothing and cannot be talked out of it; the owner can switch it off with `UEFN_KIT_GUARD=0`.
+
 ## Long batteries
 
 In a laboratory project the kit can test the whole toolset without anyone writing a test per tool. `Claude/hooks/mcp_cover.py` reads each tool's input and output schema, notices which tools produce which kind of object (a tool that returns a widget blueprint can make the fixture another tool needs), builds those fixtures, and calls every tool, in several passes. Destructive tools run last, and listing tools are limited to a test folder so they cannot return the whole engine. The result is `Claude/docs/mcp/COVERAGE.md`: how many tools answered, how many are alive but still need a recipe, and which kinds of object we cannot make yet.

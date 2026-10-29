@@ -138,6 +138,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/mcp_heavy_guard.py\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/editor_lock.py\"",
             "timeout": 10
           },
