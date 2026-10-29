@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "genre": "shooter",
+  "pack_version": 1,
+  "patterns": [
+    {
+      "variant": "*",
+      "section": "run-loop",
+      "condition": "Designing a shooter map",
+      "action": "Protect the loop: see the target, aim, fire, get clear hit feedback, then move or reload. Spend setup time on arena readability and spawns before adding modes.",
+      "statement": "Everything rests on the aim and fire loop feeling crisp",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-a173879355c8"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Choosing weapons and player health",
+      "action": "Decide the time to kill you want in seconds first, then set weapon damage, fire rate and health as one set and test it with two real players.",
+      "statement": "Time to kill is set by three numbers together",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-cd4d0ec90fb2"
+    },
+    {
+      "variant": "*",
+      "section": "devices",
+      "condition": "Equipping players at spawn and respawn",
+      "action": "Use item granters or a class designer to give the loadout at spawn and on respawn, and avoid random floor loot unless the mode is about looting.",
+      "statement": "Start every life from the same known loadout",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-5d3f0314cb33"
+    },
+    {
+      "variant": "team-deathmatch",
+      "section": "architecture",
+      "condition": "Placing player spawners in an arena",
+      "action": "Spread spawners across the map, keep them out of the enemy side's sight lines, and test that nobody spawns in view of an enemy or in the middle of a fight.",
+      "statement": "Spawn fairness decides whether a match feels fair",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-fcac4978ad77"
+    },
+    {
+      "variant": "*",
+      "section": "run-loop",
+      "condition": "Showing progress during a match",
+      "action": "Show the score, the time and the goal on the screen, and award points from one elimination event so a kill is counted once.",
+      "statement": "Players need to see the score and the goal at all times",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-39511f9c31c9"
+    },
+    {
+      "variant": "gun-game",
+      "section": "progression",
+      "condition": "Building a gun game weapon ladder",
+      "action": "Advance the weapon on each kill, step back one tier after a melee death, end at the last tier, and give a short comeback aid to players far behind.",
+      "statement": "A ladder keeps leaders and trailers both playing",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-722e253fb172"
+    },
+    {
+      "variant": "objective",
+      "section": "run-loop",
+      "condition": "A mode with capture points or a payload",
+      "action": "Place the objective on contested ground, pay score for holding it over time, and open or move a second one when a team leads by a wide margin.",
+      "statement": "Objectives pull players out of corners",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-44af48ab71f2"
+    },
+    {
+      "variant": "box-fight",
+      "section": "architecture",
+      "condition": "1v1 or box fight rounds",
+      "action": "Reset the arena and the players after each round with a short countdown, and keep the round state in one place so reset logic exists only once.",
+      "statement": "Small arenas need quick automatic resets",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-e2566cc5a381"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Playtests show a single dominant weapon",
+      "action": "Lower its damage or raise its cost (rarity, spawn rate, limited ammo) before adding anything new to the pool.",
+      "statement": "If one weapon wins every fight it is the problem",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-5a77b6d4efeb"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Designing the end of a match",
+      "action": "Show the winner, the score and a short pause before the next round, and make sure ties have a rule.",
+      "statement": "A match that ends without a clear result feels empty",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-4e6c93df83b4"
+    },
+    {
+      "variant": "*",
+      "section": "performance",
+      "condition": "Large player counts with loot and effects",
+      "action": "Keep pickups and effects few per area, remove dropped items after a set time, and test with the full player count.",
+      "statement": "Many pickups and effects together cause lag",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-749fb4988f2e"
+    },
+    {
+      "variant": "*",
+      "section": "launch-checklist",
+      "condition": "Preparing to publish a shooter",
+      "action": "Play at least one match with the full player count and check spawn spread, loot density, and the end screen for everyone.",
+      "statement": "Test with the real player count",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-b4c8edbb070c"
+    }
+  ]
+}

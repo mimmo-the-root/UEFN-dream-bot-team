@@ -1,11 +1,16 @@
 {
   "skills": [
+    "adventure-rpg",
+    "deathrun-platformer",
     "llm-npc-conversations",
     "materials",
     "mechanics",
     "party-mini-games",
     "roguelike",
+    "shooter",
+    "simulation-tycoon",
     "sports-racing",
+    "strategy",
     "survival"
   ]
 }

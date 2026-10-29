@@ -61,8 +61,16 @@ Each analysed map also queues three to five general lessons. You approve, edit o
 | Hypothesis | One map. Only a suggestion; the coder is told it is unproven. |
 | Confirmed | Two maps. |
 | Proven | Three or more maps, or two plus a retention metric. A rule to follow. |
-| Reference | Comes from an official source. |
+| Reference | Written guidance that ships with the kit (Epic's documentation or the kit's own design guides). Not yet proven in your maps: it is the starting point, and your own lessons outrank it. |
 | Contested | Something contradicts it. |
+
+## Design guides that ship with the kit
+
+Besides what you learn, the kit carries starting guides so a new genre is not empty. They appear on the Skills page as one proposal for each genre, and nothing changes until you approve.
+
+- **Genre guides**: Strategy (tower and wave defense), Shooter, Deathrun & Platformer, Adventure & RPG (quests and escape rooms), Simulation & Tycoon, plus extra items for Survival and Roguelike. Each one gives the loop, the systems the genre needs, the numbers to tune and the mistakes that show up in play.
+- **Mechanic recipes** in the `mechanics` skill: weighted loot box, wave director, currency and shop, persistent levels, hunger and needs, ordered objectives, course checkpoints. Each comes with the steps, the devices and the Verse. A recipe that has not yet been built in an editor says so, and `BuildAll` must be clean before you rely on it.
+- **Design rules** for feel, level layout, camera and sound, and enemies, found through the `uefn-disciplines` index.
 
 ## What stays on your computer
 

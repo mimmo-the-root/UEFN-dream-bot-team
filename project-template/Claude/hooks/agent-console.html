@@ -112,7 +112,7 @@
   .legend-dot.yellow{background:var(--yellow);box-shadow:0 0 5px var(--yellow-glow);}
 
   .stat.alert{display:none;border-color:var(--red);box-shadow:0 0 16px var(--red-glow);}
-  .stat.alert.show{display:block;position:relative;}.stat.alert.show::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 26px var(--red-glow);pointer-events:none;animation:alertPulse 1.1s ease-in-out infinite;}@media (prefers-reduced-motion:reduce){.stat.alert.show::after{animation:none;}}
+  .stat.alert.show{display:block;position:relative;}.stat.alert.show::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 26px var(--red-glow);pointer-events:none;animation:alertPulse 1.1s ease-in-out infinite;}@media (prefers-reduced-motion:reduce){html:not(.motion-full) .stat.alert.show::after{animation:none;}}
   .ownerbox{display:block;border-color:var(--amber,#ffb454);margin-top:8px}.ownerbox[hidden]{display:none}.ownerbox .label{color:var(--amber,#ffb454)}.ownerbox ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.55}.ownerbox li b{color:var(--amber,#ffb454)}.ownerbox li span{color:var(--dim)}
   .stat.alert .label{color:var(--red);}
   .stat.alert .value{color:var(--red);text-shadow:0 0 8px var(--red-glow);font-size:14px;}
@@ -179,7 +179,7 @@
   .hub.working .hub-core{animation:hubBeat 1.3s ease-in-out infinite;border-color:#39ff88;box-shadow:0 0 52px rgba(57,255,136,.5), inset 0 0 28px rgba(57,255,136,.22);}
   .hub.working .hub-core .glyph{animation-duration:1.3s;filter:drop-shadow(0 0 16px rgba(57,255,136,.8));}
   @keyframes hubBeat{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
-  @media (prefers-reduced-motion:reduce){.hub.working .hub-core{animation:none;}}
+  @media (prefers-reduced-motion:reduce){html:not(.motion-full) .hub.working .hub-core{animation:none;}}
   .hub-core{position:relative;width:112px;height:112px;border-radius:50%;
     background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.14), transparent 60%),
       linear-gradient(160deg,#121a2c,#080c14);
@@ -230,7 +230,7 @@
     white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s;
     text-shadow:0 0 6px var(--purple);}
   .node.active .node-thinking{opacity:1;}
-  .thinking-dots::after{content:"...";animation:thinkingDots 1.2s ease-in-out infinite;}@media (prefers-reduced-motion:reduce){.thinking-dots::after{animation:none;}}
+  .thinking-dots::after{content:"...";animation:thinkingDots 1.2s ease-in-out infinite;}@media (prefers-reduced-motion:reduce){html:not(.motion-full) .thinking-dots::after{animation:none;}}
   @keyframes thinkingDots{0%,100%{opacity:.25;}50%{opacity:1;}}
 
   /* Obsidian Vault: pulses while either "brain" (librarian/trainer) is active, and gets a
@@ -2106,7 +2106,7 @@ h1,.title,.brand{text-shadow:0 0 14px rgba(var(--acc2,75,139,255),.6);}
 body .sumline,body .tile,body #rel,body .uholder{position:relative;}
 body .sumline::after,body .tile::after,body #rel::after,body .uholder::after{content:"";position:absolute;inset:-1px;border-radius:inherit;box-shadow:0 0 30px -2px rgba(var(--acc,75,216,255),.8);opacity:.2;pointer-events:none;animation:cuBreath 3.6s ease-in-out infinite;}
 body .tile:nth-child(2)::after{animation-delay:.5s}body .tile:nth-child(3)::after{animation-delay:1s}body .tile:nth-child(4)::after{animation-delay:1.5s}
-body::before{content:"";position:fixed;top:0;left:0;width:26%;height:2px;background:linear-gradient(90deg,transparent,rgb(var(--acc,75,216,255)),transparent);box-shadow:0 0 10px rgb(var(--acc,75,216,255));pointer-events:none;z-index:50;animation:cuScan 5.5s linear infinite;}
+body::after{content:"";position:fixed;top:0;left:0;width:26%;height:2px;background:linear-gradient(90deg,transparent,rgb(var(--acc,75,216,255)),transparent);box-shadow:0 0 10px rgb(var(--acc,75,216,255));pointer-events:none;z-index:50;animation:cuScan 5.5s linear infinite;}
 .cu-live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);margin-right:7px;vertical-align:1px;animation:cuDot 1.4s ease-in-out infinite;}
 .cu-tick{animation:cuTick .45s ease-out 1;display:inline-block;}
 body .card,body .hc,body .tile,body .kh-card,body .chart-panel,body .pc,body .kcard,body .rank-card,body .agentcost,body .upanel,body .kitbar,body .stat,body .khc,body .kcard2,body .kst,body .ucard,body .kprop,body .wl,body .btn{transition:transform .18s ease-out;}
@@ -2118,7 +2118,7 @@ body .btn:hover{transform:translateY(-1px);}body .btn:active{transform:scale(.97
 body .genre-badge{margin-left:10px;}
 @keyframes cuDotSoft{0%,100%{opacity:.35}50%{opacity:1}}
 /* reduced motion: nothing moves, but the light may still breathe (opacity only) */
-@media (prefers-reduced-motion:reduce){html:not(.motion-full) body::before{display:none;}html:not(.motion-full) .cu-tick{animation:none!important;}html:not(.motion-full) .cu-live::before{animation-name:cuDotSoft;}html:not(.motion-full) body .card:hover,html:not(.motion-full) body .hc:hover,html:not(.motion-full) body .tile:hover,html:not(.motion-full) body .kh-card:hover,html:not(.motion-full) body .chart-panel:hover,html:not(.motion-full) body .pc:hover,html:not(.motion-full) body .kcard:hover,html:not(.motion-full) body .rank-card:hover,html:not(.motion-full) body .agentcost:hover,html:not(.motion-full) body .upanel:hover,html:not(.motion-full) body .kitbar:hover,html:not(.motion-full) body .stat:hover,html:not(.motion-full) body .khc:hover,html:not(.motion-full) body .kcard2:hover,html:not(.motion-full) body .kst:hover,html:not(.motion-full) body .ucard:hover,html:not(.motion-full) body .kprop:hover,html:not(.motion-full) body .wl:hover,html:not(.motion-full) body .btn:hover{transform:none;}}
+@media (prefers-reduced-motion:reduce){html:not(.motion-full) body::after{display:none;}html:not(.motion-full) .cu-tick{animation:none!important;}html:not(.motion-full) .cu-live::before{animation-name:cuDotSoft;}html:not(.motion-full) body .card:hover,html:not(.motion-full) body .hc:hover,html:not(.motion-full) body .tile:hover,html:not(.motion-full) body .kh-card:hover,html:not(.motion-full) body .chart-panel:hover,html:not(.motion-full) body .pc:hover,html:not(.motion-full) body .kcard:hover,html:not(.motion-full) body .rank-card:hover,html:not(.motion-full) body .agentcost:hover,html:not(.motion-full) body .upanel:hover,html:not(.motion-full) body .kitbar:hover,html:not(.motion-full) body .stat:hover,html:not(.motion-full) body .khc:hover,html:not(.motion-full) body .kcard2:hover,html:not(.motion-full) body .kst:hover,html:not(.motion-full) body .ucard:hover,html:not(.motion-full) body .kprop:hover,html:not(.motion-full) body .wl:hover,html:not(.motion-full) body .btn:hover{transform:none;}}
 
 /* console-ui: theme (swatches in the header) */
 .theme-pick{display:flex;flex-wrap:nowrap;white-space:nowrap;width:max-content;align-items:center;gap:7px;margin:9px 0 0 40px;font-size:11px;color:var(--dim);}

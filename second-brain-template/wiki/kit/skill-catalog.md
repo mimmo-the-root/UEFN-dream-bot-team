@@ -28,6 +28,11 @@ Skills are small folders of knowledge that Claude reads only when the task needs
 | `fab-product` | Prepares a Fab product: checks the package against Epic's rules, creates the Documentation and FabListing texts from the code, and writes a clean zip. |
 | `economy-sim` | Plans a tycoon or arena economy with numbers: how long each milestone takes, which generator is never worth buying. Pure arithmetic, no editor needed. |
 | `genre` | Your genre skills, filled from your real maps. See [[skills-and-lessons|Skills and lessons]]. |
+| `uefn-disciplines` | An index: you name a concept (feedback, layout, camera, enemies, waves, shop, quests) or a genre and it tells which skill or recipe to read. |
+| `game-feel-uefn` | Layered feedback with sound, effects and screen text, in proportion to how important each event is. |
+| `level-design-uefn` | Blockout first, sizes measured with the real character, a pace of tension and rest, gates that teach before they test, no dead ends. |
+| `camera-audio-uefn` | When to change the camera and how to give it back, and an audio mix that stays readable. |
+| `game-ai-uefn` | Roles, counts and pressure for enemies and creatures, and how to keep the map fast. |
 
 ## Keeping token use down
 

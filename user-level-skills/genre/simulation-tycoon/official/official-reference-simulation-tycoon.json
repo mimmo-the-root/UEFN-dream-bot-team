@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "genre": "simulation-tycoon",
+  "pack_version": 1,
+  "patterns": [
+    {
+      "variant": "*",
+      "section": "run-loop",
+      "condition": "Designing a tycoon or simulator map",
+      "action": "Make every purchase raise income or open something new to buy, and cut any purchase that does neither.",
+      "statement": "The growth loop is earn, spend, expand, earn faster",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-56265372c81c"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Setting prices for generators and upgrades",
+      "action": "Price each upgrade by its payback time (cost divided by income gained), keep early ones under a minute, and let payback grow gently with each tier. The economy-sim skill checks it.",
+      "statement": "Price upgrades by payback time",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-993cd1c7c64c"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Planning the first session",
+      "action": "Make the first purchase happen within the first minute and the first big milestone within about five.",
+      "statement": "The first minutes decide whether people stay",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-1cd0911b4e39"
+    },
+    {
+      "variant": "tycoon",
+      "section": "architecture",
+      "condition": "Each player has a tycoon plot",
+      "action": "Assign a plot when the player joins, keep money, upgrades and plot in maps keyed by player, and free the plot when the player leaves.",
+      "statement": "One plot and one data entry for each player",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-39addb350c10"
+    },
+    {
+      "variant": "*",
+      "section": "persistence",
+      "condition": "Players expect to keep what they built",
+      "action": "Save currency and upgrades in persistable data with a version number, and cap or scale any offline earnings so returning never breaks the economy.",
+      "statement": "Progress between sessions is persistent data",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-7917f2bfb753"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Values grow large over time",
+      "action": "Choose the number format (K, M, B) early and clamp values so they cannot overflow.",
+      "statement": "Big numbers need a format and a limit",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-11647f8f6921"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Late game currency piles up",
+      "action": "Add prices that keep rising, a rebirth or prestige step, or cosmetic goals, so late money still has a use.",
+      "statement": "Money with no sink becomes meaningless",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-1fe7ec109324"
+    },
+    {
+      "variant": "tycoon",
+      "section": "devices",
+      "condition": "Selling upgrades to players",
+      "action": "Use button, vending or trigger devices for buying, and check the money in Verse before granting anything, never trusting the device alone to charge.",
+      "statement": "Buttons and vending devices are the shop, Verse is the cashier",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-55febdf892f6"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Players only wait for numbers to rise",
+      "action": "Add a decision every few minutes (an event, a choice between upgrade paths) so the game is not only waiting.",
+      "statement": "An idle loop needs active choices",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-24f3f545bb54"
+    },
+    {
+      "variant": "idle-clicker",
+      "section": "run-loop",
+      "condition": "A click or tap based loop",
+      "action": "Pay out on each interaction with a sound and a number, and scale the reward with upgrades so progress is always visible.",
+      "statement": "Every interaction should show a reward",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-61399a051071"
+    },
+    {
+      "variant": "*",
+      "section": "architecture",
+      "condition": "Balancing prices and rates",
+      "action": "Hold prices, rates and unlock levels in one table at the top of the file or in editable values, so balancing needs no rewrite.",
+      "statement": "Keep rules apart from numbers",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-f3face30d9a8"
+    },
+    {
+      "variant": "*",
+      "section": "launch-checklist",
+      "condition": "Preparing to publish a tycoon",
+      "action": "Let a test player play thirty minutes, record income per minute and purchases, and fix any step with a long dead stretch.",
+      "statement": "Run it unattended for half an hour",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-8443143486bd"
+    }
+  ]
+}

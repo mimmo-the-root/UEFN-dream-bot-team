@@ -71,6 +71,16 @@ def main():
                 errors.append("%s: last_reviewed must be YYYY-MM-DD" % rel)
             if "sources" not in fm:
                 warns.append("%s: no sources (URLs, or [original])" % rel)
+            if fm.get("kind") == "discipline":   # design-rule skills: found by their trigger words, with the neighbour skill named
+                if not re.search(r"(?i)\buse when\b", desc):
+                    errors.append("%s: the description of a discipline skill must say 'Use when' and name trigger words" % rel)
+                if not re.search(r"(?i)when not to use", text):
+                    errors.append("%s: a discipline skill needs a 'When not to use' line that names the skill next to it" % rel)
+                if len(text.splitlines()) > 150:
+                    errors.append("%s: a discipline skill is a playbook, keep SKILL.md under 150 lines (detail goes in references/)" % rel)
+                for tok in re.findall(r"`([a-z0-9]+(?:-[a-z0-9]+)+)`", text):
+                    if (tok.startswith("uefn-") or tok.endswith("-uefn")) and tok not in names:
+                        errors.append("%s: names the skill %s, which does not exist" % (rel, tok))
         n = len(text)
         if n > HARD_SKILL:
             errors.append("%s: SKILL.md is %d chars (hard cap %d); move detail to references/" % (rel, n, HARD_SKILL))

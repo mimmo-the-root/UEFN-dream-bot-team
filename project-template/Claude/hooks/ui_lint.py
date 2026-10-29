@@ -98,6 +98,10 @@ def lint(path, canon):
         problems.append(("WARN", name, "no @media (max-width) rule: the page does not reflow on a narrow screen (header wraps, tab bar scrolls inside itself, tables scroll inside their box)"))
     if re.search(r"animation\s*:", css) and "prefers-reduced-motion" not in css:
         problems.append(("ERROR", name, "has animations but no prefers-reduced-motion rule"))
+    for blk in re.findall(r"@media \(prefers-reduced-motion:\s*reduce\)\{((?:[^{}]*\{[^{}]*\})+)\}", css):
+        if "motion-full" not in blk:
+            problems.append(("ERROR", name, "a reduced-motion rule without html:not(.motion-full) keeps animations off even when the Motion button is on: " + blk.strip()[:70]))
+            break
     if "prefers-reduced-motion:reduce){*," in s.replace(" ", ""):
         problems.append(("ERROR", name, "a blanket reduced-motion rule switches off every animation even when Motion is on (prefix it with html:not(.motion-full))"))
     return problems

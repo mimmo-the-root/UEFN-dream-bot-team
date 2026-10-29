@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "genre": "roguelike",
+  "pack_version": 1,
+  "patterns": [
+    {
+      "variant": "*",
+      "section": "architecture",
+      "condition": "Generating a level, loot or enemies",
+      "action": "Create one seed per run, derive the random choices from it, and show or store it, so a bug or a good run can be replayed.",
+      "statement": "Seed every run",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-39f40c514f56"
+    },
+    {
+      "variant": "*",
+      "section": "architecture",
+      "condition": "Placing rooms, doors or spawns at random",
+      "action": "After generating, test that start, exit and key items can all be reached, and regenerate or repair when they cannot.",
+      "statement": "Always check that a generated level is connected",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-ca3c90b20ebd"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Choosing what a chest or enemy drops",
+      "action": "Give each entry a weight, roll once against the total, and keep rare items rare, then check a thousand rolls give the spread you want.",
+      "statement": "Loot tables use weights, not even odds",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-ae80971d0150"
+    },
+    {
+      "variant": "*",
+      "section": "progression",
+      "condition": "Permadeath or run reset",
+      "action": "Keep a meta currency or an unlock after every run, so a failed run still moves the player forward, and never wipe unlocks on death.",
+      "statement": "Keep something after death",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-c1504c183c90"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Planning floors, rooms or waves",
+      "action": "Scale enemy health, damage and count by depth with a gentle curve, and add a harder guardian every few floors.",
+      "statement": "Difficulty should rise with depth, not stay flat",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-7481f8924961"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Many systems act in one run",
+      "action": "Show health, status effects, the current floor and what an enemy will do next, or players cannot learn from failure.",
+      "statement": "Keep the state readable",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-d3f5b24fe5e9"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Players can quit to avoid dying",
+      "action": "Store the run state when the player leaves and mark it as in progress, so quitting never rewinds a death or lets them retry a loss.",
+      "statement": "Save games and permadeath conflict",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-bd7ded4a4eec"
+    },
+    {
+      "variant": "*",
+      "section": "run-loop",
+      "condition": "Players memorize fixed layouts",
+      "action": "Vary rooms, enemies and loot each run while keeping the rules the same, so skill carries over but memory does not solve the map.",
+      "statement": "Replay value comes from the world changing",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-4c4d13b9f585"
+    },
+    {
+      "variant": "*",
+      "section": "launch-checklist",
+      "condition": "Preparing to release a roguelike",
+      "action": "Play ten runs, note which floor ends most runs, and tune that floor until the spread of ending floors looks smooth.",
+      "statement": "Play ten runs before publishing",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-388a42264117"
+    }
+  ]
+}

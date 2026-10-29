@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "genre": "adventure-rpg",
+  "pack_version": 1,
+  "patterns": [
+    {
+      "variant": "*",
+      "section": "run-loop",
+      "condition": "Designing an adventure or RPG map",
+      "action": "Cycle: explore, meet a challenge (fight, talk, solve), earn a reward, grow, face harder content. Every system should feed growth or choice.",
+      "statement": "Growth and choice drive the loop",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-2b399f83acd0"
+    },
+    {
+      "variant": "*",
+      "section": "architecture",
+      "condition": "Writing quests in Verse",
+      "action": "Give each quest a state (available, active, complete, turned in), advance it only from game events, and keep the progress for each player.",
+      "statement": "A quest is a small state machine",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-79077dfb432e"
+    },
+    {
+      "variant": "*",
+      "section": "persistence",
+      "condition": "Players return across sessions",
+      "action": "Save progress, currency and unlocks in persistable data for each player with a version number, so an update never wipes them.",
+      "statement": "Persist what the player earned",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-8bf9ef97e852"
+    },
+    {
+      "variant": "*",
+      "section": "architecture",
+      "condition": "Stats that come from levels and gear",
+      "action": "Keep base stats and gear separate and compute the final value when needed, so removing an item can never leave a stale bonus.",
+      "statement": "Final numbers should be computed, not stored",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-1834541503ed"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Setting level thresholds",
+      "action": "Use a simple rule where each level needs a bit more than the last, set the target hours per level, and check the top level against your health and damage scales.",
+      "statement": "Experience curves must flatten, not explode",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-9ad84367f809"
+    },
+    {
+      "variant": "*",
+      "section": "architecture",
+      "condition": "Writing NPC conversations",
+      "action": "Hold lines in a list with choices and conditions, run them with one small routine, and keep display text out of the logic so it can be edited.",
+      "statement": "Dialogue is data",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-4f63b3548bfc"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Offering dialogue or quest choices",
+      "action": "Make each choice change something later (a flag, a reward, an ending), or keep only the choices that matter.",
+      "statement": "Choices need consequences",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-d68b1a05ff2c"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Quests with several steps",
+      "action": "Tell the player what to do next with a quest marker or a screen line at every step.",
+      "statement": "Hidden requirements frustrate players",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-9e7277217d61"
+    },
+    {
+      "variant": "escape-room",
+      "section": "run-loop",
+      "condition": "An escape room or puzzle map",
+      "action": "Map the solution as a chain where each puzzle unlocks the next and its hint can be found in the room first, then test it with someone who has not seen it.",
+      "statement": "Puzzles need a clear chain of clues",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-7739b749eee2"
+    },
+    {
+      "variant": "escape-room",
+      "section": "pitfalls",
+      "condition": "A puzzle uses consumable items or one way doors",
+      "action": "Make every required item obtainable again or not consumable, and give a reset or hint path so no state is unwinnable.",
+      "statement": "Soft locks end sessions",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-751a78100d38"
+    },
+    {
+      "variant": "escape-room",
+      "section": "architecture",
+      "condition": "Several players solve puzzles together",
+      "action": "Store solved flags in one manager and drive doors from it, so a player who joins late sees the same progress.",
+      "statement": "Puzzle state belongs to the team",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-d12188d7808b"
+    },
+    {
+      "variant": "*",
+      "section": "launch-checklist",
+      "condition": "Preparing to publish an adventure",
+      "action": "Play from a clean state through every quest, reload midway, and confirm the progress persisted.",
+      "statement": "Test the quest line from a fresh player",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-4d6c5aa9f7fb"
+    }
+  ]
+}

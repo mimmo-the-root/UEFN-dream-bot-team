@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "genre": "survival",
+  "pack_version": 1,
+  "patterns": [
+    {
+      "variant": "*",
+      "section": "run-loop",
+      "condition": "Designing the gather, craft, build, survive cycle",
+      "action": "Make better tools reach new resources, which unlock better crafts. When that ladder breaks the game turns into a grind.",
+      "statement": "Each loop must open the next one",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-e5641200e64c"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Adding hunger, thirst, cold or stamina",
+      "action": "Warn first, then drain health over time, and let health recover when the player is fed and safe. Instant death from a need pushes players to quit.",
+      "statement": "Needs should hurt slowly, not kill instantly",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-c1a0bf6946d5"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Draining a need or a timer in Verse",
+      "action": "Drain by elapsed seconds in a loop with Sleep so the rate is the same for every player and every server load.",
+      "statement": "Scale every decay by time, not by frames",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-60c600f268fa"
+    },
+    {
+      "variant": "*",
+      "section": "architecture",
+      "condition": "Players craft items from materials",
+      "action": "Check the inputs and the room for the result first, then take the inputs and give the output as one step, so a full inventory never eats materials.",
+      "statement": "Crafting must be all or nothing",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-9df3494ce08f"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Resource nodes of different value",
+      "action": "Require a tool tier for better nodes, so a stronger tool is the reason to explore farther.",
+      "statement": "Gathering needs tiers",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-0b4fb73f28d4"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Resource nodes can run out",
+      "action": "Respawn nodes after a delay or regenerate them over time, so late players still have something to gather.",
+      "statement": "Do not strip the world permanently",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-b95d67633fd6"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Players carry everything everywhere",
+      "action": "Cap slots or weight so storage and return trips matter, otherwise there is no reason to build a base.",
+      "statement": "Limit the inventory so a base matters",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-8371f670bbaf"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Planning difficulty over time",
+      "action": "Escalate with night, season or event tiers so late play is under pressure, and give a calm period after each peak.",
+      "statement": "Raise the threat in steps",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-37432372ee6b"
+    },
+    {
+      "variant": "*",
+      "section": "persistence",
+      "condition": "A large world or base to remember",
+      "action": "Save inventory, base and needs at safe moments with a version number, so a crash or an update does not wipe hours of play.",
+      "statement": "Save in steps and keep a version",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-7933f2ac7d17"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "A crafting tree with many steps",
+      "action": "Show the next unlock or a simple recipe list on screen, so players are never guessing what to gather.",
+      "statement": "Tell the player what the next goal is",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-ab97087b130b"
+    }
+  ]
+}

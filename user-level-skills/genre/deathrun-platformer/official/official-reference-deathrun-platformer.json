@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "genre": "deathrun-platformer",
+  "pack_version": 1,
+  "patterns": [
+    {
+      "variant": "*",
+      "section": "run-loop",
+      "condition": "Designing an obstacle course",
+      "action": "Keep one rule: the player sees a gap or hazard, commits to a move, lands or fails, and is back at the last checkpoint within seconds.",
+      "statement": "The game is the move, commit, land cycle repeated",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-247031b56857"
+    },
+    {
+      "variant": "*",
+      "section": "architecture",
+      "condition": "Respawn after a fall or a trap",
+      "action": "Store each player's last checkpoint in a map keyed by player and respawn from it, updating it only when a later checkpoint is touched in order.",
+      "statement": "Checkpoints must be remembered for each player",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-41bee599ff63"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Deciding what failing costs",
+      "action": "Respawn within about two seconds at the checkpoint without losing items, so the cost of failing is the time lost and never a long wait.",
+      "statement": "Fast respawn beats punishment",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-46947db887cd"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "A new obstacle type first appears",
+      "action": "Show each new mechanic in a safe spot with no kill below it, then use it alone, then combine it with older ones.",
+      "statement": "Difficulty walls come from mechanics that were never taught",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-1e0366159fb0"
+    },
+    {
+      "variant": "deathrun",
+      "section": "devices",
+      "condition": "Traps in a deathrun with a trapper role",
+      "action": "Warn with a short sound or visual before a trap hits, keep trap cycles readable, and limit how often the trapper can fire.",
+      "statement": "Trap activation must be fair",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-ab9b260e29c5"
+    },
+    {
+      "variant": "*",
+      "section": "balance",
+      "condition": "Setting gap widths",
+      "action": "Measure the longest gap a normal jump clears by testing, then build the hardest gap at roughly 85 percent of it so a clean attempt always works.",
+      "statement": "A jump tuned to the very edge looks broken",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-86b4bad94ea4"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Open geometry that could be bypassed",
+      "action": "Close shortcuts with barriers or kill volumes, or keep them on purpose and reward them, and require checkpoints in order so a skipped section is noticed.",
+      "statement": "Players skip sections through shortcuts",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-dba08a3286f7"
+    },
+    {
+      "variant": "speedrun",
+      "section": "run-loop",
+      "condition": "A time trial or speedrun course",
+      "action": "Show a run time for each player, store the best time per player, and show it at the end so players can beat themselves.",
+      "statement": "A visible run time drives replay",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-79a1c23bc030"
+    },
+    {
+      "variant": "*",
+      "section": "performance",
+      "condition": "Using many moving or animated obstacles",
+      "action": "Use movers where they change the decision, not as decoration, and keep many movers to a single section at a time.",
+      "statement": "Moving platforms cost more than static ones",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-331b79c496a8"
+    },
+    {
+      "variant": "*",
+      "section": "progression",
+      "condition": "Planning how long the map lasts",
+      "action": "Plan eight to twelve short stages of about a minute each, end with a finish line and a result screen, and make replaying easy.",
+      "statement": "Stage count and length set the session time",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-30fef4e4454a"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Building the visual side of a course",
+      "action": "Make landing surfaces contrast with hazards by color and light, and keep the next target visible from the takeoff spot.",
+      "statement": "Hazards must read against the background",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-2403b40c6478"
+    },
+    {
+      "variant": "*",
+      "section": "launch-checklist",
+      "condition": "Preparing to publish a course",
+      "action": "Start from each checkpoint and finish the run, check that falling in each section returns to the right place, and that nothing can trap a player.",
+      "statement": "Test the whole run from every checkpoint",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-716dde12c58f"
+    }
+  ]
+}

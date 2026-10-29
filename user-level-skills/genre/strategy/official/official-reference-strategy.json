@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "genre": "strategy",
+  "pack_version": 1,
+  "patterns": [
+    {
+      "variant": "*",
+      "section": "run-loop",
+      "condition": "Designing a wave or tower defense map",
+      "action": "Build one loop: place or upgrade with the money you have, start the wave, enemies advance, kills pay out, survive, repeat harder. Every pass must make the next one possible.",
+      "statement": "Defense depth comes from a planning loop, not from reflexes",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-0a93c73c1b95"
+    },
+    {
+      "variant": "tower-defense",
+      "section": "architecture",
+      "condition": "Writing the wave logic in Verse",
+      "action": "Keep waves in an array of entries (enemy type, count, gap in seconds, reward) and loop over it, so balancing means editing numbers and never rewriting the manager.",
+      "statement": "Waves are data, not code",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-50d29e952b2c"
+    },
+    {
+      "variant": "tower-defense",
+      "section": "balance",
+      "condition": "Tuning wave strength against the player economy",
+      "action": "Check each wave with one number: total enemy health against the damage your defense deals while they cross the lane. Raise health faster than income and re-check after every price change.",
+      "statement": "Enemy health must outgrow income and damage or the late game is trivial",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-bde1e140ea4e"
+    },
+    {
+      "variant": "tower-defense",
+      "section": "balance",
+      "condition": "Playtests show everyone builds the same thing",
+      "action": "Give each tower type a job (single target, area, slow, support) and a weakness another type covers, and cap the strongest one by cost or by count.",
+      "statement": "One best tower makes every run identical",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-0de3acec3d10"
+    },
+    {
+      "variant": "tower-defense",
+      "section": "devices",
+      "condition": "Choosing what Verse should handle",
+      "action": "Use turret, guard and creature style devices for combat and spawning. Use Verse for waves, money, lives and win or lose, reading their spawn and elimination events.",
+      "statement": "Let stock devices do the fighting and Verse do the rules",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-fd603dcbe19c"
+    },
+    {
+      "variant": "tower-defense",
+      "section": "pitfalls",
+      "condition": "Placement can change or block the enemy route",
+      "action": "Reject any placement that would fully block the route, or keep the route fixed with barriers the player cannot move or remove.",
+      "statement": "A player who can wall off the goal breaks the game",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-fea664cb024a"
+    },
+    {
+      "variant": "tower-defense",
+      "section": "pitfalls",
+      "condition": "A new enemy type or a boss is about to appear",
+      "action": "Show the next wave before it starts (type, count, countdown) and introduce a new enemy alone in an easy wave first.",
+      "statement": "An unannounced wave feels unfair",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-1053618d2679"
+    },
+    {
+      "variant": "tower-defense",
+      "section": "balance",
+      "condition": "Deciding what a leaked enemy costs",
+      "action": "Make a leak cost lives and also the income it would have paid, so ignoring the defense never pays off.",
+      "statement": "A leak that costs only lives is easy to ignore",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-a4f5f0ec7268"
+    },
+    {
+      "variant": "tower-defense",
+      "section": "balance",
+      "condition": "Planning the wave curve",
+      "action": "Alternate: a rest wave after a hard one, a spike every few waves, and a rule changing wave (fast, armored, flying) so the build has to adapt.",
+      "statement": "A difficulty line that only rises is dull",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-7577cf39b6de"
+    },
+    {
+      "variant": "wave-defense",
+      "section": "architecture",
+      "condition": "Money or lives are tracked for each player in co-op",
+      "action": "Hold money and score in a map keyed by player, change it only from events, and add a shared team pool when the design says everyone pays together.",
+      "statement": "Per player state belongs in one map keyed by player",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-85445b94dbba"
+    },
+    {
+      "variant": "*",
+      "section": "pitfalls",
+      "condition": "Offering an endless or survival mode",
+      "action": "Give endless waves a scaling cap or a milestone reward every few waves, so players see progress and know where failure comes from.",
+      "statement": "Endless modes hide the real balance",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-a5aef4246c90"
+    },
+    {
+      "variant": "*",
+      "section": "launch-checklist",
+      "condition": "Preparing to publish a wave map",
+      "action": "Play wave one to the last wave once with the real player count, note the wave where money runs short, and fix that wave before anything else.",
+      "statement": "Play the whole curve before release",
+      "tier": "reference",
+      "status": "active",
+      "support": 0,
+      "against": 0,
+      "id": "p-dee65433b87c"
+    }
+  ]
+}
