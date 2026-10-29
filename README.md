@@ -11,6 +11,8 @@
 
 **[The idea behind it](docs/PHILOSOPHY.md)** (five minutes) | **[The story](docs/MANIFESTO.md)** | **[The manual](https://mimmo-the-root.github.io/UEFN-dream-bot-team/)**
 
+v1.114 is the **first milestone**, not the end: the whole loop from an idea to a playable MVP, and a base to keep improving. We are not stopping here.
+
 ## What you get
 
 - **Twenty-two agents, one job each** (seventeen team agents and five UEFN MCP sub-agents). The one that writes the code never reviews it.

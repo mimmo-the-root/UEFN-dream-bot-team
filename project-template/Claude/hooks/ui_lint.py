@@ -94,6 +94,8 @@ def lint(path, canon):
         problems.append(("WARN", name, "header still has the old prompt styling (> title _ and # subtitle): use the plain title"))
     if re.search(r"animation\s*:", css) and "prefers-reduced-motion" not in css:
         problems.append(("ERROR", name, "has animations but no prefers-reduced-motion rule"))
+    if "prefers-reduced-motion:reduce){*," in s.replace(" ", ""):
+        problems.append(("ERROR", name, "a blanket reduced-motion rule switches off every animation even when Motion is on (prefix it with html:not(.motion-full))"))
     return problems
 
 

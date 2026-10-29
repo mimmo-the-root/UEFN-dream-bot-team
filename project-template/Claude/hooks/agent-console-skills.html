@@ -51,7 +51,7 @@ tr.sel td{background:rgba(75,139,255,.06)}tr.pick{cursor:pointer}tr.pick:hover t
 #conn{font-size:11px;color:var(--dim)}#conn .ok{color:var(--green)}#conn .bad{color:var(--red)}
 textarea.edit{width:100%;font:inherit;font-size:12px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px;margin-top:6px}
 .blink{animation:blink 1.1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}::selection{background:var(--blue);color:#fff}code,pre,kbd,samp,.mono{font-family:var(--mono)}
+@media (prefers-reduced-motion:reduce){html:not(.motion-full) *,html:not(.motion-full) *::before,html:not(.motion-full) *::after{animation:none!important;transition:none!important}}:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}::selection{background:var(--blue);color:#fff}code,pre,kbd,samp,.mono{font-family:var(--mono)}
 /* console-ui: aligned numbers, readable line length */
 td,th,.value,.num,.sv,[class*=count]{font-variant-numeric:tabular-nums;}
 p,.hint,.desc,.sub{max-width:65ch;}
@@ -900,7 +900,7 @@ function renderRecipes(){
 /* ---- Maps & products ---- */
 function renderMaps(){
  var box=$("kMaps");if(!box)return;if(!SD||SD.error){box.innerHTML="";return;}
- var all=SD.projects||[],cur=(SD.current_project||"").toLowerCase();
+ var all=SD.projects||[],cur=(SD.current_project||window.__kitProject||"").toLowerCase();
  box.innerHTML='<div class="kfilters" id="mfbar">'+fil("mf",MF,[["all","All",all.length],["map","Maps",all.filter(function(p){return p.kind==="map";}).length],["fab","Fab products",all.filter(function(p){return p.kind==="fab";}).length]])+'<span class="grow"></span><input id="mq" class="kq" type="search" placeholder="search&hellip;" value="'+esc(MQ)+'"></div><div id="mpTbl"></div><div class="khint">Every project the kit has learned from or is learning from. A map teaches lessons, a blueprint and recipes; a Fab product teaches recipes and the how-to of its editor work. The bar is how much of the learning is done.</div>';
  var draw=function(){var q=MQ.trim().toLowerCase(),list=all.slice().sort(function(x,y){var mx=x.name.toLowerCase()===cur,my=y.name.toLowerCase()===cur;return mx!==my?(mx?-1:1):x.name.toLowerCase().localeCompare(y.name.toLowerCase());}).filter(function(p){return (MF==="all"||p.kind===MF)&&(!q||(p.name+" "+p.genre).toLowerCase().indexOf(q)>=0);});
   var pg=Math.min(MPG,Math.max(0,Math.ceil(list.length/5)-1));MPG=pg;
@@ -1036,8 +1036,8 @@ body .tile:nth-child(2)::after{animation-delay:.5s}body .tile:nth-child(3)::afte
 body::before{content:"";position:fixed;top:0;left:0;width:26%;height:2px;background:linear-gradient(90deg,transparent,rgb(var(--acc,75,216,255)),transparent);box-shadow:0 0 10px rgb(var(--acc,75,216,255));pointer-events:none;z-index:50;animation:cuScan 5.5s linear infinite;}
 .cu-live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);margin-right:7px;vertical-align:1px;animation:cuDot 1.4s ease-in-out infinite;}
 .cu-tick{animation:cuTick .45s ease-out 1;display:inline-block;}
-body .card,body .hc,body .tile,body .kh-card,body .chart-panel,body .pc,body .btn,body .kcard{transition:transform .18s ease-out;}
-body .card:hover,body .hc:hover,body .tile:hover,body .kh-card:hover,body .chart-panel:hover,body .pc:hover,body .kcard:hover{transform:translateY(-2px);}
+body .card,body .hc,body .tile,body .kh-card,body .chart-panel,body .pc,body .kcard,body .rank-card,body .agentcost,body .upanel,body .kitbar,body .stat,body .khc,body .kcard2,body .kst,body .ucard,body .kprop,body .wl,body .btn{transition:transform .18s ease-out;}
+body .card:hover,body .hc:hover,body .tile:hover,body .kh-card:hover,body .chart-panel:hover,body .pc:hover,body .kcard:hover,body .rank-card:hover,body .agentcost:hover,body .upanel:hover,body .kitbar:hover,body .stat:hover,body .khc:hover,body .kcard2:hover,body .kst:hover,body .ucard:hover,body .kprop:hover,body .wl:hover{transform:translateY(-2px);}
 body .btn:hover{transform:translateY(-1px);}body .btn:active{transform:scale(.97);}
 @keyframes cuBreath2{0%,100%{opacity:.05}50%{opacity:.85}}
 .cu-breath{position:relative;}
@@ -1045,7 +1045,7 @@ body .btn:hover{transform:translateY(-1px);}body .btn:active{transform:scale(.97
 body .genre-badge{margin-left:10px;}
 @keyframes cuDotSoft{0%,100%{opacity:.35}50%{opacity:1}}
 /* reduced motion: nothing moves, but the light may still breathe (opacity only) */
-@media (prefers-reduced-motion:reduce){html:not(.motion-full) body::before{display:none;}html:not(.motion-full) .cu-tick{animation:none!important;}html:not(.motion-full) .cu-live::before{animation-name:cuDotSoft;}html:not(.motion-full) body .card:hover,html:not(.motion-full) body .hc:hover,html:not(.motion-full) body .tile:hover,html:not(.motion-full) body .kh-card:hover,html:not(.motion-full) body .chart-panel:hover,html:not(.motion-full) body .pc:hover,html:not(.motion-full) body .kcard:hover,html:not(.motion-full) body .btn:hover{transform:none;}}
+@media (prefers-reduced-motion:reduce){html:not(.motion-full) body::before{display:none;}html:not(.motion-full) .cu-tick{animation:none!important;}html:not(.motion-full) .cu-live::before{animation-name:cuDotSoft;}html:not(.motion-full) body .card:hover,html:not(.motion-full) body .hc:hover,html:not(.motion-full) body .tile:hover,html:not(.motion-full) body .kh-card:hover,html:not(.motion-full) body .chart-panel:hover,html:not(.motion-full) body .pc:hover,html:not(.motion-full) body .kcard:hover,html:not(.motion-full) body .rank-card:hover,html:not(.motion-full) body .agentcost:hover,html:not(.motion-full) body .upanel:hover,html:not(.motion-full) body .kitbar:hover,html:not(.motion-full) body .stat:hover,html:not(.motion-full) body .khc:hover,html:not(.motion-full) body .kcard2:hover,html:not(.motion-full) body .kst:hover,html:not(.motion-full) body .ucard:hover,html:not(.motion-full) body .kprop:hover,html:not(.motion-full) body .wl:hover,html:not(.motion-full) body .btn:hover{transform:none;}}
 
 /* console-ui: theme (swatches in the header) */
 .theme-pick{display:flex;flex-wrap:nowrap;white-space:nowrap;width:max-content;align-items:center;gap:7px;margin:9px 0 0 40px;font-size:11px;color:var(--dim);}
@@ -1089,6 +1089,16 @@ circle[stroke-dashoffset],circle[stroke-dasharray]{transition:stroke-dashoffset 
 .theme-pick button.motion-btn:hover{transform:none;}
 .theme-pick button.motion-btn[aria-pressed="true"]{outline:none;}
 .theme-pick button.aura-auto[aria-pressed="true"]{background:linear-gradient(90deg,rgba(var(--acc,75,216,255),.3),rgba(var(--acc2,75,139,255),.3));}
+
+/* console-ui: skills page panels (same neon tones, bars and sheen as the other pages) */
+body .kcard,body .khc,body .kcard2:not(.warn),body .kst{border-color:var(--neon-mid);box-shadow:0 0 0 1px rgba(var(--acc,75,216,255),.07),0 0 18px -6px rgba(var(--acc,75,216,255),.42),inset 0 0 22px -14px rgba(var(--acc,75,216,255),.55);}
+body #kStrip .kcard2.rc:nth-child(2){border-color:var(--neon-hi);box-shadow:0 0 0 1px rgba(var(--acc,75,216,255),.22),0 0 26px -4px rgba(var(--acc,75,216,255),.6),inset 0 0 26px -12px rgba(var(--acc,75,216,255),.6);}
+body .kprop,body .wl,body .kcpre{border-color:var(--neon-lo);}
+body .kcard2.warn{box-shadow:0 0 22px -6px rgba(255,180,84,.45);}
+.kstack i,.kbar i,.lad i{position:relative;overflow:hidden;}
+.kstack i::after,.kbar i::after,.lad i::after{content:"";position:absolute;top:0;bottom:0;left:0;width:38%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:cuSheen 5.2s ease-in-out infinite;}
+html:not(.motion-full) .kstack i::after,html:not(.motion-full) .kbar i::after,html:not(.motion-full) .lad i::after{}
+@media (prefers-reduced-motion:reduce){html:not(.motion-full) .kstack i::after,html:not(.motion-full) .kbar i::after,html:not(.motion-full) .lad i::after{animation:none!important;display:none;}}
 </style>
 <div class="kitfoot">Dream Bot Team for UEFN<span class="sep">&middot;</span><a href="/manual/the-console.html#skills" data-manual-help>Help for this page</a><span class="sep">&middot;</span><a href="/manual/commands.html">All commands</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a><span class="sep">&middot;</span><a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> &mdash; free to use, copy and change, no warranty<span class="sep">&middot;</span>by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games.</div>
 <!-- kit-footer:end -->
@@ -1107,7 +1117,7 @@ circle[stroke-dashoffset],circle[stroke-dasharray]{transition:stroke-dashoffset 
   function tag(){ var els = document.querySelectorAll("div,span,p"); for (var i=0;i<els.length;i++){ var e = els[i]; if (e.children.length) continue; var s = e.textContent || ""; if (/^\s*[\u2713]\s/.test(s) && !e.classList.contains("cu-live")) e.classList.add("cu-live"); } }
   tag(); setInterval(tag, 3000);
   /* irregular breathing: each panel gets its own period; the phase comes from the clock, so a panel redrawn by a refresh continues where it was (no jump) */
-  var P = [3.1, 4.7, 3.9, 5.3, 4.1, 6.1, 3.5, 5.7], PAN = ".card,.hc,.kh-card,.chart-panel,.rank-card,.agentcost,.upanel,.kitbar,.stat,.pc";
+  var P = [3.1, 4.7, 3.9, 5.3, 4.1, 6.1, 3.5, 5.7], PAN = ".card,.hc,.kh-card,.chart-panel,.rank-card,.agentcost,.upanel,.kitbar,.stat,.pc,.kcard,.khc,.kcard2,.kst";
   function breathe(el){ if (el.classList.contains("cu-breath") || el.classList.contains("nx") || el.classList.contains("alert")) return; try { if (getComputedStyle(el,"::after").content !== "none") return; } catch(e){ return; }
     var lb = el.querySelector(".label,.k,h2,h3,b,.t"), key = el.className + (el.id||"") + (lb ? lb.textContent.slice(0,24) : "") + (el.parentNode ? Array.prototype.indexOf.call(el.parentNode.children, el) : 0), h = 0; for (var q=0;q<key.length;q++) h = (h*31 + key.charCodeAt(q)) | 0; var p = P[Math.abs(h) % P.length];
     el.style.setProperty("--bp", p + "s"); el.style.setProperty("--bd", "-" + ((Date.now()/1000) % p).toFixed(2) + "s"); el.classList.add("cu-breath"); }
@@ -1117,7 +1127,7 @@ circle[stroke-dashoffset],circle[stroke-dasharray]{transition:stroke-dashoffset 
   var SEL = ".value,.num,.n,.sv,.kh-card b,.tile .v,[data-tick]";
   try { new MutationObserver(function(ms){ ms.forEach(function(m){ var t = m.target.nodeType===3 ? m.target.parentNode : m.target; if (!t || !t.matches || !t.matches(SEL)) return; var now = (t.textContent||"").trim(), prev = t.getAttribute("data-prev"); t.setAttribute("data-prev", now); if (prev!==null && prev!==now && now!==""){ t.classList.remove("cu-tick"); void t.offsetWidth; t.classList.add("cu-tick"); } }); }).observe(document.body,{subtree:true,childList:true,characterData:true}); } catch(e){}
   /* theme swatches: small cubes in the empty part of the header, one per accent colour */
-  (function(){ var T = window.__kitThemes, lg = document.querySelector("img.kit-logo");
+  function kitAuraMount(){ var T = window.__kitThemes, lg = document.querySelector("img.kit-logo"); if (!lg || document.querySelector(".theme-pick")) return false;
     /* Aura Auto: the accent drifts by itself, fading the gradient from one colour to the next, with irregular pauses (a fast change now and then, a long rest at other times) */
     var autoTimer = null, fadeTimer = null, curIdx = 0;
     function autoOn(){ try { return localStorage.getItem("kit-aura-auto") === "1"; } catch(e){ return false; } }
@@ -1145,7 +1155,9 @@ circle[stroke-dashoffset],circle[stroke-dasharray]{transition:stroke-dashoffset 
     function lab(){ mb.textContent = "Motion"; mb.setAttribute("aria-pressed", document.documentElement.classList.contains("motion-full") ? "true" : "false"); }
     mb.title = "Off: follows your system (Windows: Animation effects). On: always shows the movement."; lab();
     mb.addEventListener("click", function(){ var on = !document.documentElement.classList.contains("motion-full"); document.documentElement.classList.toggle("motion-full", on); try { localStorage.setItem("kit-motion", on ? "full" : "auto"); } catch(e){} lab(); }); box.appendChild(mb);
-    lg.parentNode.appendChild(box); if (autoOn()) auraAuto(true, true); })();
+    lg.parentNode.appendChild(box); if (autoOn()) auraAuto(true, true); return true; }
+  /* the header may be drawn after this script runs (Score, Docs...): mount the Aura when it appears, and again if the header is redrawn */
+  (function(){ var n = 0; function go(){ if (!document.querySelector(".theme-pick")) kitAuraMount(); if (++n < 600) setTimeout(go, n < 20 ? 150 : 1500); } go(); })();
   /* pixel wave: when the data inside a panel really changes, a short wave of small translucent cubes passes over it (one canvas, drawn for about a second, then removed).
      Off switch: localStorage "kit-pixel-wave" = "off". Never more than one wave per panel every 8 s. */
   var HASH = {}, LAST = {}, OFF = false; try { OFF = localStorage.getItem("kit-pixel-wave") === "off"; } catch(e){}
@@ -1181,7 +1193,7 @@ circle[stroke-dashoffset],circle[stroke-dasharray]{transition:stroke-dashoffset 
     if (seen.length) setTimeout(function(){ seen.forEach(check); }, 200); }).observe(document.body, {subtree:true, childList:true, characterData:true}); } catch(e){}
   setTimeout(function(){ document.querySelectorAll(PAN).forEach(check); }, 600);
   /* bars and rings: a bar redrawn by a refresh eases from its old width to the new one (first time: from zero); a % figure counts up */
-  var BAR = ".jbar i,.bar i,.pbar i,.bar-fill,.trk .bt,.trk .pv,.trk .gp", BW = {};
+  var BAR = ".jbar i,.bar i,.pbar i,.bar-fill,.trk .bt,.trk .pv,.trk .gp,.kstack i,.kbar i,.lad i", BW = {};
   function barKey(el){ var pn = el.closest(PAN) || el.parentNode || document.body; return keyOf(pn) + "|" + el.className + "|" + Array.prototype.indexOf.call(pn.querySelectorAll(BAR), el); }
   function easeBar(el){ if (el.getAttribute("data-bw") || !el.style || !/%$/.test(el.style.width || "")) return; var k = barKey(el), to = el.style.width, from = BW[k] || "0%"; BW[k] = to; el.setAttribute("data-bw", "1");
     if (from === to) return; el.style.width = from; void el.offsetWidth; el.style.transition = "width .9s cubic-bezier(.2,.8,.2,1)"; el.style.width = to; }
@@ -1194,6 +1206,26 @@ circle[stroke-dashoffset],circle[stroke-dasharray]{transition:stroke-dashoffset 
   barSweep(document); pctSweep(document);
   try { new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if (n.nodeType === 1){ barSweep(n); pctSweep(n); } });
       var tg = m.target.nodeType === 3 ? m.target.parentNode : m.target; if (tg && tg.matches && tg.matches(PCT)) countUp(tg); }); }).observe(document.body, {subtree:true, childList:true, characterData:true}); } catch(e){}
+  /* hover: every box lifts (CSS) and starts its own inner animation: the cube wave, bars from zero, rings refill, percentages count up */
+  var HOV = PAN + ",.tile,.ucard", HLAST = new WeakMap();
+  function replay(p){
+    p.querySelectorAll(BAR).forEach(function(el){ var w = el.style.width; if (!/%$/.test(w || "")) return; el.style.transition = "none"; el.style.width = "0%"; void el.offsetWidth; el.style.transition = "width .9s cubic-bezier(.2,.8,.2,1)"; el.style.width = w; });
+    p.querySelectorAll("circle[stroke-dashoffset]").forEach(function(c){ var o = c.getAttribute("stroke-dashoffset"), full = parseFloat(c.getAttribute("stroke-dasharray")); if (!full || isNaN(parseFloat(o)) || parseFloat(o) >= full) return; c.style.transition = "none"; c.setAttribute("stroke-dashoffset", String(full)); void c.getBoundingClientRect(); c.style.transition = ""; c.setAttribute("stroke-dashoffset", o); });
+    p.querySelectorAll(PCT).forEach(function(e){ if (e.getAttribute("data-cu-busy")) return; e.setAttribute("data-cu", "0"); countUp(e); });
+  }
+  document.addEventListener("mouseover", function(ev){ if (OFF) return; var p = ev.target.closest ? ev.target.closest(HOV) : null; if (!p || (ev.relatedTarget && p.contains(ev.relatedTarget))) return;
+    var now = Date.now(); if (HLAST.get(p) && now - HLAST.get(p) < 2500) return; HLAST.set(p, now);
+    var rc = p.getBoundingClientRect(); if (rc.width < 60 || rc.height < 30 || rc.width > 1300 || rc.height > 700) return;
+    if (!p.querySelector(":scope > canvas")) wave(p, rc); replay(p); }, true);
+  /* auto life: without the mouse, a few visible boxes at a time replay their inner animation (wave, bars, rings, percentages) at irregular intervals, again and again */
+  (function(){ function allowed(){ if (OFF || document.hidden) return false; var rm = false; try { rm = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){} return !rm || document.documentElement.classList.contains("motion-full"); }
+    function tick(){ var next = Math.random() < 0.3 ? 1500 + Math.random()*2500 : 4500 + Math.random()*9000;
+      if (allowed()){ var vis = [], all = document.querySelectorAll(HOV), vh = window.innerHeight, now = Date.now();
+        for (var i = 0; i < all.length; i++){ var e = all[i], rc = e.getBoundingClientRect(); if (rc.width < 60 || rc.height < 30 || rc.width > 1300 || rc.height > 700 || rc.bottom < 0 || rc.top > vh || e.offsetParent === null) continue; if (HLAST.get(e) && now - HLAST.get(e) < 9000) continue; vis.push([e, rc]); }
+        var n = Math.min(vis.length, 1 + Math.floor(Math.random()*2));
+        for (var k = 0; k < n; k++){ var j = Math.floor(Math.random()*vis.length), v = vis.splice(j, 1)[0]; HLAST.set(v[0], now); if (!v[0].querySelector(":scope > canvas")) wave(v[0], v[1]); replay(v[0]); } }
+      setTimeout(tick, next); }
+    setTimeout(tick, 2500); })();
 })();
 </script><!-- micro-life:end -->
 </body>

@@ -56,7 +56,9 @@
 <p>The copy in <code>~/.claude/</code> updates itself too: at most once every 6 hours the session start checks GitHub in the background and, if a newer release exists, downloads it without slowing the session. The project then updates at its next session start. The update downloads the release file <code>kit.zip</code>; GitHub counts those downloads, which is how the author knows roughly how many machines take each version (nothing is sent from your computer). The check logs one line in <code>~/.claude/kit-auto-update.log</code>. To switch it off, create an empty file <code>~/.claude/kit-auto-update.off</code>. Both the project hook and the global hook start the check. The very first time, run <code>/kit-update --fetch</code> (or <code>update-my-profile.cmd</code>) once, so that the new files are in place.</p>
 <ul><li><code>/kit-update</code> updates the current project now.</li><li><code>/kit-update --fetch</code> first downloads the latest release from GitHub into <code>~/.claude/kit-template/</code>, then updates the project.</li><li>After an update, <strong>open a new session</strong> (rules, agents and hooks are read at the start) and reload the console page.</li></ul>
 <h2 id="the-doctor">The doctor</h2>
-<p><code>/kit-doctor</code> checks the project&#x27;s health: versions, hooks, backups. It tells you in a few lines what is fine, what is wrong and what to do. <code>/kit-doctor --fix</code> repairs the common problems.</p>
+<p><code>/kit-doctor</code> checks the project&#x27;s health: versions, hooks, backups, and the <strong>five needs</strong> of a project, each marked critical or recommended with the remedy in plain words: instructions (the project rules are in place), state (a task list and a status page not older than 14 days), verification (a playtest or audit list once something is Done), scope (every task says how we know it works) and hand-over (no command left half done, a hand-over note). It tells you in a few lines what is fine, what is wrong and what to do. <code>/kit-doctor --fix</code> repairs the common problems.</p>
+<h2 id="the-console-does-not-move">The console does not move</h2>
+<p>Windows has a setting, Animation effects (Settings, Accessibility, Visual effects). When it is off, your browser tells the page to reduce motion and the console stops the things that move: the light across the top, the lift of the panels, the sheen on the bars. The breathing of the panels, the pulsing dots and the pixel wave stay. Press <strong>Motion</strong> in the header to see everything anyway. To turn off the cube wave on its own, run <code>localStorage.setItem(&quot;kit-pixel-wave&quot;,&quot;off&quot;)</code> in the browser console of the page.</p>
 <h2 id="restore-points">Restore points</h2>
 <p><code>/restore-point</code> makes a snapshot of your Verse code and documents, shows what changed since, or undoes a change. Run it without arguments to see what changed. A restore always shows what would change before it does anything, and never deletes files.</p>
 <h2 id="what-the-agents-changed-in-the-editor">What the agents changed in the editor</h2>
@@ -90,4 +92,34 @@
 <p>Use <strong>Submit an issue</strong> on the What&#x27;s new page. See <a href="community.html">Community</a>.</p>
 <h2 id="still-stuck">Still stuck?</h2>
 <p>Open an issue on the <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/issues/new/choose" target="_blank" rel="noopener">GitHub repo</a>, or ask on the creator&#x27;s <a href="https://discord.gg/WXF9UgzvRX" target="_blank" rel="noopener">Discord</a>. Tell us your kit version (shown at the top of every console page) and what <code>/kit-doctor</code> said.</p>
-<nav class="pn"><a class="pn-prev" href="epic-ai-megajam.html"><small>Previous</small>2026 Epic AI MegaJam</a><a class="pn-next" href="faq.html"><small>Next</small>Questions and answers</a></nav><footer class="foot">Dream Bot Team for UEFN &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> (free to use, copy and change, no warranty) &middot; by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games. <a href="../agent-console.html">Back to the console</a></footer></main></div></body></html>
+<nav class="pn"><a class="pn-prev" href="epic-ai-megajam.html"><small>Previous</small>2026 Epic AI MegaJam</a><a class="pn-next" href="faq.html"><small>Next</small>Questions and answers</a></nav><footer class="foot">Dream Bot Team for UEFN &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> (free to use, copy and change, no warranty) &middot; by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games. <a href="../agent-console.html">Back to the console</a></footer></main></div><script id="manual-life">
+/* manual-life: the same cube wave as the console, on the chapter cards and callouts. Inline, no network, no tracking. Off: localStorage "kit-pixel-wave" = "off". */
+(function(){
+  var TH = [[185,"75,216,255","155,123,255"],[222,"110,160,255","150,110,255"],[265,"170,125,255","255,110,215"],[318,"255,100,215","255,160,110"],[168,"45,212,191","110,170,255"],[212,"205,228,255","155,123,255"]], idx = 0, off = false;
+  try { idx = parseInt(localStorage.getItem("kit-theme") || "0", 10) || 0; off = localStorage.getItem("kit-pixel-wave") === "off"; } catch(e){}
+  var th = TH[idx] || TH[0]; document.documentElement.style.setProperty("--acc", th[1]); document.documentElement.style.setProperty("--acc2", th[2]);
+  if (off) return;
+  var PAN = ".toc-card,.callout", LAST = new WeakMap();
+  function wave(p){
+    var rc = p.getBoundingClientRect(); if (rc.width < 60 || rc.height < 30 || rc.bottom < 0 || rc.top > innerHeight) return;
+    var now = Date.now(); if (LAST.get(p) && now - LAST.get(p) < 7000) return; LAST.set(p, now);
+    var dpr = Math.min(2, window.devicePixelRatio || 1), W = Math.round(rc.width), H = Math.round(rc.height), cv = document.createElement("canvas");
+    cv.width = W*dpr; cv.height = H*dpr; cv.setAttribute("aria-hidden", "true"); cv.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:4;border-radius:inherit;";
+    if (getComputedStyle(p).position === "static") p.style.position = "relative"; p.style.overflow = "hidden";
+    p.appendChild(cv); var g = cv.getContext("2d"); g.scale(dpr, dpr);
+    var S = 9, cols = Math.ceil(W/S), rows = Math.ceil(H/S), type = Math.floor(Math.random()*4), ox = Math.random(), oy = Math.random(), rnd = [], t0 = performance.now(),
+        BW = 0.35 + Math.random()*0.45, DUR = Math.random() < 0.5 ? 420 + Math.random()*300 : 1900 + Math.random()*1300, H0 = th[0];
+    for (var i = 0; i < cols*rows; i++) rnd.push(Math.random());
+    function dist(c, r){ var x = c/cols, y = r/rows; if (type === 0) return x; if (type === 1) return y; if (type === 2) return Math.min(1, Math.sqrt((x-ox)*(x-ox)*Math.max(1, W/H) + (y-oy)*(y-oy))/1.1); return (x + y)/2; }
+    (function frame(now2){ var u = (now2 - t0)/DUR; if (u >= 1 || !cv.isConnected){ if (cv.parentNode) cv.parentNode.removeChild(cv); return; }
+      g.clearRect(0, 0, W, H);
+      for (var c = 0; c < cols; c++) for (var r = 0; r < rows; r++){ var d = dist(c, r), x = u*(1 + BW) - d; if (x <= 0 || x >= BW) continue; var rr = rnd[r*cols + c]; if (rr < 0.18) continue;
+        var a = Math.sin(Math.PI*x/BW) * (0.3 + 0.7*rr) * 0.8 * (1 - u*0.3);
+        g.fillStyle = "hsla(" + Math.round(H0 + d*110) + ",95%," + Math.round(60 + rr*18) + "%," + a.toFixed(3) + ")"; g.fillRect(c*S + 1, r*S + 1, S - 2, S - 2); }
+      requestAnimationFrame(frame); })(t0);
+  }
+  var cards = [].slice.call(document.querySelectorAll(PAN));
+  cards.forEach(function(c, i){ setTimeout(function(){ wave(c); }, 500 + Math.random()*2600); c.addEventListener("mouseenter", function(){ wave(c); }); });
+  (function tick(){ setTimeout(function(){ if (!document.hidden && cards.length) wave(cards[Math.floor(Math.random()*cards.length)]); tick(); }, 1800 + Math.random()*5200); })();
+})();
+</script></body></html>

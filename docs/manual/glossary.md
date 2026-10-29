@@ -2,8 +2,14 @@
 
 Short definitions of the words this manual uses.
 
+## ***anonymized***
+The word the kit writes in place of a personal identifier (a Windows user name, an email, a home path) in reports, documents and logs, following the GDPR (Regulation (EU) 2016/679) principle of data minimisation. In binary assets the name is overwritten with asterisks of the same length. It applies only to your own files, never to assets created by Epic.
+
 ## Agent
 A helper with one narrow job and its own instructions, for example the coder or the QA agent. Agents are files in `~/.claude/agents/`. See [Your team](ch:your-team).
+
+## Aura
+The accent colour of the console (six choices, picked with small cubes under the title). Status colours are never part of it.
 
 ## Blueprint
 What the kit learned about how a map of your kind is built: layout, game loop, devices and their wiring, rules with observed numbers, build order. Kept inside the genre skill and rewritten when your map changes.
@@ -22,6 +28,12 @@ A step in the community pipeline that proposes which lessons to promote. The mai
 
 ## Doctor
 `/kit-doctor`, a command that checks the health of a project's kit files.
+
+## Drift
+The console button that lets the Aura fade by itself from one colour to the next.
+
+## Five needs
+What `/kit-doctor` checks in a project: instructions, state, verification, scope and hand-over.
 
 ## Game spec
 `GAME-SPEC.md`, written by `/spec`: the idea, the loop, the stories, the success criteria and the risks. It says what the game is and why, never how it is built. Not the same as `SPEC.md`, which is deduced from existing code.
@@ -50,6 +62,9 @@ Model Context Protocol, the way Claude talks to a running UEFN editor. The serve
 ## Pilot demo
 Chicken Roundup, a complete example (spec, constitution, plan, tasks, playtest checklist) shipped with the kit. `/demo` (or `/demo --auto`) runs it in a new empty test project, never into your real map.
 
+## Pixel wave
+A short wave of small translucent cubes that passes over a panel when its data changes.
+
 ## Plan
 `PLAN.md`, written by `/game-plan`: per story the devices, Verse files, assets, manual steps, build order and the task that reduces each risk.
 
@@ -58,6 +73,9 @@ The rule that no code is written before a task with acceptance criteria is open 
 
 ## Published map
 A map that has an island code on Epic's side. Only lessons from a published map can be shared with the community.
+
+## Readiness
+One honest number out of 100 on the Score page: only proven work counts.
 
 ## Recipe
 How to rebuild something (a device, a mechanic, a map template, a material), step by step, with its Verse code. Not the same thing as a lesson: a lesson is a short rule. See [Community](ch:community).
@@ -82,6 +100,3 @@ Unreal Editor for Fortnite.
 
 ## Verse
 The programming language of UEFN.
-
-## ***anonymized***
-The word the kit writes in place of a personal identifier (a Windows user name, an email, a home path) in reports, documents and logs, following the GDPR (Regulation (EU) 2016/679) principle of data minimisation. In binary assets the name is overwritten with asterisks of the same length. It applies only to your own files, never to assets created by Epic.

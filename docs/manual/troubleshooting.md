@@ -16,7 +16,11 @@ The copy in `~/.claude/` updates itself too: at most once every 6 hours the sess
 
 ## The doctor
 
-`/kit-doctor` checks the project's health: versions, hooks, backups. It tells you in a few lines what is fine, what is wrong and what to do. `/kit-doctor --fix` repairs the common problems.
+`/kit-doctor` checks the project's health: versions, hooks, backups, and the **five needs** of a project, each marked critical or recommended with the remedy in plain words: instructions (the project rules are in place), state (a task list and a status page not older than 14 days), verification (a playtest or audit list once something is Done), scope (every task says how we know it works) and hand-over (no command left half done, a hand-over note). It tells you in a few lines what is fine, what is wrong and what to do. `/kit-doctor --fix` repairs the common problems.
+
+## The console does not move
+
+Windows has a setting, Animation effects (Settings, Accessibility, Visual effects). When it is off, your browser tells the page to reduce motion and the console stops the things that move: the light across the top, the lift of the panels, the sheen on the bars. The breathing of the panels, the pulsing dots and the pixel wave stay. Press **Motion** in the header to see everything anyway. To turn off the cube wave on its own, run `localStorage.setItem("kit-pixel-wave","off")` in the browser console of the page.
 
 ## Restore points
 

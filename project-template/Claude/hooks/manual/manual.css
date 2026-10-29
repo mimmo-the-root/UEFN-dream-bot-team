@@ -65,3 +65,26 @@ th{background:var(--card);font-size:12px;letter-spacing:.05em;text-transform:upp
   .shell{display:block}.rail-w{display:none}.rail-m{display:block;border-right:0;border-bottom:1px solid var(--line);padding:10px 16px}
   .rail-m summary{cursor:pointer;font-weight:600;padding:6px 0}.page{padding:26px 18px 50px}h1{font-size:30px}.chapter-num{font-size:64px}}
 @media print{.rail{display:none}.shell{display:block}.page{max-width:none;padding:0}a{color:inherit}.pn{display:none}}
+
+/* Console look for the chapter cards: neon edge, breathing at irregular rhythms (CSS), a wave of small translucent cubes (manual-life script), a lift on hover.
+   The accent follows the Aura picked in the console when the manual is opened from the kit (same browser storage). */
+.toc-card{position:relative;overflow:hidden;transition:transform .18s ease-out,border-color .2s;}
+.toc-card:hover{transform:translateY(-2px);}
+@media (prefers-color-scheme:dark){.toc-card{border-color:rgba(var(--acc,75,216,255),.32);box-shadow:0 0 0 1px rgba(var(--acc,75,216,255),.06),0 0 18px -7px rgba(var(--acc,75,216,255),.4),inset 0 0 22px -16px rgba(var(--acc,75,216,255),.55);}.toc-card:hover{border-color:rgba(var(--acc,75,216,255),.7);}}
+.toc-card::after,.callout::after{content:"";position:absolute;inset:-1px;border-radius:inherit;box-shadow:0 0 24px -3px rgba(var(--acc,75,216,255),.75);opacity:.05;pointer-events:none;animation:tocBreath var(--p,4s) ease-in-out infinite;animation-delay:var(--d,0s);}
+.callout{position:relative;}
+.toc-card > *{position:relative;z-index:1;}
+@keyframes tocBreath{0%,100%{opacity:.05}50%{opacity:.8}}
+.toc-card:nth-child(7n+1),.callout:nth-of-type(7n+1){--p:3.1s;--d:0s}
+.toc-card:nth-child(7n+2),.callout:nth-of-type(7n+2){--p:4.7s;--d:.6s}
+.toc-card:nth-child(7n+3),.callout:nth-of-type(7n+3){--p:3.9s;--d:1.1s}
+.toc-card:nth-child(7n+4),.callout:nth-of-type(7n+4){--p:5.3s;--d:.3s}
+.toc-card:nth-child(7n+5),.callout:nth-of-type(7n+5){--p:4.1s;--d:1.7s}
+.toc-card:nth-child(7n+6),.callout:nth-of-type(7n+6){--p:6.1s;--d:2.2s}
+.toc-card:nth-child(7n+7),.callout:nth-of-type(7n+7){--p:3.5s;--d:.9s}
+@media (prefers-reduced-motion:reduce){.toc-card{transition:none;}.toc-card:hover{transform:none;}}
+
+/* Titles take the accent too (gradient from the Aura colour pair; a calm blue-to-violet in the light theme) */
+h1,h2,.rail-brand{background:linear-gradient(90deg,#2459e6,#7c4dff);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;}
+@media (prefers-color-scheme:dark){h1,h2,.rail-brand{background-image:linear-gradient(90deg,rgb(var(--acc,75,216,255)),rgb(var(--acc2,155,123,255)));}}
+.chapter-num{background:none;-webkit-text-fill-color:currentColor;}

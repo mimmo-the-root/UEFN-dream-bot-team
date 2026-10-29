@@ -59,4 +59,34 @@
 <h2 id="what-you-need">What you need</h2>
 <ul><li>UEFN installed, with the project you want to work on.</li><li>Claude Code, signed in.</li><li>Python 3, used by the console server and the learning scripts. Windows is the main platform; <code>.sh</code> versions of the hooks exist for macOS and Linux.</li></ul>
 <p>Ready? Go to the <a href="quick-start.html">quick start</a>.</p>
-<nav class="pn"><span></span><a class="pn-next" href="how-the-kit-thinks.html"><small>Next</small>How the kit thinks</a></nav><footer class="foot">Dream Bot Team for UEFN &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> (free to use, copy and change, no warranty) &middot; by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games. <a href="../agent-console.html">Back to the console</a></footer></main></div></body></html>
+<nav class="pn"><span></span><a class="pn-next" href="how-the-kit-thinks.html"><small>Next</small>How the kit thinks</a></nav><footer class="foot">Dream Bot Team for UEFN &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team" target="_blank" rel="noopener">GitHub repo</a> &middot; <a href="https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> (free to use, copy and change, no warranty) &middot; by <a href="https://x.com/mimmo_the_root" target="_blank" rel="noopener">@mimmo_the_root</a> on X<br>Not affiliated with Epic Games. Fortnite and UEFN are trademarks of Epic Games. <a href="../agent-console.html">Back to the console</a></footer></main></div><script id="manual-life">
+/* manual-life: the same cube wave as the console, on the chapter cards and callouts. Inline, no network, no tracking. Off: localStorage "kit-pixel-wave" = "off". */
+(function(){
+  var TH = [[185,"75,216,255","155,123,255"],[222,"110,160,255","150,110,255"],[265,"170,125,255","255,110,215"],[318,"255,100,215","255,160,110"],[168,"45,212,191","110,170,255"],[212,"205,228,255","155,123,255"]], idx = 0, off = false;
+  try { idx = parseInt(localStorage.getItem("kit-theme") || "0", 10) || 0; off = localStorage.getItem("kit-pixel-wave") === "off"; } catch(e){}
+  var th = TH[idx] || TH[0]; document.documentElement.style.setProperty("--acc", th[1]); document.documentElement.style.setProperty("--acc2", th[2]);
+  if (off) return;
+  var PAN = ".toc-card,.callout", LAST = new WeakMap();
+  function wave(p){
+    var rc = p.getBoundingClientRect(); if (rc.width < 60 || rc.height < 30 || rc.bottom < 0 || rc.top > innerHeight) return;
+    var now = Date.now(); if (LAST.get(p) && now - LAST.get(p) < 7000) return; LAST.set(p, now);
+    var dpr = Math.min(2, window.devicePixelRatio || 1), W = Math.round(rc.width), H = Math.round(rc.height), cv = document.createElement("canvas");
+    cv.width = W*dpr; cv.height = H*dpr; cv.setAttribute("aria-hidden", "true"); cv.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:4;border-radius:inherit;";
+    if (getComputedStyle(p).position === "static") p.style.position = "relative"; p.style.overflow = "hidden";
+    p.appendChild(cv); var g = cv.getContext("2d"); g.scale(dpr, dpr);
+    var S = 9, cols = Math.ceil(W/S), rows = Math.ceil(H/S), type = Math.floor(Math.random()*4), ox = Math.random(), oy = Math.random(), rnd = [], t0 = performance.now(),
+        BW = 0.35 + Math.random()*0.45, DUR = Math.random() < 0.5 ? 420 + Math.random()*300 : 1900 + Math.random()*1300, H0 = th[0];
+    for (var i = 0; i < cols*rows; i++) rnd.push(Math.random());
+    function dist(c, r){ var x = c/cols, y = r/rows; if (type === 0) return x; if (type === 1) return y; if (type === 2) return Math.min(1, Math.sqrt((x-ox)*(x-ox)*Math.max(1, W/H) + (y-oy)*(y-oy))/1.1); return (x + y)/2; }
+    (function frame(now2){ var u = (now2 - t0)/DUR; if (u >= 1 || !cv.isConnected){ if (cv.parentNode) cv.parentNode.removeChild(cv); return; }
+      g.clearRect(0, 0, W, H);
+      for (var c = 0; c < cols; c++) for (var r = 0; r < rows; r++){ var d = dist(c, r), x = u*(1 + BW) - d; if (x <= 0 || x >= BW) continue; var rr = rnd[r*cols + c]; if (rr < 0.18) continue;
+        var a = Math.sin(Math.PI*x/BW) * (0.3 + 0.7*rr) * 0.8 * (1 - u*0.3);
+        g.fillStyle = "hsla(" + Math.round(H0 + d*110) + ",95%," + Math.round(60 + rr*18) + "%," + a.toFixed(3) + ")"; g.fillRect(c*S + 1, r*S + 1, S - 2, S - 2); }
+      requestAnimationFrame(frame); })(t0);
+  }
+  var cards = [].slice.call(document.querySelectorAll(PAN));
+  cards.forEach(function(c, i){ setTimeout(function(){ wave(c); }, 500 + Math.random()*2600); c.addEventListener("mouseenter", function(){ wave(c); }); });
+  (function tick(){ setTimeout(function(){ if (!document.hidden && cards.length) wave(cards[Math.floor(Math.random()*cards.length)]); tick(); }, 1800 + Math.random()*5200); })();
+})();
+</script></body></html>

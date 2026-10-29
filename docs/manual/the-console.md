@@ -11,6 +11,7 @@ The console runs on your own computer. It starts by itself when you open a sessi
 The live view, drawn like a small solar system. The chief of staff, which is your main Claude session, is the sun. Five **planets** orbit it, one per group: BUILD (coder), CONTROL (intent-reviewer), RELEASE (release-gate), MEMORY (the Obsidian Vault) and UEFN MCP (the MCP server). The other agents are the **moons** of their planet: they turn around it in the opposite direction and more slowly. An agent lights up while it works, and a pulse travels from one to another on a hand-off. You are the small red card near the sun.
 
 - **Session running for** and **tokens this session** in one compact row at the top, so the whole system stays visible without scrolling. The token count is an approximation, summed from the session transcript; its details (in, out, cache) sit beside the total.
+- **Summary line** (1.114): one line under the menu says where the work stands (tasks done, what Claude is building, what is built and waits for your playtest, open bugs) and, when only you can move on, the amber sentence "Your turn: play one round and tell Claude what you saw". It is read from the project's roadmap and bug list, never typed.
 - **The kit's numbers** (1.114): in the card next to the tokens, badges for **AI agents**, **skills**, **genre lessons** and **proven recipes**, with the state of the agents (idle, working, broken, waiting) under them. Below the cards a strip of badges shows the **UEFN MCP tools mapped** and the kit's public badges (licence, release, downloads, stars, UEFN, Verse, Claude Code, Fortnite maps). The numbers are read from the kit, not typed by hand: if the strip is missing, reload the page after restarting the console server.
 - The **five-stage rail** follows the current task from intent-gate to planner-docs.
 - The **activity log** on the right lists what each agent started and finished.
@@ -51,11 +52,11 @@ The project's own documents, read from `Claude/docs/`: the game idea, spec and p
 **What you see**
 
 - Three progress bars at the top: **Roadmap progress**, **Bug fixing progress** and **Release status**.
-- **Next action** (new in 1.114): the one thing to do now, with a **Copy text** button. It is only a text: nothing runs by itself; you paste it in Claude Code and every change still waits for your approval. The project name shows next to it and in the connection line (for a UEFN project the name of the folder above `Content`).
+- **Next action** (1.114): the card has a fixed order: **Found** (where we are), **Advice** (what Claude does), **Then**, and last, in an amber box, the **Question for you**. It has a **Copy text** button: nothing runs by itself, you paste the text in Claude Code and every change still waits for your approval. A task that is built and only waits for your playtest is shown as "Your turn", never as "Claude is building". The project name shows next to it and in the connection line (for a UEFN project the name of the folder above `Content`).
 - **The workflow as arrows** (1.114): Idea, Spec, Plan, Tasks, Environment, Build, Audit, Delivery. The arrow of the step in progress is lit and pulses; a finished step turns fully green; the ones not started are grey. When a step finishes, the page opens the next one by itself, so while Claude Code works you do not have to click: Build shows each task row light up as it changes, Environment each scenery row. After Delivery comes a ninth step, **Your turn**: everything that is left for you (tasks blocked on you, audit findings, what Claude cannot do). A task blocked on something only you can do turns the Build arrow red and the flow stops there until you act. Bugs, Status and Documents are the small tabs below. Every step shows its page even before there is any data (greyed, with the command that fills it), so you can see what is coming.
 - **Ideas** (Idea step): one tab per idea, up to 5, each with its score, verdict, weak points and score history, and a **Compare** tab. With `/spec --improve N` you rework an idea to raise its score; `/spec --new-idea` adds another. If you have your own material (notes, a half-written spec) give it to `/spec`: it is the starting point; with nothing, Claude Code proposes three ideas and works with you.
 - **A new map** shows something else on purpose: the three top cards become the journey (0 of 8 steps), bugs 0 and the release not started, and the Status tab offers only two ways in: your own game (`/spec`) or the demo (`/demo`, `/demo --auto`), each with a copy button.
-- **The demo clock** is a box always visible next to the next action: hours, minutes and seconds in tiles, at 00:00:00 until a demo starts. While it runs it shows the running phase and, under it, the task or scenery row in progress; the copy buttons for `/demo` and `/demo --auto` are in the same box.
+- **The demo clock** is a box always visible next to the next action: hours, minutes and seconds in tiles, at 00:00:00 until a demo starts. While it runs it shows the running phase; when it has finished it says "Last demo finished in ..." with the date, so an old run is never mistaken for a current one.
 - **The same header on every page**: the island strip (with a note while the map is not published), then the detail of the page. The session, tokens and project cards stay on the Console page only, so the other pages keep their room for data. Under the strip a line shows the commands useful on that page, and the footer of every page links to **All commands**, the list of every command of the kit (`/commands` chapter, written from the command files, so it is always the real one).
 - **Pilot demo** (Documents tab): the two buttons **Copy /demo** (interactive) and **Copy /demo --auto** (no questions) run the complete Chicken Roundup example into a test project; the **Demo timer** shows the total time on top and, smaller below, the running phase with its own time; it stops when everything is ready.
 - **Files parked for cleaning** (What's new page): the kit never deletes your files; replaced or old ones wait in the `_to_delete` folder of the project. **Open the folder to inspect** shows it in the file manager; **Delete everything** or **Delete this one** (one parked folder at a time, with a second click to confirm) cleans it when you decide. Old projects are migrated automatically on `/kit-update`: the old demo copy folder is moved there.
@@ -113,7 +114,7 @@ The **SKILLS** tab blinks when something waits for you. More in [Skills and less
 
 ## What's new
 
-The last release in plain words, the skills that improved, the top contributors, the thanks, and a link to submit an issue on GitHub. It also shows your own part: whether sharing is on, how many lessons you shared, and whether your map is published.
+The last release in plain words, the skills that improved, the top contributors, the thanks, and a link to submit an issue on GitHub. Right under the numbers a small card asks you to put a star on the repo and follow for updates on X. It also shows your own part: whether sharing is on, how many lessons you shared, and whether your map is published.
 
 **Why it is there.** After an update, to know what changed and whether it concerns you, and to see the community's part in it.
 
@@ -125,9 +126,15 @@ How far the project is against its own plan, release by release. A chart shows t
 
 Nothing is typed by hand. The page reads ROADMAP, BUGS and the release-readiness verdict of the project, so closing a task or a bug in the docs moves the score by itself. Tasks the page cannot link to a criterion are listed, and the team classifies them. New criteria are proposed on the Skills page and need your approval.
 
+**Readiness** (1.114): under the four tiles, one honest number out of 100. Only proven work counts (open bugs already lower it); a criterion fed by a single task counts half, because a small sample proves little; a task marked Done with no written proof after the word counts half, and the page names it. The **Scope** criterion compares the plan with the number of tasks when work started: while the plan is still being written it does not count as scope creep.
+
 **Why it is there.** To see at a glance what is missing in an advanced project, and to compare one release with the previous one.
 
 ![The Score page (demo data)](shot-score.png)
+
+## The header, on every page
+
+Logo, title and version, the menu, then a row under the title: **Aura** (six small cubes that change the accent colour), **Drift** (the colour fades by itself from one to the next) and **Motion** (always show the movement, even when your system has animation effects off). Under the menu, the island strip: the project, the island code (`0000-0000-0000` until the map is published, so the strip does not move) and the genre chip.
 
 ## Update banner
 
@@ -144,6 +151,7 @@ Every page is built from the same pieces, so you learn one page and know them al
 - **Aura Auto**: the `Drift` button next to the cubes lets the aura drift by itself, fading the gradient from one colour to the next (3 to 8 seconds), then resting for an irregular time (a second or two, or up to 15). Click a cube to take control again.
 - **Bars and rings**: a progress bar eases to its new width (and grows from zero the first time), a light runs along the full bars, the rings fill with a soft curve and the percentages count up.
 - **Motion**: the button next to Drift. Off follows your system; on (lit) always shows the movement, even when Windows has "Animation effects" off.
+- **Hover**: every box lifts a little when the mouse passes over it and starts its own animation: a wave of cubes, bars growing again from zero, rings filling again and percentages counting up. It works the same on every page, including Skills.
 - **Reduced motion**: if Windows has "Animation effects" off, the page stops everything that moves (the light on top, the tick, the lift on hover); the breathing and the dots, which only change brightness, stay.
 - **The selected tab has an underline**, not a coloured bar on its side.
 - **Keyboard**: every button and field shows a clear outline when you reach it with the Tab key.

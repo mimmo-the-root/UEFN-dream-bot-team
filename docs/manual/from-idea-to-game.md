@@ -60,7 +60,7 @@ When the build is finished, `/audit` looks for bugs. Small ones on the constitut
 
 The page keeps its header and the three progress rings (Roadmap, Bug fixing, Release status). Under them:
 
-- **Next action**: the one thing to do now, with a **Copy command** button (paste it in the chat).
+- **Next action**: the one thing to do now, in a fixed order (Found, Advice, Then, and last the Question for you), with a **Copy command** button (paste it in the chat). When everything Claude could build is built and only waits for your playtest, it says "Your turn".
 - **Tabs** Idea, Spec, Plan, then Roadmap, Bugs, Status, Documents. A dot says where each step is: grey = not started, amber = this one now, green = done. Old projects that already have tasks and no game spec do not see the first three tabs.
 - **Documents** has one card per file; the new files carry a NEW badge, and a file that does not exist yet says "not created yet".
 - The page follows the files and redraws within about five seconds.

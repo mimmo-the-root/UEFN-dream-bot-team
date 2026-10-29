@@ -30,6 +30,12 @@ The console answers four questions, in this order:
 - **Alive, almost free.** Motion shows that something is running, costs almost nothing, and stops when nothing runs. It respects reduced motion.
 - **Nothing hidden.** Empty states say what to do next in one sentence, never an empty chart.
 
+## What the owner sees first
+A summary line (where we are, what is built, what waits for the playtest, open bugs, and "Your turn" when only the owner can move on), then the next action in a fixed order: Found, Advice, Then, and last the Question for you. The Score page ends in one number, Readiness, where only proven work counts.
+
+## It is theirs
+The owner picks the Aura (colour), lets it drift, and decides whether the movement always shows. Nothing about the colour touches the meaning of green, amber and red.
+
 ## What it is not
 Not a game editor, not a place to change settings, not a dashboard of vanity numbers. It reads the project's own documents and logs; it never edits the game.
 

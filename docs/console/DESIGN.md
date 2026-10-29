@@ -29,6 +29,12 @@ Visible keyboard focus on every control (cyan outline), themed text selection, s
 ## Neon is the identity (owner's decision, 2026-10-29)
 The dark surface with neon colours and glows is the look of the kit and stays. Three tones, the same on every page: `--neon-hi` (bright cyan) for the one card the page is about, `--neon-mid` for ordinary panels, `--neon-lo` (blue) for nested or secondary pieces. Glows are static shadows; only the opacity of a glow layer may breathe. Neon never replaces meaning: the colour table above still decides what a colour says.
 
+## Aura, Drift and Motion
+Six accent themes (Cyan, Blue, Violet, Magenta, Teal, Ice), picked with small cubes under the title that pulse one after the other, each at its own speed. The accent is a set of variables (`--acc`, `--acc2`, `--acc-h`); glows and the pixel wave read them. Drift fades the accent by itself between two themes with irregular fades and rests. Motion shows the movement even when the system asks to reduce it. Status colours are never themed.
+
+## Life on the page
+Panels breathe at their own rhythm; a light crosses the top; live dots pulse; a changing number ticks; a pixel wave passes over a panel whose data changes (fast or slow, random direction, one per panel every 8 s). Bars ease to their new width (from zero the first time) with a sheen, rings fill with a soft curve, percentages count up. Everything moves only transform and opacity (width and dash offset ease only when a value changes). Under reduced motion only brightness changes remain, unless Motion is on.
+
 ## Words on the page
 Labels, table heads and section titles are in sentence case. The header is the plain title (no `>` prompt, no blinking `_`, no `#` before the subtitle). The Console page opens with one summary line (where we are, what is your turn). The Docs next action is always Found, Advice, Then, and last the Question for you.
 
