@@ -54,3 +54,11 @@ Fixed order, last line is the question: **Found** (where we are) | **Advice** (w
 
 ## Island strip
 `Island: <project> 0000-0000-0000 not published yet` + genre chip. The placeholder keeps the layout the same before and after publishing.
+
+## Aura (theme colour)
+Six accent themes, picked with small cubes under the title (`console-ui: theme` block): the accent is `--acc` / `--acc2` (r,g,b) and `--acc-h` (hue of the pixel wave). Use `rgba(var(--acc,75,216,255),.34)` for glows, never a literal cyan. Status colours (green, amber, red) are never themed. A `Motion` switch sits next to the cubes; reduced-motion rules in shared blocks are written `html:not(.motion-full) selector`.
+
+## Bars and rings
+A bar fill with a `%` width eases to its new value (first time from zero) and carries a sheen (`console-ui: motion of bars and rings`). A ring is a `circle` with `stroke-dashoffset`: it transitions by itself. A percentage figure in `#...Pct` or `.pct-n` counts up.
+
+Aura Drift (`data-aura-auto` button): a timer fades `--acc`, `--acc2` and `--acc-h` between two themes (1.5 to 8 s), then rests (0.8 to 15 s); a click on a cube stops it. Updates only while the page is visible and only during a fade.

@@ -87,7 +87,7 @@ def lint(path, canon):
         if "focus-visible" not in css:
             problems.append(("WARN", name, "no :focus-visible style (keyboard users cannot see where they are)"))
     # v1.115: every page carries the shared blocks and the plain header (no ">" prompt, no "_" cursor, no "#" comment)
-    for marker, why in (("console-ui: neon in three tones", "neon tones"), ("plain-case labels", "plain-case labels"), ("aligned numbers", "aligned numbers"), ("console-ui: micro-life", "micro-life")):
+    for marker, why in (("console-ui: neon in three tones", "neon tones"), ("plain-case labels", "plain-case labels"), ("aligned numbers", "aligned numbers"), ("console-ui: micro-life", "micro-life"), ("console-ui: theme", "theme colours")):
         if marker not in css:
             problems.append(("ERROR", name, f"missing the shared '{why}' block (copy it from console-ui/references/components.md)"))
     if re.search(r"&gt;\s*<(?:b|span|strong)[^>]*>DREAM BOT|hdr-blink|class=\"blink\">_|class=\"(?:line )?comment\"[^>]*>#", s):

@@ -9,7 +9,8 @@
   /* meaning, not colour: use these in components */
   --ok:var(--green); --warn:var(--amber); --bad:var(--red); --live:var(--cyan); --todo:var(--grey);
   /* neon in three tones: hi = the one card a page is about, mid = ordinary panels, lo = nested or secondary */
-  --neon-hi:#4bd8ff; --neon-mid:rgba(75,216,255,.34); --neon-lo:rgba(75,139,255,.3);
+  /* the accent comes from the theme the owner picked (--acc, --acc2 as r,g,b; default cyan and blue); status colours are never themed */
+  --neon-hi:rgb(var(--acc,75,216,255)); --neon-mid:rgba(var(--acc,75,216,255),.34); --neon-lo:rgba(var(--acc2,75,139,255),.3);
   --sans:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; /* all text */
   --mono:Consolas,'SF Mono','Courier New',monospace; /* only code, file names, ids */
 }

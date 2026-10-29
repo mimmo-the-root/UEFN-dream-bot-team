@@ -140,6 +140,10 @@ Every page is built from the same pieces, so you learn one page and know them al
 - **Numbers line up** in tables and counters, and text lines stay short enough to read.
 - **The panels breathe**, each at its own rhythm (3 to 6 seconds), the one card a page is about a little stronger. A thin light crosses the top of the page every few seconds, the "live" dots pulse, and a number that changes gives a small tick.
 - **Pixel wave**: when the data inside a panel really changes, a short wave of small translucent cubes passes over it, fast or slow, in a random direction. At most one wave per panel every 8 seconds. To turn it off, run `localStorage.setItem("kit-pixel-wave","off")` in the browser console of the page.
+- **Aura**: six small cubes under the title (Cyan, Blue, Violet, Magenta, Teal, Ice) change the accent colour of the glow, the pixel wave and the title. The status colours (green, amber, red) are never themed. The cubes pulse one after the other, each at its own speed. Your choice is kept in this browser.
+- **Aura Auto**: the `Drift` button next to the cubes lets the aura drift by itself, fading the gradient from one colour to the next (3 to 8 seconds), then resting for an irregular time (a second or two, or up to 15). Click a cube to take control again.
+- **Bars and rings**: a progress bar eases to its new width (and grows from zero the first time), a light runs along the full bars, the rings fill with a soft curve and the percentages count up.
+- **Motion**: the button next to Drift. Off follows your system; on (lit) always shows the movement, even when Windows has "Animation effects" off.
 - **Reduced motion**: if Windows has "Animation effects" off, the page stops everything that moves (the light on top, the tick, the lift on hover); the breathing and the dots, which only change brightness, stay.
 - **The selected tab has an underline**, not a coloured bar on its side.
 - **Keyboard**: every button and field shows a clear outline when you reach it with the Tab key.
