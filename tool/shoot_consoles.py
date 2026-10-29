@@ -112,7 +112,7 @@ def main(argv):
                     page.screenshot(path=os.path.join(out, "shot-%s.png" % name), full_page=False)
                 if name == "docs" and not check_only:
                     for tab in ("idea", "spec", "plan", "road", "docs"):
-                        page.click('#pageTabs .tab[data-t="%s"]' % tab)
+                        page.click('.stp-b[data-t="%s"], #pageTabs .tab[data-t="%s"]' % (tab, tab))
                         page.wait_for_timeout(300)
                         page.screenshot(path=os.path.join(out, "shot-docs-%s.png" % tab), full_page=False)
                     if not page.is_visible('#demoBox'):

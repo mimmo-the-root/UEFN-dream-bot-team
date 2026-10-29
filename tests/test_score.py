@@ -54,6 +54,42 @@ try:
 finally:
     shutil.rmtree(d, ignore_errors=True)
 
+# v1.115: the Scope baseline follows the plan until work starts (it used to freeze at the first task)
+d2 = tempfile.mkdtemp()
+try:
+    docs2 = os.path.join(d2, "Claude", "docs"); os.makedirs(docs2)
+    hdr2 = "| ID | Feature | Status | Acceptance criteria | Priority | Release |\n|---|---|---|---|---|---|\n"
+    def roadmap(n, first="To do"):
+        rows2 = [("T-%03d" % (i + 1), "Task %d" % (i + 1), first if i == 0 else "To do", "x", "P1", "P0-R1") for i in range(n)]
+        open(os.path.join(docs2, "ROADMAP.md"), "w").write("# Roadmap\n\n## Tasks\n\n" + hdr2 + "\n".join("| %s | %s | %s | %s | %s | %s |" % r for r in rows2) + "\n")
+    state = os.path.join(d2, "Claude", "logs", "score-state.json")
+    roadmap(1); score.compute(d2)
+    ok(not os.path.exists(state), "plan not started: the Scope baseline is not saved")
+    roadmap(8); sc = {x["id"]: x for x in score.compute(d2)["criteria"]}
+    ok(sc["scope"]["B"][0] == 5.0, "plan growing before work starts is not scope creep (5 of 5)")
+    roadmap(8, "In progress"); score.compute(d2)
+    ok(os.path.exists(state) and json.load(open(state))["planned"] == 8, "work started: the baseline is saved with the full plan (8)")
+    roadmap(16, "In progress"); sc = {x["id"]: x for x in score.compute(d2)["criteria"]}
+    ok(abs(sc["scope"]["B"][0] - 2.5) < 0.01, "tasks added after work started lower the Scope score (8 of 16 = 2.5)")
+finally:
+    shutil.rmtree(d2, ignore_errors=True)
+# v1.115: the readiness number counts only proven work; a Done with no written proof counts half; one task per criterion counts half
+d3 = tempfile.mkdtemp()
+try:
+    docs3 = os.path.join(d3, "Claude", "docs"); os.makedirs(docs3)
+    hd = "| ID | Feature | Status | Acceptance criteria | Priority | Release |\n|---|---|---|---|---|---|\n"
+    def rm(status):
+        rows3 = [("T-001", "Core gameplay loop with rounds", status, "x", "P1", "P0-R1"), ("T-002", "Level layout route", status, "x", "P1", "P0-R1"), ("T-003", "Music loop sound", "To do", "x", "P1", "P0-R1")]
+        open(os.path.join(docs3, "ROADMAP.md"), "w").write("# R\n\n## Tasks\n\n" + hd + "\n".join("| %s | %s | %s | %s | %s | %s |" % r for r in rows3) + "\n")
+    rm("Done - played one round, score and winner shown")
+    full = score.compute(d3)["readiness"]
+    rm("Done")
+    bare = score.compute(d3)["readiness"]
+    ok(full["score"] > bare["score"] > 0, "a Done with no written proof counts half (%d > %d)" % (full["score"], bare["score"]))
+    ok(any("no written proof" in n for n in bare["notes"]), "the page says which tasks lack a proof")
+    ok(full["score"] <= 100 and not any("no written proof" in n for n in full["notes"]), "a proven Done keeps its full weight")
+finally:
+    shutil.rmtree(d3, ignore_errors=True)
 rd = lambda n: open(os.path.join(H, n), encoding="utf-8-sig").read()
 for page in ("agent-console.html", "agent-console-stats.html", "agent-console-docs.html", "agent-console-flow.html", "agent-console-skills.html", "agent-console-news.html", "agent-console-score.html"):
     ok('href="agent-console-score.html"' in rd(page), "%s links to the Score page" % page)

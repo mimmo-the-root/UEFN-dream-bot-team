@@ -1,7 +1,7 @@
 {
   "agents": 22,
   "mcp_subagents": 5,
-  "skills": 37,
+  "skills": 39,
   "lessons": 184,
   "mcp_tools": 388,
   "recipes_proven": 387,

@@ -117,3 +117,5 @@ print("ok v114")
 os.environ["CLAUDE_PROJECT_DIR"] = bt
 assert rl.main(["stop", "nope"]) == 1 and rl.main(["start", "x"]) == 0 and rl.main(["stop", "x"]) == 0
 print("ok run_log")
+assert "Break the game (try to make it fail)" in ec.playtest(mkdocs(plan)) and "A tie at the end" in ec.playtest(mkdocs(plan))
+print("PASS the playtest checklist has the Break-the-game section")

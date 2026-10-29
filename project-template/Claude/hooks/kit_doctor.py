@@ -186,6 +186,54 @@ def check(project, fix=False):
     ls = load_on_startup_check()
     if ls:
         add(*ls)
+    try:
+        for s, tx in five_needs(project):
+            add(s, tx)
+    except Exception:  # never break the doctor
+        pass
+    return out
+
+
+def five_needs(project):
+    """v1.115: the five needs of a project, each critical or recommended, with the remedy in plain words.
+    Returns [(status, text)] with status OK / PROBLEM (critical) / NOTE (recommended). Skipped when the project has no Claude/docs folder."""
+    import time as _t
+    docs = os.path.join(project, "Claude", "docs")
+    if not os.path.isdir(docs):
+        return []
+    out = []
+    def add(ok, critical, name, good, bad):
+        out.append(("OK" if ok else ("PROBLEM" if critical else "NOTE"), "%s: %s" % (name, good if ok else bad)))
+    rd = lambda n: open(os.path.join(docs, n), encoding="utf-8", errors="replace").read() if os.path.isfile(os.path.join(docs, n)) else ""
+    road = rd("ROADMAP.md")
+    rows = [l for l in road.splitlines() if re.match(r"^\|\s*T-\d+", l)]
+    done = [l for l in rows if re.match(r"^\|[^|]*\|[^|]*\|\s*done", l, re.I)]
+    # 1 instructions (critical)
+    cm = os.path.join(project, "CLAUDE.md")
+    add(os.path.isfile(cm) and "KIT:BEGIN" in open(cm, encoding="utf-8", errors="replace").read(), True, "Instructions",
+        "the project rules are in place.", "the project has no kit rules (CLAUDE.md). Run /kit-update.")
+    # 2 state (critical): a plan with tasks, and a status page that is not stale
+    st = os.path.join(docs, "STATUS.md")
+    age = (_t.time() - os.path.getmtime(st)) / 86400 if os.path.isfile(st) else None
+    add(bool(rows) and age is not None and age <= 14, True, "State",
+        "the plan has tasks and the status is fresh (%.0f day(s) old)." % (age or 0),
+        "no task list yet. Run /task-list." if not rows else ("no status page. Ask Claude to write STATUS.md." if age is None else "the status page is %.0f days old. Ask Claude to refresh STATUS.md." % age))
+    # 3 verification (critical once something is Done)
+    ver = [n for n in ("PLAYTEST.md", "AUDIT.md", "DELIVERY-GATE.md") if os.path.isfile(os.path.join(docs, n))]
+    add(not done or bool(ver), True, "Verification",
+        "%s." % ("nothing is Done yet, no proof needed" if not done else "checks written: " + ", ".join(ver)),
+        "%d task(s) are Done but there is no playtest, audit or delivery list. Run /environment --playtest and /audit." % len(done))
+    # 4 scope (recommended): every task says how we know it works
+    noacc = [l.split("|")[1].strip() for l in rows if len(l.split("|")) > 5 and not l.split("|")[4].strip()]
+    add(not noacc, False, "Scope", "every task has a check that tells when it works.",
+        "task(s) without a check: %s. Ask Claude to add the check." % ", ".join(noacc[:4]))
+    # 5 lifecycle (critical when a command died half way; recommended handoff)
+    run = os.path.join(project, "Claude", "relay", "running")
+    stuck = [n for n in (os.listdir(run) if os.path.isdir(run) else []) if os.path.isfile(os.path.join(run, n)) and (_t.time() - os.path.getmtime(os.path.join(run, n))) > 3600]
+    add(not stuck, True, "Hand-over", "no command was left half done.",
+        "a command stopped half way: %s. Ask Claude Code to finish it or write why it cannot." % ", ".join(stuck[:3]))
+    hand = any(n.lower().startswith("handoff") for n in os.listdir(docs)) or os.path.isdir(os.path.join(project, "Claude", "logs", "handoff"))
+    add(hand or not done, False, "Hand-over note", "a hand-over note exists.", "no hand-over note. Run /handoff at the end of a long session.")
     return out
 
 

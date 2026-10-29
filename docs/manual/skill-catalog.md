@@ -14,6 +14,8 @@ Skills are small folders of knowledge that Claude reads only when the task needs
 | `brand-collections-uefn` | Recognises which official Fortnite collection (TMNT, LEGO, Fall Guys and others) a project is built on, and how to record markers for a new one. |
 | `game-ui-designer` | A style guide for in-game screens such as shops, missions or teleporters. Still a draft that grows as you add reference examples. |
 | `verse-ui-kit` | How to build and wire screens with Epic's free Verse UI Kit: focus, gamepad, Back, shared click events, and what to do when Epic updates its guide. Still a draft. |
+| `console-ui` | How to build or change any page of the console from the kit's shared colours and pieces, so every page looks and pulses the same. `Claude/hooks/ui_lint.py` checks it. |
+| `dream-illustration` | The hand-drawn picture style of the README, manifesto and philosophy, with the script that draws them, so new pictures match the old ones. |
 | `project-scoring` | How the console's Score page measures the project against its plan: what each criterion counts, how tasks are linked to criteria, and how a new criterion is proposed and approved. |
 | `fab-product` | Prepares a Fab product: checks the package against Epic's rules, creates the Documentation and FabListing texts from the code, and writes a clean zip. |
 | `economy-sim` | Plans a tycoon or arena economy with numbers: how long each milestone takes, which generator is never worth buying. Pure arithmetic, no editor needed. |

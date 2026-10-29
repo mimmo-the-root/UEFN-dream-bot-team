@@ -6,6 +6,7 @@
       "title": "Part 1 · Start here",
       "chapters": [
         "welcome",
+        "how-the-kit-thinks",
         "quick-start",
         "install",
         "uefn-map-project",

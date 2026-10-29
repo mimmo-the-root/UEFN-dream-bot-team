@@ -131,4 +131,19 @@ Nothing is typed by hand. The page reads ROADMAP, BUGS and the release-readiness
 
 ## Update banner
 
+## How the pages look and move (1.114)
+
+Every page is built from the same pieces, so you learn one page and know them all.
+
+- **Colour means status**: green is done and proven, amber is your turn, red is blocked, cyan is running now, grey is not started. A dot shape or a word always goes with the colour.
+- **Motion shows life, and costs almost nothing**: a ring around what is running, a slow breath on what waits, a light moving across the step in progress. Nothing moves when nothing runs. If your system asks for reduced motion, every animation stops.
+- **Numbers line up** in tables and counters, and text lines stay short enough to read.
+- **The panels breathe**, each at its own rhythm (3 to 6 seconds), the one card a page is about a little stronger. A thin light crosses the top of the page every few seconds, the "live" dots pulse, and a number that changes gives a small tick.
+- **Pixel wave**: when the data inside a panel really changes, a short wave of small translucent cubes passes over it, fast or slow, in a random direction. At most one wave per panel every 8 seconds. To turn it off, run `localStorage.setItem("kit-pixel-wave","off")` in the browser console of the page.
+- **Reduced motion**: if Windows has "Animation effects" off, the page stops everything that moves (the light on top, the tick, the lift on hover); the breathing and the dots, which only change brightness, stay.
+- **The selected tab has an underline**, not a coloured bar on its side.
+- **Keyboard**: every button and field shows a clear outline when you reach it with the Tab key.
+
+The rules and the reasons are in [the console design](https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/docs/console/DESIGN.md) and what each page is for in [the console product notes](https://github.com/mimmo-the-root/UEFN-dream-bot-team/blob/main/docs/console/PRODUCT.md). If you add or change a page, run `python Claude/hooks/ui_lint.py`: it must print `ui_lint: ok`.
+
 When your computer holds a newer kit version than the project you are in, the console says so. Run `/kit-update`, open a new session, and reload the page.

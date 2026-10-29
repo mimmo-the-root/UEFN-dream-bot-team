@@ -87,7 +87,7 @@ def tasks(project):
             prog = st.startswith("in progress")
             out.append({"id": tid, "text": (r.get("feature", "") + " " + r.get("acceptance criteria", "")).lower(),
                         "title": r.get("feature", "")[:80], "rel": rel if re.fullmatch(r"P\d+-R\d+", rel) else "Earlier",
-                        "done": done, "prog": prog})
+                        "done": done, "prog": prog, "status": r.get("status", "")})
         break
     return out
 
@@ -172,12 +172,15 @@ def compute(project):
     st = _json(sp, {})
     if "planned" not in st:
         st = {"planned": len(ts), "first_seen": time.strftime("%Y-%m-%d")}
-        try:
-            os.makedirs(os.path.dirname(sp), exist_ok=True)
-            with open(sp, "w", encoding="utf-8") as f:
-                json.dump(st, f)
-        except OSError:
-            pass
+        # v1.115: the baseline is frozen only when work has started; while the plan is still being written it follows the plan
+        # (it used to freeze at 1 task, so a plan of 21 tasks scored 0.2 on "Scope vs the plan")
+        if any(t["done"] or t["prog"] for t in ts):
+            try:
+                os.makedirs(os.path.dirname(sp), exist_ok=True)
+                with open(sp, "w", encoding="utf-8") as f:
+                    json.dump(st, f)
+            except OSError:
+                pass
     # task -> criteria
     mapped, unmapped = {}, []
     tc = [c for c in cs if c.get("kind") in ("tasks", "ship")]
@@ -195,6 +198,7 @@ def compute(project):
     # documentation is work too: it counts as soon as the spec or the plan is written
     docs_started = started or any(os.path.getsize(os.path.join(project, "Claude", "docs", n)) > 200 for n in ("GAME-SPEC.md", "PLAN.md") if os.path.isfile(os.path.join(project, "Claude", "docs", n)))
     out_c = []
+    minemap = {}
     open_pen = sum(b["pen"] for b in bs)
     for c in cs:
         kind, d = c.get("kind", "tasks"), c.get("depth", 3)
@@ -255,10 +259,36 @@ def compute(project):
                 B[k], V[k] = h.get("B", B[k]), h.get("V", V[k])
             elif kind in ("scope", "ship", "docs", "feasibility"):
                 B[k], V[k] = B[cur], V[cur]
+        minemap[c["id"]] = ([t["id"] for t in mine], kind)
         out_c.append({"id": c["id"], "n": c["n"], "g": c.get("g", "additional"), "w": c.get("w", 0), "T": T,
                       "B": B[:cur + 1], "V": V[:cur + 1], "tip": c.get("tip", ""), "ev": ev})
+    # v1.115: ONE honest number. Only proven work counts (open bugs already lower it); a criterion fed by a single task counts half
+    # (a small sample proves little); a task marked Done with no written proof after the word counts half.
+    def _proofed(task):
+        s = re.sub(r"^(done|fatto|complet\w*|chiuso|closed|risolto|resolved)\s*[-:\u2013]?\s*", "", (task.get("status") or "").strip(), flags=re.I)
+        return len(s) >= 12
+    rd_sum, rd_w, rd_notes = 0.0, 0.0, []
+    for oc in out_c:
+        w = oc["w"] or 0
+        if not w:
+            continue
+        ids, kind_ = minemap.get(oc["id"], ([], "tasks"))
+        dn = [x for x in ts if x["id"] in ids and x["done"]]
+        adj = 1.0
+        if dn:
+            pr = sum(1 for x in dn if _proofed(x))
+            adj = (pr + 0.5 * (len(dn) - pr)) / float(len(dn))
+            for x in dn:
+                if not _proofed(x):
+                    rd_notes.append("%s is Done with no written proof: counts half" % x["id"])
+        smp = 0.5 if (kind_ in ("tasks", "ship") and len(ids) < 2 and oc["V"] and oc["V"][-1] > 0) else 1.0
+        if smp < 1.0:
+            rd_notes.append("%s rests on a single task: counts half" % oc["n"])
+        rd_sum += min(5.0, (oc["V"][-1] if oc["V"] else 0) * adj * smp) / 5.0 * w
+        rd_w += w
+    readiness = {"score": int(round(rd_sum / rd_w * 100)) if rd_w else 0, "notes": sorted(set(rd_notes))[:6]}
     return {"available": True, "releases": rels, "last": cur, "criteria": out_c, "unmapped": unmapped,
-            "open_bugs": len(bs), "generated": time.strftime("%Y-%m-%d %H:%M")}
+            "open_bugs": len(bs), "readiness": readiness, "generated": time.strftime("%Y-%m-%d %H:%M")}
 
 
 def snapshot(project):

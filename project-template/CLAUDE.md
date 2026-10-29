@@ -207,6 +207,9 @@ with the real assets and project:
 <!-- KIT:BEGIN player-clarity -->
 - **A new player understands the game in ten seconds, with no help.** Every map shows, at the start of the round and again on the score HUD, one plain line for the goal ("Tame the chickens and bring them to the pen") and one for how ("walk up to a chicken and ..."), plus what is counted and the time left. If the way to act needs an item or a button, the game gives it or shows it. Claude checks this before every playtest and writes it in the spec under "How the player learns the goal"; a playtest where the owner "did not understand how to play" is a game defect Claude fixes, never a question to the owner.
 <!-- KIT:END player-clarity -->
+<!-- KIT:BEGIN check-and-gate -->
+- **Same failure twice: stop and ask. Gate by the price of undo.** Report a failed check as expected / seen / where to stay / already tried; if the same result returns twice, stop and say what you cannot see. One-click undo ships on green checks; undo that needs cleanup also needs read-back evidence and an independent review; no undo (publish, delete, send, money) is only the owner's decision, whatever your confidence.
+<!-- KIT:END check-and-gate -->
 <!-- KIT:BEGIN no-delete -->
 - **If you cannot delete a file, park it in `_to_delete`.** Delete only what the task needs. When a delete is refused or impossible (protected or read-only folder, no permission, a tool without delete rights), do not work around it: move the file to `_to_delete/<yyyymmdd-hhmmss>/` at the root of the project folder (create it if needed, keep the relative path or the file name) and tell the owner in one line what was parked and why. The owner empties that folder. It applies to files replaced or obsolete after a kit update, test leftovers, renamed assets and old logs alike. Never use `git clean` or bulk deletes on the owner's files.
 <!-- KIT:END no-delete -->

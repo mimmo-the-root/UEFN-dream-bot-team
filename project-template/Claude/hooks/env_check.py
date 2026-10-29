@@ -63,6 +63,16 @@ def playtest(d):
         n = int(re.search(r"\d+", pl).group(0))
         lines += ["## Players (%d)" % n, "- [ ] Play with 1 player alone: the round starts and ends", "- [ ] Play with %d players: everyone can join, the round starts, the shared state is correct" % n,
                   "- [ ] A player joins a running round (if Join in progress is on) and one leaves: nothing breaks", "- [ ] Island Settings in UEFN match the plan (max players, teams, respawn)", ""]
+    # v1.115: break the game on purpose (from the Break-game list of the Chicken Roundup pilot): the cases a real player hits first
+    lines += ["## Break the game (try to make it fail)",
+              "- [ ] Nobody in the round: time runs out, the next round starts, no error in the log",
+              "- [ ] A player leaves in the middle: they are not named the winner and nothing else breaks",
+              "- [ ] A tie at the end: every tied player is told, nobody is ignored",
+              "- [ ] Nothing is achieved all round (no point, no goal reached): the end screen still makes sense",
+              "- [ ] The longest name or text a player can have: nothing overflows the screen",
+              "- [ ] Something the player needs gets stuck or lost: they can recover without waiting for the next round",
+              "- [ ] An action in the very last second: it counts once or not at all, never twice",
+              "- [ ] A player joins late: they see the goal and their own score line", ""]
     for n, title, pr in plan_check.stories(spec):
         m = re.search(r"###\s+Story\s+%d\b.*?(?=\n###|\n## |\Z)" % n, spec, re.S)
         body = m.group(0) if m else ""
