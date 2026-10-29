@@ -124,7 +124,7 @@
 /* manual-life: the same cube wave as the console, on the chapter cards and callouts. Inline, no network, no tracking. Off: localStorage "kit-pixel-wave" = "off". */
 (function(){
   var TH = [[185,"75,216,255","155,123,255"],[222,"110,160,255","150,110,255"],[265,"170,125,255","255,110,215"],[318,"255,100,215","255,160,110"],[168,"45,212,191","110,170,255"],[212,"205,228,255","155,123,255"]], idx = 0, off = false;
-  try { idx = parseInt(localStorage.getItem("kit-theme") || "0", 10) || 0; off = localStorage.getItem("kit-pixel-wave") === "off"; } catch(e){}
+  try { idx = parseInt(localStorage.getItem("kit-theme-2") || "2", 10) || 0; off = localStorage.getItem("kit-pixel-wave") === "off"; } catch(e){}
   var th = TH[idx] || TH[0]; document.documentElement.style.setProperty("--acc", th[1]); document.documentElement.style.setProperty("--acc2", th[2]);
   if (off) return;
   var PAN = ".toc-card,.callout", LAST = new WeakMap();

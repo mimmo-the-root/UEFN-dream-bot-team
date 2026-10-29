@@ -12,6 +12,7 @@ The live view, drawn like a small solar system. The chief of staff, which is you
 
 - **Session running for** and **tokens this session** in one compact row at the top, so the whole system stays visible without scrolling. The token count is an approximation, summed from the session transcript; its details (in, out, cache) sit beside the total.
 - **Summary line** (1.114): one line under the menu says where the work stands (tasks done, what Claude is building, what is built and waits for your playtest, open bugs) and, when only you can move on, the amber sentence "Your turn: play one round and tell Claude what you saw". It is read from the project's roadmap and bug list, never typed.
+- **Look and screen size.** The default look is deep indigo with a violet accent; the Aura cubes still offer the other five colours. Every page fits a phone (390px) and a tablet (820px): the header wraps, the tab bar scrolls inside itself and tables scroll inside their own box.
 - **The kit's numbers** (1.114): in the card next to the tokens, badges for **AI agents**, **skills**, **genre lessons** and **proven recipes**, with the state of the agents (idle, working, broken, waiting) under them. Below the cards a strip of badges shows the **UEFN MCP tools mapped** and the kit's public badges (licence, release, downloads, stars, UEFN, Verse, Claude Code, Fortnite maps). The numbers are read from the kit, not typed by hand: if the strip is missing, reload the page after restarting the console server. A badge with a brain icon shows the [second brain](ch:the-second-brain): `off` in grey, or its number of wiki pages, in amber with how many raw sources still wait to be ingested.
 - The **five-stage rail** follows the current task from intent-gate to planner-docs.
 - The **activity log** on the right lists what each agent started and finished.
@@ -37,7 +38,7 @@ The long explanation of every animation is folded under **How to read this page*
 
 ## Stats
 
-Real numbers from Epic's public data about your island: plays, unique players, minutes played, minutes per player, favorites, recommends, peak players and day-1 and day-7 retention, over the last 7 days. Click a tile to see its chart.
+Real numbers from Epic's public data about your island: plays, unique players, minutes played, minutes per player, favorites, recommends, peak players and day-1 and day-7 retention, over the last 7 days. Each tile has a small chip with the change since the day before (`+26.3%`, green for up, red for down). Click a tile to see its chart: one thick gradient bar per day, the best day lighter. A day without data from Epic is a dot, never an invented bar.
 
 Epic usually shows numbers only after the map is published and has had visitors, so a new map shows one message instead of empty tiles. The page needs the island code saved in the project.
 
@@ -106,7 +107,7 @@ What the kit has learned, and what waits for you. At the top, four cards (what w
 
 In a Fab product the console also has a **Checklist** tab (see [A Fab product project](ch:fab-product-project)).
 
-The **SKILLS** tab blinks when something waits for you. More in [Skills and lessons](ch:skills-and-lessons).
+The tabs carry small counters with real numbers, hidden at zero: **Skills** shows the lessons or pack updates waiting for your yes (plus a genre to confirm), **Docs** shows the tasks that wait for you (your playtest or your decision). The current tab is a filled pill with a soft gradient. More in [Skills and lessons](ch:skills-and-lessons).
 
 **Why it is there.** The kit learns from your maps, and you decide what it keeps. This page is where you approve or reject a lesson, see how much of UEFN's toolset the kit really uses, and choose whether to share anything with the community.
 

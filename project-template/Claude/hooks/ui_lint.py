@@ -92,6 +92,10 @@ def lint(path, canon):
             problems.append(("ERROR", name, f"missing the shared '{why}' block (copy it from console-ui/references/components.md)"))
     if re.search(r"&gt;\s*<(?:b|span|strong)[^>]*>DREAM BOT|hdr-blink|class=\"blink\">_|class=\"(?:line )?comment\"[^>]*>#", s):
         problems.append(("WARN", name, "header still has the old prompt styling (> title _ and # subtitle): use the plain title"))
+    if 'name="viewport"' not in s:
+        problems.append(("ERROR", name, 'no <meta name="viewport">: on a phone the page is drawn at desktop width'))
+    if not re.search(r"@media\s*\(\s*max-width\s*:\s*\d+px", css):
+        problems.append(("WARN", name, "no @media (max-width) rule: the page does not reflow on a narrow screen (header wraps, tab bar scrolls inside itself, tables scroll inside their box)"))
     if re.search(r"animation\s*:", css) and "prefers-reduced-motion" not in css:
         problems.append(("ERROR", name, "has animations but no prefers-reduced-motion rule"))
     if "prefers-reduced-motion:reduce){*," in s.replace(" ", ""):

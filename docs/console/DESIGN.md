@@ -13,7 +13,7 @@ One source of truth: `user-level-skills/console-ui/references/tokens.css` (token
 Never colour alone: always a dot shape or a word as well (daltonic readers).
 
 ## Surfaces and contrast (measured)
-Background `--bg` #060810, panels `--panel` #0d121c. On the background: text 13.7:1, muted text `--dim` #7189a3 5.5:1 (on a panel 5.2:1), amber 11.3:1, red 6.2:1. Rule: muted text is never below 4.5:1.
+Default palette (the owner's choice, 2026-10-29): deep indigo with a violet accent. Background `--bg` #0c0820, panels `--panel` #16123a and `--panel2` #110d2c, lines `--line` #2b2468, text `--text` #e8e2ff, muted text `--dim` #9a90d4, `--blue` #8b7cf6. On the panel: text 14.2:1, muted text 6.2:1, amber 10.1:1, red 5.5:1. Rule: muted text is never below 4.5:1. Cyan stays as the "live" status colour and as one of the six Aura themes; the default Aura is Violet.
 
 ## Type
 `--sans` for every word and number. `--mono` only for code, file names and ids. Counters and clocks use tabular numbers so columns line up. Text lines are at most 65 characters wide.
@@ -39,10 +39,25 @@ Panels breathe at their own rhythm; a light crosses the top; live dots pulse; a 
 Labels, table heads and section titles are in sentence case. The header is the plain title (no `>` prompt, no blinking `_`, no `#` before the subtitle). The Console page opens with one summary line (where we are, what is your turn). The Docs next action is always Found, Advice, Then, and last the Question for you.
 
 ## Never
-A coloured side stripe wider than 1px (use a dot, a tint, or an underline for the selected tab). Gradient text. A small label above every heading. Cards inside cards. The big-number-plus-tiny-label template as the page structure.
+A coloured side stripe wider than 1px (use a dot, a tint, or an underline for the selected tab). Gradient text, except the page title. A small label above every heading. Cards inside cards. The big-number-plus-tiny-label template as the page structure.
 
-## Selected tab
-An underline of 2px in `--blue` under the active item, not a left stripe.
+## Declared exceptions (the owner's brief wins)
+Generic design checklists refuse some things by default. These are chosen on purpose here, each with its limit: static glow (a shadow whose opacity may breathe, never a moving blur), gradient only on the page title, progress rings and bars only for real progress, big numbers only for real totals with a label that says what they count, no animated blur or backdrop filter.
+
+## Responsive
+Structural, not fluid type. Every page has `<meta name="viewport">`. Under 900px the header wraps and the tab bar scrolls inside itself; under 640px tables scroll inside their own box and side margins shrink; on touch screens tabs and buttons are at least 40px high and the Aura cubes 24px. The page itself never scrolls sideways at 390px. Checked at 390, 820 and 1280px.
+
+## Modes per page
+Console, Stats, Docs, Flow, Skills, News, Score, Fab are Operate pages: the person is in a task, so familiarity and scanning come before expression and brand lives in details. The manual is Read: comprehension first. The README, manifesto and release art are Persuade: they may use more imagery and ambition.
+
+## Selected tab and counters
+The active tab is a filled pill with a gradient mixed from the accent (white text, readable in every Aura theme), not a left stripe. Tabs may carry a small amber counter with a real number (Skills: waiting for your yes; Docs: tasks that wait for you), hidden at zero.
+
+## Glass panels
+Panels are glass without blur: the panel colour, a faint accent tint, a soft top highlight, 16px corners, and a fixed indigo glow behind the page. Nothing is animated and no `backdrop-filter` is used, so the console can stay open all day.
+
+## Charts
+A daily chart is one thick bar per day with a gradient from the accent and the best day lighter; a missing day is a dot. Change chips (`+26.3%`) show the move since the previous day with an arrow as well as a colour.
 
 ## Pictures
 README, manifesto and release art come from the `dream-illustration` skill: one hand-drawn style, one script, a title line and one closing sentence, no brand art, no private dream. Real result images appear only after the demo is validated.

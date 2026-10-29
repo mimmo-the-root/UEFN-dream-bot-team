@@ -6,9 +6,9 @@
   --display:Georgia,'Times New Roman',serif; --body:'Segoe UI',system-ui,-apple-system,sans-serif; --mono:'Cascadia Code',Consolas,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root{
-  --paper:#0c111d; --card:#131a2a; --ink:#e4e9f5; --mute:#97a1b8; --line:#243049;
-  --blue:#7ea2ff; --blue-soft:#17243f; --teal:#3dd6c6; --amber:#ffb454; --amber-soft:#2b2110; --red:#ff7a7a; --red-soft:#2d1717; --green:#5fd18b; --green-soft:#12281c;
-  --code-bg:#1a2338; --pre-bg:#080c15; --pre-ink:#d8e1f5;}}
+  --paper:#0c0820; --card:#16123a; --ink:#e8e2ff; --mute:#a69cdc; --line:#2b2468;
+  --blue:#a99bff; --blue-soft:#221a55; --teal:#3dd6c6; --amber:#ffb454; --amber-soft:#2b2110; --red:#ff7a7a; --red-soft:#2d1717; --green:#5fd18b; --green-soft:#12281c;
+  --code-bg:#1d1748; --pre-bg:#0a0618; --pre-ink:#e8e2ff;}}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65}
 a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}

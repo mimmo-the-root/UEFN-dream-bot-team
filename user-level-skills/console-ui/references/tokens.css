@@ -1,15 +1,15 @@
 /* Dream Bot Team console: the ONE set of design tokens. Copy this block as-is into a page; never retype a value. */
 :root{
-  --bg:#060810; --panel:#0d121c; --panel2:#0a0e17; --line:#1c2740; --line-soft:#223050;
-  --text:#c9d6f0; --dim:#7189a3;
-  --blue:#4b8bff; --blue-glow:rgba(75,139,255,.45);
+  --bg:#0c0820; --panel:#16123a; --panel2:#110d2c; --line:#2b2468; --line-soft:#352d7a;
+  --text:#e8e2ff; --dim:#9a90d4;
+  --blue:#8b7cf6; --blue-glow:rgba(139,124,246,.45);
   --green:#39ff88; --amber:#ffb454; --cyan:#4bd8ff; --magenta:#ff5cd1; --purple:#b98bff;
   --red:#ff4d5e; --red-glow:rgba(255,77,94,.55); --orange:#ff7a4a; --teal:#2dd4bf;
   --yellow:#ffbd2e; --yellow-glow:rgba(255,189,46,.6); --grey:#4a5568;
   /* meaning, not colour: use these in components */
   --ok:var(--green); --warn:var(--amber); --bad:var(--red); --live:var(--cyan); --todo:var(--grey);
   /* neon in three tones: hi = the one card a page is about, mid = ordinary panels, lo = nested or secondary */
-  /* the accent comes from the theme the owner picked (--acc, --acc2 as r,g,b; default cyan and blue); status colours are never themed */
+  /* the accent comes from the theme the owner picked (--acc, --acc2 as r,g,b; default Violet, see the indigo block of every page); status colours are never themed */
   --neon-hi:rgb(var(--acc,75,216,255)); --neon-mid:rgba(var(--acc,75,216,255),.34); --neon-lo:rgba(var(--acc2,75,139,255),.3);
   --sans:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; /* all text */
   --mono:Consolas,'SF Mono','Courier New',monospace; /* only code, file names, ids */
