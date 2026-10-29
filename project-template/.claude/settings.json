@@ -58,7 +58,9 @@
       "Bash(python3 Claude/hooks/verse_static.py *)",
       "Bash(git status *)",
       "Bash(git diff *)",
-      "Bash(git log *)"
+      "Bash(git log *)",
+      "Bash(python Claude/hooks/brain_brief.py *)",
+      "Bash(py -3 Claude/hooks/brain_brief.py *)"
     ],
     "deny": []
   },
@@ -83,6 +85,17 @@
             "type": "command",
             "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/session-start-reminder.ps1\"",
             "timeout": 10
+          }
+        ]
+      },
+      {
+        "_comment": "Second brain (rule 11). When the vault path is set, prints wiki/hot.md, the read order and how many raw sources wait to be ingested. Silent and free while the second brain is off.",
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/brain_brief.py\" start",
+            "timeout": 15
           }
         ]
       }
@@ -212,6 +225,17 @@
             "type": "command",
             "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/docs-lint.ps1\"",
             "timeout": 10
+          }
+        ]
+      },
+      {
+        "_comment": "Second brain: after a page under <vault>/wiki is written, the free checks (broken links, quotes not found in raw/) answer in the same turn. Exit 2 sends the problems to Claude. Ignores every other edit.",
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/brain_brief.py\" after-edit",
+            "timeout": 30
           }
         ]
       }

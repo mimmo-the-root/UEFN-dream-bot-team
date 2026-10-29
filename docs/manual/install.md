@@ -38,11 +38,12 @@ Then run this inside Claude Code:
 
 ### Optional: a second brain in Obsidian
 
-A separate wiki, outside any project, kept by the `second-brain-librarian` agent. Reusable mechanics and Verse implementations are written there once and found again in the next project. Skip this step and nothing else changes.
+A separate wiki, outside any project, kept by the `second-brain-librarian` agent. Reusable mechanics, lessons and the kit's own knowledge are written there once and found again in every project. It is off until you give it a folder: skip this step and the kit works, but each map starts from zero. [How the kit thinks](ch:how-the-kit-thinks) explains what it holds and how the helpers use it.
 
 1. Create a vault anywhere on your computer (not inside a UEFN project) with the `raw/`, `wiki/` and `output/` folders, and copy `second-brain-template/CLAUDE.md` to the vault's root.
 2. Check the file name from a terminal (`dir CLAUDE*` on Windows, `ls CLAUDE*` elsewhere). It must be exactly `CLAUDE.md`.
-3. Open `~/.claude/CLAUDE.md` and set the vault's full path as the "Second brain path" in rule 11.
+3. Copy `second-brain-template/wiki/kit/` into the vault's `wiki/` folder and add a line for it to `wiki/index.md`. It holds the kit manual as wiki pages, so the helpers can answer "how does the kit do this?" from the second brain.
+4. Open `~/.claude/CLAUDE.md` and set the vault's full path as the "Second brain path" in rule 11. From the next session a hook prints `wiki/hot.md` and the number of raw sources still to ingest, and another runs the free checks (broken links, quotes not found in `raw/`) after each page the librarian writes.
 
 > **Warning** File Explorer hides known extensions, so a file can be saved as `CLAUDE.MD.md` and look identical to the right name. Only the terminal tells you the truth.
 

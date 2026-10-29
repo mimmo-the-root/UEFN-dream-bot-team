@@ -38,6 +38,14 @@ try:
     assert status(kit_doctor.check(proj), "not a valid vault") == ["PROBLEM"]
     open(os.path.join(home, "CLAUDE.md"), "w").write("**Second brain path**: `<SECOND_BRAIN_PATH>`\n")
     assert not status(kit_doctor.check(proj), "not a valid vault")
+    # a real vault: the kit's own knowledge, hot.md and the free checks are recommended, never critical
+    vault = os.path.join(d, "vault"); os.makedirs(os.path.join(vault, "wiki")); open(os.path.join(vault, "CLAUDE.md"), "w").write("rules")
+    open(os.path.join(home, "CLAUDE.md"), "w").write("**Second brain path**: `%s`\n" % vault)
+    assert status(kit_doctor.check(proj), "kit's own knowledge is not in the vault") == ["NOTE"]
+    assert status(kit_doctor.check(proj), "no wiki/hot.md yet") == ["NOTE"]
+    os.makedirs(os.path.join(vault, "wiki", "kit")); open(os.path.join(vault, "wiki", "hot.md"), "w").write("# Hot")
+    assert not status(kit_doctor.check(proj), "kit's own knowledge is not in the vault") and not status(kit_doctor.check(proj), "no wiki/hot.md yet")
+    open(os.path.join(home, "CLAUDE.md"), "w").write("**Second brain path**: `<SECOND_BRAIN_PATH>`\n")
     # .mcp.json outside .gitignore
     os.makedirs(os.path.join(proj, ".git")); open(os.path.join(proj, ".mcp.json"), "w").write("{}")
     assert status(kit_doctor.check(proj), ".mcp.json may hold") == ["PROBLEM"]

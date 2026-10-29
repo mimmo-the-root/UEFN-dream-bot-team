@@ -164,6 +164,7 @@ with the real assets and project:
   the genre/technique skills. If something relevant is found, do not ask an open question: propose the solution you
   found (one line, with where it comes from) and ask only for a yes or an alternative. Ask a bare question only when
   nothing was found. One query per question, never a loop; the vault being unreachable is never a reason to stop.
+  Read order inside the vault: `wiki/hot.md`, `wiki/index.md`, the thematic index, then the page; never for general coding questions.
 <!-- KIT:END brain-before-asking -->
 <!-- KIT:BEGIN delivery-standard -->
 - **Delivery standard** (planner-docs owns it; the console shows it): ROADMAP.md has a `## Phases` table (PH-0 MVP, PH-1 Launch, PH-2 Growth;

@@ -293,6 +293,14 @@ Beyond `knowledge-frontiers.md` (above), created on demand:
 All three are created the first time there's something real to put in them, not pre-created
 empty.
 
+## Session memory: hot.md, the ingest registry and the free checks
+Three small things keep the vault cheap to read and honest. None needs an AI.
+- **`wiki/hot.md`**: a dozen lines, no frontmatter: what the owner is working on, what changed last, open questions. Rewrite it at the end of every compile and every handoff. It is the first thing read in a session; never import it or the index with `@` (imports cost as much as pasting the file).
+- **Read order** for any question: `wiki/hot.md`, then `wiki/index.md`, then the thematic `wiki-index.md`, and only then the page. Do not read the vault for general coding questions.
+- **Ingest registry**: after compiling `raw/<file>`, run `vault_check.py done raw/<file> wiki/<page>...`. `vault_check.py status` lists what is NEW, CHANGED (the source was edited after ingest, so the pages it names are stale) or DELETED. Cost follows what changed, not the size of the vault. The `_COMPILED` rename stays for people browsing `raw/`; the registry is the authority.
+- **Quote lines**: a concrete claim taken from a raw file ships with `> "exact text" - raw/<file>`. `vault_check.py quotes` proves each quote is in its source, word for word. It checks that the quote exists, not that the source is right: a faithfully copied wrong source stays wrong, so contradictions go under `## Counter-evidence`.
+- **Free checks**: `names`, `links`, `stats`, `dups`, `status`, `quotes`, `hot`. A hook runs `links` and `quotes` after every page written under `wiki/`.
+
 ## Workflow: Compile
 Command: `compile`
 Processes every file in `raw/` that does NOT contain `_COMPILED` in its name. For each file:
@@ -316,6 +324,7 @@ Processes every file in `raw/` that does NOT contain `_COMPILED` in its name. Fo
      let it happen just because a MOC is optional.
 7. **Rename the file** in `raw/`, appending `_COMPILED` before the extension (e.g.
    `project-analysis.md` becomes `project-analysis_COMPILED.md`).
+   Then record it with `vault_check.py done raw/<file> wiki/<page>...` and rewrite `wiki/hot.md`.
 8. **Skip** any file whose name already contains `_COMPILED`.
 9. **Synthesis side effect**: if the new material creates or reinforces a connection that isn't
    explicit yet (see "Emergent synthesis and evolution" above), update or create the relevant

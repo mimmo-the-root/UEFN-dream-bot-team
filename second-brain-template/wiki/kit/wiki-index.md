@@ -1,0 +1,24 @@
+# Kit knowledge
+
+How the Dream Bot Team kit works, in the kit's own words. Rebuilt from the manual on every release (kit v1.114.0). Read `how-the-kit-thinks` first.
+
+- [[about|About]]
+- [[commands|All the commands]]
+- [[community|Community]]
+- [[daily-work|A working day]]
+- [[epic-ai-megajam|2026 Epic AI MegaJam]]
+- [[fab-product-project|A Fab product project]]
+- [[faq|Questions and answers]]
+- [[from-idea-to-game|From an idea to a playable game]]
+- [[glossary|Glossary]]
+- [[how-the-kit-thinks|How the kit thinks]]
+- [[install|Full installation]]
+- [[mcp-engine|The MCP engine]]
+- [[quick-start|Quick start]]
+- [[skill-catalog|Skills catalog]]
+- [[skills-and-lessons|Skills and lessons]]
+- [[the-console|The console]]
+- [[troubleshooting|Troubleshooting]]
+- [[uefn-map-project|A UEFN map project]]
+- [[welcome|What this kit is]]
+- [[your-team|Your team]]

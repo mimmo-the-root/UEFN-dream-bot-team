@@ -110,6 +110,13 @@ def check(project, fix=False):
         add("OK", "Second brain: off (placeholder). Set the path in ~/.claude/CLAUDE.md rule 11 to enable it.")
     elif os.path.isfile(os.path.join(m.group(1), "CLAUDE.md")) and os.path.isdir(os.path.join(m.group(1), "wiki")):
         add("OK", "Second brain vault found.")
+        wk = os.path.join(m.group(1), "wiki")
+        if not os.path.isdir(os.path.join(wk, "kit")):
+            add("NOTE", "Second brain: the kit's own knowledge is not in the vault yet. Copy second-brain-template/wiki/kit/ into %s (the helpers then answer 'how does the kit do this?' from it)." % wk)
+        if not os.path.isfile(os.path.join(wk, "hot.md")):
+            add("NOTE", "Second brain: no wiki/hot.md yet. The librarian writes it after the next compile or handoff; until then sessions start without the short cache.")
+        if not os.path.isfile(os.path.join(home, "skills", "second-brain-query", "scripts", "vault_check.py")):
+            add("NOTE", "Second brain: the free checks are missing (~/.claude/skills/second-brain-query). Run update-my-profile.cmd.")
     else:
         add("PROBLEM", "Second brain path %s is not a valid vault (needs CLAUDE.md and wiki/). Fix rule 11 in ~/.claude/CLAUDE.md." % m.group(1))
 

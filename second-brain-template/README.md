@@ -46,6 +46,20 @@ you browse yourself in Obsidian, and that the kit's agents read and write to whe
    yourself (browsing, editing, asking Claude Code questions from inside it) rather than only
    through `second-brain-librarian`'s own handoffs.
 
+## Give it the kit's own knowledge (once, and after each kit update)
+
+`wiki/kit/` in this folder is the kit manual written as wiki pages (built by `tool/build_kit_wiki.py`, one page per chapter, links already in vault format). Copy it into your vault's `wiki/` folder and add a line for it to `wiki/index.md`. From then on a helper can answer "how does the kit do this?" from the second brain instead of guessing. Copy it again after a kit update: the pages say which kit version they come from and must not be edited by hand.
+
+## What runs by itself (no AI tokens)
+
+Once the vault path is set, two hooks of the project (`Claude/hooks/brain_brief.py`) and the checks in `~/.claude/skills/second-brain-query/scripts/vault_check.py` do the housekeeping:
+
+- **At the start of every session**: prints `wiki/hot.md` (a dozen lines on what is going on), the read order and how many raw sources wait to be ingested.
+- **After every page written under `wiki/`**: runs `links` and `quotes`; a broken link or a quote that is not word for word in its raw file comes back to Claude in the same turn.
+- **By hand or by the librarian**: `status` (which raw files are new, changed or deleted since the last ingest, by content hash, with the pages that went stale), `done raw/<file> wiki/<page>...` (records an ingest), `hot`, and the older `names`, `links`, `stats`, `dups`.
+
+Habits that make it work: one file, one topic, named for what it holds; hard claims carry a quote line `> "exact text" - raw/<file>`; `raw/` is never edited; run the audit now and then, because a wiki that only grows ends up contradicting itself.
+
 ## How it connects to the kit
 
 Once you set `Second brain path` in `~/.claude/CLAUDE.md` (Phase 1 of the main setup guide), a

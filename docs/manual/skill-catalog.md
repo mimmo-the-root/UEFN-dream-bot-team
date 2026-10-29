@@ -26,7 +26,7 @@ Skills are small folders of knowledge that Claude reads only when the task needs
 | Skill | What it gives you |
 |---|---|
 | `token-aware-coding` | Habits for any agent: targeted search instead of reading a whole file, precise file mentions, not re-reading what is already in context. |
-| `second-brain-query` | Rules for asking the second brain narrowly, so an answer stays short. |
+| `second-brain-query` | Rules for asking the second brain narrowly, so an answer stays short, and its free checks (`status`, `done`, `quotes`, `links`, `hot`) that cost no tokens. |
 | `discover-retention` | The facts about the signals Discover uses (bounce rate, QPTR and others) plus a log of retention ideas tried and what happened. |
 
 ## Growing the map

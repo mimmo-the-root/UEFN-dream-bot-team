@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""vault_check.py - read-only checks of the second brain vault. Zero AI tokens, never writes.
+"""vault_check.py - checks of the second brain vault. Zero AI tokens. Read-only, except `done` (writes .brain/manifest.json).
 
   python vault_check.py names  [--vault DIR]   canonical folder/index names -> what this vault really uses; duplicate-folder warnings
   python vault_check.py links  [--vault DIR]   broken [[wikilinks]] (path-style and name-style, Obsidian rules)
@@ -7,10 +7,14 @@
   python vault_check.py dups   [--vault DIR]   possible duplicate articles (shared alias, or near-identical titles)
   python vault_check.py sections [--vault DIR]          headings of the vault CLAUDE.md with line ranges and ~tokens
   python vault_check.py section "TEXT" [--vault DIR]    print only the section(s) whose heading contains TEXT
+  python vault_check.py status [--vault DIR]            raw/ files that are NEW, CHANGED or DELETED since the last ingest (by content hash)
+  python vault_check.py done RAW PAGE... [--vault DIR]  record that RAW was ingested into these wiki pages (writes .brain/manifest.json)
+  python vault_check.py quotes [--vault DIR]            every quoted claim  > "text" - raw/file  must exist word for word in that raw file (exit 2 if not)
+  python vault_check.py hot    [--vault DIR]            print wiki/hot.md (the short cache of what is going on), if there is one
 The vault is --vault, else $SECOND_BRAIN, else the "Second brain path" in ~/.claude/CLAUDE.md. Names come from names.json
 (English canonical + Italian synonyms), so a vault that mixes both languages is handled as it is.
 """
-import json, os, re, sys
+import hashlib, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 N = json.load(open(os.path.join(HERE, "..", "names.json"), encoding="utf-8"))
@@ -221,14 +225,139 @@ def cmd_dups(vault):
     for a, b, why in found[:15]:
         print("  %s  <->  %s   (%s)" % (a, b, why))
 
+QUOTE = re.compile(r'^>\s*"(.+?)"\s*[\u2014\u2013-]+\s*(raw/\S+)\s*$', re.M)
+
+
+def _norm_key(rel):
+    """raw/foo_COMPILED.md and raw/foo.md are the same source (the old marker renamed the file after compiling)."""
+    rel = rel.replace("\\", "/")
+    d, b = os.path.split(rel)
+    stem, ext = os.path.splitext(b)
+    if stem.endswith("_COMPILED"):
+        stem = stem[:-len("_COMPILED")]
+    return (d + "/" if d else "") + stem + ext
+
+
+def _raw_files(vault):
+    base = os.path.join(vault, "raw")
+    for root, dirs, files in os.walk(base):
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
+        for f in files:
+            p = os.path.join(root, f)
+            yield _norm_key(os.path.relpath(p, vault)), p
+
+
+def _sha(p):
+    h = hashlib.sha256()
+    with open(p, "rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()[:16]
+
+
+def _manifest_path(vault):
+    return os.path.join(vault, ".brain", "manifest.json")
+
+
+def _load_manifest(vault):
+    try:
+        return json.load(open(_manifest_path(vault), encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def cmd_status(vault):
+    m, seen, rows = _load_manifest(vault), set(), []
+    for key, p in sorted(_raw_files(vault)):
+        seen.add(key)
+        if key not in m:
+            rows.append(("NEW", key, ""))
+        elif m[key].get("sha") != _sha(p):
+            rows.append(("CHANGED", key, ", ".join(m[key].get("pages", [])) or "no pages recorded"))
+    for key in sorted(m):
+        if key not in seen:
+            rows.append(("DELETED", key, ", ".join(m[key].get("pages", []))))
+    for kind, key, pages in rows[:MAXLINES]:
+        print("%s %s%s" % (kind, key, ("   (pages to refresh: %s)" % pages) if pages and kind != "NEW" else ""))
+    if len(rows) > MAXLINES:
+        print("... %d more" % (len(rows) - MAXLINES))
+    print("status: %d pending (%d new, %d changed, %d deleted)" % (len(rows), sum(r[0] == "NEW" for r in rows), sum(r[0] == "CHANGED" for r in rows), sum(r[0] == "DELETED" for r in rows)))
+    return 0
+
+
+def cmd_done(vault, args):
+    if len(args) < 2:
+        print("usage: done RAW_FILE PAGE [PAGE...]"); return 1
+    key = _norm_key(args[0] if args[0].replace("\\", "/").startswith("raw/") else "raw/" + args[0])
+    files = dict(_raw_files(vault))
+    if key not in files:
+        print("no such raw file: %s" % args[0]); return 1
+    for pg in args[1:]:
+        if not os.path.isfile(os.path.join(vault, pg)):
+            print("no such page: %s (give the path from the vault root, e.g. wiki/mechanics/x.md)" % pg); return 1
+    m = _load_manifest(vault)
+    m[key] = {"sha": _sha(files[key]), "pages": [p.replace("\\", "/") for p in args[1:]]}
+    os.makedirs(os.path.dirname(_manifest_path(vault)), exist_ok=True)
+    json.dump(m, open(_manifest_path(vault), "w", encoding="utf-8"), indent=2, sort_keys=True)
+    print("done: %s -> %d page(s)" % (key, len(args) - 1))
+    return 0
+
+
+def _raw_text(vault, rel):
+    cands = [rel]
+    stem, ext = os.path.splitext(rel)
+    cands.append(stem + "_COMPILED" + ext)
+    for c in cands:
+        p = os.path.join(vault, *c.split("/"))
+        if os.path.isfile(p):
+            try:
+                return open(p, encoding="utf-8").read()
+            except UnicodeDecodeError:
+                return None
+    return ""
+
+
+def cmd_quotes(vault):
+    bad, checked, skipped = [], 0, 0
+    for p in articles(os.path.join(vault, "wiki")):
+        rel = os.path.relpath(p, vault).replace("\\", "/")
+        for q, src in QUOTE.findall(read(p)):
+            src = src.rstrip(".,;")
+            t = _raw_text(vault, src)
+            if t is None:
+                skipped += 1; continue
+            checked += 1
+            if t == "":
+                bad.append("%s: quote cites a missing file %s" % (rel, src))
+            elif " ".join(q.split()) not in " ".join(t.split()):
+                bad.append('%s: QUOTE NOT IN SOURCE -> "%s" (%s)' % (rel, q[:60], src))
+    for b in bad[:MAXLINES]:
+        print(b)
+    print("quotes: %d checked, %d problem(s)%s" % (checked, len(bad), (", %d in files that are not plain text (not checked)" % skipped) if skipped else ""))
+    return 2 if bad else 0
+
+
+def cmd_hot(vault):
+    p = os.path.join(vault, "wiki", "hot.md")
+    if os.path.isfile(p):
+        print("\n".join(read(p).splitlines()[:40]))
+    return 0
+
 
 def main():
     a = sys.argv[1:]
-    if not a or a[0] not in ("names", "links", "stats", "dups", "sections", "section"):
+    cmds = ("names", "links", "stats", "dups", "sections", "section", "status", "done", "quotes", "hot")
+    if not a or a[0] not in cmds:
         print(__doc__); return 0
     v = vault_path(a)
+    if "--vault" in a:
+        i = a.index("--vault"); a = a[:i] + a[i + 2:]
     if a[0] == "section":
         cmd_section(v, a[1] if len(a) > 1 and not a[1].startswith("--") else "")
+    elif a[0] == "done":
+        return cmd_done(v, a[1:])
+    elif a[0] in ("status", "quotes", "hot"):
+        return {"status": cmd_status, "quotes": cmd_quotes, "hot": cmd_hot}[a[0]](v)
     else:
         {"names": cmd_names, "links": cmd_links, "stats": cmd_stats, "dups": cmd_dups, "sections": cmd_sections}[a[0]](v)
     return 0

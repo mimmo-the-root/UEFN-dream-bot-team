@@ -248,6 +248,8 @@ A dedicated agent, `second-brain-librarian`, owns all reads/writes to this vault
 agent in this kit whose job is outside the current project's folder. Neither `coder` nor
 `project-bootstrap` write to the vault directly; they hand off to it instead.
 
+How a session reads it, and the hooks that check it, are in rule 15.
+
 If `<SECOND_BRAIN_PATH>` is still the unfilled placeholder, skip this rule entirely — don't
 invoke `second-brain-librarian`, don't mention it every session, it's simply off. If it's set:
 
@@ -415,3 +417,16 @@ The same script also checks, at every session start, that the project's `.uplugi
 
 Delete only what the task needs. When a delete is refused or impossible (protected or read-only folder, no permission, a tool without delete rights), do not work around it: move the file to `_to_delete/<yyyymmdd-hhmmss>/` at the root of the project (or the kit folder) and say in one line what was parked and why. The owner empties that folder. It applies to files replaced or removed during a kit update too. Never use `git clean` or bulk deletes on the owner's files.
 <!-- KIT:END no-delete -->
+
+<!-- KIT:BEGIN second-brain-session -->
+## 15. Second brain in a session (automatic, only when rule 11 has a real path)
+
+While the "Second brain path" in rule 11 is still the placeholder, ignore this rule: the second brain is off.
+
+When it is set, the project hook `Claude/hooks/brain_brief.py` prints `wiki/hot.md`, the read order and the pending-ingest count at the start of every session, and runs the free checks after every page written under `<vault>/wiki`. What you do:
+
+- Read order: `wiki/hot.md`, then `wiki/index.md`, then the thematic `wiki-index.md`, then the page. Never read the vault for a general coding question.
+- Before asking the owner a question, look for the answer in the vault (`second-brain-librarian` query) and in `wiki/kit/` (how the kit itself works); skip silently if nothing is found.
+- If a hook reports a broken link or a quote that is not in its raw file, fix the page in the same turn: the checks cost no tokens.
+- Only `second-brain-librarian` writes to the vault. `vault_check.py status` lists the raw sources still to ingest; `done raw/<file> wiki/<page>...` records one.
+<!-- KIT:END second-brain-session -->

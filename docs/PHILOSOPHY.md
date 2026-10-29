@@ -22,7 +22,7 @@ The kit moves that work, step by step, from you to the system. There are four st
 |---|---|---|
 | 1. Prompt | One try: you ask, it answers. You are the whole program | You are the bottleneck: you read, you check, you explain |
 | 2. Loop | Try, check, retry. A test that can fail, written before the work; and feedback that says "I expected this, I saw that, this was already tried" | Every check is right, but the helper has nowhere safe to work and nothing to remember |
-| 3. Harness | The system around the helper. **Hands** (every editor tool), **memory** (plan, notes and decisions are files, plus an optional **second brain**: a wiki of reusable mechanics that outlives every project), **walls** (limits that hold even when the helper is wrong), **shape** (the work as a path with pieces side by side) and **gates** (passed work is frozen; you step in only where undo is impossible) | The same mistake comes back next week |
+| 3. Harness | The system around the helper. **Hands** (every editor tool), **memory** (plan, notes and decisions are files, plus a **second brain**: one wiki shared by every project, with what worked, the lessons and the kit's own knowledge), **walls** (limits that hold even when the helper is wrong), **shape** (the work as a path with pieces side by side) and **gates** (passed work is frozen; you step in only where undo is impossible) | The same mistake comes back next week |
 | 4. It learns | A mistake becomes a rule, on the right step. What worked is written once in the second brain. The same mistake never comes back | Nothing: this is the step that keeps the other three honest |
 
 Underneath, a person quietly does three jobs that the system should do: *give it a place to work* (the harness), *tell it if it was right* (the loop) and *decide what happens next* (the graph). In the picture the third step holds the place to work and what comes next.
@@ -141,9 +141,30 @@ When something goes wrong, the kit proposes a lesson. You approve it. It stays p
 
 ![It grows with you](images/dream/05-it-grows-with-you.png)
 
-### A second brain, outside any project
+### The second brain: where the kit keeps what it knows
 
-Lessons are about mistakes. Mechanics are about what worked: how to build a pickup, a round timer, a score panel in Verse. If you want, the kit keeps a **second brain**: a plain wiki in Obsidian, outside any project, where one helper (the librarian) writes each reusable mechanic once and finds it again on the next map. A second helper can sweep a finished project to fill it. When you start a new game, `/spec` and `/game-plan` study the second brain first and say what they found ("none found" is an honest answer). It is optional: skip it and nothing else changes. It is only files, so you can open and edit every page yourself. What one map teaches, the next map starts from.
+Every new chat starts blank. The plan, the decisions and what worked last week are gone unless they live somewhere the helpers can read. The kit's answer is a **second brain**: one folder of plain text files, outside any project, that the helpers read and also write. The next session, and the next map, start where the last one stopped.
+
+We studied the *LLM wiki* idea, tried it on UEFN and bent it to this kit. It has three rooms and a rulebook:
+
+| Part | What it holds | Who writes it |
+| --- | --- | --- |
+| `raw/` | Sources: a project's spec and bugs, a Verse snippet, an article. Read, never edited | You, or a finished project |
+| `wiki/` | Pages that link to each other: one page per mechanic, device, lesson or chapter of the kit, plus `hot.md` (a dozen lines: what is going on now) and an index | One helper, the librarian |
+| `output/` | Answers and drafts that can be thrown away | Any helper |
+| `CLAUDE.md` | The rules of the vault: page format, the update-in-place rule, the workflows | You, once |
+
+**What goes in.** What worked (a pickup, a round timer, a score panel in Verse), what did not work (kept as counter-evidence), the lessons of every map, and **the kit's own knowledge**: the kit ships a ready-made `wiki/kit/` built from this very manual, so the second brain Cod reads already knows how the kit works. One brain serves every project; each project only needs the vault path.
+
+**How the helpers use it.**
+1. At the start of a session a hook prints `wiki/hot.md` and how many raw sources wait to be ingested.
+2. Before asking you a question, a helper looks for the answer in the second brain and in the genre lessons. If it finds one, it proposes it and asks only for a yes.
+3. The read order is always the same: `hot.md`, then the index, then the topic index, then the page. It never reads the vault for a general coding question, so it stays cheap.
+4. When a helper builds something reusable it hands it to the librarian. The librarian updates the one page for that mechanic (the old version moves to a dated history, a different but valid approach is kept as a variant) and rewrites `hot.md`.
+
+**What keeps it honest.** The model that writes the wiki must not be the only one checking it, so the checks are plain scripts that cost no tokens: broken links, pages with no source, sources edited after they were ingested (their pages are listed as stale), and every quoted claim must exist word for word in the raw file it cites. After a page is written, a hook runs them and the answer comes back in the same turn. The checks prove the page copies its source, not that the source is right: a wrong source makes a faithfully wrong page, so disagreements are written down under counter-evidence instead of being smoothed over.
+
+**Where it is weak.** It is off until you give it a folder (one line in your `~/.claude/CLAUDE.md`), and the kit works without it. With fewer than about fifty pages it behaves like a good search, no more. Pages go stale, so run the audit now and then. It is files only: open and edit every page yourself.
 
 ### The screen is alive
 

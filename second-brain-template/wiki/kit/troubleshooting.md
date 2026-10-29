@@ -1,0 +1,111 @@
+---
+tags: [kit, manual]
+created: kit-1.114.0
+updated: kit-1.114.0
+sources: [docs/manual/troubleshooting.md]
+type: kit
+status: current
+---
+# Troubleshooting
+
+Updates, the doctor, and the problems people meet most.
+
+## Keep the kit up to date
+
+Every time you start `claude` in a project, the kit compares that project's files with the copy in `~/.claude/kit-template/` and updates what is old or missing. The previous version of a replaced file is saved in `Claude/logs/kit-backup/`. Your own data is never touched: `Claude/docs/`, `Claude/logs/` and your `CLAUDE.md` outside the kit blocks.
+
+> **Note** Kits older than v1.108.3 do not update themselves: run `/kit-update --fetch` once (see [[install|Installing]]).
+
+The copy in `~/.claude/` updates itself too: at most once every 6 hours the session start checks GitHub in the background and, if a newer release exists, downloads it without slowing the session. The project then updates at its next session start. The update downloads the release file `kit.zip`; GitHub counts those downloads, which is how the author knows roughly how many machines take each version (nothing is sent from your computer). The check logs one line in `~/.claude/kit-auto-update.log`. To switch it off, create an empty file `~/.claude/kit-auto-update.off`. Both the project hook and the global hook start the check. The very first time, run `/kit-update --fetch` (or `update-my-profile.cmd`) once, so that the new files are in place.
+
+- `/kit-update` updates the current project now.
+- `/kit-update --fetch` first downloads the latest release from GitHub into `~/.claude/kit-template/`, then updates the project.
+- After an update, **open a new session** (rules, agents and hooks are read at the start) and reload the console page.
+
+## The doctor
+
+`/kit-doctor` checks the project's health: versions, hooks, backups, and the **five needs** of a project, each marked critical or recommended with the remedy in plain words: instructions (the project rules are in place), state (a task list and a status page not older than 14 days), verification (a playtest or audit list once something is Done), scope (every task says how we know it works) and hand-over (no command left half done, a hand-over note). It tells you in a few lines what is fine, what is wrong and what to do. `/kit-doctor --fix` repairs the common problems.
+
+## The console does not move
+
+Windows has a setting, Animation effects (Settings, Accessibility, Visual effects). When it is off, your browser tells the page to reduce motion and the console stops the things that move: the light across the top, the lift of the panels, the sheen on the bars. The breathing of the panels, the pulsing dots and the pixel wave stay. Press **Motion** in the header to see everything anyway. To turn off the cube wave on its own, run `localStorage.setItem("kit-pixel-wave","off")` in the browser console of the page.
+
+## Restore points
+
+`/restore-point` makes a snapshot of your Verse code and documents, shows what changed since, or undoes a change. Run it without arguments to see what changed. A restore always shows what would change before it does anything, and never deletes files.
+
+## What the agents changed in the editor
+
+`/editor-changes` lists what the agents wrote to the open editor, session by session (created, set, moved, deleted; reading calls are left out). `/editor-changes undo-plan` prints the steps that would undo the newest session. It never touches the editor: a creation can be undone by deleting what it created, but a changed value, a move or a rename cannot, because the old value was not recorded. For those it says "manual": use the editor's own Undo, or a restore point for the Verse code. Deleting in a real project always waits for your yes.
+
+Only one session at a time may write to the editor. If a second Claude session tries, its write is refused with a message that names the first session; reading is never blocked. The lock goes stale after ten minutes without a write. `python Claude/hooks/editor_lock.py status` shows who holds it, `release` removes it, and `UEFN_KIT_LOCK=0` switches it off for a session.
+
+## Checking Verse before a build
+
+`python Claude/hooks/verse_static.py` reads the Verse files without the editor and reports the mistakes that are certain from the text: unbalanced brackets, mixed tabs and spaces, `@editable` on a `var`, `OnBegin` without `<override>`, the same class defined in two files, and missing imports (a warning). A clean result does not mean the code compiles: only `/verse-check` (it needs the open editor) says that.
+
+## The console shows a red status
+
+The page cannot reach its local server. In order:
+
+1. Open the console as `http://127.0.0.1:8765/`, not as a file from your disk.
+2. Start the server by hand in a terminal opened in the project:
+
+```
+powershell -ExecutionPolicy Bypass -File Claude\hooks\agent-console-server.ps1
+```
+
+or, on any system with Python 3:
+
+```
+python3 Claude/hooks/agent-console-server.py
+```
+
+3. Reload the page. If you just updated the kit while the server was running, restart it: it does not notice file changes by itself. Opening a new session does this for you.
+
+## The console is quiet while agents work
+
+Nothing shows until an agent actually runs. If agents run and the page stays empty, check that the project's `.claude/settings.json` still has the kit's hooks, which `/kit-doctor` does for you. After a Claude Code update that renames its internal dispatch tool, the console goes quiet the same way until the hooks are updated by a kit update.
+
+## The round starts with 0 participants after I changed references
+
+A reference (device to device, widget, asset) or a list of references was set through the MCP and the game manager lost the link: its settings look fine but nobody takes part. The editor does not report an error. Open the device and look at the reference fields; restore them by hand or from a restore point (`/restore`). From now on the agents read a reference before and after changing it and stop if it differs (skill `mcp-tool-contracts`). If you did not ask for the change, ask the agent to list every reference it wrote (`/editor-changes`).
+
+## Claude loses UEFN
+
+The UEFN server listens on `http://127.0.0.1:8000/mcp` by default. Go in this order:
+
+1. **Is anything listening on port 8000?** In PowerShell: `Get-NetTCPConnection -LocalPort 8000 -State Listen`. No result means the server is off.
+2. **Read the editor Output Log** for the server start-up lines. A port conflict shows up there.
+3. **It listens but does not answer?** Run `npx @modelcontextprotocol/inspector` and connect to `http://127.0.0.1:8000/mcp` with the Streamable HTTP transport. If the tools are listed, the server is fine and the problem is on the Claude side: restart the session.
+4. **Restart the server by hand** from the editor console: `ModelContextProtocol.StartServer`, optionally with a port, such as `ModelContextProtocol.StartServer 8000`.
+
+## There are two files called settings.json
+
+They are different and must never be merged by hand. `~/.claude/settings.json` is yours: Claude Code's own preferences. `<project>/.claude/settings.json` belongs to that project: the kit's hooks and permissions. Claude Code reads both and combines them. The full table is in [[install|Full installation]].
+
+## The Skills page of a Fab product looks old, or has no Checklist tab
+The console you see was started before the last update. Run `update-my-profile.cmd`, then start the console again with `fab_lab.py console <project> --foreground`: it now replaces an older console of the same product by itself. Press Ctrl+F5 in the browser.
+
+## The What's new page is empty
+
+It shows the summary of the last release, shipped with the kit. After a release, run `/kit-update --fetch` and open a new session. Sections about contributors fill up only when lessons from other creators arrive.
+
+## My map shows as "not published"
+
+The page says why. The usual reasons: the project has no island code saved, Epic has no public data for it yet, or Epic could not be reached. See [[community|Community]].
+
+## Something is wrong with a community lesson
+
+Use **Submit an issue** on the What's new page. See [[community|Community]].
+
+## Still stuck?
+
+Open an issue on the [GitHub repo](https://github.com/mimmo-the-root/UEFN-dream-bot-team/issues/new/choose), or ask on the creator's [Discord](https://discord.gg/WXF9UgzvRX). Tell us your kit version (shown at the top of every console page) and what `/kit-doctor` said.
+
+## Related articles
+- [[install|Full installation]]
+- [[community|Community]]
+
+## Sources
+- The kit manual, chapter "Troubleshooting" (docs/manual/troubleshooting.md), kit v1.114.0. Rebuilt on every kit release: do not edit this page, edit the manual.

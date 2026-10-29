@@ -43,6 +43,9 @@ Read `~/.claude/CLAUDE.md`, rule 11 ("Second brain (Obsidian) integration"), for
 2. **Counter-evidence**: a `## Counter-evidence` section: what did not work, where (project, date); if nothing yet write "none recorded".
 3. **Log**: append one line per write to `wiki/log.md`: `YYYY-MM-DD | create/update/merge/archive | path | reason`. Never delete a page: log it and propose archiving to the owner.
 4. **Answers**: end every query answer with `Read:` (the pages you read) and `Not covered:` (what the vault does not say). Anything outside those pages is marked as general knowledge.
+5. **Hot cache**: after every write and every compile, rewrite `wiki/hot.md` (a dozen lines, no frontmatter): what the owner is working on (project names), what changed last, open questions. It is read first at every session start, so keep it short and current.
+6. **Ingest registry**: after compiling a raw file, run `python ~/.claude/skills/second-brain-query/scripts/vault_check.py done raw/<file> wiki/<page>...`. At the start of `compile` run `... status` and work only on what it lists (NEW, CHANGED, DELETED); a CHANGED source means refreshing the pages it names. The registry, not the `_COMPILED` rename, is the authority.
+7. **Quote lines**: every concrete claim taken from a raw file gets a line `> "exact text" - raw/<file>` in the page, then run `... quotes` (and `links`): fix every problem before you answer. The check proves the quote is in the source, not that the source is right; if sources disagree, write it under `## Counter-evidence`.
 
 ## Three ways you get used
 
