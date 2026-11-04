@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 import skills_lib as L
 
 HOLD = L.load_hold()
-try:   # this tool only exists on the maintainer's computer: mark the profile so the Skills page shows the release boxes
+try:   # this tool only exists on the maintainer's computer: mark the profile so the Knowledge page shows the release boxes
     if not L.is_maintainer():
         open(os.path.join(a.profile, "maintainer.json"), "w").write('{"maintainer": true}\n')
 except OSError:
@@ -50,7 +50,7 @@ def h(b):
 
 def candidates(slug):
     if slug in HOLD["skills"]:
-        return os.path.join(a.profile, "genre", slug), os.path.join(REPO, "user-level-skills", "genre", slug), []   # kept out by the owner (Skills page, 'Release' box)
+        return os.path.join(a.profile, "genre", slug), os.path.join(REPO, "user-level-skills", "genre", slug), []   # kept out by the owner (Knowledge page, 'Release' box)
     src = os.path.join(a.profile, "genre", slug)
     dst = os.path.join(REPO, "user-level-skills", "genre", slug)
     out = []  # (relative path, new bytes)
@@ -118,7 +118,7 @@ for slug in slugs:
         todo.append((slug, rel, cur, data, "new" if old is None else "changed", lk))
 
 def write_kit_skills():
-    """Claude/community/kit-skills.json: the skills that ship with the kit, so the Skills page can tell which of yours are new."""
+    """Claude/community/kit-skills.json: the skills that ship with the kit, so the Knowledge page can tell which of yours are new."""
     g = os.path.join(REPO, "user-level-skills", "genre")
     names = sorted(d for d in (os.listdir(g) if os.path.isdir(g) else []) if os.path.isfile(os.path.join(g, d, "SKILL.md")))
     path = os.path.join(REPO, "project-template", "Claude", "community", "kit-skills.json")

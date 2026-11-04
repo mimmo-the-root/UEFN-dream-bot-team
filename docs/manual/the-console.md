@@ -112,7 +112,7 @@ The tabs carry small counters with real numbers, hidden at zero: **Skills** show
 
 **Why it is there.** The kit learns from your maps, and you decide what it keeps. This page is where you approve or reject a lesson, see how much of UEFN's toolset the kit really uses, and choose whether to share anything with the community.
 
-![The Skills page (demo data)](shot-skills.png)
+![The Knowledge page (demo data)](shot-skills.png)
 
 ## What's new
 
@@ -126,7 +126,7 @@ The last release in plain words, the skills that improved, the top contributors,
 
 How far the project is against its own plan, release by release. A chart shows the plan, what is built and what is proven, with a forecast at the current pace. Under it, every criterion has a traffic light (red act now, yellow watch, green fine) and a number saying where to work first. The primary criteria are the quality criteria of the contest or genre (70 points); the additional ones are ours (feasibility, scope, retention, publishing readiness, documentation; 30 points); a bonus track is shown but not counted.
 
-Nothing is typed by hand. The page reads ROADMAP, BUGS and the release-readiness verdict of the project, so closing a task or a bug in the docs moves the score by itself. Tasks the page cannot link to a criterion are listed, and the team classifies them. New criteria are proposed on the Skills page and need your approval.
+Nothing is typed by hand. The page reads ROADMAP, BUGS and the release-readiness verdict of the project, so closing a task or a bug in the docs moves the score by itself. Tasks the page cannot link to a criterion are listed, and the team classifies them. New criteria are proposed on the Knowledge page and need your approval.
 
 **Readiness** (1.114): under the four tiles, one honest number out of 100. Only proven work counts (open bugs already lower it); a criterion fed by a single task counts half, because a small sample proves little; a task marked Done with no written proof after the word counts half, and the page names it. The **Scope** criterion compares the plan with the number of tasks when work started: while the plan is still being written it does not count as scope creep.
 

@@ -1,7 +1,7 @@
 # Claude/hooks/agent-console-mcp.ps1
 #
 # Feeds the Agent Console's "MCP Server" node — logs when the UEFN MCP server
-# (mcp__unreal-mcp__call_tool) is called and by whom, so you can see it light up in real time
+# (mcp__unreal-mcp__call_tool, or any mcp__unreal-mcp__<Toolset>_<Tool> since UEFN 43.00) is called and by whom, so you can see it light up in real time
 # and tell which bot (or the main/chief-of-staff session, if `agent_type` is absent from the
 # payload) is currently talking to the editor.
 #
@@ -45,12 +45,15 @@ try {
 
     $ti = $payload.tool_input
     $label = $null
-    foreach ($field in @("tool", "action", "toolset", "method", "command")) {
+    # UEFN 43.00: one tool name per tool (mcp__unreal-mcp__Toolset_Tool), no call_tool wrapper - the name itself is the label
+    $tn = [string]$payload.tool_name
+    if ($tn.StartsWith("mcp__unreal-mcp__") -and -not $tn.EndsWith("call_tool")) { $label = $tn.Substring(17) }
+    foreach ($field in $(if ($label) { @() } else { @("tool", "action", "toolset", "method", "command") })) {
         if ($ti -and $ti.$field) { $label = [string]$ti.$field; break }
     }
     if (-not $label -and $ti) {
         try { $label = ($ti | ConvertTo-Json -Compress -Depth 2) } catch { $label = "" }
-        if ($label -and $label.Length -gt 80) { $label = $label.Substring(0, 80) + "…" }
+        if ($label -and $label.Length -gt 80) { $label = $label.Substring(0, 80) + "..." }
     }
     if (-not $label) { $label = "" }
 

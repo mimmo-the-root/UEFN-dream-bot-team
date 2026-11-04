@@ -17,7 +17,7 @@ Rules:
   genre/<slug>/official/. Each pattern: variant, condition (max 140), action (max 200), statement (max 200),
   tier reference, id from skills_lib.pattern_id. Check each with skills_lib.validate_pattern.
 - No URLs, backticks, task or map ids, emails. Separate official facts from our own guidance in the statement.
-- Packs reach the skill only after the owner approves them on the Skills page.
+- Packs reach the skill only after the owner approves them on the Knowledge page.
 - Report unreviewed parts (e.g. map files not opened) explicitly.
 
 Automatic flow (the owner only says "analyze the map, it is an Epic template"):
@@ -36,7 +36,7 @@ Automatic flow (the owner only says "analyze the map, it is an Epic template"):
 2. Read the template read-only, write the card (Claude/template-analysis.md in the template project is fine).
 3. Write the official pack to ~/.claude/skills/genre/<slug>/official/official-<name>.json and validate it.
 4. Queue it: `python ~/.claude/kit-template/Claude/hooks/skills_lib.py merge --official --source <name> <slug> <pack file>`.
-   This only creates ONE proposal; the owner approves it on the Skills page. Tell the owner to open it.
+   This only creates ONE proposal; the owner approves it on the Knowledge page. Tell the owner to open it.
 5. List what you did not inspect (map files, external actors) as open items.
 
 Minigames and recipes (automatic, no questions):

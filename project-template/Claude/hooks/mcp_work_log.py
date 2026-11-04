@@ -38,9 +38,15 @@ def replay_on(logs):
 
 
 def row_from_payload(p):
-    ti = p.get("tool_input") or {}
-    if not isinstance(ti, dict) or not ti.get("tool_name"):
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import mcp_names as N
+        c = N.read(p)
+    except Exception:
+        c = {"tool": ""}
+    if not c["tool"]:
         return None
+    ti = {"toolset_name": c["toolset"], "tool_name": c["tool"], "arguments": c["args"]}
     failed = p.get("hook_event_name") == "PostToolUseFailure" or (p.get("error") and "tool_response" not in p)
     resp = p.get("error") if failed else p.get("tool_response")
     text = resp if isinstance(resp, str) else json.dumps(resp, ensure_ascii=False, default=str)

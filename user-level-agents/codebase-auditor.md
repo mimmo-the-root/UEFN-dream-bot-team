@@ -120,7 +120,7 @@ faster is not a category exempt from being rechecked.
    `python Claude/hooks/skills_lib.py needs-feeding <slug>`. If any returns `"needs": true` (fewer than 3 patterns
    backed by the owner's maps), say so in your report and tell the main session to invoke ONE `skill-reflector`
    call with this audit's verified findings as the evidence (it queues at most 3 lessons per slug for the owner's
-   approval on the Skills page). If none needs it, do nothing. Never write to the skills yourself.
+   approval on the Knowledge page). If none needs it, do nothing. Never write to the skills yourself.
 4. If you found the same category of issue repeated across many files (e.g. logger missing
    everywhere, not just one file), report it as one finding with every location listed — don't
    generate twenty near-identical findings that would each become their own noisy task.

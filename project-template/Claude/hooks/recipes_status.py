@@ -150,10 +150,15 @@ def tool_coverage(merged, names):
     A recipe with a short toolset name matches the full class name. Notes (multi-step) cover nothing."""
     names = list(names)
     have, proven = set(), set()
+    try:
+        import toolset_diff as _td
+        table = _td.names_43()
+    except Exception:
+        table = {}
     for key, v in merged.items():
         if v["status"] == "note":
             continue
-        base = key.split("#")[0]
+        base = table.get(key.split("#")[0], key.split("#")[0])
         for n in names:
             if n == base or n.endswith("." + base):
                 have.add(n)
@@ -193,7 +198,8 @@ def gap(merged, tools, ledger, area=None):
 
 
 def _areas(merged):
-    """Recipes per area (the area of the tool in mcp-known-tools.json); tools not in the file count as "other"."""
+    """Recipes per area (the area of the tool in mcp-known-tools.json); tools not in the file count as "other". Same four states everywhere:
+    proven, tool_ok (answered, not proven), unverified (not tried), replay (failed, or its tool was changed or removed)."""
     try:
         tools = json.load(open(os.path.join(HERE, "mcp-known-tools.json"), encoding="utf-8")).get("tools", {})
     except (OSError, ValueError):
@@ -203,13 +209,113 @@ def _areas(merged):
         if v["status"] in ("note", "avoid"):
             continue
         area = (tools.get(key.split("#")[0]) or {}).get("a") or "other"
-        slot = out.setdefault(area, {"area": area, "total": 0, "proven": 0, "tool_ok": 0})
+        slot = out.setdefault(area, {"area": area, "total": 0, "proven": 0, "tool_ok": 0, "unverified": 0, "replay": 0})
         slot["total"] += 1
-        if v["status"] == "proven":
-            slot["proven"] += 1
-        elif v["status"] == "tool-ok":
-            slot["tool_ok"] += 1
+        st = _final(v)
+        slot[{"proven": "proven", "tool-ok": "tool_ok", "unverified": "unverified", "replay": "replay"}.get(st, "unverified")] += 1
     return sorted(out.values(), key=lambda x: (-x["total"], x["area"]))
+
+
+def _final(v):
+    """The one state of a merged recipe: replay when it failed and never worked since, or when its tool was changed or removed (set by progress)."""
+    if v["status"] == "replay" or (v["failed"] and v["status"] != "proven"):
+        return "replay"
+    return v["status"]
+
+
+def arg_check(recipes, map_tools):
+    """Recipes whose argument names are not the tool's argument names any more (checked offline against the saved map; no call is made).
+    Returns {recipe key: {"tool": map key, "fix": {old name: new name}, "unknown": [names with no counterpart]}}. A name that only differs in
+    writing style (asset_path / assetPath) is a fix; other names need a person or a replay. Recipes whose tool has no argument names saved are skipped."""
+    try:
+        import toolset_diff as td
+        table = td.names_43()
+    except Exception:
+        table = {}
+    norm = lambda x: re.sub(r"[_\W]", "", str(x)).lower()
+    out = {}
+    for key, rec in recipes.items():
+        if is_note(key) or not isinstance(rec, dict) or not isinstance(rec.get("args43") or rec.get("args"), dict):
+            continue
+        base = key.split("#")[0]
+        target = table.get(base, base)
+        tool = next((n for n in map_tools if n == target or n.endswith("." + target)), None)
+        pn = (map_tools.get(tool) or {}).get("pn") if tool else None
+        if not pn:
+            continue
+        fix, unknown = {}, []
+        for a in (rec.get("args43") or rec["args"]):   # a recipe that already carries the 43.00 names is checked by them
+            if a in pn:
+                continue
+            c = [p for p in pn if norm(p) == norm(a)]
+            if len(c) == 1:
+                fix[a] = c[0]
+            else:
+                unknown.append(a)
+        if fix or unknown:
+            out[key] = {"tool": tool, "fix": fix, "unknown": unknown}
+    return out
+
+
+TOOLSET_AREA = {"PCGToolset": "pcg", "animation_toolset": "cinematics", "NiagaraToolsets": "vfx-niagara", "UMGToolSet": "ui-widgets", "MVVMToolset": "ui-widgets",
+                "WidgetAnimationToolset": "ui-widgets", "WidgetStaticAnalysisToolset": "ui-widgets", "VerseFieldsToolset": "verse-build", "VerseToolset": "verse-build",
+                "MetaSoundToolset": "audio", "PhysicsToolsets": "physics-mesh", "SpatialProfilerToolset": "profiling", "InsightsToolset": "profiling",
+                "SceneCaptureToolset": "capture", "ValkyrieFortniteToolset": "level-devices", "ValkyrieToolset": "scene-graph", "ConsoleToolset": "editor-logs",
+                "GameplayTagsToolset": "level-devices", "FortGameplayToolset": "level-devices", "geometry_toolset": "pcg", "EditorToolset": "editor-core",
+                "editor_toolset": "scripting-batch", "ToolsetRegistry": "scripting-batch", "AIAssistantEditor": "scripting-batch"}
+
+
+def tool_states(merged, tools, stale_keys=(), tests=None):
+    """The same four states over the tools of the server (the unit of the top card): proven (a proven recipe), answered (a test or the lab got an answer,
+    or a recipe that only answered), replay (a recipe that failed, or whose tool changed), not tried (the rest). Tools and recipes use the old or
+    the new names: the shipped 43.00 table joins them. Returns {"total", "proven", "answered", "not_tried", "replay", "areas": [...], "new": {...}}."""
+    try:
+        import toolset_diff as td
+        table = td.names_43()
+    except Exception:
+        table = {}
+    names = list(tools)
+    idx = set(names)
+    area_of = {}
+    try:
+        for k, e in json.load(open(os.path.join(HERE, "mcp-known-tools.json"), encoding="utf-8")).get("tools", {}).items():
+            area_of[table.get(k, k)] = e.get("a")
+    except (OSError, ValueError):
+        pass
+    state = {n: "not_tried" for n in names}
+    rank = {"not_tried": 0, "answered": 1, "proven": 2, "replay": 3}
+    def put(n, st):
+        if n in state and rank[st] > rank[state[n]]:
+            state[n] = st
+    for n in (tests or {}):
+        if (tests or {}).get(n) == "ok":
+            put(n, "answered")
+    try:
+        for k, e in json.load(open(os.path.join(HERE, "mcp-known-tools.json"), encoding="utf-8")).get("tools", {}).items():
+            if e.get("s") in ("ok", "recipe"):
+                put(table.get(k, k), "answered")
+    except (OSError, ValueError):
+        pass
+    stale_set = set(stale_keys)
+    for key, v in merged.items():
+        if v["status"] in ("note", "avoid"):
+            continue
+        base = key.split("#")[0]
+        target = table.get(base, base)
+        hit = [n for n in names if n == target or n.endswith("." + target)]
+        st = "replay" if key in stale_set else _final(v)
+        for n in hit:
+            put(n, {"proven": "proven", "tool-ok": "answered", "replay": "replay"}.get(st, "answered" if st == "tool-ok" else "not_tried"))
+    out = {"total": len(names), "proven": 0, "answered": 0, "not_tried": 0, "replay": 0}
+    areas = {}
+    for n in names:
+        out[state[n]] += 1
+        a = area_of.get(n) or TOOLSET_AREA.get(n.split("/")[0], n.split("/")[0])
+        slot = areas.setdefault(a, {"area": a, "total": 0, "proven": 0, "tool_ok": 0, "unverified": 0, "replay": 0})
+        slot["total"] += 1
+        slot[{"proven": "proven", "answered": "tool_ok", "not_tried": "unverified", "replay": "replay"}[state[n]]] += 1
+    out["areas"] = sorted(areas.values(), key=lambda x: (-x["total"], x["area"]))
+    return out
 
 
 def _history(path, proven, tool_ok):
@@ -243,16 +349,45 @@ def progress(ledger=None, recipes_path=None, history=None, tools=None):
             return {}
         led = ledger or os.path.join("Claude", "logs", "explore-ledger.jsonl")
         merged = merge(recipes, evidence_from_ledger(led))
-        n = {"proven": 0, "tool-ok": 0, "unverified": 0}
+        stale_keys = []
+        try:   # a recipe whose tool Epic changed or removed since the last replay is not proven any more: it goes to "replay"
+            since = ""
+            try:
+                since = json.load(open(os.path.join(os.path.dirname(os.path.abspath(led)), "recipes-retest.json"), encoding="utf-8")).get("date", "")
+            except (OSError, ValueError):
+                pass
+            stale_keys = [x[0] for x in stale(recipes, map_changes(), since)]
+        except Exception:
+            pass
+        args_changed = {}
+        try:   # a recipe that sends argument names the tool no longer has: replay (or migrate with tool/migrate_recipe_args.py)
+            import toolset_diff as _tdd
+            mp = json.load(open(os.path.join(_tdd.default_dir(), "latest.json"), encoding="utf-8")).get("tools", {})
+            args_changed = arg_check(recipes, mp)
+            stale_keys = sorted(set(stale_keys) | set(args_changed))
+        except Exception:
+            pass
+        for k in stale_keys:
+            if k in merged and merged[k]["status"] not in ("note", "avoid"):
+                merged[k]["status"] = "replay"
+        n = {"proven": 0, "tool-ok": 0, "unverified": 0, "replay": 0}
         for v in merged.values():
-            n[v["status"]] = n.get(v["status"], 0) + 1
+            st = _final(v) if v["status"] not in ("note", "avoid") else v["status"]
+            n[st] = n.get(st, 0) + 1
         total = len(merged) - n.get("note", 0) - n.get("avoid", 0)
         out = {"total": total, "notes": n.get("note", 0), "avoid": n.get("avoid", 0), "proven": n["proven"], "tool_ok": n["tool-ok"], "unverified": n["unverified"],
-               "failed": sum(1 for v in merged.values() if v["failed"] and v["status"] != "proven"),  # a recipe that failed once and later worked is not "failed"
+               "replay": n["replay"], "failed": n["replay"],  # one number: failed (and not worked since) or tool changed/removed; "failed" is kept for older pages
                 "proven_pct": round(100.0 * n["proven"] / max(1, total), 1),
-               "areas": _areas(merged)}
+               "areas": _areas(merged), "args_changed": len(args_changed)}
         if tools:
             out["tools_covered"], out["tools_proven"] = tool_coverage(merged, tools)
+            try:
+                import toolset_diff as _td
+                tp = os.path.join(_td.default_dir(), "tests.json")
+                tests = json.load(open(tp, encoding="utf-8")).get("results", {}) if os.path.isfile(tp) else {}
+            except Exception:
+                tests = {}
+            out["tool_states"] = tool_states(merged, tools, stale_keys, tests)
         hp = history or os.path.join(os.path.dirname(led), "recipes-history.json")
         out["history"] = _history(hp, n["proven"], n["tool-ok"])
         return out
@@ -381,6 +516,11 @@ def pending(tools=None, recipes_path=None, extra_ledgers=(), changes=None):
         if tools:
             import mcp_map
             known = set(mcp_map.lab_known())
+            try:
+                import toolset_diff
+                known |= {v for k, v in toolset_diff.names_43().items() if k in known}   # the same tools under their 43.00 names are not new
+            except Exception:
+                pass
             out["new_tools"] = sorted(t for t in tools if t not in known)
     except Exception:
         pass
@@ -407,14 +547,25 @@ def stale(recipes, rows, since=""):
     """[(recipe key, why, date, uefn)]: recipes that use a tool changed or removed since `since` (YYYY-MM-DD, exclusive).
     A changed description does not prove the recipe broke: it means it must be replayed before it is trusted again."""
     out = []
+    try:
+        import toolset_diff
+        table = toolset_diff.names_43()
+    except Exception:
+        table = {}
     for r in rows:
         if r.get("state") != "changed" or (since and str(r.get("date", "")) <= since):
             continue
         gone, chg = set(r.get("removed") or []), set(r.get("changed") or [])
+        moved = {p[0]: p[1] for p in (r.get("renamed") or []) if isinstance(p, (list, tuple)) and len(p) == 2}
         for key in recipes:
             if is_note(key):
                 continue
             tool = key.split("#")[0]
+            new = moved.get(tool) or (table.get(tool) if tool in gone else None)
+            if new:   # only the name moved: the recipe stays valid (carried) unless the tool itself was reworded or its signature changed
+                if new in chg:
+                    out.append((key, "tool changed", r.get("date", ""), r.get("uefn", "")))
+                continue
             if tool in gone:
                 out.append((key, "tool removed", r.get("date", ""), r.get("uefn", "")))
             elif tool in chg:

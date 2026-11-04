@@ -15,7 +15,7 @@ Cross-cutting skills to always follow: `uefn-mcp-lab-guard` (lab guard) e `uefn-
 - Paths always in GUID form: `{lab}` = `/<guid>/<project>` (e.g. `/09e4e8d3-.../root_ai_lab`). `/root_ai_lab/...` is refused by the editor.
 - `{bp}` = `{lab}/UI_X/WBP_X.WBP_X`; widget parts: `{bp}:WidgetTree.<Name>`.
 - The guard is not bypassed: a refusal is reported as is. If a recipe fails: report the exact error and STOP (no creative retries).
-- Call: `call_tool {toolset_name, tool_name, arguments}`. After every change: `CompileWidgetBlueprint` and read the result (`save_assets` returning true is NOT enough).
+- Call: `call_tool {toolset_name, tool_name, arguments}` (UEFN 43.00+: the tool's own name `mcp__unreal-mcp__<Toolset>_<Tool>`, same arguments). After every change: `CompileWidgetBlueprint` and read the result (`save_assets` returning true is NOT enough).
 - Cleanup: `AssetTools/delete {path: <bp without .Name>}`.
 
 ## Verified recipes

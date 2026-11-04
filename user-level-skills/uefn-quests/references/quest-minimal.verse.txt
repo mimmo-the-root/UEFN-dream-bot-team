@@ -1,0 +1,62 @@
+# quest_basic.verse
+# Summary: Lab spike: a minimal custom quest ("collect 3 items") built on basic_quest with a progress_objective, held in a fort_quest_collection, joined by the first player; logs progress and completion.
+# Last modified: 2026-11-03 — v2
+
+using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /Verse.org/Progression }
+using { /UnrealEngine.com/Progression }
+using { /Fortnite.com/Progression }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+# The custom quest (no rewards)
+collect_quest := class(basic_quest):
+
+# Device that creates and drives the quest
+quest_basic_device := class(creative_device):
+
+    @editable
+    DebugLoggingEnabled : logic = true
+
+    var ObjectiveRef : ?progress_objective = false
+
+    # Central logging
+    Log(LogMessage : string):void =
+        if (DebugLoggingEnabled?):
+            Print(LogMessage)
+
+    # Text of an objective state
+    StateText(State : objective_state):string =
+        case (State):
+            objective_state.Inactive => "Inactive"
+            objective_state.Active => "Active"
+            objective_state.Complete => "Complete"
+            _ => "Other"
+
+    # Create collection, objective, quest, participant
+    OnBegin<override>()<suspends>:void =
+        NewCollection := fort_quest_collection{}
+        NewObjective := progress_objective{RequiredProgress := 3.0}
+        NewQuest := collect_quest{Collection := NewCollection, Objective := NewObjective}
+        set ObjectiveRef = option{NewObjective}
+        NewQuest.CompleteEvent.Subscribe(OnQuestComplete)
+        if (FirstPlayer := GetPlayspace().GetPlayers()[0]):
+            Participant := agent_quest_participant{Agent := FirstPlayer}
+            JoinResult := NewQuest.Join(Participant, quest_participant_info{})
+            ActivateResult := NewQuest.Activate()
+            Log("Quest joined by first player")
+            AddProgress()
+            AddProgress()
+            AddProgress()
+        else:
+            Log("No player yet")
+
+    # Advance the objective by one
+    AddProgress():void =
+        if (Objective := ObjectiveRef?):
+            Objective.SetProgress(Objective.Progress + 1.0)
+            Log("Progress {Objective.Progress} / {Objective.RequiredProgress}, state {StateText(Objective.State)}")
+
+    # Quest complete handler
+    OnQuestComplete(Data : objective_complete_event_data):void =
+        Log("Quest complete, state {StateText(Data.Objective.State)}")

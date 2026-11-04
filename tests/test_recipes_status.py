@@ -42,7 +42,7 @@ with tempfile.TemporaryDirectory() as d:
     rp = os.path.join(d, "r.json")
     json.dump(recipes, open(rp, "w"))
     pr = R.progress(ledger=led, recipes_path=rp)
-    check("progress counts statuses", pr.get("total") == len(recipes) and pr["proven"] + pr["tool_ok"] + pr["unverified"] == pr["total"])
+    check("progress counts statuses", pr.get("total") == len(recipes) and pr["proven"] + pr["tool_ok"] + pr["unverified"] + pr["replay"] == pr["total"] and pr["failed"] == pr["replay"])
     hp = os.path.join(d, "h.json")
     pr = R.progress(ledger=led, recipes_path=rp, history=hp)
     check("progress has areas and a weekly history line", pr["areas"] and sum(a["total"] for a in pr["areas"]) == pr["total"] and len(pr["history"]) == 1)

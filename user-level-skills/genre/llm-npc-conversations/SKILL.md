@@ -31,7 +31,7 @@ conversation, persona, structured output or caption UI.
 7. Constraints: voice required, English only, no brand islands, session not persistent, multi-player tested.
 
 Source card: project doc llm-conversations-card (second brain). Patterns load from `official/` and are
-queued for approval on the Skills page.
+queued for approval on the Knowledge page.
 
 <!-- PATTERNS:BEGIN -->
 <!-- PATTERNS:END -->

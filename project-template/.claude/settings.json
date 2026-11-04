@@ -134,7 +134,7 @@
       },
       {
         "_comment": "Feeds the optional real-time Agent Console's 'MCP Server' node — logs the moment a call to the UEFN MCP server starts, and who made it (a bot's agent_type, or the main/chief-of-staff session). Same matcher as the PostToolUse after-playtest.ps1 block below, but a separate independent hook — MCP calls are synchronous, so PreToolUse/PostToolUse (not SubagentStop) is the right pair here. Safe to remove if you don't use the console.",
-        "matcher": "mcp__unreal-mcp__call_tool",
+        "matcher": "mcp__unreal-mcp__.*",
         "hooks": [
           {
             "type": "command",
@@ -154,9 +154,14 @@
         ]
       },
       {
-        "_comment": "Skill Harness (v1.82): counts when the coder reads a genre skill (~/.claude/skills/genre/...) so the Skills page can show real usage. Does nothing for any other file. Safe to remove; the Skills page then just shows 0 consultations.",
+        "_comment": "Skill Harness (v1.82): counts when the coder reads a genre skill (~/.claude/skills/genre/...) so the Knowledge page can show real usage. Does nothing for any other file. Safe to remove; the Knowledge page then just shows 0 consultations. Read guard (v1.116): read_guard.py refuses a whole-file read of a document over 40 KB and answers with its outline (headings), so the retry reads one part. Switch off with UEFN_KIT_READ_GUARD=0.",
         "matcher": "Read",
         "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/read_guard.py\"",
+            "timeout": 10
+          },
           {
             "type": "command",
             "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/skill-consult.ps1\"",
@@ -180,7 +185,7 @@
     "PostToolUseFailure": [
       {
         "_comment": "Failed calls to the UEFN MCP dispatcher arrive as this event, not as PostToolUse. mcp_work_log.py notes them in the local ledger so a recipe that fails is counted as failed. Never blocks.",
-        "matcher": "mcp__unreal-mcp__call_tool",
+        "matcher": "mcp__unreal-mcp__.*",
         "hooks": [
           {
             "type": "command",
@@ -193,7 +198,7 @@
     "PostToolUse": [
       {
         "_comment": "The 'unreal-mcp' server exposes a single generic dispatcher tool (mcp__unreal-mcp__call_tool) for ALL of its toolset actions: the tool name alone can't distinguish 'stop the play-session' from any other call (start, query, etc). So the matcher fires on EVERY call_tool call, and the real filter (only session/game stop actions) lives inside the hook script, which reads the hook's JSON payload from stdin. On Windows without bash available, use after-playtest.ps1 (PowerShell, already set below); if you have bash/WSL/Git Bash you can use after-playtest.sh instead, updating 'command' below.",
-        "matcher": "mcp__unreal-mcp__call_tool",
+        "matcher": "mcp__unreal-mcp__.*",
         "hooks": [
           {
             "type": "command",

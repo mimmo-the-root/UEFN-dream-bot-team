@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.115.0
-updated: kit-1.115.0
+created: kit-1.117.2
+updated: kit-1.117.2
 sources: [docs/manual/uefn-map-project.md]
 type: kit
 status: current
@@ -16,7 +16,7 @@ Open a session from the `Content` folder of the project. If the project has no k
 
 ## Learning from the map
 
-The kit reads the Verse code, the documents and the devices at every session start. To do it right now press **Learn from this map** on the Skills page: the kit prepares the recipes of your devices and mechanics by itself, and the agent finishes the learning at the end of its next answer (blueprint and how-to lessons). You approve the result in the tab *To approve*.
+The kit reads the Verse code, the documents and the devices at every session start. To do it right now press **Learn from this map** on the Knowledge page: the kit prepares the recipes of your devices and mechanics by itself, and the agent finishes the learning at the end of its next answer (blueprint and how-to lessons). You approve the result in the tab *To approve*.
 
 ## What is in the project
 
@@ -48,4 +48,4 @@ Every Verse file starts with its name, an English summary that is always up to d
 `Content` is the folder UEFN syncs, so documents and logs travel with the project when you change computer. A map is yours to publish, so having the kit's files in it is harmless. That is exactly what is NOT true for a Fab product: see the next chapter.
 
 ## Sources
-- The kit manual, chapter "A UEFN map project" (docs/manual/uefn-map-project.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "A UEFN map project" (docs/manual/uefn-map-project.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.

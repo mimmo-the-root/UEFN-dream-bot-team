@@ -25,7 +25,7 @@ def collect(dry=False, recipes_path=None, extra=()):
     recipes = json.load(open(path, encoding="utf-8"))
     paths = RS.ledger_paths(extra)
     merged = RS.merge(recipes, RS.store_evidence(RS.sync(paths)))   # the profile store (kept when a project is deleted) plus the ledgers still on disk
-    try:   # what the owner keeps private on the Skills page (UEFN MCP tab) never goes out
+    try:   # what the owner keeps private on the Knowledge page (UEFN MCP tab) never goes out
         sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "project-template", "Claude", "hooks"))
         import skills_lib
         held = set(skills_lib.load_hold()["mcp"])

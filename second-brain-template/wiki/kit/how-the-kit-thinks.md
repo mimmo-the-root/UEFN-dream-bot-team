@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.115.0
-updated: kit-1.115.0
+created: kit-1.117.2
+updated: kit-1.117.2
 sources: [docs/manual/how-the-kit-thinks.md]
 type: kit
 status: current
@@ -151,6 +151,10 @@ A demo is the smallest honest proof: one clean run through every phase, with not
 
 ---
 
+### A check that could not look is not a pass
+
+Every gate, score and review of the kit has a third answer next to "pass" and "fail": **not assessed**. It means the check could not run (no scan, no input, nothing measures it), and it counts for more than a pass, because a part nobody looked at has not been shown to be good. A skipped step says so in the output, a missing value never becomes the comfortable one, and a claim the kit cannot source is written as a gap and not filled from memory. The same idea is behind "Done is not proof" and "built, not played".
+
 ## 7. What we are, and what we are not
 
 Others took one slice of this idea and went deep: a layer that writes its own skills from real sessions, a method that measures before it simplifies a team of agents, a library of design taste turned into skills. Good work. We learned from all of it.
@@ -184,4 +188,4 @@ The goal was never a system that does not need you. It is a system that needs yo
 - [[skills-and-lessons|Skills and lessons]]
 
 ## Sources
-- The kit manual, chapter "How the kit thinks" (docs/manual/how-the-kit-thinks.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "How the kit thinks" (docs/manual/how-the-kit-thinks.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.

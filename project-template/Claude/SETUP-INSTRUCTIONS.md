@@ -98,6 +98,9 @@ anything else.
    the exact names. If instead the server exposes a single generic dispatcher tool (e.g.
    `mcp__unreal-mcp__call_tool`) that routes all actions internally via the payload, note that
    instead — filtering on the specific action can't be done by tool name alone.
+   UEFN 43.00 and later exposes ONE NAME PER TOOL (`mcp__unreal-mcp__<Toolset>_<Tool>`, about 800 of them, loaded on demand
+   with ToolSearch). The scaffold's matcher is then `mcp__unreal-mcp__.*` and the hook scripts read the tool name with
+   `Claude/hooks/mcp_names.py`; both shapes work.
 
 6. **Wire up the automation hook**: open `.claude/settings.json`.
    - If in step 5 you found distinct tools per action, fix the `PostToolUse` hook's `matcher`

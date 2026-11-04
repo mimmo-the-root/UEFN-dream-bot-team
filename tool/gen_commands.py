@@ -10,13 +10,13 @@ GROUPS = [
     ("From idea to game, in order", ["spec", "game-plan", "task-list", "consistency", "environment", "audit", "delivery"]),
     ("See the kit work", ["demo"]),
     ("Fab and jam", ["fab-check", "concept-card", "jam-check", "devlog", "text-scan", "ui-kit-check"]),
-    ("Verse and the editor", ["verse-check", "verse-map", "editor-changes", "mcp-snapshot", "learn-map"]),
+    ("Verse and the editor", ["verse-check", "verse-map", "editor-changes", "mcp-snapshot", "learn-map", "performance"]),
     ("Safety and continuity", ["restore-point", "handoff"]),
     ("The kit itself", ["kit-update", "kit-doctor"]),
 ]
 WHEN = {"spec": "You have an idea, or none: start here.", "game-plan": "The spec is approved.", "task-list": "The plan is approved.",
         "consistency": "Before building: do spec, plan and tasks agree?", "environment": "Before building and before the playtest.",
-        "audit": "A build is ready: check it against the rules, Fab and island compliance.", "delivery": "Before the private release.",
+        "audit": "A build is ready: check it against the rules, Fab and island compliance.", "delivery": "Before the private release.", "performance": "The map lags or is heavy: measure it in a play session (new, not tried on a real map yet).",
         "demo": "You want to watch the whole flow on a pilot game, in a new empty test project."}
 
 

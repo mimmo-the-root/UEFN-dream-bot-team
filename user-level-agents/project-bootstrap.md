@@ -47,7 +47,7 @@ private copy of the genre's accumulated knowledge.
    `SKILL.md`, a shareable `pack/patterns.json` and a private `local/` folder when they are
    missing, and leaves an existing skill untouched. Do NOT write patterns or variants yourself,
    not even plausible-sounding ones — content appears only when the owner approves a lesson
-   learned from a real map (see the `skill-reflector` agent and the Skills page of the Agent
+   learned from a real map (see the `skill-reflector` agent and the Knowledge page of the Agent
    Console). An empty, honest skill is the correct starting state.
 6. Report to the owner, in one line, which genre was set and whether a new Genre Skill was just
    bootstrapped or an existing one was found.

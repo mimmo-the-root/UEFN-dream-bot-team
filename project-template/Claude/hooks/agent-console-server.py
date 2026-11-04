@@ -71,7 +71,7 @@ SCORE_HTML_PATH = os.path.join(ROOT, "agent-console-score.html")
 FAB_HTML_PATH = os.path.join(ROOT, "agent-console-fab.html")  # v1.110: the Checklist page, served only for a Fab product (UEFN_FAB_LAB set)
 MANUAL_DIR = os.path.join(ROOT, "manual")  # the HTML manual (v1.100): /manual/ and /manual/<chapter>.html
 MANUAL_FILE_RE = re.compile(r"/manual/([a-z0-9-]+\.(?:html|css|png))")
-# Skill Harness (v1.81+): the Skills page reads/writes the genre skills under ~/.claude/skills/genre
+# Skill Harness (v1.81+): the Knowledge page reads/writes the genre skills under ~/.claude/skills/genre
 # through skills_lib.py (same folder). If the module is missing the rest of the console still works.
 try:
     sys.path.insert(0, ROOT)
@@ -167,6 +167,7 @@ DOC_FILES = {
     "plan": "PLAN.md",
     "ownersteps": "OWNER-STEPS.md",
     "audit": "AUDIT.md",
+    "performance": "PERFORMANCE.md",
     "demotimer": "DEMO-TIMER.md",
     "delivery": "DELIVERY-GATE.md",
     "genre": ".genre",
@@ -547,7 +548,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             # What's new page: summary of the last release (shipped with the kit); empty object when the file is not there yet.
             self._send_json_bytes(_read_json_object(COMMUNITY_SUMMARY_FILE, "{}").encode("utf-8"))
         elif self.path.startswith("/uefn-mcp-map"):
-            # UEFN MCP map in numbers for the Skills page (mcp_map.py); reads saved files only, never an error status.
+            # UEFN MCP map in numbers for the Knowledge page (mcp_map.py); reads saved files only, never an error status.
             try:
                 import mcp_map
                 self._send_json_bytes(json.dumps(mcp_map.summary()).encode("utf-8"))
@@ -647,7 +648,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             import threading
             threading.Timer(0.3, lambda: os._exit(0)).start()
             return
-        # Owner decisions on the Skills page: approve / edit / reject a lesson, run the privacy check.
+        # Owner decisions on the Knowledge page: approve / edit / reject a lesson, run the privacy check.
         if self.path.startswith("/fab-learn-act"):
             return self._fab_learn_act()
         if self.path.startswith("/to-delete-act"):
@@ -724,7 +725,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._send_json_status(400, {"ok": False, "error": str(e)})
 
     def _map_learn(self):
-        # Skills page, map project: the Learn button (same idea as the Fab product button).
+        # Knowledge page, map project: the Learn button (same idea as the Fab product button).
         if not self._origin_ok():
             return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
         if FAB_LAB or skills_lib is None:
@@ -735,7 +736,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._send_json_status(400, {"ok": False, "error": str(e)})
 
     def _fab_learn_act(self):
-        # Skills page, Fab product: press Learn, approve / edit / reject a proposed lesson.
+        # Knowledge page, Fab product: press Learn, approve / edit / reject a proposed lesson.
         if not self._origin_ok():
             return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
         try:

@@ -1,6 +1,6 @@
 # Claude/hooks/kit-sync.ps1 - SessionStart: updates this project's kit files from the reference copy in
 # your user profile (~/.claude/kit-template), creates the genre skill, ingests community packs.
-# Logic lives in kit_sync.py (needs Python 3, same as the Skills page). Silent no-op without Python.
+# Logic lives in kit_sync.py (needs Python 3, same as the Knowledge page). Silent no-op without Python.
 $ErrorActionPreference = "SilentlyContinue"
 $script = Join-Path $PSScriptRoot "kit_sync.py"
 if (-not (Test-Path $script)) { exit 0 }

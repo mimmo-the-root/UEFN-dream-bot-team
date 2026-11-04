@@ -17,7 +17,7 @@ import os
 import re
 import sys
 
-READ_WORDS = re.compile(r"^(Get|List|Find|Is|Has|Query|Search|Read|Describe|Capture|Count|Check|Validate|Resolve|Preview|Show|Fetch|Lookup|Select|Open|Load)", re.I)
+READ_WORDS = re.compile(r"^(Get|List|Find|Is|Has|Query|Search|Read|Describe|Capture|Count|Check|Validate|Resolve|Preview|Show|Fetch|Lookup|Select|Open|Load|Exists|Diff|Compare|Grep|Extract|Export|Reveal|Release)", re.I)
 CREATE_WORDS = re.compile(r"^(Create|Spawn|Add|Duplicate|Import|New|Make|Place|Build|Instantiate|Clone)", re.I)
 DELETE_WORDS = re.compile(r"^(Delete|Remove|Destroy|Clear)", re.I)
 

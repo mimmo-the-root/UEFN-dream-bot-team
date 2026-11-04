@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.115.0
-updated: kit-1.115.0
+created: kit-1.117.2
+updated: kit-1.117.2
 sources: [docs/manual/troubleshooting.md]
 type: kit
 status: current
@@ -21,6 +21,7 @@ The copy in `~/.claude/` updates itself too: at most once every 6 hours the sess
 - `/kit-update` updates the current project now.
 - `/kit-update --fetch` first downloads the latest release from GitHub into `~/.claude/kit-template/`, then updates the project.
 - After an update, **open a new session** (rules, agents and hooks are read at the start) and reload the console page.
+- At the first start after an update the kit tells you what changed, in numbers: "Updated to v1.116.0. Got 5 features, 4 fixes and 8 other changes", with up to three highlights. The numbers come from the release notes (`CHANGELOG.md`); a note that starts with `[feature]`, `[fix]` or `[other]` is counted as that kind, others are sorted by their wording.
 
 ## The doctor
 
@@ -39,6 +40,14 @@ Windows has a setting, Animation effects (Settings, Accessibility, Visual effect
 `/editor-changes` lists what the agents wrote to the open editor, session by session (created, set, moved, deleted; reading calls are left out). `/editor-changes undo-plan` prints the steps that would undo the newest session. It never touches the editor: a creation can be undone by deleting what it created, but a changed value, a move or a rename cannot, because the old value was not recorded. For those it says "manual": use the editor's own Undo, or a restore point for the Verse code. Deleting in a real project always waits for your yes.
 
 Only one session at a time may write to the editor. If a second Claude session tries, its write is refused with a message that names the first session; reading is never blocked. The lock goes stale after ten minutes without a write. `python Claude/hooks/editor_lock.py status` shows who holds it, `release` removes it, and `UEFN_KIT_LOCK=0` switches it off for a session.
+
+## A read was refused
+
+If an agent tries to read a whole document over 40 KB (a long changelog, a big manual page, a large json), the kit refuses and answers with the headings or keys and the line numbers. The agent then reads one part. This saves tokens and is not an error. To read a file whole on purpose, set `UEFN_KIT_READ_KB` to a larger number, or `UEFN_KIT_READ_GUARD=0` to switch the guard off.
+
+## The gate says "not assessed"
+
+`Claude/hooks/release_gate.py` ends with a line `NOT ASSESSED` and the code 2 when it could not look at a part of the project: the scan of the package never ran, there is no audit, or a playtest row has not been observed. It is not a failure and not a pass: run `/audit`, fill `PLAYTEST.md` by playing, then check again. The same word appears on the Score page for a criterion that no task measures, and in `/kit-doctor` for a check that could not run.
 
 ## Checking Verse before a build
 
@@ -84,7 +93,7 @@ The UEFN server listens on `http://127.0.0.1:8000/mcp` by default. Go in this or
 
 They are different and must never be merged by hand. `~/.claude/settings.json` is yours: Claude Code's own preferences. `<project>/.claude/settings.json` belongs to that project: the kit's hooks and permissions. Claude Code reads both and combines them. The full table is in [[install|Full installation]].
 
-## The Skills page of a Fab product looks old, or has no Checklist tab
+## The Knowledge page of a Fab product looks old, or has no Checklist tab
 The console you see was started before the last update. Run `update-my-profile.cmd`, then start the console again with `fab_lab.py console <project> --foreground`: it now replaces an older console of the same product by itself. Press Ctrl+F5 in the browser.
 
 ## The What's new page is empty
@@ -108,4 +117,4 @@ Open an issue on the [GitHub repo](https://github.com/mimmo-the-root/UEFN-dream-
 - [[community|Community]]
 
 ## Sources
-- The kit manual, chapter "Troubleshooting" (docs/manual/troubleshooting.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Troubleshooting" (docs/manual/troubleshooting.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.

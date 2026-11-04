@@ -11,7 +11,7 @@ all silent and safe when there is nothing to do:
    rewritten, and CLAUDE.md only changes inside <!-- KIT:BEGIN x --> ... <!-- KIT:END x --> blocks.
 2. GENRE INIT  - creates the genre skill folders for the genre in Claude/docs/.genre (no manual init).
 3. COMMUNITY INBOX - packs dropped into ~/.claude/skills/genre/<slug>/local/incoming/*.json are
-   validated and turned into ONE proposal each (approve on the Skills page); files are then moved
+   validated and turned into ONE proposal each (approve on the Knowledge page); files are then moved
    to incoming/done/. Nothing changes in your skill until you approve.
 4. Prints the hook JSON, including the "kit updated - restart the session" message when files changed.
 
@@ -343,7 +343,7 @@ def genre_and_inbox(project):
                     except Exception as e:
                         res = {"ok": False, "error": str(e)}
                     if res.get("ok") and res.get("proposal"):
-                        notes.append("official reference pack %s for '%s': queued for your approval (Skills page)" % (n, g))
+                        notes.append("official reference pack %s for '%s': queued for your approval (Knowledge page)" % (n, g))
             try:  # update-my-profile overwrites the generated parts of SKILL.md/starter.md with the kit's empty ones: rebuild them from the learned pack (zero tokens)
                 if os.path.isfile(os.path.join(groot, g, "pack", "patterns.json")):
                     skills_lib.render_skill(g)
@@ -366,13 +366,13 @@ def genre_and_inbox(project):
         try:
             _c = skills_lib.import_community_dir(revoked_ids=_revoked_ids)
             if _c.get("queued"):
-                notes.append("community: %d genre pack(s) of shared lessons waiting for your approval on the Skills page" % _c["queued"])
+                notes.append("community: %d genre pack(s) of shared lessons waiting for your approval on the Knowledge page" % _c["queued"])
         except Exception:
             pass
         try:  # recipes the community shared come with the kit: they wait in the inbox until you approve them
             _cr = skills_lib.import_community_recipes()
             if _cr.get("queued"):
-                notes.append("community: %d recipe(s) shared by others waiting for your approval on the Skills page" % _cr["queued"])
+                notes.append("community: %d recipe(s) shared by others waiting for your approval on the Knowledge page" % _cr["queued"])
         except Exception:
             pass
         try:  # is the map of this project published? Only lessons of published maps can be shared with the community (checked at most once a day)
@@ -427,6 +427,38 @@ def history_align(project):
         return ["history trimmed: " + l for l in history_trim.run(project, apply=True)]
     except Exception:
         return []
+
+
+def _vt(v):
+    return tuple(int(x) if x.isdigit() else 0 for x in str(v or "0").split("."))
+
+
+def whats_new(project, frm, to):
+    """One line for the first start after an update: "Got 5 features, 4 fixes and 8 other changes: headline; headline." from
+    Claude/reference/whats-new.json (built from CHANGELOG.md by tool/build_whats_new.py). '' when the file or the versions are missing."""
+    try:
+        data = json.load(open(os.path.join(project, "Claude", "reference", "whats-new.json"), encoding="utf-8-sig")).get("versions", {})
+        vs = sorted((v for v in data if _vt(v) <= _vt(to) and (not frm or _vt(v) > _vt(frm))), key=_vt, reverse=True)
+        if not vs or not to:
+            return ""
+        f = sum(data[v].get("features", 0) for v in vs)
+        x = sum(data[v].get("fixes", 0) for v in vs)
+        o = sum(data[v].get("other", 0) for v in vs)
+        plural = lambda n, w: "%d %s%s" % (n, w, "" if n == 1 else "s")
+        parts = [plural(f, "feature"), plural(x, "fix") if x == 1 else "%d fixes" % x, plural(o, "other change")]
+        heads = []
+        for v in vs:
+            for h in data[v].get("headlines", [])[:2]:
+                if len(heads) < 3:
+                    heads.append(h)
+        txt = "Got %s, %s and %s." % tuple(parts)
+        if len(vs) > 1:
+            txt += " (%d versions)" % len(vs)
+        if heads:
+            txt += " Highlights: " + "; ".join(heads) + "."
+        return txt
+    except Exception:  # noqa: BLE001
+        return ""
 
 
 def restart_console(project):
@@ -580,18 +612,18 @@ def _run(project, out):
                 import mechanic_recipes as _mr, skills_lib as _sl3
                 _saved = _mr.ensure_map(project, _sl3.project_name(project), _sl3.recipe_add)
                 if _saved:
-                    out["notes"].append("MECHANIC RECIPES: the kit prepared %d recipe(s) from this map's Verse (%s). They are on the Skills page; no action needed." % (len(_saved), ", ".join(_saved[:5])))
+                    out["notes"].append("MECHANIC RECIPES: the kit prepared %d recipe(s) from this map's Verse (%s). They are on the Knowledge page; no action needed." % (len(_saved), ", ".join(_saved[:5])))
             except Exception:
                 pass
             if not genre and has_content:
                 out["notes"].append("GENRE (MANDATORY, do it now before answering the owner's first message, never ask): Claude/docs/.genre is empty (Epic's data may be missing: no island code, unpublished map or API error 403). Work the genre out YOURSELF from the project: its Verse files, SPEC.md and other documents, the devices in the level. Pick the closest slug in ~/.claude/skills/genre/fortnite-genres-official.json; "
-                                    "The genre is ALWAYS one slug of that list (it is Epic's own Discover category, never a new one, never a mechanic): choose by the STRUCTURE of the game, using each genre's `hint` in that file: players per match, round length, lobby, how a match ends, not by single words in the documents ('last one standing' or 'elimination' do not make a Battle Royale: Battle Royale is a large map with 50-100 players and a long match; short rounds in an arena with a lobby are Party & Mini Games). When the island configuration is readable (max players, rounds, time limit), use it. A new mechanic such as pillars is learned INSIDE its genre: the core loop and mechanics become patterns of that genre. If the owner corrects the genre or the type on the console, that is final; if he tells you in chat that it is wrong, run `python Claude/hooks/skills_lib.py confirm-genre <right> --variant <type> --project .` (moves the lessons still waiting for approval). Do NOT write .genre or create the genre skill yourself: run `python Claude/hooks/skills_lib.py propose-genre <slug> --variant <map-type> --why \"<the facts that decided it: players, rounds, lobby, key mechanic>\" --project .` (the map type is a short free name for what this map is, e.g. pillars, red-vs-blue, checkpoint-race; reuse a type already known in that genre when it fits). It writes only a PROPOSAL: the owner confirms genre and type on the console (Skills page), and until then nothing is written to the genre skills (`skills_lib.py` tells you GENRE NOT CONFIRMED: lessons are held and the blueprint stays in Claude/docs/map/profile.json; both are saved by themselves when the owner confirms on the console, nothing for you to retry). IP RULE: if the documents (INDEX/SPEC/README/design notes) say the map is a version of the same base game dressed for an IP or franchise, the map TYPE is that IP as a short kebab-case name (the same base game with a different IP = the same genre, a different type); a map with no IP, or the shared base itself, is type `base`. Take it from the documents, never ask the owner in chat; he confirms it on the console. The blueprint of an IP variant records only what DIFFERS from the base (custom devices, rules, numbers) and points to the base blueprint for the rest. Then learn the core loop and the basic mechanics of this map (learn-map.md: the Verse files, the documents including planned design, the devices) so the next session starts from it.")
+                                    "The genre is ALWAYS one slug of that list (it is Epic's own Discover category, never a new one, never a mechanic): choose by the STRUCTURE of the game, using each genre's `hint` in that file: players per match, round length, lobby, how a match ends, not by single words in the documents ('last one standing' or 'elimination' do not make a Battle Royale: Battle Royale is a large map with 50-100 players and a long match; short rounds in an arena with a lobby are Party & Mini Games). When the island configuration is readable (max players, rounds, time limit), use it. A new mechanic such as pillars is learned INSIDE its genre: the core loop and mechanics become patterns of that genre. If the owner corrects the genre or the type on the console, that is final; if he tells you in chat that it is wrong, run `python Claude/hooks/skills_lib.py confirm-genre <right> --variant <type> --project .` (moves the lessons still waiting for approval). Do NOT write .genre or create the genre skill yourself: run `python Claude/hooks/skills_lib.py propose-genre <slug> --variant <map-type> --why \"<the facts that decided it: players, rounds, lobby, key mechanic>\" --project .` (the map type is a short free name for what this map is, e.g. pillars, red-vs-blue, checkpoint-race; reuse a type already known in that genre when it fits). It writes only a PROPOSAL: the owner confirms genre and type on the console (Knowledge page), and until then nothing is written to the genre skills (`skills_lib.py` tells you GENRE NOT CONFIRMED: lessons are held and the blueprint stays in Claude/docs/map/profile.json; both are saved by themselves when the owner confirms on the console, nothing for you to retry). IP RULE: if the documents (INDEX/SPEC/README/design notes) say the map is a version of the same base game dressed for an IP or franchise, the map TYPE is that IP as a short kebab-case name (the same base game with a different IP = the same genre, a different type); a map with no IP, or the shared base itself, is type `base`. Take it from the documents, never ask the owner in chat; he confirms it on the console. The blueprint of an IP variant records only what DIFFERS from the base (custom devices, rules, numbers) and points to the base blueprint for the rest. Then learn the core loop and the basic mechanics of this map (learn-map.md: the Verse files, the documents including planned design, the devices) so the next session starts from it.")
             if genre and genre != "epic-template" and (has_map or no_code or any(True for _ in verse_map.verse_files(project))):
                 try:
                     import skills_lib as _sl2
                     _gs = _sl2.genre_state(project)
                     if _gs["status"] == "confirmed" and not _gs["variant"]:
-                        out["notes"].append("TYPE (MANDATORY, before answering the owner's first message, never ask in chat): the genre '%s' is set but this map has no TYPE yet (pillars, red-vs-blue, checkpoint-race...). Decide it from the code, documents and devices (a short free name; reuse a type known in the genre when it fits: `python Claude/hooks/skills_lib.py patterns %s` shows the variants used) and run `python Claude/hooks/skills_lib.py propose-genre %s --variant <type> --why \"<facts>\" --project .` : the owner confirms it on the console (Skills page) before anything is written to the skills. IP RULE: if the documents (INDEX/SPEC/README/design notes) say the map is a version of the same base game dressed for an IP or franchise, the map TYPE is that IP as a short kebab-case name (the same base game with a different IP = the same genre, a different type); a map with no IP, or the shared base itself, is type `base`. Take it from the documents, never ask the owner in chat; he confirms it on the console. The blueprint of an IP variant records only what DIFFERS from the base (custom devices, rules, numbers) and points to the base blueprint for the rest." % (genre, genre, genre))
+                        out["notes"].append("TYPE (MANDATORY, before answering the owner's first message, never ask in chat): the genre '%s' is set but this map has no TYPE yet (pillars, red-vs-blue, checkpoint-race...). Decide it from the code, documents and devices (a short free name; reuse a type known in the genre when it fits: `python Claude/hooks/skills_lib.py patterns %s` shows the variants used) and run `python Claude/hooks/skills_lib.py propose-genre %s --variant <type> --why \"<facts>\" --project .` : the owner confirms it on the console (Knowledge page) before anything is written to the skills. IP RULE: if the documents (INDEX/SPEC/README/design notes) say the map is a version of the same base game dressed for an IP or franchise, the map TYPE is that IP as a short kebab-case name (the same base game with a different IP = the same genre, a different type); a map with no IP, or the shared base itself, is type `base`. Take it from the documents, never ask the owner in chat; he confirms it on the console. The blueprint of an IP variant records only what DIFFERS from the base (custom devices, rules, numbers) and points to the base blueprint for the rest." % (genre, genre, genre))
                 except Exception:
                     pass
             if genre and genre != "epic-template" and (has_map or no_code) and not prof_todo:
@@ -719,8 +751,9 @@ def main():
             msgs.append("✅ KIT: one more step of the same update was applied (%s: %s). Nothing else to do; restart once." % ("; ".join(parts), names))
         else:
             frm = ("from v%s " % r.get("from")) if r.get("from") else "from an old kit "
-            msgs.append("✅ KIT UPDATED %sto v%s: %s. Restart Claude Code (close and reopen) so the new files are read. "
-                        "Old versions are saved in Claude/logs/kit-backup/." % (frm, r["version"] or "?", "; ".join(parts)))
+            news = whats_new(project, r.get("from"), r.get("version"))
+            msgs.append("✅ KIT UPDATED %sto v%s. %s(%s.) Restart Claude Code (close and reopen) so the new files are read. "
+                        "Old versions are saved in Claude/logs/kit-backup/." % (frm, r["version"] or "?", (news + " ") if news else "", "; ".join(parts)))
     msgs += r["notes"]
     announce = bool(changed) or any("post-update check done" in n for n in r["notes"])
     _log_run(project, r, bool(msgs), announce)
@@ -730,7 +763,7 @@ def main():
         if announce:
             # The UI may not show a hook's systemMessage: also ask the model to say it in its first reply.
             ctx += (" ACTION (kit): in your FIRST reply tell the owner, in one short line, what the kit just did above"
-                    " (version, and that Claude Code must be closed and reopened once if it says so). Say it once only."
+                    " (version, the \"Got N features, N fixes and N other changes\" counts if present, and that Claude Code must be closed and reopened once if it says so). Say it once only."
                     " If a LEARN line is present, do not ask permission: after that line, run the learning at once"
                     " (`.claude/commands/learn-map.md` steps); it only queues proposals, nothing changes without the owner's approval.")
         print(json.dumps({"systemMessage": text,

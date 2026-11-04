@@ -158,7 +158,7 @@ try:
 finally:
     pr.terminate()
 page = open(os.path.join(hooks, "agent-console-skills.html"), encoding="utf-8").read()
-ok('id="kMcp"' in page and 'fetch("/uefn-mcp-map"' in page and "Recipes cover " in page, "the Skills page has the UEFN MCP section")
+ok('id="kMcp"' in page and 'fetch("/uefn-mcp-map"' in page and "tool_states" in page and "to replay" in page, "the Knowledge page has the editor tools section")
 ps1 = open(os.path.join(hooks, "agent-console-server.ps1"), encoding="utf-8").read()
 ok('"/uefn-mcp-map"' in ps1 and "mcp_map.py" in ps1, "the PowerShell server serves /mcp-map too")
 # the real server (seen in the field) wants the version it negotiated in every header and refuses the notification

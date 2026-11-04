@@ -301,7 +301,11 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/Assets_X/DT_X"
+    },
+    "tool43": "EditorToolset/GetAssetClass"
   },
   "editor_toolset.toolsets.asset.AssetTools/get_asset_tags": {
     "args": {
@@ -312,7 +316,11 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/Assets_X/DT_X"
+    },
+    "tool43": "EditorToolset/GetAssetTags"
   },
   "editor_toolset.toolsets.asset.AssetTools/update_metadata_tags": {
     "args": {
@@ -327,7 +335,14 @@
     ],
     "writes": true,
     "cleanup": "none known to remove a tag; delete the asset",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/Assets_X/DT_X",
+      "setTags": {
+        "MyTag": "v1"
+      }
+    },
+    "tool43": "EditorToolset/UpdateMetadataTags"
   },
   "editor_toolset.toolsets.asset.AssetTools/get_metadata_tags": {
     "args": {
@@ -338,7 +353,11 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/Assets_X/DT_X"
+    },
+    "tool43": "EditorToolset/GetMetadataTags"
   },
   "editor_toolset.toolsets.asset.AssetTools/is_dirty": {
     "args": {
@@ -349,7 +368,11 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/Assets_X/DT_X"
+    },
+    "tool43": "EditorToolset/IsDirty"
   },
   "editor_toolset.toolsets.asset.AssetTools/save_assets": {
     "args": {
@@ -375,7 +398,12 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete {path: new_path}",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "path": "{lab_mount}/Assets_X/DT_X",
+      "newPath": "{lab_mount}/Assets_X/DT_X_copy"
+    },
+    "tool43": "EditorToolset/Duplicate"
   },
   "editor_toolset.toolsets.asset.AssetTools/move": {
     "args": {
@@ -387,7 +415,12 @@
     ],
     "writes": true,
     "cleanup": "delete",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "path": "{lab_mount}/Assets_X/DT_X_copy",
+      "newPath": "{lab_mount}/Assets_X/DT_X_moved"
+    },
+    "tool43": "EditorToolset/Move"
   },
   "editor_toolset.toolsets.asset.AssetTools/exists": {
     "args": {
@@ -420,7 +453,11 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/Assets_X/DT_X"
+    },
+    "tool43": "EditorToolset/GetDependencies"
   },
   "editor_toolset.toolsets.asset.AssetTools/get_referencers": {
     "args": {
@@ -431,7 +468,11 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/Assets_X/DT_X"
+    },
+    "tool43": "EditorToolset/GetReferencers"
   },
   "editor_toolset.toolsets.asset.AssetTools/load_asset": {
     "args": {
@@ -442,7 +483,11 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/Assets_X/DT_X"
+    },
+    "tool43": "EditorToolset/LoadAsset"
   },
   "editor_toolset.toolsets.asset.AssetTools/reload_asset": {
     "args": {
@@ -453,7 +498,11 @@
     ],
     "writes": true,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/Assets_X/DT_X"
+    },
+    "tool43": "EditorToolset/ReloadAsset"
   },
   "editor_toolset.toolsets.asset.AssetTools/list_folders": {
     "args": {
@@ -466,7 +515,12 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "rootPath": "{lab_mount}/Assets_X",
+      "recursive": false
+    },
+    "tool43": "EditorToolset/ListFolders"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/search_row_structs": {
     "args": {
@@ -475,7 +529,11 @@
     "needs": [],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "structName": "*Table*"
+    },
+    "tool43": "EditorToolset/SearchRowStructs"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/create": {
     "args": {
@@ -491,7 +549,15 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Assets_X",
+      "assetName": "DT_X",
+      "schema": {
+        "refPath": "/Script/GameplayTags.GameplayTagTableRow"
+      }
+    },
+    "tool43": "EditorToolset/Create"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/get_schema": {
     "args": {
@@ -504,7 +570,13 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "dataTable": {
+        "refPath": "{dt}"
+      }
+    },
+    "tool43": "EditorToolset/GetSchema"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/add_rows": {
     "args": {
@@ -521,7 +593,17 @@
     ],
     "writes": true,
     "cleanup": "remove_rows",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "dataTable": {
+        "refPath": "{dt}"
+      },
+      "rowNames": [
+        "RowA",
+        "RowB"
+      ]
+    },
+    "tool43": "EditorToolset/AddRows"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/set_rows": {
     "args": {
@@ -537,7 +619,14 @@
     ],
     "writes": true,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "dataTable": {
+        "refPath": "{dt}"
+      },
+      "values": "{\"RowA\": {\"devComment\": \"hello\"}}"
+    },
+    "tool43": "EditorToolset/SetRows"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/get_rows": {
     "args": {
@@ -553,7 +642,16 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "dataTable": {
+        "refPath": "{dt}"
+      },
+      "rowNames": [
+        "RowA"
+      ]
+    },
+    "tool43": "EditorToolset/GetRows"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/list_rows": {
     "args": {
@@ -566,7 +664,13 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "dataTable": {
+        "refPath": "{dt}"
+      }
+    },
+    "tool43": "EditorToolset/ListRows"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/rename_rows": {
     "args": {
@@ -582,7 +686,16 @@
     ],
     "writes": true,
     "cleanup": "rename back",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "dataTable": {
+        "refPath": "{dt}"
+      },
+      "renames": {
+        "RowA": "RowAA"
+      }
+    },
+    "tool43": "EditorToolset/RenameRows"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/remove_rows": {
     "args": {
@@ -598,7 +711,16 @@
     ],
     "writes": true,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "dataTable": {
+        "refPath": "{dt}"
+      },
+      "rowNames": [
+        "RowB"
+      ]
+    },
+    "tool43": "EditorToolset/RemoveRows"
   },
   "editor_toolset.toolsets.data_table.DataTableTools/diff": {
     "args": {
@@ -610,7 +732,16 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "oldActor": {
+        "refPath": "<actorPath A>"
+      },
+      "newActor": {
+        "refPath": "<actorPath B>"
+      }
+    },
+    "tool43": "EditorToolset/Diff"
   },
   "editor_toolset.toolsets.curve_table.CurveTableTools/create": {
     "args": {
@@ -622,7 +753,12 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Assets_X",
+      "assetName": "CT_X"
+    },
+    "tool43": "EditorToolset/Create"
   },
   "editor_toolset.toolsets.curve_table.CurveTableTools/add_row": {
     "args": {
@@ -637,7 +773,15 @@
     ],
     "writes": true,
     "cleanup": "remove_row",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "curveTable": {
+        "refPath": "{ct}"
+      },
+      "rowName": "Speed",
+      "defaultValue": 1.0
+    },
+    "tool43": "EditorToolset/AddRow"
   },
   "editor_toolset.toolsets.curve_table.CurveTableTools/add_key": {
     "args": {
@@ -655,7 +799,18 @@
     ],
     "writes": true,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "curveTable": {
+        "refPath": "{ct}"
+      },
+      "rowName": "Speed",
+      "key": {
+        "time": 5.0,
+        "value": 9.0
+      }
+    },
+    "tool43": "EditorToolset/AddKey"
   },
   "editor_toolset.toolsets.curve_table.CurveTableTools/set_keys": {
     "args": {
@@ -679,7 +834,24 @@
     ],
     "writes": true,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "curveTable": {
+        "refPath": "{ct}"
+      },
+      "rowName": "Speed",
+      "keys": [
+        {
+          "time": 0,
+          "value": 0
+        },
+        {
+          "time": 1,
+          "value": 10
+        }
+      ]
+    },
+    "tool43": "EditorToolset/SetKeys"
   },
   "editor_toolset.toolsets.curve_table.CurveTableTools/get_keys": {
     "args": {
@@ -693,7 +865,14 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "curveTable": {
+        "refPath": "{ct}"
+      },
+      "rowName": "Speed"
+    },
+    "tool43": "EditorToolset/GetKeys"
   },
   "editor_toolset.toolsets.curve_table.CurveTableTools/list_rows": {
     "args": {
@@ -722,7 +901,15 @@
     ],
     "writes": true,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "curveTable": {
+        "refPath": "{ct}"
+      },
+      "rowName": "Speed",
+      "newRowName": "Velocity"
+    },
+    "tool43": "EditorToolset/RenameRow"
   },
   "editor_toolset.toolsets.curve_table.CurveTableTools/remove_row": {
     "args": {
@@ -736,7 +923,14 @@
     ],
     "writes": true,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "curveTable": {
+        "refPath": "{ct}"
+      },
+      "rowName": "Velocity"
+    },
+    "tool43": "EditorToolset/RemoveRow"
   },
   "editor_toolset.toolsets.curve_table.CurveTableTools/diff": {
     "args": {
@@ -748,7 +942,16 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "oldActor": {
+        "refPath": "<actorPath A>"
+      },
+      "newActor": {
+        "refPath": "<actorPath B>"
+      }
+    },
+    "tool43": "EditorToolset/Diff"
   },
   "EditorToolset.LogsToolset/GetLogEntries": {
     "args": {
@@ -791,7 +994,11 @@
     "needs": [],
     "writes": false,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "logCategory": "LogTemp"
+    },
+    "tool43": "ConsoleToolset/GetVerbosity"
   },
   "EditorToolset.LogsToolset/SetVerbosity": {
     "args": {
@@ -1011,7 +1218,31 @@
     ],
     "writes": true,
     "cleanup": "SceneTools/remove_from_scene {actor}",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "actorType": {
+        "refPath": "/Script/Engine.TargetPoint"
+      },
+      "name": "T_Point",
+      "xform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 200
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "tool43": "EditorToolset/AddToSceneFromClass"
   },
   "editor_toolset.toolsets.scene.SceneTools/add_to_scene_from_asset": {
     "args": {
@@ -1038,7 +1269,29 @@
     "needs": [],
     "writes": true,
     "cleanup": "SceneTools/remove_from_scene",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "/Engine/BasicShapes/Cube",
+      "name": "T_Cube",
+      "xform": {
+        "location": {
+          "x": 0,
+          "y": 0,
+          "z": 200
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "tool43": "EditorToolset/AddToSceneFromAsset"
   },
   "editor_toolset.toolsets.scene.SceneTools/find_actors": {
     "args": {
@@ -1064,7 +1317,14 @@
     ],
     "writes": true,
     "cleanup": "SceneTools/delete_folder",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "actor": {
+        "refPath": "{actor}"
+      },
+      "folderPath": "T/Points"
+    },
+    "tool43": "EditorToolset/SetActorFolder"
   },
   "editor_toolset.toolsets.scene.SceneTools/get_folders": {
     "args": {},
@@ -1081,7 +1341,12 @@
     "needs": [],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "T",
+      "recursive": true
+    },
+    "tool43": "EditorToolset/GetActorsInFolder"
   },
   "editor_toolset.toolsets.scene.SceneTools/rename_folder": {
     "args": {
@@ -1091,7 +1356,12 @@
     "needs": [],
     "writes": true,
     "cleanup": "delete_folder",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "oldPath": "T/Points",
+      "newPath": "T/Spawns"
+    },
+    "tool43": "EditorToolset/RenameFolder"
   },
   "editor_toolset.toolsets.scene.SceneTools/set_actor_hidden": {
     "args": {
@@ -1138,7 +1408,11 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete {path:{lab_mount}/T_DL}",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/T_DL"
+    },
+    "tool43": "EditorToolset/CreateDataLayerAsset"
   },
   "editor_toolset.toolsets.scene.SceneTools/add_actors_to_data_layer": {
     "args": {
@@ -1155,7 +1429,16 @@
     ],
     "writes": true,
     "cleanup": "remove_actors_from_data_layer",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "actors": [
+        {
+          "refPath": "{actor}"
+        }
+      ],
+      "assetPath": "{lab_mount}/T_DL"
+    },
+    "tool43": "EditorToolset/AddActorsToDataLayer"
   },
   "editor_toolset.toolsets.scene.SceneTools/get_actors_in_data_layer": {
     "args": {
@@ -1164,7 +1447,11 @@
     "needs": [],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "assetPath": "{lab_mount}/T_DL"
+    },
+    "tool43": "EditorToolset/GetActorsInDataLayer"
   },
   "editor_toolset.toolsets.scene.SceneTools/remove_actors_from_data_layer": {
     "args": {
@@ -1180,7 +1467,16 @@
     ],
     "writes": true,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "actors": [
+        {
+          "refPath": "{actor}"
+        }
+      ],
+      "assetPath": "{lab_mount}/T_DL"
+    },
+    "tool43": "EditorToolset/RemoveActorsFromDataLayer"
   },
   "editor_toolset.toolsets.scene.SceneTools/replace_actors_with_asset": {
     "args": {
@@ -1196,7 +1492,16 @@
     ],
     "writes": true,
     "cleanup": "remove_from_scene",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "actors": [
+        {
+          "refPath": "{actor}"
+        }
+      ],
+      "assetPath": "/Engine/BasicShapes/Sphere"
+    },
+    "tool43": "EditorToolset/ReplaceActorsWithAsset"
   },
   "editor_toolset.toolsets.scene.SceneTools/remove_from_scene": {
     "args": {
@@ -1220,7 +1525,11 @@
     ],
     "writes": true,
     "cleanup": "returns the count removed (0 = nothing removed, empty folders can linger)",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "T/Tmp"
+    },
+    "tool43": "EditorToolset/DeleteFolder"
   },
   "editor_toolset.toolsets.scene.SceneTools/save_actor": {
     "args": {
@@ -1451,7 +1760,17 @@
     ],
     "writes": true,
     "cleanup": "ActorTools/remove_component",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "owner": {
+        "refPath": "{actor}"
+      },
+      "componentType": {
+        "refPath": "/Script/Engine.PointLightComponent"
+      },
+      "name": "T_Light"
+    },
+    "tool43": "EditorToolset/AddComponent"
   },
   "editor_toolset.toolsets.actor.ActorTools/get_component_actor": {
     "args": {
@@ -1520,7 +1839,16 @@
     "needs": [],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "oldActor": {
+        "refPath": "<actorPath A>"
+      },
+      "newActor": {
+        "refPath": "<actorPath B>"
+      }
+    },
+    "tool43": "EditorToolset/Diff"
   },
   "ValkyrieToolset.DeviceToolset/GetBindingOptions": {
     "args": {
@@ -1640,7 +1968,11 @@
     ],
     "writes": false,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "path": "/09e4e8d3-83f9-4ee0-9777-072ed3984380/custom_verse/ChickenRoundupManager.verse"
+    },
+    "tool43": "VerseToolset/ReadFile"
   },
   "ValkyrieToolset.VerseToolset/ListFiles": {
     "args": {
@@ -1850,7 +2182,12 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete {path: pkg path without .Name}",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Mat_X",
+      "assetName": "M_X"
+    },
+    "tool43": "EditorToolset/CreateMaterial"
   },
   "editor_toolset.toolsets.material.MaterialTools/add_expression": {
     "args": {
@@ -1868,7 +2205,18 @@
     ],
     "writes": true,
     "cleanup": "delete_expression or delete the material; name it with ObjectTools/set_properties values as JSON text",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{material}"
+      },
+      "expressionClass": {
+        "refPath": "/Script/Engine.MaterialExpressionScalarParameter"
+      },
+      "x": -400,
+      "y": 0
+    },
+    "tool43": "EditorToolset/AddExpression"
   },
   "editor_toolset.toolsets.material.MaterialTools/connect_to_output": {
     "args": {
@@ -1883,7 +2231,15 @@
     ],
     "writes": true,
     "cleanup": "disconnect_from_output {material, material_property}",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "expression": {
+        "refPath": "{expression}"
+      },
+      "outputName": "",
+      "materialProperty": "MP_BaseColor"
+    },
+    "tool43": "EditorToolset/ConnectToOutput"
   },
   "editor_toolset.toolsets.material.MaterialTools/get_property_input": {
     "args": {
@@ -1897,7 +2253,14 @@
     ],
     "writes": false,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "material": {
+        "refPath": "{material}"
+      },
+      "materialProperty": "MP_BaseColor"
+    },
+    "tool43": "EditorToolset/GetPropertyInput"
   },
   "editor_toolset.toolsets.material.MaterialTools/recompile": {
     "args": {
@@ -1910,7 +2273,13 @@
     ],
     "writes": true,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{material}"
+      }
+    },
+    "tool43": "EditorToolset/Recompile"
   },
   "editor_toolset.toolsets.material.MaterialTools/get_statistics": {
     "args": {
@@ -1941,7 +2310,18 @@
     ],
     "writes": true,
     "cleanup": "disconnect_expressions {to_expression,to_input_name}",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "fromExpression": {
+        "refPath": "{expr_a}"
+      },
+      "fromOutputName": "",
+      "toExpression": {
+        "refPath": "{expr_multiply}"
+      },
+      "toInputName": "A"
+    },
+    "tool43": "EditorToolset/ConnectExpressions"
   },
   "editor_toolset.toolsets.material.MaterialTools/diff_material": {
     "args": {
@@ -1953,7 +2333,12 @@
     ],
     "writes": false,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "oldAssetPath": "{material_pkg_a}",
+      "newAssetPath": "{material_pkg_b}"
+    },
+    "tool43": "EditorToolset/DiffMaterial"
   },
   "editor_toolset.toolsets.material_instance.MaterialInstanceTools/create": {
     "args": {
@@ -1969,7 +2354,15 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete {path: pkg path without .Name}",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Mat_X",
+      "assetName": "MI_X",
+      "parent": {
+        "refPath": "{material}"
+      }
+    },
+    "tool43": "EditorToolset/Create"
   },
   "editor_toolset.toolsets.material_instance.MaterialInstanceTools/list_parameters": {
     "args": {
@@ -2450,7 +2843,14 @@
     ],
     "writes": false,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{skeletal_mesh_with_socket}"
+      },
+      "socketName": "{socket}"
+    },
+    "tool43": "EditorToolset/GetSocketTransform"
   },
   "PhysicsToolsets.PhysicsAssetToolset/GetBodyNames": {
     "args": {
@@ -4230,7 +4630,14 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "/FigureCosmetics/Props/Emote/YuzuCrank_Pita/SkeletalMesh/SKM_YuzuCrank_Pita.SKM_YuzuCrank_Pita"
+      },
+      "lodIndex": 0
+    },
+    "tool43": "EditorToolset/GetSectionCount"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_vertex_count": {
     "args": {
@@ -4245,7 +4652,14 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "/FigureCosmetics/Props/Emote/YuzuCrank_Pita/SkeletalMesh/SKM_YuzuCrank_Pita.SKM_YuzuCrank_Pita"
+      },
+      "lodIndex": 0
+    },
+    "tool43": "EditorToolset/GetVertexCount"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bone_parent": {
     "args": {
@@ -4260,7 +4674,14 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "/FigureCosmetics/Props/Emote/YuzuCrank_Pita/SkeletalMesh/SKM_YuzuCrank_Pita.SKM_YuzuCrank_Pita"
+      },
+      "boneName": "offset"
+    },
+    "tool43": "EditorToolset/GetBoneParent"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bone_children": {
     "args": {
@@ -4275,7 +4696,14 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "/FigureCosmetics/Props/Emote/YuzuCrank_Pita/SkeletalMesh/SKM_YuzuCrank_Pita.SKM_YuzuCrank_Pita"
+      },
+      "boneName": "offset"
+    },
+    "tool43": "EditorToolset/GetBoneChildren"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_material": {
     "args": {
@@ -4289,7 +4717,14 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "/FigureCosmetics/Props/Emote/YuzuCrank_Pita/SkeletalMesh/SKM_YuzuCrank_Pita.SKM_YuzuCrank_Pita"
+      },
+      "slotName": "MI_LegoStandard_IndexColors_Pawn_Preskinned_FakeBevels_IndexColor"
+    },
+    "tool43": "EditorToolset/GetMaterial"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_socket_names": {
     "args": {
@@ -4332,7 +4767,16 @@
     ],
     "writes": true,
     "cleanup": "none (the copy is deleted)",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{drone}"
+      },
+      "physicsAsset": {
+        "refPath": "{pa}"
+      }
+    },
+    "tool43": "EditorToolset/AssignPhysicsAsset"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_skeleton": {
     "args": {
@@ -4362,7 +4806,15 @@
     ],
     "writes": true,
     "cleanup": "remove_socket",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{drone}"
+      },
+      "socketName": "T015_Sock",
+      "boneName": "Body"
+    },
+    "tool43": "EditorToolset/AddSocket"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/set_socket_transform": {
     "args": {
@@ -4393,7 +4845,31 @@
     ],
     "writes": true,
     "cleanup": "set the saved transform back",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{drone}"
+      },
+      "socketName": "T015_Sock",
+      "transform": {
+        "location": {
+          "x": 1,
+          "y": 2,
+          "z": 3
+        },
+        "rotation": {
+          "pitch": 0,
+          "yaw": 0,
+          "roll": 0
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      }
+    },
+    "tool43": "EditorToolset/SetSocketTransform"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_socket_bone": {
     "args": {
@@ -4407,7 +4883,14 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "/FigureCosmetics/Props/Emote/YuzuCrank_Pita/SkeletalMesh/SKM_YuzuCrank_Pita.SKM_YuzuCrank_Pita"
+      },
+      "socketName": "JNT_BikeSocket_FrontWheel"
+    },
+    "tool43": "EditorToolset/GetSocketBone"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/rename_socket": {
     "args": {
@@ -4422,7 +4905,15 @@
     ],
     "writes": true,
     "cleanup": "rename back",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{drone}"
+      },
+      "oldName": "T015_Sock",
+      "newName": "T015_Sock2"
+    },
+    "tool43": "EditorToolset/RenameSocket"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/remove_socket": {
     "args": {
@@ -4436,7 +4927,14 @@
     ],
     "writes": true,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{drone}"
+      },
+      "socketName": "T015_Sock2"
+    },
+    "tool43": "EditorToolset/RemoveSocket"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/set_material": {
     "args": {
@@ -4454,7 +4952,17 @@
     ],
     "writes": true,
     "cleanup": "set_material with the original (get_material first)",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{drone}"
+      },
+      "slotName": "Fire",
+      "material": {
+        "refPath": "/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"
+      }
+    },
+    "tool43": "EditorToolset/SetMaterial"
   },
   "PhysicsToolsets.PhysicsAssetToolset/RemoveBody": {
     "args": {
@@ -4673,7 +5181,14 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "/Engine/BasicShapes/Cube.Cube"
+      },
+      "slotName": "WorldGridMaterial"
+    },
+    "tool43": "EditorToolset/GetMaterial"
   },
   "editor_toolset.toolsets.texture.TextureTools/read_texture": {
     "args": {
@@ -4712,7 +5227,12 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete the folder",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Mat_X",
+      "assetName": "MF_X"
+    },
+    "tool43": "EditorToolset/CreateFunction"
   },
   "editor_toolset.toolsets.material.MaterialTools/create_parameter_collection": {
     "args": {
@@ -4724,7 +5244,12 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete the folder",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Mat_X",
+      "assetName": "MPC_X"
+    },
+    "tool43": "EditorToolset/CreateParameterCollection"
   },
   "editor_toolset.toolsets.material.MaterialTools/get_expression_input_names": {
     "args": {
@@ -4754,7 +5279,16 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{material}"
+      },
+      "expression": {
+        "refPath": "{em}"
+      }
+    },
+    "tool43": "EditorToolset/GetExpressionInputs"
   },
   "editor_toolset.toolsets.material.MaterialTools/get_expression_output_names": {
     "args": {
@@ -4780,7 +5314,13 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{material}"
+      }
+    },
+    "tool43": "EditorToolset/GetExpressions"
   },
   "editor_toolset.toolsets.material.MaterialTools/list_expression_classes": {
     "args": {
@@ -4793,7 +5333,13 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{mf}"
+      }
+    },
+    "tool43": "EditorToolset/ListExpressionClasses"
   },
   "editor_toolset.toolsets.material.MaterialTools/list_parameter_groups": {
     "args": {
@@ -4806,7 +5352,13 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{material}"
+      }
+    },
+    "tool43": "EditorToolset/ListParameterGroups"
   },
   "editor_toolset.toolsets.material.MaterialTools/get_referencing_materials": {
     "args": {
@@ -4820,7 +5372,13 @@
     "writes": false,
     "cleanup": "",
     "status": "proven",
-    "note": "returns [{}] (known trap)"
+    "note": "returns [{}] (known trap)",
+    "args43": {
+      "materialFunction": {
+        "refPath": "{mf}"
+      }
+    },
+    "tool43": "EditorToolset/GetReferencingMaterials"
   },
   "editor_toolset.toolsets.material.MaterialTools/layout_expressions": {
     "args": {
@@ -4833,7 +5391,13 @@
     ],
     "writes": true,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{material}"
+      }
+    },
+    "tool43": "EditorToolset/LayoutExpressions"
   },
   "editor_toolset.toolsets.material.MaterialTools/disconnect_expressions": {
     "args": {
@@ -4847,7 +5411,14 @@
     ],
     "writes": true,
     "cleanup": "connect_expressions again",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "toExpression": {
+        "refPath": "{em}"
+      },
+      "toInputName": "B"
+    },
+    "tool43": "EditorToolset/DisconnectExpressions"
   },
   "editor_toolset.toolsets.material.MaterialTools/disconnect_from_output": {
     "args": {
@@ -4861,7 +5432,14 @@
     ],
     "writes": true,
     "cleanup": "connect_to_output again",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "material": {
+        "refPath": "{material}"
+      },
+      "materialProperty": "MP_EmissiveColor"
+    },
+    "tool43": "EditorToolset/DisconnectFromOutput"
   },
   "editor_toolset.toolsets.material.MaterialTools/rename_parameter_group": {
     "args": {
@@ -4876,7 +5454,15 @@
     ],
     "writes": true,
     "cleanup": "rename back",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{material}"
+      },
+      "oldName": "GrpB",
+      "newName": "GrpC"
+    },
+    "tool43": "EditorToolset/RenameParameterGroup"
   },
   "editor_toolset.toolsets.material.MaterialTools/delete_parameter_group": {
     "args": {
@@ -4890,7 +5476,14 @@
     ],
     "writes": true,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{material}"
+      },
+      "groupName": "GrpC"
+    },
+    "tool43": "EditorToolset/DeleteParameterGroup"
   },
   "editor_toolset.toolsets.material.MaterialTools/delete_unused_expressions": {
     "args": {
@@ -4920,7 +5513,16 @@
     ],
     "writes": true,
     "cleanup": "none",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "materialOrFunction": {
+        "refPath": "{material}"
+      },
+      "expression": {
+        "refPath": "{fc}"
+      }
+    },
+    "tool43": "EditorToolset/DeleteExpression"
   },
   "editor_toolset.toolsets.material.MaterialTools/diff_function": {
     "args": {
@@ -4932,7 +5534,12 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "oldAssetPath": "{mf_pkg}",
+      "newAssetPath": "{mf2_pkg}"
+    },
+    "tool43": "EditorToolset/DiffFunction"
   },
   "editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_static_switch_parameter": {
     "args": {
@@ -5005,7 +5612,16 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "oldActor": {
+        "refPath": "<actorPath A>"
+      },
+      "newActor": {
+        "refPath": "<actorPath B>"
+      }
+    },
+    "tool43": "EditorToolset/Diff"
   },
   "EditorToolset.EditorAppToolset/GetActiveEditorModes": {
     "args": {},
@@ -5218,7 +5834,13 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "dataInterfaceClass": {
+        "refPath": "/Script/Niagara.NiagaraDataInterfaceCurve"
+      }
+    },
+    "tool43": "NiagaraToolsets/GetDataInterfaceSchema"
   },
   "NiagaraToolsets.NiagaraToolset_System/GetEmitterSchema": {
     "args": {},
@@ -5496,7 +6118,14 @@
     ],
     "writes": false,
     "cleanup": "",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "baseClass": {
+        "refPath": "/Script/Engine.Actor"
+      },
+      "className": "Light"
+    },
+    "tool43": "EditorToolset/SearchSubclasses"
   },
   "editor_toolset.toolsets.object.ObjectTools/reset_properties": {
     "args": {
@@ -5633,7 +6262,18 @@
     ],
     "writes": true,
     "cleanup": "SceneTools/remove_from_scene the returned actor in the same process",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "actors": [
+        {
+          "refPath": "{actor}"
+        }
+      ],
+      "actorType": {
+        "refPath": "/Script/Engine.PointLight"
+      }
+    },
+    "tool43": "EditorToolset/ReplaceActorsWithClass"
   },
   "NiagaraToolsets.NiagaraToolset_System/GetDynamicInputChain": {
     "args": {
@@ -5673,7 +6313,16 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete the folder",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Imp",
+      "assetName": "DT_I",
+      "sourceFile": "{explore}/dt.csv",
+      "schema": {
+        "refPath": "/Script/GameplayTags.GameplayTagTableRow"
+      }
+    },
+    "tool43": "EditorToolset/ImportFile"
   },
   "editor_toolset.toolsets.curve_table.CurveTableTools/import_file": {
     "args": {
@@ -5688,7 +6337,14 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete the folder",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Imp",
+      "assetName": "CT_I",
+      "sourceFile": "{explore}/ct.csv",
+      "interp_mode": "RCIM_Linear"
+    },
+    "tool43": "EditorToolset/ImportFile"
   },
   "editor_toolset.toolsets.texture.TextureTools/import_file": {
     "args": {
@@ -5701,7 +6357,13 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete the folder",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Imp",
+      "assetName": "T_I",
+      "sourceFile": "{explore}/t.png"
+    },
+    "tool43": "EditorToolset/ImportFile"
   },
   "editor_toolset.toolsets.static_mesh.StaticMeshTools/import_file": {
     "args": {
@@ -5717,7 +6379,16 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete the folder",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Imp",
+      "assetName": "SM_I",
+      "sourceFile": "{explore}/tri.obj",
+      "import_materials": false,
+      "import_textures": false,
+      "combine_meshes": true
+    },
+    "tool43": "EditorToolset/ImportFile"
   },
   "editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/import_file": {
     "args": {
@@ -5730,7 +6401,13 @@
     ],
     "writes": true,
     "cleanup": "AssetTools/delete the folder",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "folderPath": "{lab_mount}/Imp",
+      "assetName": "SK_I",
+      "sourceFile": "{explore}/tri.obj"
+    },
+    "tool43": "EditorToolset/ImportFile"
   },
   "editor_toolset.toolsets.texture.TextureTools/export_png": {
     "args": {
@@ -5745,7 +6422,14 @@
     ],
     "writes": true,
     "cleanup": "delete the png",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "texture": {
+        "refPath": "{lab_mount}/Imp/T_I.T_I"
+      },
+      "filePath": "{explore}/out.png"
+    },
+    "tool43": "EditorToolset/ExportPng"
   },
   "editor_toolset.toolsets.static_mesh.StaticMeshTools/get_triangle_count": {
     "args": {
@@ -5789,7 +6473,17 @@
     ],
     "writes": true,
     "cleanup": "set_material with the original (get_material first)",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{sm}"
+      },
+      "slotName": "defaultMat",
+      "material": {
+        "refPath": "/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"
+      }
+    },
+    "tool43": "EditorToolset/SetMaterial"
   },
   "editor_toolset.toolsets.static_mesh.StaticMeshTools/generate_convex_collisions": {
     "args": {
@@ -5805,7 +6499,16 @@
     ],
     "writes": true,
     "cleanup": "remove_collisions",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{sm}"
+      },
+      "hullCount": 2,
+      "maxHullVerts": 16,
+      "hullPrecision": 100000
+    },
+    "tool43": "EditorToolset/GenerateConvexCollisions"
   },
   "editor_toolset.toolsets.static_mesh.StaticMeshTools/remove_collisions": {
     "args": {
@@ -5849,7 +6552,16 @@
     ],
     "writes": true,
     "cleanup": "remove_lods",
-    "status": "proven"
+    "status": "proven",
+    "args43": {
+      "mesh": {
+        "refPath": "{sm}"
+      },
+      "trianglePercents": [
+        0.5
+      ]
+    },
+    "tool43": "EditorToolset/GenerateLods"
   },
   "editor_toolset.toolsets.static_mesh.StaticMeshTools/set_lod_thresholds": {
     "args": {

@@ -95,6 +95,7 @@ $docFiles = @{
     "plan"      = "PLAN.md"
     "ownersteps" = "OWNER-STEPS.md"
     "audit"     = "AUDIT.md"
+    "performance" = "PERFORMANCE.md"
     "demotimer" = "DEMO-TIMER.md"
     "delivery"  = "DELIVERY-GATE.md"
     "genre"     = ".genre"
@@ -482,7 +483,7 @@ $RequestHandler = {
                         if ($o -and $o.TrimStart().StartsWith("{")) { return $o }
                     } catch { }
                 }
-                return '{"ok": false, "error": "Python 3 not found - install Python to use the Skills page"}'
+                return '{"ok": false, "error": "Python 3 not found - install Python to use the Knowledge page"}'
             }
             $json = $null; $code = 200
             $path = $request.Url.AbsolutePath

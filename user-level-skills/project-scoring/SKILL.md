@@ -25,7 +25,7 @@ A task is linked to a criterion by keywords in `Claude/reference/score-criteria.
 Only `Claude/docs/score-notes.json` takes subjective input: `{"fun": {"adj": -0.5, "why": "stranger playtest: unclear goal"}}`. `adj` is capped at +-1, needs a reason based on a log, playtest or check, and is shown on the page as evidence. Never raise a value without evidence; never edit the code to move a score.
 
 ## New criteria or weights
-Never edit the shipped criteria. Propose the change through the Skills page (skill-reflector, `skills_lib.py propose`): the owner approves, then the criterion is saved in `Claude/docs/score-criteria-extra.json` (fields: id, n, g = primary|additional|bonus, w, depth, keywords, tip). Use it when the contest rules or the genre change what matters (for example a criterion the owner never uses is dropped from the plan, not from the list).
+Never edit the shipped criteria. Propose the change through the Knowledge page (skill-reflector, `skills_lib.py propose`): the owner approves, then the criterion is saved in `Claude/docs/score-criteria-extra.json` (fields: id, n, g = primary|additional|bonus, w, depth, keywords, tip). Use it when the contest rules or the genre change what matters (for example a criterion the owner never uses is dropped from the plan, not from the list).
 
 ## Snapshots
 When a release closes (all its tasks Done) a row is appended to `Claude/logs/score-history.jsonl`, so later releases can be compared with it. The hook runs after ROADMAP/BUGS edits; `python3 Claude/hooks/score.py --snapshot` runs it by hand.

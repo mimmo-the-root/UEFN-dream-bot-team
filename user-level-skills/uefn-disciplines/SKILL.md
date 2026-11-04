@@ -21,13 +21,17 @@ Load only the row that matches, read its entry point, and open its references on
 | layout, blockout, pacing, spawn area, arena size, soft-lock | `level-design-uefn` |
 | camera, music, ambience, volume, sound | `camera-audio-uefn` |
 | enemies, guards, creatures, patrol, aggro | `game-ai-uefn` |
+| quest, mission, objective, collect N, tracked goal, quest reward | `uefn-quests` |
 | waves, loot box, shop, money, XP, levels, hunger, quest steps, checkpoints | recipe in the `mechanics` skill: `python Claude/hooks/skills_lib.py recipes mechanics <word>` |
 | prices, income, payback, rebirth | `economy-sim` |
 | saving progress, persistable data, Verse structure | `verse-patterns`, `uefn-lessons` |
 | HUD, menus, widgets | `uefn-ui-widgets`, `game-ui-designer` |
 | particles, effects, materials | `uefn-vfx-niagara`, `uefn-materials` |
-| memory, many actors, lag | `performance-uefn-checklist` |
+| memory, many actors, lag | `performance-uefn-checklist`; to measure with the profiler: `uefn-profiling` |
 | placing devices and folders | `uefn-level-devices` |
+| a new UEFN version, 43.00, update, upgrade, build broke after updating, experimental, before publishing from an older project | `uefn-version-upgrade` |
+| a forest, a rock field, many props, scatter, procedural placement | `uefn-pcg` |
+| PCG, cinematics, Sequencer, MetaSound, lighting, generated media (Epic's editor skills) | `uefn-epic-skills` |
 | a whole genre (tower defense, shooter, deathrun, adventure, tycoon, survival, roguelike, party, sports) | the genre skill named in `Claude/docs/.genre`; its reference items come first, learned items outrank them |
 
 Order when several apply: the genre, then the concept, then the recipe, then the device details.

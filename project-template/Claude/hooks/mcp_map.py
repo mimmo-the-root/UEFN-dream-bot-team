@@ -12,10 +12,11 @@ a tool that worked last time and fails now is reported as "stopped working".
 
 Modes
   mcp_map.py --now            map + test now (UEFN must be open), prints one JSON line
-  mcp_map.py --auto           what a session start does: if the last full map is older than 6 hours and the MCP
+  mcp_map.py --check          cheap look (tool list only): if the catalog differs from the saved map, run --now. Catches silent changes between releases
+  mcp_map.py --auto           what a session start does (also --check at most every 10 minutes): if the last full map is older than 6 hours and the MCP
                               answers, run --now in the background. Silent when UEFN is closed.
   mcp_map.py --find WORDS     search the saved map: tool, toolset, read/write, tested, what it does
-  mcp_map.py --summary        the saved map in numbers, as JSON (the Console's Skills page shows it)
+  mcp_map.py --summary        the saved map in numbers, as JSON (the Console's Knowledge page shows it)
   mcp_map.py --probe FILE     dump the raw replies (to adapt the parser when Epic changes the format)
 States of --now: first_snapshot, unchanged, changed (exit 0/0/1), not_reachable (2), odd_reply (3).
 Never a guess: no answer or an odd reply means the saved map stays as it was.
@@ -311,9 +312,10 @@ def run_tests(client, entries, mode, meta, deadline, cap=150):
     tkey = next((low[k] for k in low if "toolset" in k), None)
     nkey = next((low[k] for k in low if k in ("tool", "tool_name", "toolname", "name")), None)
     akey = next((low[k] for k in low if any(w in k for w in ("arg", "param", "input"))), None)
+    avoid = avoid_list()
     for key in sorted(entries):
         e = entries[key]
-        if not safe_to_call(e):
+        if not safe_to_call(e) or key in avoid:
             skipped += 1
             continue
         if len(res) >= cap or time.time() > deadline:
@@ -410,6 +412,29 @@ def _fingerprints(d):
     return r
 
 
+def avoid_list(d=None):
+    """{ "Toolset/Tool": {why, date, state} }: the tools that stopped the editor. The list shipped with the kit plus the ones this computer learned (avoid.json in the map folder)."""
+    out = {}
+    for p in (os.path.join(HERE, "mcp-avoid.json"), os.path.join(d or td.default_dir(), "avoid.json")):
+        try:
+            out.update(json.load(open(p, encoding="utf-8-sig")).get("avoid", {}))
+        except (OSError, ValueError, AttributeError):
+            pass
+    return out
+
+
+def note_crash(d, key, why):
+    """A read-only tool whose call was followed by a reset connection is remembered, so no test and no agent calls it again by accident."""
+    try:
+        p = os.path.join(d, "avoid.json")
+        data = json.load(open(p, encoding="utf-8")) if os.path.isfile(p) else {"avoid": {}}
+        data.setdefault("avoid", {})[key] = {"why": why, "date": time.strftime("%Y-%m-%d"), "state": "suspected"}
+        os.makedirs(d, exist_ok=True)
+        json.dump(data, open(p, "w", encoding="utf-8"), indent=1)
+    except (OSError, ValueError):
+        pass
+
+
 def deep_test(project=None, url=None, dirpath=None, timeout=20.0, budget=170.0, pause=0.15, heavy_too=False):
     """Calls every read-only tool once with harmless made-up arguments. Writes ONLY deep-tests.json and DEEP-TESTS.md; the map is never touched."""
     d = dirpath or td.default_dir()
@@ -438,6 +463,10 @@ def deep_test(project=None, url=None, dirpath=None, timeout=20.0, budget=170.0, 
             pass
         for k in heavy:
             cands.pop(k)
+    avoid = avoid_list(d)
+    skipped_avoid = sorted(k for k in cands if k in avoid)
+    for k in skipped_avoid:
+        cands.pop(k)
     res, silent, stopped = {}, 0, ""
     for key in sorted(cands):
         e = cands[key]
@@ -464,11 +493,15 @@ def deep_test(project=None, url=None, dirpath=None, timeout=20.0, budget=170.0, 
         except (Odd, Unreachable) as ex:
             res[key] = {"r": "no_answer", "args": sorted(args), "why": str(ex)[:100]}
             silent += 1
+            if "reset" in str(ex).lower() or "aborted" in str(ex).lower():   # the connection was cut while the call ran: the editor probably stopped
+                stopped = "the editor stopped right after %s: that tool is now on the avoid list, the test stops here" % key
+                note_crash(d, key, "the editor connection was reset when it was called with made-up arguments in the deep test")
+                break
         time.sleep(pause)
     after = _fingerprints(d)
     cnt = {k: sum(1 for v in res.values() if v["r"] == k) for k in ("ok", "rejected", "no_answer")}
     out = {"state": "deep_done", "date": time.strftime("%Y-%m-%d %H:%M"), "candidates": len(cands), "tried": len(res), "counts": cnt,
-           "stopped": stopped, "skipped_heavy": heavy, "map_untouched": before == after, "results": res}
+           "stopped": stopped, "skipped_heavy": heavy, "skipped_avoid": skipped_avoid, "map_untouched": before == after, "results": res}
     for k in heavy:
         res.setdefault(k, {"r": "ok", "args": [], "n": 1000001, "peek": "(skipped: answer was over 1 MB last time)"})
     try:
@@ -517,7 +550,7 @@ def now(project=None, url=None, dirpath=None, timeout=15.0, tests=True, budget=1
         except OSError:
             pass
         return {"state": "odd_reply", "message": "The MCP answered in a way this kit does not understand (%s). The saved map stays as it was; run --probe to see the raw replies." % e}, 3
-    res, code = td.apply_map(catalog, d, str(client.server.get("version", "")), True, str(client.server.get("name", "")))
+    res, code = td.apply_map(catalog, d, str(client.server.get("version", "")), True, str(client.server.get("name", "")), {k: e.get("schema") for k, e in entries.items()})
     res["mode"] = mode
     note = ""
     if tests:
@@ -565,6 +598,41 @@ def now(project=None, url=None, dirpath=None, timeout=15.0, tests=True, budget=1
     return res, code
 
 
+def check(project=None, url=None, dirpath=None, timeout=15.0):
+    """Cheap look (the list of tools only, no tests): if the catalog differs from the saved map, run the full map now. This is how a silent change
+    outside a release (Epic updates the editor, a plugin adds tools, a setting loads more toolsets) is noticed at the next session start.
+    Returns (result, exit code). States: same, differs (then the result of now()), no_map (then now()), not_reachable, odd_reply."""
+    d = dirpath or td.default_dir()
+    url = url or find_url(project)
+    client = Client(url, timeout)
+    try:
+        catalog, entries, mode, meta = fetch(client, time.time() + 60.0)
+    except Unreachable as e:
+        return {"state": "not_reachable", "message": "UEFN's MCP did not answer (%s)." % e}, 2
+    except (Odd, ToolError) as e:
+        return {"state": "odd_reply", "message": "The MCP answered in a way this kit does not understand (%s)." % e}, 3
+    fp = td.fingerprint(catalog)
+    try:
+        sm = json.load(open(os.path.join(d, "latest.json"), encoding="utf-8"))
+        saved = sm.get("fp", "") if sm.get("fmt", 1) >= 2 else "older map format"   # an older map has no argument names: map again once
+    except (OSError, ValueError, AttributeError):
+        saved = None
+    try:
+        a = os.path.join(d, "auto.json")
+        data = json.load(open(a, encoding="utf-8")) if os.path.isfile(a) else {}
+        data["last_check"] = time.time()
+        data["last_check_fp"] = fp
+        os.makedirs(d, exist_ok=True)
+        json.dump(data, open(a, "w", encoding="utf-8"))
+    except (OSError, ValueError):
+        pass
+    if saved is not None and saved == fp:
+        return {"state": "same", "count": len(catalog), "fingerprint": fp}, 0
+    res, code = now(project, url, d, timeout, True)
+    res["trigger"] = "no_map" if saved is None else "differs"
+    return res, code
+
+
 def session_check(project=None, dirpath=None, url=None, interval_hours=INTERVAL_HOURS):
     """Called at session start. Returns a message for the agent or None. Never raises, never waits for the MCP."""
     try:
@@ -588,11 +656,14 @@ def session_check(project=None, dirpath=None, url=None, interval_hours=INTERVAL_
         except (OSError, ValueError):
             pass
         due = time.time() - max(data.get("last_full", 0), data.get("last_try", 0)) > interval_hours * 3600
-        if due and port_open(url):
+        cheap = (not due) and time.time() - data.get("last_check", 0) > 600   # not due: only the cheap fingerprint look, at most every 10 minutes
+        if (due or cheap) and port_open(url):
             os.makedirs(d, exist_ok=True)
-            data["last_try"] = time.time()
+            data["last_try"] = time.time() if due else data.get("last_try", 0)
+            if cheap:
+                data["last_check"] = time.time()
             json.dump(data, open(a, "w", encoding="utf-8"))
-            cmd = [sys.executable, os.path.abspath(__file__), "--now", "--quiet", "--url", url, "--dir", d]
+            cmd = [sys.executable, os.path.abspath(__file__), "--now" if due else "--check", "--quiet", "--url", url, "--dir", d]
             kw = {"stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "stdin": subprocess.DEVNULL}
             if os.name == "nt":
                 kw["creationflags"] = 0x00000008 | 0x08000000
@@ -636,6 +707,7 @@ def summary(dirpath=None):
         out["news"] = json.load(open(os.path.join(d, "news.json"), encoding="utf-8"))
     except (OSError, ValueError):
         out["news"] = None
+    out["discovery"] = discovery(d, tools)
     try:
         out["last_full"] = json.load(open(os.path.join(d, "auto.json"), encoding="utf-8")).get("last_full", 0)
     except (OSError, ValueError):
@@ -644,6 +716,12 @@ def summary(dirpath=None):
         import recipes_status
         out["recipes"] = recipes_status.progress(tools=list(tools)) or None
         out["pending"] = recipes_status.pending(tools=list(tools))
+        try:   # the new tools split with the same names as everything else: answered in a test, or not tried
+            tr = json.load(open(os.path.join(d, "tests.json"), encoding="utf-8")).get("results", {})
+            nt = out["pending"].get("new_tools", [])
+            out["pending"]["new_answered"] = sum(1 for k in nt if tr.get(k) == "ok")
+        except (OSError, ValueError):
+            out["pending"]["new_answered"] = 0
         try:
             import skills_lib
             out["pending"]["held"] = skills_lib.load_hold()["mcp"]
@@ -652,6 +730,55 @@ def summary(dirpath=None):
             pass
     except Exception:
         out["recipes"] = None
+    return out
+
+
+def discovery(d, tools):
+    """The autodiscovery box of the Knowledge page: what was found since the first map, in numbers. Saved files only; never raises."""
+    out = {"baseline": "", "new_7d": 0, "new_30d": 0, "new_total": 0, "recent": [], "changes": [], "last_check": 0, "fingerprint": "", "reworded_30d": 0}
+    try:
+        t7, t30 = time.strftime("%Y-%m-%d", time.localtime(time.time() - 7 * 86400)), time.strftime("%Y-%m-%d", time.localtime(time.time() - 30 * 86400))
+        found = sorted(((e.get("fs", ""), k) for k, e in tools.items() if e.get("fs")), reverse=True)
+        out["new_total"] = len(found)
+        out["new_7d"] = sum(1 for f, _ in found if f >= t7)
+        out["new_30d"] = sum(1 for f, _ in found if f >= t30)
+        out["reworded_30d"] = sum(1 for e in tools.values() if e.get("ch", "") >= t30 and e.get("ch"))
+        out["recent"] = [{"tool": k, "first_seen": f, "access": tools[k].get("a", "?"), "does": tools[k].get("d", "")} for f, k in found[:8]]
+    except Exception:
+        pass
+    try:
+        rows = [json.loads(l) for l in open(os.path.join(d, "changes.jsonl"), encoding="utf-8") if l.strip()]
+        for r in rows:
+            if r.get("state") == "first_snapshot" and not out["baseline"]:
+                out["baseline"] = r.get("date", "")
+        table = td.names_43()
+
+        def tally(r):
+            """A row written before renames were understood lists renamed tools as removed and added: join them with the shipped table."""
+            added, removed, renamed = set(r.get("added", [])), r.get("removed", []), len(r.get("renamed", []))
+            if "renamed" not in r and removed and added:
+                moved = [k for k in removed if table.get(k) in added]
+                added -= {table[k] for k in moved}
+                removed = [k for k in removed if k not in moved]
+                renamed = len(moved)
+            return len(added), len(removed), renamed
+        out["changes"] = []
+        for r in rows[-8:]:
+            ad, rm, rn = tally(r)
+            out["changes"].append({"date": r.get("date", ""), "uefn": r.get("uefn", ""), "count": r.get("count", 0), "state": r.get("state", ""), "added": ad,
+                                   "removed": rm, "renamed": rn, "changed": len(r.get("changed", []))})
+    except (OSError, ValueError):
+        pass
+    try:
+        a = json.load(open(os.path.join(d, "auto.json"), encoding="utf-8"))
+        out["last_check"] = max(a.get("last_check", 0), a.get("last_full", 0))
+        out["fingerprint"] = a.get("last_check_fp", "")
+    except (OSError, ValueError):
+        pass
+    try:
+        out["fingerprint"] = out["fingerprint"] or json.load(open(os.path.join(d, "latest.json"), encoding="utf-8")).get("fp", "")
+    except (OSError, ValueError):
+        pass
     return out
 
 
@@ -721,6 +848,7 @@ def main():
         pass
     ap = argparse.ArgumentParser()
     ap.add_argument("--now", action="store_true")
+    ap.add_argument("--check", action="store_true")
     ap.add_argument("--auto", action="store_true")
     ap.add_argument("--find", nargs="+", metavar="WORD")
     ap.add_argument("--probe", metavar="FILE")
@@ -763,6 +891,11 @@ def main():
         m = session_check(a.project, a.dir, a.url)
         print(json.dumps({"state": "checked", "news": m or ""}))
         return 0
+    if a.check:
+        res, code = check(a.project, a.url, a.dir, a.timeout)
+        if not a.quiet:
+            print(json.dumps(res, ensure_ascii=True))
+        return code
     if a.deep:
         res, code = deep_test(a.project, a.url, a.dir, max(a.timeout, 20.0), heavy_too=a.heavy)
         print(json.dumps(res, ensure_ascii=True))

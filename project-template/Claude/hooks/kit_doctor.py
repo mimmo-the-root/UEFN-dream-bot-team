@@ -2,7 +2,7 @@
 """kit_doctor.py - diagnose (and with --fix repair) the common kit problems of ONE project. Zero AI tokens.
 
 Usage (from the project folder): python Claude/hooks/kit_doctor.py [--fix] [--project DIR]
-Prints one line per check: OK / FIXED / PROBLEM, then a one-line summary. Never deletes anything.
+Prints one line per check: OK / FIXED / PROBLEM / NOT ASSESSED (a check that could not run), then a one-line summary. Never deletes anything.
 Env UEFN_KIT_TEMPLATE and UEFN_HOME (profile dir, default ~/.claude) exist for tests.
 """
 import json, os, re, sys
@@ -129,7 +129,7 @@ def check(project, fix=False):
         else:
             add("OK", "Docs format is valid.")
     except Exception:  # noqa: BLE001
-        add("OK", "Docs format check skipped.")
+        add("NOT ASSESSED", "Docs format: the check could not run, so the docs are unchecked (not a pass).")
 
     # 7. secrets file kept out of git
     if os.path.isfile(os.path.join(project, ".mcp.json")) and os.path.isdir(os.path.join(project, ".git")):
@@ -254,7 +254,8 @@ def main():
         print("%-7s %s" % (s, t))
     n = sum(1 for s, _ in res if s == "PROBLEM")
     f = sum(1 for s, _ in res if s == "FIXED")
-    print("kit-doctor: %d problem(s), %d fixed." % (n, f))
+    na = sum(1 for s, _ in res if s == "NOT ASSESSED")
+    print("kit-doctor: %d problem(s), %d fixed%s." % (n, f, (", %d not assessed" % na) if na else ""))
     return 0
 
 

@@ -8,7 +8,7 @@ Open a session from the `Content` folder of the project. If the project has no k
 
 ## Learning from the map
 
-The kit reads the Verse code, the documents and the devices at every session start. To do it right now press **Learn from this map** on the Skills page: the kit prepares the recipes of your devices and mechanics by itself, and the agent finishes the learning at the end of its next answer (blueprint and how-to lessons). You approve the result in the tab *To approve*.
+The kit reads the Verse code, the documents and the devices at every session start. To do it right now press **Learn from this map** on the Knowledge page: the kit prepares the recipes of your devices and mechanics by itself, and the agent finishes the learning at the end of its next answer (blueprint and how-to lessons). You approve the result in the tab *To approve*.
 
 ## What is in the project
 

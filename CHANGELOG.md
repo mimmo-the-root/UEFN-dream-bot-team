@@ -1,5 +1,36 @@
 # Changelog
 
+## v1.117.2 — The console sees the worker's scripts
+
+- [fix] **A busy worker looked idle.** When the worker ran a validation sweep as a script through the lab wrapper, the console showed nothing: only a session's own tool calls fire the hooks. The wrapper now writes a start and a stop line for every call (caller `chief-of-staff`, or `LAB_CALLER`), so the MCP node lights up and the activity log shows what the editor is doing.
+
+## v1.117.1 — The loop of every release on the Docs page, validation battery, worker fixes
+
+- [feature] **The loop of each release on the Docs page.** Steps 5 to 12 (Tasks to Play and confirm) repeat for every release, so they have their own colour and a bar under them: the tasks of the current release (the Release column of ROADMAP.md) as done/total, a counter on the Tasks step, and after the release is confirmed the bar moves on to the next release and its number of tasks. The second row of tabs (Bugs, Status, Audit, Performance, Documents) has the capsule and the gradient pill of the top menu.
+- [feature] **Measured fixes from the worker are taken in.** `tool/import_worker_fixes.py` brings the worker's kit fixes into the kit (the lab wrapper for the 43.00 tool names is the first), and `tool/migrate_recipe_args.py --fixed` brings its measured argument names into the recipes.
+- [feature] **`uefn-pcg`.** A skill for scattering props over an area with a PCG graph, with the trap found in the lab run (the shape is built at the world origin, not under the volume).
+- [fix] **Recipes check their 43.00 argument names first.** A recipe that already carries `args43` is checked by those names, so only the recipes that really need a person are listed.
+
+## v1.117.0 — UEFN 43.00: new tool names, autodiscovery, parallel worker, new skills
+
+- [feature] **UEFN 43.00 tool names.** The editor now exposes about 800 tools, one name each (`mcp__unreal-mcp__<Toolset>_<Tool>`), and no `call_tool`. The guards (heavy calls, editor lock, work log), the hook matchers, the console's MCP node and the setup text read both forms through one module, `mcp_names.py`. The heavy-call guard also understands the 43.00 nested camelCase filter and looks inside programmatic scripts.
+- [feature] **Autodiscovery that tells renamed from new.** The tool map matches renamed tools to their old names (the shipped table `mcp-names-43.json`, the same description, or the same name), keeps the day each tool was first seen, saves each tool's argument names, and looks at the whole catalog at every session start (at most every ten minutes) so a silent change between releases is noticed with no version number. A tool that stopped the editor goes on an avoid list that the guard and the tests respect.
+- [feature] **A Knowledge page with one set of numbers.** The Skills page is now Knowledge. Tools and recipes use the same four states everywhere (proven, answered not proven, not tried, to replay) with bars per area in columns; Autodiscovery and "Not in the kit yet" fold into one line you can open; recipes whose argument names changed in 43.00 are listed (90 carry `args43`; 21 need a person).
+- [feature] **New skills.** `uefn-version-upgrade` (the routine for each UEFN release, with `digest_diff.py` for the Verse API and the notes of 43.00), `uefn-epic-skills` (when to read the 30 editor skills Epic serves, and who wins), `uefn-quests` (custom quests with the Progression API, compiled in the lab), `uefn-profiling` and `uefn-pcg` (scatter over an area with a PCG graph, with the placement trap found in a lab run).
+- [feature] **`/performance` and two new menus.** The Docs page has Audit and Performance next to Bugs and Status. `/performance` measures the open map with the profiler during a play session and writes `PERFORMANCE.md` (new: not tried on a real map yet).
+- [feature] **A worker that runs commands in parallel and fixes the kit.** The relay mailbox has `parallel: yes` (documents and the second brain run in background agents) and a standing permission for the worker to fix kit files that block it, with a backup, a note and the changed files in `fixes/`; `tool/import_worker_fixes.py` takes them into the kit.
+- [feature] **The update says what it brought.** After an update the first start shows "Got N features, N fixes and N other changes" from these notes (`whats-new.json`, built by `tool/build_whats_new.py` at publish); `tool/bump_version.py` raises the version everywhere at once.
+- [feature] **A console that shows the work.** Active routes run dashes and a travelling dot from every working card to what it talks to (the Chief of Staff, the heads, the moons of the moons, the MCP server); the Chief's calls to the MCP pulse from the hub and the node stays lit for a moment; a waiting agent turns yellow on the whole card.
+- [fix] **Lines that flickered.** `classList.toggle("hot", undefined)` flipped the class every frame for every agent without a special role; it is set now.
+- [fix] **Badges and boxes in the top row.** The badges wrap together next to the agent count, the four boxes keep the same height, and "Your turn" is wider and shows its whole text.
+- [fix] **Two recipes that did not compile.** `GetMoney` and `Current` now carry `<transacts>` (the shop and hunger recipes build clean); all six new recipes compile on 43.00.
+- [other] **Plain facts.** Argument names of several tools changed to camelCase in 43.00, so a renamed tool is not always the same tool: the map compares argument names too.
+
+## v1.116.0 — A check that could not look is never a pass; big documents are read by part
+
+- **"Not assessed" is a verdict of its own.** A check that cannot run used to look the same as a check that ran and found nothing. Now the delivery gate lists what it could not look at (the compliance scan never ran, no `AUDIT.md`, a playtest row nobody observed) and exits with code 2, which reads as "not ready", Score lists the criteria that no task measures as NOT ASSESSED, and `/kit-doctor` no longer writes OK for a check that could not run (its last line counts them). The five rules behind it are in `Claude/reference/CHECK-RULES.md`, and the `release-gate` and `qa-regression` agents point to it.
+- **Big documents are read by part.** A new hook refuses a whole-file read of a document over 40 KB (`.md`, `.txt`, `.json`, `.jsonl`, `.log`, `.csv`) and answers with its headings or keys, so the retry reads one part with an offset and a limit. Code files, `CLAUDE.md` and `SKILL.md` are never refused. `UEFN_KIT_READ_GUARD=0` switches it off and `UEFN_KIT_READ_KB` changes the size.
+
 ## v1.115.0 — Starting guides for five genres, mechanic recipes, design rules, Motion fixed
 
 - **Badges.** The README and the console show two more badges: format Agent Skills and last commit.

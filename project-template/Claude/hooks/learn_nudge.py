@@ -23,7 +23,7 @@ def main():
         return
     project = os.environ.get("CLAUDE_PROJECT_DIR") or payload.get("cwd") or os.path.dirname(os.path.dirname(HERE))
     mdir = os.path.join(project, "Claude", "docs", "map")
-    try:   # the owner pressed Learn on the console (Skills page): learn now, once, whatever the cooldown says
+    try:   # the owner pressed Learn on the console (Knowledge page): learn now, once, whatever the cooldown says
         import skills_lib as _sk
         fl = _sk.map_learn_flag(project)
         if fl and fl.get("state") == "waiting":
@@ -37,7 +37,7 @@ def main():
                 "(the steps and settings that worked for a mechanic, device, widget or Verse feature, and in which order; mistakes only as a short 'avoid' note) with "
                 "`python Claude/hooks/skills_lib.py propose <genre> --variant <type> ...` after checking `skills_lib.py patterns <genre>`. "
                 "The recipes of the mechanics and devices of this map were already prepared by the kit from its Verse code: complete one only if the owner confirms a step is wrong. "
-                "The owner approves everything on the Skills page."}))
+                "The owner approves everything on the Knowledge page."}))
             return
     except Exception:
         pass

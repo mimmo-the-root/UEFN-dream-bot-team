@@ -65,6 +65,27 @@ def check(text):
     return block, warn
 
 
+def unassessed(text, docs=None):
+    """What the gate could NOT look at. 'I looked and found nothing' and 'I could not look' are different: this list is the second one,
+    and it outranks a pass (a gate that could not assess part of its scope has not shown the scope is good)."""
+    out = []
+    m = re.search(r"(?m)^- Scan:\s*(.*)$", text)
+    if not m or not m.group(1).strip() or re.match(r"(?i)pending", m.group(1).strip()):
+        out.append("the compliance scan has not run (run /audit): no one has looked at the package against the rules")
+    if docs:
+        audit = os.path.join(docs, "AUDIT.md")
+        if not os.path.isfile(audit):
+            out.append("there is no AUDIT.md: the quality check has not been run")
+        pt = os.path.join(docs, "PLAYTEST.md")
+        if os.path.isfile(pt):
+            raw = open(pt, encoding="utf-8", errors="replace").read()
+            if re.search(r"(?m)^- \[ \]", raw) or re.search(r"(?im)^-?\s*(Observed|Result):\s*$", raw):
+                out.append("PLAYTEST.md has rows nobody has observed: the game was not shown to work")
+        else:
+            out.append("there is no PLAYTEST.md: the game was not shown to work")
+    return out
+
+
 def line_hash(text):
     """djb2 of the ASCII part of a gate line (after the checkbox): the console page computes the same, so a click can never tick another line after the file changed."""
     h = 5381
@@ -194,8 +215,17 @@ def main(argv):
         print("BLOCK " + x)
     for x in w:
         print("warn  " + x)
-    print("Ready to deliver" if not b else "%d to confirm before delivery" % len(b))
-    return 1 if b else 0
+    na = unassessed(t, d)
+    for x in na:
+        print("NOT ASSESSED " + x)
+    if b:
+        print("%d to confirm before delivery" % len(b))
+        return 1
+    if na:
+        print("Not assessed: %d part(s) of the gate could not be looked at, so it is NOT ready to deliver" % len(na))
+        return 2
+    print("Ready to deliver")
+    return 0
 
 
 if __name__ == "__main__":

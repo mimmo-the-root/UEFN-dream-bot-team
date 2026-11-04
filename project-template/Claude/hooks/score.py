@@ -267,12 +267,14 @@ def compute(project):
     def _proofed(task):
         s = re.sub(r"^(done|fatto|complet\w*|chiuso|closed|risolto|resolved)\s*[-:\u2013]?\s*", "", (task.get("status") or "").strip(), flags=re.I)
         return len(s) >= 12
-    rd_sum, rd_w, rd_notes = 0.0, 0.0, []
+    rd_sum, rd_w, rd_notes, rd_na = 0.0, 0.0, [], []
     for oc in out_c:
         w = oc["w"] or 0
         if not w:
             continue
         ids, kind_ = minemap.get(oc["id"], ([], "tasks"))
+        if not ids and kind_ in ("tasks", "ship"):
+            rd_na.append("NOT ASSESSED: %s has no task or verdict that measures it" % oc["n"])
         dn = [x for x in ts if x["id"] in ids and x["done"]]
         adj = 1.0
         if dn:
@@ -286,7 +288,7 @@ def compute(project):
             rd_notes.append("%s rests on a single task: counts half" % oc["n"])
         rd_sum += min(5.0, (oc["V"][-1] if oc["V"] else 0) * adj * smp) / 5.0 * w
         rd_w += w
-    readiness = {"score": int(round(rd_sum / rd_w * 100)) if rd_w else 0, "notes": sorted(set(rd_notes))[:6]}
+    readiness = {"score": int(round(rd_sum / rd_w * 100)) if rd_w else 0, "notes": sorted(set(rd_notes))[:6] + sorted(set(rd_na))[:3]}
     return {"available": True, "releases": rels, "last": cur, "criteria": out_c, "unmapped": unmapped,
             "open_bugs": len(bs), "readiness": readiness, "generated": time.strftime("%Y-%m-%d %H:%M")}
 

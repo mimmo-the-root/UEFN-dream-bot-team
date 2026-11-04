@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.115.0
-updated: kit-1.115.0
+created: kit-1.117.2
+updated: kit-1.117.2
 sources: [docs/manual/skills-and-lessons.md]
 type: kit
 status: current
@@ -44,7 +44,7 @@ The kit never contains Epic's guide: the Fab licence does not allow handing it o
 
 ## You confirm the genre and the map type
 
-The kit only **proposes** the genre and the map type (a free name such as pillars, red-vs-blue or checkpoint-race). Until you confirm them on the Skills page, nothing is written to your skills. Confirming saves the waiting blueprint and lessons by itself.
+The kit only **proposes** the genre and the map type (a free name such as pillars, red-vs-blue or checkpoint-race). Until you confirm them on the Knowledge page, nothing is written to your skills. Confirming saves the waiting blueprint and lessons by itself.
 
 > **Note** A map that is the same base game dressed for another franchise is a type of the same genre. The kit reads the franchise from your documents; the shared base is type `base`.
 
@@ -54,7 +54,7 @@ What it learned becomes a blueprint inside the genre skill: the layout with coun
 
 ## Lessons and how much to trust them
 
-Each analysed map also queues three to five general lessons. You approve, edit or reject them on the Skills page, or use **Approve all**. A lesson earns trust as more of your maps back it:
+Each analysed map also queues three to five general lessons. You approve, edit or reject them on the Knowledge page, or use **Approve all**. A lesson earns trust as more of your maps back it:
 
 | Level | Meaning |
 |---|---|
@@ -66,7 +66,7 @@ Each analysed map also queues three to five general lessons. You approve, edit o
 
 ## Design guides that ship with the kit
 
-Besides what you learn, the kit carries starting guides so a new genre is not empty. They appear on the Skills page as one proposal for each genre, and nothing changes until you approve.
+Besides what you learn, the kit carries starting guides so a new genre is not empty. They appear on the Knowledge page as one proposal for each genre, and nothing changes until you approve.
 
 - **Genre guides**: Strategy (tower and wave defense), Shooter, Deathrun & Platformer, Adventure & RPG (quests and escape rooms), Simulation & Tycoon, plus extra items for Survival and Roguelike. Each one gives the loop, the systems the genre needs, the numbers to tune and the mistakes that show up in play.
 - **Mechanic recipes** in the `mechanics` skill: weighted loot box, wave director, currency and shop, persistent levels, hunger and needs, ordered objectives, course checkpoints. Each comes with the steps, the devices and the Verse. A recipe that has not yet been built in an editor says so, and `BuildAll` must be clean before you rely on it.
@@ -78,7 +78,7 @@ Your map names, task ids, notes and evidence stay in a private layer called `loc
 
 ## Where to find it
 
-On the **Skills** page of the [[the-console|console]]. The Skills tab of every console page shows a counter while lessons or pack updates wait for your yes, or a genre confirmation waits for you.
+On the **Skills** page of the [[the-console|console]]. The Knowledge tab of every console page shows a counter while lessons or pack updates wait for your yes, or a genre confirmation waits for you.
 
 ### How the page is organised
 
@@ -94,4 +94,4 @@ A **lesson** is a short rule. A **recipe** is how to rebuild something, step by 
 - [[the-console|The console]]
 
 ## Sources
-- The kit manual, chapter "Skills and lessons" (docs/manual/skills-and-lessons.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Skills and lessons" (docs/manual/skills-and-lessons.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.

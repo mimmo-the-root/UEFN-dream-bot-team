@@ -82,8 +82,46 @@ def client():
     return _client
 
 
+
+_direct_names = None
+
+
+def _direct():
+    """UEFN 43.00 and later: no `call_tool` / `describe_toolset` meta tools, every tool is listed under its own name
+    `<Toolset>.<Class>.<Tool>` (the same form this wrapper gets as ts + tool). Returns the name -> tool dict, or {} on the old meta server."""
+    global _direct_names
+    if _direct_names is None:
+        try:
+            tl = client().list_tools()
+        except (AttributeError, TypeError):   # a client without a tool list (tests, very old servers): the old meta form
+            return {}
+        _direct_names = {} if any(t["name"] == "call_tool" for t in tl) else {t["name"]: t for t in tl}
+    return _direct_names
+
+
+def _invoke(ts, tool, args):
+    """The one place that talks to the server: old meta call_tool, or the tool's own name on 43.00+ (guard checks stay in refusal())."""
+    d = _direct()
+    if not d:
+        return client().call("call_tool", {"toolset_name": ts, "tool_name": tool, "arguments": args})
+    name = ts + "." + tool
+    if name not in d:
+        raise m.ToolError("Unknown tool: " + name)
+    return client().call(name, args)
+
+
 def describe(ts):
-    d = m.parse_text(client().call("describe_toolset", {"toolset_name": ts}))
+    dn = _direct()
+    if dn:
+        tools = [dict(t, name=t["name"]) for n, t in dn.items() if n.startswith(ts + ".")]
+        for t in tools:
+            ann = t.get("annotations") or {}
+            if "readOnlyHint" not in ann and ann.get("accessMode") == "write":
+                ann["readOnlyHint"] = False  # only ever stricter: a server-declared read still goes through the name heuristic
+                t["annotations"] = ann
+        d = {"tools": tools}
+    else:
+        d = m.parse_text(client().call("describe_toolset", {"toolset_name": ts}))
     out = []
     for t in d.get("tools", []):
         n = t["name"].split(".")[-1]
@@ -178,7 +216,7 @@ def lab_check():
     lvl, err = "", None
     for _try in range(2):  # one retry: right after a session change the MCP can answer HTTP 400 / time out once
         try:
-            lvl = m.parse_text(client().call("call_tool", {"toolset_name": "editor_toolset.toolsets.scene.SceneTools", "tool_name": "get_current_level", "arguments": {}}))
+            lvl = m.parse_text(_invoke("EditorToolset.LevelToolset", "GetCurrentLevel", {}) if _direct() else _invoke("editor_toolset.toolsets.scene.SceneTools", "get_current_level", {}))
             lvl = (lvl or {}).get("returnValue", "") if isinstance(lvl, dict) else ""
             err = None
             break
@@ -308,6 +346,17 @@ def _src():
         return "agent"
 
 
+def _console(event, tool):
+    """The console's MCP node and activity log only see calls a session makes as tool calls (hooks). A script that calls the editor through this wrapper
+    (a validation sweep, a coverage run) was invisible: the console showed an idle agent while the editor was busy. One line per start and stop, best effort."""
+    try:
+        os.makedirs(LOGS, exist_ok=True)
+        with open(os.path.join(LOGS, "agent-console-mcp.jsonl"), "a", encoding="utf-8") as f:
+            f.write(json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()) + "Z", "event": event, "caller": os.environ.get("LAB_CALLER", "chief-of-staff"), "label": tool}) + "\n")
+    except Exception:  # noqa
+        pass
+
+
 def call(ts, tool, args=None, peek=600):
     """One logged call. Returns the parsed reply or raises RuntimeError with the server's message."""
     args = args or {}
@@ -326,16 +375,20 @@ def call(ts, tool, args=None, peek=600):
         _log(rec)
         raise RuntimeError(why)
     t0 = time.time()
+    _console("start", tool)
     try:
-        text = client().call("call_tool", {"toolset_name": ts, "tool_name": tool, "arguments": args})
+        text = _invoke(ts, tool, args)
     except m.ToolError as e:
+        _console("stop", tool)
         rec.update(r="rejected", why=" ".join(str(e).split())[:300], sec=round(time.time() - t0, 2))
         _log(rec)
         raise RuntimeError(str(e))
     except Exception as e:  # noqa
+        _console("stop", tool)
         rec.update(r="no_answer", why=str(e)[:200])
         _log(rec)
         raise
+    _console("stop", tool)
     rec.update(r="ok", n=len(text), peek=" ".join(text.split())[:peek], sec=round(time.time() - t0, 2))
     _log(rec)
     parsed = m.parse_text(text)

@@ -19,7 +19,7 @@ Obstacle courses: move, commit, land or fail, and be back at a checkpoint within
 ## How to use
 
 - REFERENCE items are design guidance written for UEFN in our own words. They are the documented starting point, not proof that they fit this map: follow them, and say when a playtest disagrees.
-- Items marked confirmed or proven come from the owner's own maps and outrank reference items. Nothing is learned without the owner's approval on the Skills page.
+- Items marked confirmed or proven come from the owner's own maps and outrank reference items. Nothing is learned without the owner's approval on the Knowledge page.
 - Name the device or Verse API only after checking it in the Verse digest or with the editor tools.
 
 <!-- PATTERNS:BEGIN -->

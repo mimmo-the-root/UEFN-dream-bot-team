@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.115.0
-updated: kit-1.115.0
+created: kit-1.117.2
+updated: kit-1.117.2
 sources: [docs/manual/glossary.md]
 type: kit
 status: current
@@ -123,4 +123,4 @@ The programming language of UEFN.
 - [[skill-catalog|Skills catalog]]
 
 ## Sources
-- The kit manual, chapter "Glossary" (docs/manual/glossary.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Glossary" (docs/manual/glossary.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.

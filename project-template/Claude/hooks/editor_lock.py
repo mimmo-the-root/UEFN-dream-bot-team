@@ -74,8 +74,8 @@ def main():
         if os.environ.get("UEFN_KIT_LOCK") == "0":
             return 0
         p = json.loads(sys.stdin.read() or "{}")
-        ti = p.get("tool_input") or {}
-        tool = str(ti.get("tool_name") or "")
+        import mcp_names as N
+        tool = N.read(p)["tool"]
         if not tool:
             return 0
         proj = os.environ.get("CLAUDE_PROJECT_DIR") or p.get("cwd") or os.getcwd()

@@ -5,7 +5,7 @@ skills_lib.py — Skill Harness for the UEFN Claude Team Starter Kit (v1.81+).
 Makes the GENRE skills (~/.claude/skills/genre/<slug>/) learn from every map you build, with you
 approving each lesson. Pure Python standard library, no third-party packages, works on Windows,
 macOS and Linux. Used three ways:
-  * imported by agent-console-server.py (the Skills page),
+  * imported by agent-console-server.py (the Knowledge page),
   * run as a CLI by agents/hooks:  python skills_lib.py <command> ...   (prints JSON),
   * imported by tests.
 
@@ -2273,7 +2273,7 @@ def _genres():
 
 
 def recipes_overview():
-    """Recipes of every skill (official + learned) for the Skills page: name, what for, parent, tier, maps that used it. Never raises."""
+    """Recipes of every skill (official + learned) for the Knowledge page: name, what for, parent, tier, maps that used it. Never raises."""
     out = []
     try:
         for s in _genres():
@@ -2341,7 +2341,7 @@ def map_learn_request(project):
 
 
 def projects_overview():
-    """Every project the kit learns from, for the Skills page (Maps & products): analysed maps (maps.json of each genre) and Fab products
+    """Every project the kit learns from, for the Knowledge page (Maps & products): analysed maps (maps.json of each genre) and Fab products
     (lab folders + registry). Per row: name, kind, genre, how many lessons and recipes it supports, and a 0/50/100 learning percentage. Never raises."""
     rows = {}
     try:
@@ -2461,7 +2461,7 @@ def load_hold():
 
 
 def hold_set(kind, key, held):
-    """Tick or untick 'release' on a skill or a lesson of the Skills page. Only names that exist on this computer are accepted."""
+    """Tick or untick 'release' on a skill or a lesson of the Knowledge page. Only names that exist on this computer are accepted."""
     d = load_hold()
     if kind == "skill":
         key = resolve_genre(key)
@@ -2528,7 +2528,7 @@ def kit_lesson_ids(slug):
 
 
 def summary():
-    """Everything the Skills page shows — computed only from real local files."""
+    """Everything the Knowledge page shows — computed only from real local files."""
     genres, pending = [], list_proposals()
     totals = {"maps": 0, "patterns": 0, "proven": 0, "confirmed": 0, "hypothesis": 0, "contested": 0, "reference": 0}
     days = [(datetime.date.today() - datetime.timedelta(days=i)).isoformat() for i in range(6, -1, -1)]

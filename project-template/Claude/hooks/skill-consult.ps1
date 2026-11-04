@@ -1,6 +1,6 @@
 # Claude/hooks/skill-consult.ps1
 #
-# Skill Harness (v1.82): counts how often the coder actually READS a genre skill, so the Skills page
+# Skill Harness (v1.82): counts how often the coder actually READS a genre skill, so the Knowledge page
 # can show "Used by coder" and flag patterns that are never consulted. Wired in .claude/settings.json
 # as a PreToolUse hook on "Read". It only does anything when the file being read is inside
 # ~/.claude/skills/genre/<genre>/ (and not its private local/ folder); every other Read exits at once.

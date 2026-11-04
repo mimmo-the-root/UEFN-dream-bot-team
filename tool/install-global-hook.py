@@ -22,7 +22,7 @@ for ev in ("PostToolUse", "PostToolUseFailure"):
     if any("fab_lab" in h.get("command", "") for e in lst for h in e.get("hooks", [])):
         print("  Fab lab hook (%s) already present" % ev)
         continue
-    lst.append({"matcher": "mcp__unreal-mcp__call_tool", "hooks": [{"type": "command", "command": lab_cmd, "timeout": 10}]})
+    lst.append({"matcher": "mcp__unreal-mcp__.*", "hooks": [{"type": "command", "command": lab_cmd, "timeout": 10}]})
     changed = True
     print("  Fab lab hook (%s) added to settings.json" % ev)
 for ev, matcher in (("PreToolUse", "Task|Agent"), ("SubagentStop", None)):

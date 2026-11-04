@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.115.0
-updated: kit-1.115.0
+created: kit-1.117.2
+updated: kit-1.117.2
 sources: [docs/manual/skill-catalog.md]
 type: kit
 status: current
@@ -30,6 +30,11 @@ Skills are small folders of knowledge that Claude reads only when the task needs
 | `genre` | Your genre skills, filled from your real maps. See [[skills-and-lessons|Skills and lessons]]. |
 | `uefn-disciplines` | An index: you name a concept (feedback, layout, camera, enemies, waves, shop, quests) or a genre and it tells which skill or recipe to read. |
 | `game-feel-uefn` | Layered feedback with sound, effects and screen text, in proportion to how important each event is. |
+| `uefn-pcg` | Scatter props, trees and rocks over an area with a PCG graph made through the MCP: the order, the placement trap, what to ask the owner. |
+| `uefn-profiling` | Measure performance through the MCP: Spatial Profiler metrics and hotspots, Insights traces and memory snapshots, and what to report. |
+| `uefn-quests` | Custom quests with the Verse Progression API that UEFN 43.00 lets you publish: pieces, workflow, compile errors and their fixes, a minimal example. |
+| `uefn-version-upgrade` | The routine for each new UEFN release (about every 15 days): diff the Verse API and the tools, update the few kit places that hold version facts, and check a project before a publish. Per-release notes, 43.00 first. |
+| `uefn-epic-skills` | When to read Epic's own editor skills served by the MCP (PCG, Sequencer, MetaSound, lighting, generated media) and which skill wins when Epic's and the kit's both apply. |
 | `level-design-uefn` | Blockout first, sizes measured with the real character, a pace of tension and rest, gates that teach before they test, no dead ends. |
 | `camera-audio-uefn` | When to change the camera and how to give it back, and an audio mix that stays readable. |
 | `game-ai-uefn` | Roles, counts and pressure for enemies and creatures, and how to keep the map fast. |
@@ -89,4 +94,4 @@ User-level skills are installed in `~/.claude/skills/<name>/`. The kit does not 
 - [[skills-and-lessons|Skills and lessons]]
 
 ## Sources
-- The kit manual, chapter "Skills catalog" (docs/manual/skill-catalog.md), kit v1.115.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Skills catalog" (docs/manual/skill-catalog.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.

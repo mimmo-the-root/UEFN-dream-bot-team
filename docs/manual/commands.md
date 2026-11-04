@@ -40,6 +40,7 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 | `/editor-changes` | What the agents changed in the open editor, session by session, and a plan to undo the newest session |  |
 | `/mcp-snapshot` | Map UEFN's MCP now (the kit also does it by itself) and show what is new |  |
 | `/learn-map` | Learn now from the Verse code, the project documentation and the devices in the level; queue skill proposals; report where documents disagree with code |  |
+| `/performance [memory | spatial | trace]` | Measure the open map with the profiler during a play session and write Claude/docs/PERFORMANCE.md (metrics against budget, worst areas, fixes); never changes the map | The map lags or is heavy: measure it in a play session (new, not tried on a real map yet). |
 
 ## Safety and continuity
 

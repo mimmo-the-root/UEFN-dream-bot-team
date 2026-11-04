@@ -72,7 +72,7 @@ One design system for every page: colour means status (green done, amber your tu
 
 **Skills**, what waits for you and what the kit has learned:
 
-![Skills page](docs/images/agent-console-skills.png)
+![Knowledge page](docs/images/agent-console-skills.png)
 
 **Flow**, the pipeline as a board, with tokens per agent:
 
@@ -80,14 +80,15 @@ One design system for every page: colour means status (green done, amber your tu
 
 Also: **Stats** (time and tokens), **Score** (the game against its plan, criterion by criterion), **News** (what changed in the kit) and **Fab** (is the product package ready).
 
-## What's new (v1.108 - v1.115.0)
+## What's new (v1.108 - v1.117.2)
 
+- **v1.116, honest checks.** A check that could not look is reported as not assessed and never as a pass (delivery gate, Score, `/kit-doctor`), and a document over 40 KB is read by part, not whole.
 - **v1.115, genre guides and design rules.** Starting guides for strategy (tower defense), shooter, deathrun and platformer, adventure and RPG, simulation and tycoon, plus survival and roguelike; seven mechanic recipes (loot box, waves, shop, levels, needs, ordered steps, checkpoints); short design rules for feel, layout, camera and sound, and enemies; the Motion button and the light across the top work again.
 - **v1.114, study and design.** `/spec` and `/game-plan` start from the kit's knowledge and write their sources; `/environment` lists what only you can do; one design system for all console pages (`console-ui` skill and `ui_lint.py`), lighter pulses, aligned numbers, no side stripes; the idea and philosophy in words and pictures.
 - **v1.113, from spec to tasks.** `/game-plan`, `/task-list`, `/consistency`.
 - **v1.112, start from an idea.** `/spec` with genre, three variants and measurable criteria.
 - **v1.111, one workflow for everything you share.** Lessons, recipes, skills and MCP proof share states and buttons.
-- **v1.110, Skills page by tabs, LEARN, Fab Checklist.**
+- **v1.110, Knowledge page by tabs, LEARN, Fab Checklist.**
 - **v1.109, Fab products, economy simulator, safe editing** (editor lock, undo plan, static Verse check).
 - **v1.108, ready for the jam and Score page**; the kit updates itself from GitHub.
 

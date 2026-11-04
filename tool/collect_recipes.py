@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""collect_recipes.py - put the recipes you approved on the Skills page ("Share in the kit") into the kit's official recipes.
+"""collect_recipes.py - put the recipes you approved on the Knowledge page ("Share in the kit") into the kit's official recipes.
 
 Run by publish.ps1 on the maintainer's computer (and by hand: `python tool/collect_recipes.py [--dry]`).
 Reads ~/.claude/skills/genre/<skill>/local/recipes.json (or $UEFN_SKILLS_DIR), takes only the recipes with share = approved, and merges
@@ -86,7 +86,7 @@ def collect(dry=False, skills=None, repo=None):
 
 def curate_community(dry=False, repo=None):
     """Recipes the community proposed and YOU merged (a merged pull request is your approval) are shipped with the kit as
-    user-level-skills/genre/<skill>/community/recipes-community.json; every user finds them in the inbox of the Skills page and approves them there.
+    user-level-skills/genre/<skill>/community/recipes-community.json; every user finds them in the inbox of the Knowledge page and approves them there.
     Each file is checked again; a recipe already official, or that fails, is left out. Returns (written, refused)."""
     import contrib_recipe as CR
     repo = repo or REPO

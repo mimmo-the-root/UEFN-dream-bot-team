@@ -1,0 +1,1931 @@
+{
+ "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
+ "versions": {
+  "1.117.2": {
+   "title": "The console sees the worker's scripts",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "A busy worker looked idle"
+   ]
+  },
+  "1.117.1": {
+   "title": "The loop of every release on the Docs page, validation battery, worker fixes",
+   "features": 3,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The loop of each release on the Docs page",
+    "Measured fixes from the worker are taken in",
+    "`uefn-pcg`",
+    "Recipes check their 43.00 argument names first"
+   ]
+  },
+  "1.117.0": {
+   "title": "UEFN 43.00: new tool names, autodiscovery, parallel worker, new skills",
+   "features": 8,
+   "fixes": 3,
+   "other": 1,
+   "headlines": [
+    "UEFN 43.00 tool names",
+    "Autodiscovery that tells renamed from new",
+    "A Knowledge page with one set of numbers",
+    "New skills"
+   ]
+  },
+  "1.116.0": {
+   "title": "A check that could not look is never a pass; big documents are read by part",
+   "features": 1,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "\"Not assessed\" is a verdict of its own",
+    "Big documents are read by part"
+   ]
+  },
+  "1.115.0": {
+   "title": "Starting guides for five genres, mechanic recipes, design rules, Motion fixed",
+   "features": 1,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "Badges",
+    "Starting guides for the genres that had none, mechanic recipes and design rules",
+    "The Motion button works again on every page"
+   ]
+  },
+  "1.114.0": {
+   "title": "Study with the kit's knowledge, `/environment`, playtest checklist, the idea in the Docs page",
+   "features": 29,
+   "fixes": 15,
+   "other": 26,
+   "headlines": [
+    "Two clear points where you step in, with a Done button",
+    "Misplaced devices are moved, not reported, and the demo scores with an egg",
+    "Console design finished",
+    "A console that looks alive again"
+   ]
+  },
+  "1.113.0": {
+   "title": "From the spec to the tasks: `/piano`, `/compiti`, `/coerenza`",
+   "features": 4,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "New command `/piano`",
+    "New command `/compiti`",
+    "New command `/coerenza` and `plan_check.py`",
+    "New templates `CONSTITUTION.md` and `PLAN.md`"
+   ]
+  },
+  "1.112.0": {
+   "title": "Start a game from the spec: `/spec`, spec check, risks",
+   "features": 3,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "New command `/spec`",
+    "New `GAME-SPEC.md` template and `spec_check.py`",
+    "`project-bootstrap` and the manual point to `/spec`",
+    "Tested in the Lab project with the Epic farm example (Chicken Roundup): empty template blocked, spec ready, ga"
+   ]
+  },
+  "1.111.1": {
+   "title": "Fab products: reliable start, checked documents, /fab-check",
+   "features": 1,
+   "fixes": 3,
+   "other": 1,
+   "headlines": [
+    "Fab product session start no longer times out",
+    "`/fab-check` proposes the fixes and does the one that needs UEFN closed",
+    "The Fab check verifies the documents and `/fab-check` fixes them",
+    "Fab console shows the whole listing description"
+   ]
+  },
+  "1.111.0": {
+   "title": "One workflow to share: states, buttons and release",
+   "features": 3,
+   "fixes": 4,
+   "other": 7,
+   "headlines": [
+    "Lessons reach the kit at each release, by themselves",
+    "Skills tab: which skills are new",
+    "Maps & products finds the recipes of a Fab product",
+    "Tests no longer leave folders in your profile"
+   ]
+  },
+  "1.110.2": {
+   "title": "Fab: Checklist and documents, rules for the agent",
+   "features": 1,
+   "fixes": 1,
+   "other": 2,
+   "headlines": [
+    "The Checklist tab appears once",
+    "`/EntityFramework` is an Epic library",
+    "Documents of a Fab product",
+    "Rules in the skill fab-product"
+   ]
+  },
+  "1.110.1": {
+   "title": "Security: recipe endpoints",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "Fixed the 5 CodeQL alerts (path injection) in `skills_lib.py`",
+    "The tests of the Fab Checklist no longer depend on the kit installed in your profile"
+   ]
+  },
+  "1.110.0": {
+   "title": "Fab: the Checklist page and the asset checks",
+   "features": 8,
+   "fixes": 10,
+   "other": 12,
+   "headlines": [
+    "The Skills page by tabs, for maps and for Fab products",
+    "LEARN for maps too",
+    "Maps & products list",
+    "The Fab console opens by itself"
+   ]
+  },
+  "1.109.1": {
+   "title": "Fab: the generated files go inside the project",
+   "features": 5,
+   "fixes": 4,
+   "other": 2,
+   "headlines": [
+    "Fab lab: lessons from Fab products",
+    "Fab products can use the kit scripts",
+    "No `Claude/` folder is ever created inside a Fab project",
+    "Fab lab keeps the full arguments"
+   ]
+  },
+  "1.109.0": {
+   "title": "Fab products, economy, log signals, delivery, safe editing",
+   "features": 6,
+   "fixes": 1,
+   "other": 5,
+   "headlines": [
+    "Fab products",
+    "Verse style for Fab products",
+    "Economy simulator",
+    "Log signals"
+   ]
+  },
+  "1.108.4": {
+   "title": "Counting installs, dark Score page",
+   "features": 0,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "A way to see how many machines take each release",
+    "Score page is dark like the other console pages"
+   ]
+  },
+  "1.108.3": {
+   "title": "The kit updates itself from GitHub",
+   "features": 3,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Automatic profile update",
+    "The global hook updates itself too",
+    "One manual step, once:"
+   ]
+  },
+  "1.108.2": {
+   "title": "Score page in the manual",
+   "features": 1,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "The manual covers the Score page:",
+    "Score page legend:",
+    "Jam release video and posts:"
+   ]
+  },
+  "1.108.1": {
+   "title": "Score page and jam tools",
+   "features": 2,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "`/concept-card`",
+    "Score page in the console (new tab \"Score\"):",
+    "`robots.txt` and a sitemap badge:",
+    "Manual:"
+   ]
+  },
+  "1.108.0": {
+   "title": "Ready for the jam",
+   "features": 5,
+   "fixes": 1,
+   "other": 4,
+   "headlines": [
+    "A new project asks: map or Fab product?",
+    "Verse headers keep only the present",
+    "`/concept-card`",
+    "`/devlog`"
+   ]
+  },
+  "1.107.6": {
+   "title": "Safer calls to UEFN",
+   "features": 2,
+   "fixes": 2,
+   "other": 2,
+   "headlines": [
+    "A call that changes something and times out is never repeated blindly",
+    "`save_assets` without a list of assets is refused",
+    "Known crashers, with safe ways out",
+    "The doctor checks \"Load on Startup\""
+   ]
+  },
+  "1.107.5": {
+   "title": "Easier to find on Google",
+   "features": 1,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "SEO for the manual:",
+    "README:",
+    "Numbers that stay true:"
+   ]
+  },
+  "1.107.4": {
+   "title": "Skills point to the proven recipes",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Skills check:"
+   ]
+  },
+  "1.107.3": {
+   "title": "A manual with every tool, and a status for known traps",
+   "features": 1,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "New manual chapter \"Tool reference\":",
+    "A recipe can be `avoid`:",
+    "Recipes:"
+   ]
+  },
+  "1.107.2": {
+   "title": "Recipes proven by a validation battery",
+   "features": 3,
+   "fixes": 2,
+   "other": 1,
+   "headlines": [
+    "Recipes for 381 of the 388 UEFN MCP tools, 387 recipes `proven`",
+    "Honest numbers on the UEFN MCP card",
+    "A replay counts as proof",
+    "Lab guard: one folder on disk is allowed"
+   ]
+  },
+  "1.107.1": {
+   "title": "The UEFN MCP card shows the real numbers",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fix: the UEFN MCP card showed \"The kit uses 18 of 388 tools\""
+   ]
+  },
+  "1.107.0": {
+   "title": "The MCP, mapped, learned and proven",
+   "features": 3,
+   "fixes": 2,
+   "other": 4,
+   "headlines": [
+    "Console as a small solar system",
+    "14 UEFN MCP skills and 5 MCP sub-agents",
+    "Recipes know how sure they are:",
+    "Share what you proved:"
+   ]
+  },
+  "1.106.0": {
+   "title": "Epic's Verse UI Kit",
+   "features": 5,
+   "fixes": 3,
+   "other": 6,
+   "headlines": [
+    "New skill `verse-ui-kit`:",
+    "`/ui-kit-check`:",
+    "The kit maps UEFN's MCP by itself, and tests it",
+    "Console, Skills page: new \"UEFN MCP\" section"
+   ]
+  },
+  "1.105.0": {
+   "title": "Fewer questions, easier handovers",
+   "features": 0,
+   "fixes": 3,
+   "other": 1,
+   "headlines": [
+    "Safe commands are pre-approved in new projects:",
+    "`/handoff`:",
+    "Manual:",
+    "Fix:"
+   ]
+  },
+  "1.104.0": {
+   "title": "Tokens per agent",
+   "features": 2,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "A new table on the Console page",
+    "Honest by design:",
+    "Read once and cached in `Claude/logs/agent-costs-cache.json`; later openings only read new runs"
+   ]
+  },
+  "1.103.0": {
+   "title": "Lessons from build errors, publication text scan",
+   "features": 1,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "Build errors are remembered",
+    "`/text-scan`:",
+    "Tests for both (recurring errors, paths stripped, normal typography left alone)"
+   ]
+  },
+  "1.102.0": {
+   "title": "Verse build check",
+   "features": 1,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "`/verse-check`:",
+    "The **coder** confirms the build with it before calling a task Done; the **release gate** runs it before a ver",
+    "New manual section \"Checking that the code builds\""
+   ]
+  },
+  "1.101.1": {
+   "title": "Code scanning fix, screenshots for every page",
+   "features": 2,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The console chapter now has a screenshot for every page",
+    "README images refreshed",
+    "Fix:"
+   ]
+  },
+  "1.101.0": {
+   "title": "The manual, complete",
+   "features": 3,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "Thirteen chapters",
+    "Screenshots",
+    "Public copy on GitHub Pages:",
+    "`SETUP-GUIDE.md` is now a short pointer"
+   ]
+  },
+  "1.100.0": {
+   "title": "The manual, part 1",
+   "features": 2,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "A manual that opens in your browser",
+    "\"Help for this page\" on every console page",
+    "Every console page now has a footer",
+    "The manual is built from `docs/manual/*.md` by `tool/build_manual.py`; `publish.cmd` rebuilds it and a new tes"
+   ]
+  },
+  "1.99.2": {
+   "title": "Cleaner console, honest reports",
+   "features": 3,
+   "fixes": 2,
+   "other": 1,
+   "headlines": [
+    "Agent reports say what was checked",
+    "The agent ring no longer overlaps",
+    "The long help text under the ring is folded",
+    "Stats shows one clear message"
+   ]
+  },
+  "1.99.1": {
+   "title": "Test fixes for Windows and code scanning",
+   "features": 1,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "Tests no longer depend on the console or the file system",
+    "What's new page stayed empty after `/kit-update`",
+    "Code scanning alert closed"
+   ]
+  },
+  "1.99.0": {
+   "title": "The community pack: share your lessons, see what changed",
+   "features": 3,
+   "fixes": 1,
+   "other": 4,
+   "headlines": [
+    "Share lessons with the community (voluntary, off by default)",
+    "Only lessons from a published map",
+    "Intake without losing anything",
+    "Defence against malicious lessons"
+   ]
+  },
+  "1.98.8": {
+   "title": "Learning continues in long sessions, security fixes, the console tab opens once",
+   "features": 2,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Learning continues in a session that stays open for hours",
+    "Security: 15 CodeQL path-injection alerts",
+    "The console tab opens once, not at every launch"
+   ]
+  },
+  "1.98.7": {
+   "title": "Skills page rebuilt, genre and map type confirmed by you, IP variants, blueprint that follows your development",
+   "features": 7,
+   "fixes": 3,
+   "other": 11,
+   "headlines": [
+    "The console shows all 17 agents",
+    "Releases in delivery order",
+    "IP variants as map types",
+    "Every analysed map now leaves something usable in the skill"
+   ]
+  },
+  "1.97.1": {
+   "title": "Every genre gets the 8 starter sections; the console stops with the session",
+   "features": 2,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Console stops with the session:",
+    "Device-only maps learn too:",
+    "Island configuration is read and deduced, not asked:"
+   ]
+  },
+  "1.97.0": {
+   "title": "Skills learn from code, documents and devices; starter fed by the owner's maps",
+   "features": 0,
+   "fixes": 2,
+   "other": 2,
+   "headlines": [
+    "Reverse engineering of the documents:",
+    "Learning no longer depends on Epic's API:",
+    "Documents can no longer be skipped:",
+    "No approval round for documents, and simple resume:"
+   ]
+  },
+  "1.96.1": {
+   "title": "Fix: the kit update message was silently dropped",
+   "features": 1,
+   "fixes": 1,
+   "other": 3,
+   "headlines": [
+    "Fix:",
+    "Hook output:",
+    "Starter fed by the owner's maps:",
+    "`kit_sync` rebuilds the generated parts of each genre's SKILL.md/starter.md from the learned pack at session s"
+   ]
+  },
+  "1.96.0": {
+   "title": "Learning without truncation, MCP detection, roguelike starter skeleton (plan P1-R1)",
+   "features": 2,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "Fix:",
+    "`/learn-map` and planner-docs step 4b loop batch by batch until nothing is left, and explicitly handle the dev",
+    "mcp-tool-contracts:",
+    "Roguelike:"
+   ]
+  },
+  "1.95.1": {
+   "title": "`/learn-map`: force the learning step",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "New:"
+   ]
+  },
+  "1.95.0": {
+   "title": "Skills learn from the whole map, every session (plan P1-R1)",
+   "features": 3,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "New:",
+    "planner-docs",
+    "Session start (`kit_sync`)",
+    "Restart after a kit update"
+   ]
+  },
+  "1.94.0": {
+   "title": "Verse map: no more re-studying the project (plan P1-R1)",
+   "features": 2,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "New:",
+    "The first build is explicit (`/verse-map`, or the coder when the project has more than about 5 Verse files); a",
+    "coder",
+    "Pilot on a 38-file, 13.5k-line roguelike project: index about 1.7k tokens, cards about 12 times smaller than t"
+   ]
+  },
+  "1.93.0": {
+   "title": "Second brain: history, counter-evidence, log, honest answers (plan P0-R2)",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "second-brain-librarian",
+    "`names.json` knows the section names (History/Cronologia, Counter-evidence/Controprove); `vault_check.py stats"
+   ]
+  },
+  "1.92.0": {
+   "title": "Second brain: read by section, no duplicate articles",
+   "features": 1,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "Cheaper queries:",
+    "No duplicate articles:",
+    "Test: `test_vault_check.py` extended"
+   ]
+  },
+  "1.91.0": {
+   "title": "Second brain: mixed-language vaults and free checks (plan P0-R2)",
+   "features": 2,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "Decision:",
+    "New:",
+    "Changed:",
+    "Test: `test_vault_check.py`"
+   ]
+  },
+  "1.90.0": {
+   "title": "/kit-update --fetch and restore points (plan P0-R1)",
+   "features": 2,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "New:",
+    "New:",
+    "Tests: `test_kit_fetch.py`, `test_safety_net.py`"
+   ]
+  },
+  "1.89.0": {
+   "title": "Checks and /kit-doctor (plan P0-R1)",
+   "features": 4,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "New:",
+    "New:",
+    "New checks (`tool/`):",
+    "New templates"
+   ]
+  },
+  "1.88.2": {
+   "title": "Audit findings get their own release",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "When an audit (codebase-auditor) produces findings, planner-docs groups every finding that becomes a task into"
+   ]
+  },
+  "1.88.1": {
+   "title": "/kit-update command",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "New:"
+   ]
+  },
+  "1.88.0": {
+   "title": "Delivery standard: phases, releases, backlog, bugs",
+   "features": 2,
+   "fixes": 1,
+   "other": 3,
+   "headlines": [
+    "New standard",
+    "Bugs:",
+    "Also: at most 2 tasks In progress, Definition of Done, release close = 3-line note + 3-question retrospective ",
+    "Docs templates and lint:"
+   ]
+  },
+  "1.87.4": {
+   "title": "Approve all lessons",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "New (Skills page):"
+   ]
+  },
+  "1.87.3": {
+   "title": "Audits feed an empty skill",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "New:",
+    "skill-reflector accepts audit findings as evidence; CLAUDE.md block skill-harness gains duty 3"
+   ]
+  },
+  "1.87.2": {
+   "title": "Material recipes",
+   "features": 1,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "New:",
+    "coder step 6c: for a materials task, use the closest recipe, try the UEFN MCP tools for material assets (tool ",
+    "Test: recipes in `tests/test_materials_skill.py`"
+   ]
+  },
+  "1.87.1": {
+   "title": "materials-expert agent",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "New:"
+   ]
+  },
+  "1.87.0": {
+   "title": "Materials technique skill, second brain before asking",
+   "features": 3,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "New:",
+    "New:",
+    "New:",
+    "`update-my-profile.cmd` also copies the materials official pack"
+   ]
+  },
+  "1.86.22": {
+   "title": "Fix: history-trim backups broke the UEFN build",
+   "features": 0,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "Fix (important):",
+    "Test: `tests/test_history_trim.py` checks no `.verse` is left in the backup"
+   ]
+  },
+  "1.86.21": {
+   "title": "Island strip position on Docs",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fix:"
+   ]
+  },
+  "1.86.20": {
+   "title": "Skills page: filtered, paginated patterns",
+   "features": 0,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Changed:"
+   ]
+  },
+  "1.86.19": {
+   "title": "Bug fixing progress card",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "Changed (Docs page):",
+    "Removed the misleading \"N open bugs of M logged\" footer under the open-bugs list"
+   ]
+  },
+  "1.86.18": {
+   "title": "Automatic history trimming",
+   "features": 0,
+   "fixes": 1,
+   "other": 2,
+   "headlines": [
+    "New:",
+    "CLAUDE.md `token-discipline` block: do not read `Claude/docs/archive/` unless the task is about history",
+    "Test: `tests/test_history_trim.py`"
+   ]
+  },
+  "1.86.17": {
+   "title": "Island info strip on every console page",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "New:",
+    "Docs: SETUP-GUIDE suggests the optional third-party `caveman` plugin (Phase 1 step 11)"
+   ]
+  },
+  "1.86.16": {
+   "title": "Token discipline",
+   "features": 1,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "New:",
+    "Changed:"
+   ]
+  },
+  "1.86.15": {
+   "title": "Genre taken from Epic's ranking when the project has none",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fixed:"
+   ]
+  },
+  "1.86.14": {
+   "title": "Reminder repair also recognizes a hand-fixed hook",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fixed:"
+   ]
+  },
+  "1.86.13": {
+   "title": "Fixed the Stop reminder hook (bash syntax error)",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fixed:"
+   ]
+  },
+  "1.86.12": {
+   "title": "Update messages start with a green check",
+   "features": 0,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Changed:"
+   ]
+  },
+  "1.86.11": {
+   "title": "Clear update messages",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Changed:"
+   ]
+  },
+  "1.86.10": {
+   "title": "Docs data follows the format; kit banner on every page",
+   "features": 0,
+   "fixes": 3,
+   "other": 0,
+   "headlines": [
+    "New:",
+    "Fixed:",
+    "Fixed:"
+   ]
+  },
+  "1.86.9": {
+   "title": "Two simultaneous kit updates no longer collide",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fixed:"
+   ]
+  },
+  "1.86.8": {
+   "title": "Console warns about a newer kit and restarts after an update",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "New:",
+    "New:"
+   ]
+  },
+  "1.86.7": {
+   "title": "Cost discipline: fewer subagents, cheaper models",
+   "features": 0,
+   "fixes": 1,
+   "other": 2,
+   "headlines": [
+    "Fixed:",
+    "Cheaper agents:",
+    "Planning:"
+   ]
+  },
+  "1.86.6": {
+   "title": "One fixed format for ROADMAP and BUGS, checked automatically",
+   "features": 0,
+   "fixes": 2,
+   "other": 1,
+   "headlines": [
+    "Fixed:",
+    "New:",
+    "Rules:"
+   ]
+  },
+  "1.86.5": {
+   "title": "Island code saved by a hook",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fixed:"
+   ]
+  },
+  "1.86.4": {
+   "title": "Old kits update themselves too",
+   "features": 1,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "New:",
+    "Fixed:"
+   ]
+  },
+  "1.86.3": {
+   "title": "Technique skills engage automatically",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "New:",
+    "New (personal tool, not shipped):"
+   ]
+  },
+  "1.86.2": {
+   "title": "Console shows template-reader and skill-reflector",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "New:"
+   ]
+  },
+  "1.86.1": {
+   "title": "Epic templates are recognized automatically",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fixed:"
+   ]
+  },
+  "1.86.0": {
+   "title": "Technique skills and official reference patterns",
+   "features": 4,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "New:",
+    "New:",
+    "New:",
+    "Skills page:"
+   ]
+  },
+  "1.85.0": {
+   "title": "Security hardening of the Skills library (CodeQL alerts: 18 → 0)",
+   "features": 2,
+   "fixes": 2,
+   "other": 3,
+   "headlines": [
+    "Hardened:",
+    "Hardened:",
+    "Hardened:",
+    "Fixed:"
+   ]
+  },
+  "1.84.3": {
+   "title": "Roadmap progress ignores out-of-scope tasks",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fixed: the Docs page progress ring counted \"Out of scope\" rows in the total (82 Done + 4 To do + 10 Out of sco"
+   ]
+  },
+  "1.84.2": {
+   "title": "Verse header history is pruned",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "New rule (user-level CLAUDE.md section 6, `coder`, `compliance-reviewer`): header history lines in Verse files"
+   ]
+  },
+  "1.84.1": {
+   "title": "Docs page reads task status by its first word",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Fixed: ROADMAP task Status cells such as \"Done (closed by owner decision ...)\" or \"Fatto - verificato in play\""
+   ]
+  },
+  "1.84.0": {
+   "title": "Automatic kit updates, Skills page fix, MCP troubleshooting",
+   "features": 1,
+   "fixes": 1,
+   "other": 3,
+   "headlines": [
+    "Automatic project updates",
+    "No manual genre init",
+    "Community packs staging",
+    "Fix: the Skills page did not open on Windows"
+   ]
+  },
+  "1.83.0": {
+   "title": "Skill Harness, part 3 (reflection at playtest)",
+   "features": 3,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "New agent `skill-reflector` (user-level)",
+    "`project-template/CLAUDE.md` rule: read the genre skill before designing core gameplay, trust each",
+    "`project-bootstrap` Step 0.5 now creates the genre skill with `skills_lib.py init` instead of hand-writing one",
+    "`skills_lib.py patterns <genre>` lists existing patterns with their exact wording (support for an"
+   ]
+  },
+  "1.82.0": {
+   "title": "Skill Harness, part 2 (approval + merge)",
+   "features": 0,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "Skills page: approve / edit wording / reject each lesson; apply or skip a community pack update",
+    "Merge engine (`skills_lib.py merge`): an incoming pack is validated (format, links, commands,",
+    "`skill-consult` hook (PreToolUse on Read) counts when the coder reads a genre skill, feeding \"Used by coder\""
+   ]
+  },
+  "1.81.0": {
+   "title": "Skill Harness, part 1 (layers, validator, Skills page)",
+   "features": 2,
+   "fixes": 0,
+   "other": 4,
+   "headlines": [
+    "Genre skills learn from the first map: confidence ladder hypothesis -> confirmed (2 maps) -> proven",
+    "Three layers per genre skill: generated `SKILL.md`, shareable `pack/patterns.json` (generalized",
+    "`skills_lib.py`: deterministic validator + secret/PII redaction (adapted from autoharness, MIT), privacy check",
+    "New page `agent-console-skills.html` (\"Skills\") with a summary row (waiting for you, learning from,"
+   ]
+  },
+  "1.80.0": {
+   "title": "New: update notice on all four consoles. Reads the latest published GitHub Release (checked at most every 6h, silent if offline) and shows a dismissible bar when it is newer than the running version.",
+   "features": 2,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "All four consoles (Console, Stats, Docs, Flow) now share one page chrome: same theme (font, background), conta",
+    "(was) Docs and Flow consoles now share the main console header (title + version)",
+    "Docs & Status console redesigned around what is still OPEN (mockup-approved):",
+    "Table parser fix: a paragraph following a closed table row is no longer merged into the last"
+   ]
+  },
+  "1.79.11": {
+   "title": "Added a \"Recent roadmap tasks\" card to the Docs & Status console",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.79.10": {
+   "title": "**Root cause found and fixed** for the Control Tower token gauge showing a stale active",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Also fixed the stop-event matching in `agent-console-flow.html` to close the *most recent*"
+   ]
+  },
+  "1.79.9": {
+   "title": "Added a visible version tag next to the title on the Flow of Flows console",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.79.8": {
+   "title": "Control Tower gauge stuck showing a stale \"current\" reading at idle",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.79.7": {
+   "title": "Bug backlog card: overlong free-text Severity broke row layout",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.79.6": {
+   "title": "Four real-project parser/UX bugs found by hand-verifying against a live ROADMAP.md/STATUS.md/BUGS.md",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.79.5": {
+   "title": "Bug backlog: added a status badge alongside the severity pill",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.79.4": {
+   "title": "Docs & Status console: three real parsing bugs found in live testing against a large real project",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.79.2": {
+   "title": "Docs & Status console: fixed the real infinite-loading bug and removed all remaining mockup data",
+   "features": 0,
+   "fixes": 2,
+   "other": 6,
+   "headlines": [
+    "\"Recent bug backlog\": `Storm collider not deactivating at round end`, `Respawn point duplicated",
+    "Roadmap progress ring: hardcoded `68%`, `17 of 25 tasks Done`, `MVP release: 3 tasks remaining`",
+    "Open bugs hero card: hardcoded `4` / `🔴1 blocking · 🟠2 major · 🟡1 minor`",
+    "Last update hero card: hardcoded `Today, 14:20` / `planner-docs · T-017 marked Done`"
+   ]
+  },
+  "1.79.1": {
+   "title": "Fixed Cost of Asking's halt→resume wait time (was measuring the wrong thing)",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.79.0": {
+   "title": "Flow console's 4 bottom cards now real, not sample layouts",
+   "features": 0,
+   "fixes": 0,
+   "other": 7,
+   "headlines": [
+    "`{\"agent\":...,\"event\":\"verdict\",\"result\":\"pass\"|\"reject\"|\"halt\",\"task\":\"<id>\",\"ts\":...,\"detail\":\"...\"}`",
+    "`{\"agent\":\"coder\",\"event\":\"model_tier\",\"tier\":\"from-scratch\"|\"second-brain\"|\"verse-patterns\",\"task\":\"<id>\",\"ts",
+    "Decision Log",
+    "Model Tiers"
+   ]
+  },
+  "1.78.0": {
+   "title": "Docs & Flow consoles wired to real project data (they were mockups)",
+   "features": 1,
+   "fixes": 4,
+   "other": 2,
+   "headlines": [
+    "\"Recent status\" now shows the real \"## Current state\" section parsed out of the project's",
+    "Fixed SPEC.md, RETENTION-NOTES.md and RELEASE-READINESS.md not opening at all — they had no",
+    "Removed the left icon-rail: every icon but \"Status\" was a dead, non-functional button",
+    "The truck no longer animates on a fixed timer regardless of real activity"
+   ]
+  },
+  "1.77.2": {
+   "title": "Fixed: Docs and Flow console tabs did not open — nav wiring bug. The main console and Stats",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.77.1": {
+   "title": "Full Italian-to-English translation pass",
+   "features": 0,
+   "fixes": 1,
+   "other": 5,
+   "headlines": [
+    "Updated `ROADMAP.md`/`STATUS.md` templates, `CLAUDE.md`, `user-level-memory/CLAUDE.md`, and every",
+    "Fully translated several `user-level-skills/*/SKILL.md` files that were still entirely in",
+    "Translated the `genre/roguelike/` and `genre/survival/` skill trees (`SKILL.md`, `references/",
+    "Translated `second-brain-template/CLAUDE.md` in full, including its prescribed article section"
+   ]
+  },
+  "1.77.0": {
+   "title": "Two new Agent Console views: Docs & Status navigator, Flow of Flows pipeline",
+   "features": 3,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "New `Claude/hooks/agent-console-docs.html` (\"Docs & Status Console\"): icon rail, hero cards (SVG",
+    "New `Claude/hooks/agent-console-flow.html` (\"Flow of Flows Console\"): the assembly-line conveyor",
+    "Both new pages linked from the main console's and Stats page's `view-switch` header nav",
+    "Italian-to-English cleanup: `agent-console-stats.html` had leftover Italian UI copy the owner"
+   ]
+  },
+  "1.76.1": {
+   "title": "`second-brain-trainer` verifies findings before they reach the shared vault",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "`user-level-agents/second-brain-trainer.md`: new Step 3.5 — every aggregated finding is",
+    "`codebase-auditor` (v1.75.1) and `second-brain-trainer` now share the same verify-before-write"
+   ]
+  },
+  "1.76.0": {
+   "title": "Skill-design best-practice pass: sharper trigger phrases + a growth \"lessons\" KB",
+   "features": 2,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "All 8 `fortnite-*` skill descriptions (`analytics-coach`, `competitor-analyzer`,",
+    "New `user-level-skills/fortnite-growth-lessons/SKILL.md`: cross-project knowledge base for",
+    "`user-level-agents/growth-manager.md`: reads this new skill before routing to any of the 8, and"
+   ]
+  },
+  "1.75.1": {
+   "title": "`codebase-auditor` now verifies its own findings before handing them off",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "`user-level-agents/codebase-auditor.md`: new Step 2.5 — every finding gets re-opened against"
+   ]
+  },
+  "1.75.0": {
+   "title": "Broke the chicken-and-egg loop: UI learning no longer depends on a `coder` task",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "`project-template/CLAUDE.md`'s \"UI reference harvest\" rule now also runs a per-session **UI",
+    "`user-level-skills/game-ui-designer/SKILL.md`: documents this as mechanism 5, explicitly framed"
+   ]
+  },
+  "1.74.3": {
+   "title": "`coder` self-feeds `game-ui-designer` from every new/edited screen, no screenshot needed",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "`user-level-agents/coder.md` step 8: after finishing ANY UI screen (new or edited), `coder` now",
+    "`user-level-agents/planner-docs.md` step 5: files the code-derived facts from `coder`'s report"
+   ]
+  },
+  "1.74.2": {
+   "title": "`game-ui-designer` can learn directly from real UI code, not just screenshots",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "`user-level-skills/game-ui-designer/SKILL.md`: new 4th feeding mechanism, \"Direct source-code",
+    "`user-level-agents/project-bootstrap.md`: the one-time existing-UI backfill (Branch A) now"
+   ]
+  },
+  "1.74.1": {
+   "title": "`game-ui-designer` self-feeding made fully automatic (no per-task question)",
+   "features": 3,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "`user-level-agents/coder.md` step 8: after finishing a UI screen, stages any available",
+    "`user-level-agents/planner-docs.md`: new closing step 5 (renumbering old 5-9 → 6-10, and fixing",
+    "`project-template/CLAUDE.md`: new \"UI reference harvest\" bullet, same automatic-every-session",
+    "`user-level-agents/project-bootstrap.md` (Branch A, existing-project analysis): new one-time"
+   ]
+  },
+  "1.74.0": {
+   "title": "New skill: `game-ui-designer` (learns the owner's in-game UI style over time)",
+   "features": 5,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "`user-level-skills/game-ui-designer/SKILL.md`: new user-level skill (lives at",
+    "`references/style-guide.md`: distilled rules extracted from the owner's first 9 reference",
+    "`references/examples/<archetype>/*.png` + `manifest.md`: the starting example set, organized",
+    "Self-learning loop"
+   ]
+  },
+  "1.73.3": {
+   "title": "Fixed truncated reject-count badge on the last miniflow stage",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "`agent-console.html`: `.miniflow-rail` now has right-side padding (`padding:6px 14px 2px 0`) so",
+    "Verified with a Playwright screenshot forcing `×12` on the `planner-docs` badge: fully readable,"
+   ]
+  },
+  "1.73.2": {
+   "title": "Show the project's assigned genre on the Stats tab (owner spotted the gap)",
+   "features": 2,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "`agent-console-server.py` / `.ps1`: new `/project-genre` endpoint, serving",
+    "`agent-console-stats.html`: new green \"genre\" badge next to the island title, visually distinct",
+    "Verified with a mock server returning `survival` from `/project-genre` alongside real tag data:"
+   ]
+  },
+  "1.73.1": {
+   "title": "Genre check decoupled from project-bootstrap (runs automatically every session)",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.73.0": {
+   "title": "Genre Skills architecture (real code, not just design) + tag badges on Stats",
+   "features": 3,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "`project-bootstrap.md` (Step 0.5, new): the first time a project has no `Claude/docs/.genre`,",
+    "`coder.md` (new step): reads the project's Genre Skill before gameplay/design tasks, one-way",
+    "`planner-docs.md` (new step, on task close): appends a dated observation to the matching",
+    "Genre Skills moved to the USER level (`~/.claude/skills/genre/`), matching every other skill in"
+   ]
+  },
+  "1.72.0": {
+   "title": "Genre Rank card on the Stats tab",
+   "features": 2,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "`agent-console-server.py` / `.ps1`: new `_get_island_rankings()` / `Get-IslandRankingsJson`,",
+    "`agent-console-stats.html`: new rank card above the KPI tiles — current rank, best/worst/average",
+    "Verified against the owner's own real captured sample: the rendered numbers (#378 current,"
+   ]
+  },
+  "1.71.1": {
+   "title": "Two real chart bugs: silent window compression, wrong date axis",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.71.0": {
+   "title": "Real island stats: a \"Stats\" tab on the Agent Console, backed by the Fortnite Ecosystem API",
+   "features": 4,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "`agent-console-stats.html` — the new page",
+    "`agent-console.html` — added a small Console/Stats view-switch pill in the header (a plain",
+    "`agent-console-server.py` / `agent-console-server.ps1` — two new endpoints: `/island-metrics`",
+    "`Claude/docs/.island-code` — new per-project file, same pattern as `.active-task`: a single"
+   ]
+  },
+  "1.70.5": {
+   "title": "Two real Agent Console bugs fixed: stale-entry misattribution, wrong task ID on the miniflow",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.70.4": {
+   "title": "Loud warning when launched from the wrong folder (silent hook failures, root cause of the last incident)",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.70.3": {
+   "title": "Migration/troubleshooting notes from real-world v1.70 upgrade feedback (root cause corrected)",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.70": {
+   "title": "Bounded review cycles, fixed report contracts, a durable verdict log, cheaper models on structural-check agents",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.69": {
+   "title": "Structural pipeline hardening: split the review gate, add intent-gate, a single MCP-tool source of truth, and a task-lock file; Agent Console miniflow rail",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.68": {
+   "title": "Added `codebase-auditor`: an independent, whole-codebase quality audit",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.67": {
+   "title": "New uefn-lessons entry: use ValkyrieToolset.VerseToolset.ListFiles, not AssetTools.find_assets",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.66": {
+   "title": "No invention: coder must read/restate/ask, verse-reviewer must check the spec was followed",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.65": {
+   "title": "Templates physically separated from live project data, safe to bulk-update",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.64": {
+   "title": "Plan-first workflow: no code without a tracked, ID'd task",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.63": {
+   "title": "Added `verse-reviewer`, a compliance gate before a task counts as done",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.62": {
+   "title": "`fortnite-title-description` rebuilt into a full publishing package",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.61": {
+   "title": "Agent Console updated for growth-manager",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.60": {
+   "title": "Confirmed thumbnails now get installed into the project (Resources/ + keyArt)",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.59": {
+   "title": "Added `growth-manager`, a dedicated agent for the eight marketing skills",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.58": {
+   "title": "Added eight growth/marketing skills (analytics, competitors, launch, retention, trailer, thumbnail, title/description, update writer)",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.57": {
+   "title": "Fixed the footer line disagreeing with the \"Agents\" legend box",
+   "features": 0,
+   "fixes": 1,
+   "other": 3,
+   "headlines": [
+    "Root cause",
+    "Fix",
+    "Verified with the same headless-browser screenshot test as previous releases: a synthetic",
+    "`KIT_VERSION` bumped to v1.57"
+   ]
+  },
+  "1.56": {
+   "title": "Version tag next to the title, to kill a whole class of \"did the fix actually apply\" confusion",
+   "features": 1,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "New `KIT_VERSION` constant",
+    "This constant must be bumped on every release that touches `agent-console.html`",
+    "`SETUP-GUIDE.md` updated with a matching troubleshooting note, right at the top of the Agent",
+    "Verified with the same headless-browser screenshot test as previous releases: confirms the tag"
+   ]
+  },
+  "1.55": {
+   "title": "Auto-clear thresholds were too aggressive for real long-running background work",
+   "features": 0,
+   "fixes": 2,
+   "other": 3,
+   "headlines": [
+    "`STALE_ACTIVE_MS` raised from 20 to 45 minutes",
+    "`LED_SOFT_WARN_MS` raised from 6 to 15 minutes",
+    "Real bug fixed in the auto-clear loop itself",
+    "Auto-clear log message updated to say plainly that it does NOT necessarily mean anything broke"
+   ]
+  },
+  "1.54": {
+   "title": "Fixed a real status-misattribution bug for concurrent same-agent calls, added a \"×N\" concurrency badge",
+   "features": 1,
+   "fixes": 2,
+   "other": 1,
+   "headlines": [
+    "Real bug fixed",
+    "New \"×N\" concurrency badge",
+    "Documented, not fixed (can't be, with the data available)",
+    "Verified with the same headless-browser screenshot test as previous releases: two synthetic"
+   ]
+  },
+  "1.53": {
+   "title": "Generic \"fork\" clones now get a \"<parent> clone\" label and disappear when done",
+   "features": 2,
+   "fixes": 1,
+   "other": 2,
+   "headlines": [
+    "New `KNOWN_IDS`/`ephemeralIds` tracking",
+    "`ensureNode()` now takes the parent id",
+    "New `removeEphemeralNode()`",
+    "Known remaining limitation, unchanged: `subagent_type` is still the only id Claude Code reports"
+   ]
+  },
+  "1.52": {
+   "title": "`coder` can now parallelize across independent devices/areas, via a new `coder-prep` helper",
+   "features": 3,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "New agent",
+    "`coder.md`",
+    "Nine agent files to install now, not eight — `SETUP-GUIDE.md` updated (install step, agent"
+   ]
+  },
+  "1.51": {
+   "title": "Documented the community `obsidian-skills` Claude Code plugin as an optional pairing",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "`second-brain-template/README.md`",
+    "`SETUP-GUIDE.md`"
+   ]
+  },
+  "1.50": {
+   "title": "Project name in the Agents stat box, and a real hub-LED gap fixed",
+   "features": 1,
+   "fixes": 1,
+   "other": 2,
+   "headlines": [
+    "Project name in the \"Agents\" stat box",
+    "Chief of Staff hub LED gap fixed",
+    "The YOU node's own LED was already correctly session-driven (green while the main session is",
+    "Verified with the same headless-browser screenshot test as previous releases, this time seeding"
+   ]
+  },
+  "1.49": {
+   "title": "New `second-brain-scout` helper: cheaper-model clones for second-brain-trainer's parallel analysis",
+   "features": 2,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "New agent",
+    "`second-brain-trainer` Step 2 updated",
+    "Eight agent files to install now, not seven (`SETUP-GUIDE.md` updated) — `second-brain-scout`",
+    "Also recommended to the owner, not kit changes: `/compact` mid-task and `/clear` between"
+   ]
+  },
+  "1.48": {
+   "title": "Reverted the second ring: Obsidian Vault, YOU and MCP Server now share one ring with the bots",
+   "features": 0,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "`OUTER_RING_IDS` and the separate outer-radius/second-guide-circle logic are gone from",
+    "`recomputeAngles()` still special-cases Obsidian Vault's own angle — it's placed at the angular",
+    "Verified with the same headless-browser screenshot test used for the last few releases —"
+   ]
+  },
+  "1.47": {
+   "title": "Obsidian Vault repositioned between its two second-brain agents",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.46": {
+   "title": "Agent Console header/layout compaction: merged title row, new agent status legend, matched panel heights",
+   "features": 1,
+   "fixes": 1,
+   "other": 5,
+   "headlines": [
+    "Merged header row",
+    "Title changed to all-caps",
+    "Removed the decorative `.termbar`",
+    "Tokens stat box narrowed"
+   ]
+  },
+  "1.45": {
+   "title": "Agent Console visual pass: second ring, vault \"contested\" effect, bot rays, regression missiles, fountains, project name",
+   "features": 3,
+   "fixes": 0,
+   "other": 4,
+   "headlines": [
+    "Second virtual ring",
+    "Obsidian Vault \"connected to both brains.\"",
+    "Bot ray bursts",
+    "Regression missiles"
+   ]
+  },
+  "1.44": {
+   "title": "Fixed \"Session running for\" showing hours/days right after a genuine server restart",
+   "features": 1,
+   "fixes": 1,
+   "other": 2,
+   "headlines": [
+    "Root cause",
+    "Fix",
+    "`agent-console.jsonl`'s own persistence is untouched — this only changes what feeds the timer",
+    "SETUP-GUIDE.md's \"Session timer\" paragraph rewritten, plus a new troubleshooting entry for"
+   ]
+  },
+  "1.43": {
+   "title": "Console auto-opens in the browser; new brand-collections-uefn skill; console diagnostics confirmed clean",
+   "features": 2,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Console diagnostics: no code bugs found, only documentation gaps",
+    "The console now opens itself in your default browser, automatically, every session",
+    "New optional skill: `brand-collections-uefn`"
+   ]
+  },
+  "1.42": {
+   "title": "Agent Console: added the second-brain-trainer node",
+   "features": 1,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "New node for `second-brain-trainer` (🐝, a new `teal` color — every other slot in the existing",
+    "The header tagline (\"six agents",
+    "No hook/server changes needed for this: `second-brain-trainer` dispatches its own parallel"
+   ]
+  },
+  "1.41": {
+   "title": "New optional agent: second-brain-trainer (parallelized vault training pass)",
+   "features": 1,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "Splits the current project into areas (owner-given, or inferred from `Claude/docs/SPEC.md`'s",
+    "Keeps the vault's single-writer rule intact: the parallel clones never touch the vault",
+    "Only useful when `second-brain-librarian` (and its vault) is already configured; skips itself",
+    "`user-level-agents/second-brain-trainer.md` added (Phase 1 install step 5 now copies seven"
+   ]
+  },
+  "1.40": {
+   "title": "Agent Console: deterministic, per-project auto-start (no more asking, no more stale cross-project server)",
+   "features": 2,
+   "fixes": 2,
+   "other": 3,
+   "headlines": [
+    "Bug fixed: stale cross-project server",
+    "No more asking",
+    "`agent-console-server.ps1` and `.py` both gained the `/whoami` route (`{\"project\": \"<this",
+    "`CLAUDE.md`'s fallback \"Rules for this project's agents\" section rewritten to match: describes"
+   ]
+  },
+  "1.39": {
+   "title": "Agent Console: new MCP Server node, YOU session-active LED",
+   "features": 5,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "New \"MCP Server\" node",
+    "YOU node now shows a session-active LED",
+    "Fixed a bug caught during testing: the MCP Server node's pill showed \"undefined\" instead of",
+    "`agent-console-server.ps1` gained the two new routes (already done upstream); backported the"
+   ]
+  },
+  "1.38": {
+   "title": "Agent Console: per-agent + hub status LEDs, comet moved fully outside the ring",
+   "features": 1,
+   "fixes": 2,
+   "other": 1,
+   "headlines": [
+    "Dynamic status LED on every agent card",
+    "Chief of Staff hub",
+    "Comet orbit radius increased",
+    "Confirmed no \"unknown\" card remains in the current log history from the v1.37 fix; if one"
+   ]
+  },
+  "1.37": {
+   "title": "Agent Console: the real \"unknown\"/stuck-card root cause, found and fixed",
+   "features": 0,
+   "fixes": 1,
+   "other": 4,
+   "headlines": [
+    "`SubagentStop` fires for more than just a real subagent finishing",
+    "A PowerShell 5.1 parsing gotcha",
+    "Confirmed end-to-end with `coder` + `qa-regression` dispatched overlapping and finishing in",
+    "v1.36's 20-minute auto-clear safety net stays in place as a front-end fallback (still worth"
+   ]
+  },
+  "1.36": {
+   "title": "Agent Console: fixed stuck animations, ring overlap, hub icon, vault connector",
+   "features": 2,
+   "fixes": 2,
+   "other": 1,
+   "headlines": [
+    "Comet/pulse animations no longer run forever",
+    "Ring layout no longer overlaps when a new node appears at runtime",
+    "Chief of Staff hub icon",
+    "Obsidian Vault's connector"
+   ]
+  },
+  "1.35": {
+   "title": "Agent Console: vivid colors, gem icon for Obsidian Vault, Claude-style hub mark",
+   "features": 1,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "Removed the `grayscale`/`opacity` filter that was desaturating every idle node's ring and",
+    "Node shape switched from the organic \"blob\" to a clean circle with a thicker (3px) glowing",
+    "Obsidian Vault",
+    "Chief of Staff hub"
+   ]
+  },
+  "1.34": {
+   "title": "Agent Console visual redesign: \"Dream Bot Team AGENT CONSOLE_\"",
+   "features": 6,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "Renamed the console's title to **\"Dream Bot Team AGENT CONSOLE_\"** (matches the existing",
+    "Replaced the old two-column hex layout with a radial layout: a central **\"chief of staff\"** hub",
+    "Distinct color per agent, reinforced (same six-color palette as before, now driving glow color,",
+    "Agent icons are now glassmorphic \"blobs\" — `backdrop-filter: blur()`, translucent gradient"
+   ]
+  },
+  "1.33": {
+   "title": "two more real bugs found testing the token/timer update, both fixed",
+   "features": 0,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "Stale server process",
+    "Real race condition"
+   ]
+  },
+  "1.32": {
+   "title": "session timer and approximate token counter in the Agent Console",
+   "features": 2,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "Session timer",
+    "Tokens this session (experimental/best-effort)",
+    "Explicitly documented as approximate: the total sums `input + output + cache_read +",
+    "`.claude/settings.json` updated with the new no-matcher `PostToolUse` block"
+   ]
+  },
+  "1.31": {
+   "title": "fixed premature \"finished\" on backgrounded subagents",
+   "features": 1,
+   "fixes": 1,
+   "other": 2,
+   "headlines": [
+    "Root cause",
+    "Fix",
+    "Since `SubagentStop`'s payload doesn't reliably say which agent just finished,",
+    "`SETUP-GUIDE.md` section 5b rewritten to describe the new two-hook/queue mechanism, plus a new"
+   ]
+  },
+  "1.30": {
+   "title": "real root cause found: the subagent tool isn't always named \"Task\"",
+   "features": 1,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "`agent-console-log.ps1`/`.sh` now accept **both** `\"Task\"` and `\"Agent\"` as the tool name,",
+    "`.claude/settings.json`'s two matchers changed from `\"Task\"` to the regex `\"Task|Agent\"`",
+    "`SETUP-GUIDE.md` and `Claude/SETUP-INSTRUCTIONS.md` updated accordingly, and the"
+   ]
+  },
+  "1.29": {
+   "title": "fixes from a real test of the Agent Console automation",
+   "features": 1,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "Root cause of the silent prompt",
+    "Guaranteed fallback added",
+    "Clarified why cards can stay at 0/IDLE"
+   ]
+  },
+  "1.28": {
+   "title": "Agent Console asks to open itself, automatically",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "New `Claude/hooks/session-start-reminder.ps1`/`.sh`, wired into `.claude/settings.json` as a",
+    "`SETUP-GUIDE.md` section 5b and `Claude/SETUP-INSTRUCTIONS.md` step 9 updated to describe the"
+   ]
+  },
+  "1.27": {
+   "title": "real-time Agent Console",
+   "features": 3,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "New `Claude/hooks/agent-console.html`: a self-contained page with a card per agent (glows in",
+    "New `Claude/hooks/agent-console-log.ps1`/`.sh`: wired into `.claude/settings.json` as",
+    "New `Claude/hooks/agent-console-server.ps1` (PowerShell, no dependencies) and",
+    "`.claude/settings.json` and `Claude/SETUP-INSTRUCTIONS.md` updated accordingly;"
+   ]
+  },
+  "1.26": {
+   "title": "token-consumption reduction: six progressive-disclosure skills",
+   "features": 4,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Six new skills",
+    "`~/.claude/CLAUDE.md` rule 7 (DemoDisplay) trimmed",
+    "`uefn-lessons/SKILL.md` de-duplicated",
+    "Agent files wired to the new skills"
+   ]
+  },
+  "1.25": {
+   "title": "synthesis behavior applied consistently across every sync, not just `evolve`",
+   "features": 7,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "Sync mode now checks for lateral synthesis too",
+    "\"Connessioni e potenziali\" got a concrete four-line template",
+    "`type: synthesis` articles now list their component concepts as a scannable inline",
+    "Query now prefers citing a synthesis article over its isolated components"
+   ]
+  },
+  "1.24": {
+   "title": "emergent synthesis and evolution for the second brain",
+   "features": 3,
+   "fixes": 0,
+   "other": 3,
+   "headlines": [
+    "New **\"Emergent synthesis and evolution\"** section: `second-brain-librarian` now actively",
+    "New **`evolve`/`sintetizza [topic]`** workflow (Level 3): a deliberate whole-KB (or scoped)",
+    "New `wiki/meta/` living files, created on demand (not pre-created empty):",
+    "Richer, Dataview/graph-friendly frontmatter (`aliases`, `status`, `type`, `visto_su`,"
+   ]
+  },
+  "1.23": {
+   "title": "\"How I Want Claude to Help Me\" section in the vault's CLAUDE.md",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.22": {
+   "title": "fixed two real bugs in the release-notes sync script",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.21": {
+   "title": "weekly UEFN release-notes sync",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.20": {
+   "title": "Windows hidden-extension gotcha on the vault's CLAUDE.md",
+   "features": 1,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "`second-brain-template/README.md` and `SETUP-GUIDE.md` (Phase 1 step 7) now tell you to verify",
+    "`second-brain-librarian` now names the exact wrong filename (or missing folder) it actually"
+   ]
+  },
+  "1.19": {
+   "title": "second brain becomes read-write, not just write-only",
+   "features": 3,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "`coder`",
+    "`project-bootstrap`",
+    "`second-brain-librarian`'s \"direct vault commands\" section now explicitly covers being queried"
+   ]
+  },
+  "1.18": {
+   "title": "second brain path set to `C:\\SecondBrainOssidian`",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.17": {
+   "title": "dedicated second-brain-librarian agent",
+   "features": 0,
+   "fixes": 1,
+   "other": 3,
+   "headlines": [
+    "`coder` and `project-bootstrap` no longer write to the vault themselves",
+    "`second-brain-librarian` also runs the vault's own `compile` (ingest `raw/` material the owner",
+    "It always reads `<SECOND_BRAIN_PATH>/CLAUDE.md` before acting, since the vault's conventions",
+    "Never blocks UEFN work: if the vault is unreachable or unconfigured, it reports that and"
+   ]
+  },
+  "1.16": {
+   "title": "optional Obsidian second brain for reusable mechanics",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.15": {
+   "title": "self-heal MCP registration on a new machine",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.14": {
+   "title": "deprecated-API detection, a three-track roadmap, and Discover-grounded retention proposals",
+   "features": 1,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "Bugs",
+    "Deprecated functions",
+    "Performance issues"
+   ]
+  },
+  "1.13": {
+   "title": "Unreal Engine skills plugin is now required, with its Git prerequisite",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.12": {
+   "title": "static performance review during bug identification",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.10": {
+   "title": "DemoDisplay rule refined with real placement/sizing details",
+   "features": 0,
+   "fixes": 0,
+   "other": 6,
+   "headlines": [
+    "Grouping by function",
+    "Sizing",
+    "Orientation",
+    "`get_actor_bounds` gotcha"
+   ]
+  },
+  "1.7": {
+   "title": "cross-project learning",
+   "features": 0,
+   "fixes": 0,
+   "other": 0,
+   "headlines": []
+  },
+  "1.2": {
+   "title": "Two-phase setup restructure",
+   "features": 3,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Setup is now explicitly split into **Phase 1 (environment setup, once per machine)** and",
+    "Phase 1 now correctly sequences: create `.mcp.json` inside the **UEFN installation folder**",
+    "Per-project `Claude/SETUP-INSTRUCTIONS.md` step 2 is now a lightweight double-check (assumes",
+    "Note: Epic's own documentation describes a different, per-project `.mcp.json` approach"
+   ]
+  },
+  "1.0": {
+   "title": "Community edition (English)",
+   "features": 0,
+   "fixes": 0,
+   "other": 4,
+   "headlines": [
+    "The scaffold (`CLAUDE.md`, `.claude/`, `Claude/`) is installed **inside** each project's",
+    "The MCP server is registered once at Claude Code **user scope**, so every project on the",
+    "The `unreal-mcp` server exposes a single generic dispatcher tool for all actions; the",
+    "`Claude/reference/logger-template.verse.txt` uses a `.verse.txt` extension on purpose — UEFN"
+   ]
+  }
+ }
+}

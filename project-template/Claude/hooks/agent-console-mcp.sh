@@ -40,9 +40,11 @@ caller=$(echo "$payload" | jq -r '.agent_type // empty' 2>/dev/null)
 # documented here, so this tries a few common field names before falling back to a trimmed dump
 # of tool_input. If it comes through empty/unhelpful, uncomment the debug lines above, make an
 # MCP call, and adjust the field list below to match what you actually see.
+# UEFN 43.00: one tool name per tool (mcp__unreal-mcp__Toolset_Tool), no call_tool wrapper - the name itself is the label
 label=$(echo "$payload" | jq -r '
-  (.tool_input // {}) as $ti |
-  ($ti.tool // $ti.action // $ti.toolset // $ti.method // $ti.command // empty)
+  (.tool_name // "") as $tn |
+  if ($tn | startswith("mcp__unreal-mcp__")) and ($tn | endswith("call_tool") | not) then ($tn | .[17:])
+  else ((.tool_input // {}) as $ti | ($ti.tool // $ti.action // $ti.toolset // $ti.method // $ti.command // empty)) end
 ' 2>/dev/null)
 if [ -z "$label" ]; then
   label=$(echo "$payload" | jq -c '.tool_input // {}' 2>/dev/null | cut -c1-80)

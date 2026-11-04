@@ -106,3 +106,13 @@ ok("save_assets without" in L.refusal(A, "save_assets", {"asset_paths": []}), "s
 ok("save_assets without" in L.refusal(A, "save_assets", {"arguments": "{\"asset_paths\": []}"}), "an empty list inside a JSON text is refused too")
 ok("save_assets without" not in L.refusal(A, "save_assets", {"asset_paths": ["/root_pillars/KitTest/DT_X"]}), "save_assets with named assets passes this check")
 ok("save_assets without" not in L.refusal(A, "save_assets", {"allow_save_all": True}), "allow_save_all is the deliberate way out")
+
+# a script that calls the editor through the wrapper is visible to the console (start and stop lines)
+import tempfile as _tf
+_d = _tf.mkdtemp()
+_old = L.LOGS
+L.LOGS = _d
+L._console("start", "FindActors"); L._console("stop", "FindActors")
+_lines = [json.loads(x) for x in open(os.path.join(_d, "agent-console-mcp.jsonl"), encoding="utf-8")]
+L.LOGS = _old
+ok([x["event"] for x in _lines] == ["start", "stop"] and _lines[0]["caller"] == "chief-of-staff" and _lines[0]["label"] == "FindActors", "wrapper calls write start and stop lines for the console")

@@ -1,0 +1,6 @@
+{
+ "note": "Tools that stopped the editor (the connection was reset right after the call). The guard refuses them, the map tests skip them. Remove an entry only after the owner has tried the tool in a throwaway project.",
+ "avoid": {
+  "SceneCaptureToolset/ListViews": {"why": "the editor connection was reset when it was called with made-up arguments in the 43.00 deep test (2026-11-03); the editor stopped answering", "date": "2026-11-03", "state": "suspected"}
+ }
+}

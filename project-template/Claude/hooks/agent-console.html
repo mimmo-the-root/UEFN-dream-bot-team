@@ -82,8 +82,9 @@
      LEDs themselves so the two never disagree. */
   /* Kit strip: the repo's numbers on the Console. Chips look like the README badges; the lower row shows the badges the legend does not (no duplicates). */
   .legend-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:6px 6px;}
+  .legend-head .kchip{flex:0 0 auto;}
   .legend-head .label{margin:0;}
-  .kchips{display:flex;flex-wrap:nowrap;gap:5px;margin:0;}
+  .kchips{display:contents;}   /* the chips join the row of the agent count and wrap together, instead of the whole group dropping below it */
   .kchip{display:inline-flex;font-size:12px;line-height:1;border-radius:3px;overflow:hidden;font-weight:600;white-space:nowrap;}
   .kchip i{font-style:normal;padding:5px 8px;background:#2b3448;color:#cfd8ea;}
   .kchip b{padding:5px 8px;color:#06120a;background:var(--green);}
@@ -95,7 +96,7 @@
   .kitbar img{height:20px;border-radius:3px;display:block;}
   .kitbar .kb-note{font-size:11px;color:var(--dim);margin-right:6px;}
   .kchip[hidden],.kchips[hidden],.kitbar img[hidden]{display:none !important;}
-  .stat.legend{flex:1.7;min-width:230px;}
+  .stat.legend{flex:1.3 1 300px;min-width:230px;}
   .stat.legend .label b{color:var(--text);font-weight:600;}
   .legend-project{font-size:10px;letter-spacing:.3px;color:var(--cyan);text-transform:uppercase;
     margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
@@ -113,7 +114,7 @@
 
   .stat.alert{display:none;border-color:var(--red);box-shadow:0 0 16px var(--red-glow);}
   .stat.alert.show{display:block;position:relative;}.stat.alert.show::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 26px var(--red-glow);pointer-events:none;animation:alertPulse 1.1s ease-in-out infinite;}@media (prefers-reduced-motion:reduce){html:not(.motion-full) .stat.alert.show::after{animation:none;}}
-  .ownerbox{display:block;border-color:var(--amber,#ffb454);margin-top:8px}.ownerbox[hidden]{display:none}.ownerbox .label{color:var(--amber,#ffb454)}.ownerbox ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.55}.ownerbox li b{color:var(--amber,#ffb454)}.ownerbox li span{color:var(--dim)}
+  .ownerbox{display:block;border-color:var(--amber,#ffb454);margin-top:8px;flex:2.3 1 340px}.ownerbox[hidden]{display:none}.ownerbox .label{color:var(--amber,#ffb454)}.ownerbox ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;line-height:1.55}.ownerbox li b{color:var(--amber,#ffb454)}.ownerbox li span{color:var(--dim)}
   .stat.alert .label{color:var(--red);}
   .stat.alert .value{color:var(--red);text-shadow:0 0 8px var(--red-glow);font-size:14px;}
   @keyframes alertPulse{0%,100%{opacity:.25;}50%{opacity:1;}}
@@ -162,7 +163,11 @@
   .orbit-stage{position:relative;width:100%;aspect-ratio:7/6;max-width:820px;margin:0 auto;}
   .orbit-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:visible;}
   .orbit-svg .spoke{stroke:rgba(75,139,255,0.22);stroke-width:1.4;stroke-dasharray:3 6;}
-  .orbit-svg .spoke.hot{stroke-dasharray:none;stroke-width:1.8;}
+  /* an active route: dashes that run along the line (from the card toward what it talks to), a glow, and a travelling dot (see the layout loop) */
+  .orbit-svg .spoke.hot{stroke-dasharray:10 7;stroke-width:3;filter:drop-shadow(0 0 3px rgba(var(--acc,75,216,255),.9));animation:routeFlow .7s linear infinite;}
+  @keyframes routeFlow{to{stroke-dashoffset:-16;}}
+  .orbit-svg .route-dot{filter:drop-shadow(0 0 4px rgba(var(--acc,75,216,255),1));}
+  @media (prefers-reduced-motion:reduce){html:not(.motion-full) .orbit-svg .spoke.hot{animation:none;}}
   .orbit-svg .pulse-dot{filter:drop-shadow(0 0 5px currentColor);}
   .ring-guide{stroke:rgba(90,112,136,0.28);stroke-width:1;stroke-dasharray:2 8;}
 
@@ -271,6 +276,10 @@
     background:var(--grey);box-shadow:none;}
   .node-led.led-active{background:var(--green);box-shadow:0 0 7px rgba(57,255,136,.85);
     animation:ledPulse 1.4s ease-in-out infinite;}
+  .node.waiting .node-blob{border-color:var(--yellow);box-shadow:0 0 16px rgba(255,189,46,.5);}
+  .node.waiting .node-name{color:var(--yellow);}
+  .node-pill.wait{color:var(--yellow);}
+  .node-led{z-index:6;}
   .node-led.led-waiting{background:var(--yellow);box-shadow:0 0 8px var(--yellow-glow);
     animation:ledPulse 1.4s ease-in-out infinite;}
   .node-led.led-broken{background:var(--red);box-shadow:0 0 8px var(--red-glow);
@@ -441,7 +450,7 @@ p,.hint,.desc,.sub{max-width:65ch;}
   <div class="termlines">
     <div class="line prompt"><img class="kit-logo" src="data:image/png;base64,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" alt="" width="30" height="30" style="vertical-align:middle;border-radius:6px;margin-right:8px"><span class="title-text">DREAM BOT TEAM AGENT CONSOLE FOR UEFN</span><span class="kit-version" id="kitVersion" title="This is the version baked into the HTML file this tab loaded. If you just replaced the file and this still shows the old number, hard-refresh this tab (Ctrl/Cmd+Shift+R) — a running tab doesn't notice a file changing on disk on its own."></span></div>
     <div class="termlines-side">
-      <div class="view-switch"><a href="agent-console.html" class="on">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Skills</a><a href="agent-console-news.html">What&#39;s new</a><a href="agent-console-score.html">Score</a></div>
+      <div class="view-switch"><a href="agent-console.html" class="on">Console</a><a href="agent-console-stats.html">Stats</a><a href="agent-console-docs.html">Docs</a><a href="agent-console-flow.html">Flow</a><a href="agent-console-skills.html">Knowledge</a><a href="agent-console-news.html">What&#39;s new</a><a href="agent-console-score.html">Score</a></div>
       <div class="line comment">twenty-two agents. one chief of staff. every change still waits on you.</div>
       <div class="line status" id="statusLine">… connecting to local server</div>
     </div>
@@ -574,7 +583,7 @@ p,.hint,.desc,.sub{max-width:65ch;}
     grey once it has yielded back and is waiting on your next message (polled from
     <code>/session</code>, see agent-console-tokens.ps1/agent-console-session-stop.ps1). The
     <strong>MCP Server</strong> node lights up whenever the UEFN MCP server
-    (<code>mcp__unreal-mcp__call_tool</code>) is called, and a pulse animates from whichever bot
+    (any <code>mcp__unreal-mcp__*</code> tool) is called, and a pulse animates from whichever bot
     made the call (or stays a plain connection to the hub if it was the main session calling it
     directly) — polled from <code>/mcp</code>, see agent-console-mcp.ps1. Every working bot on the
     inner ring gets a small colored ray burst around its own icon while active (a scaled-down
@@ -596,7 +605,7 @@ if(id&&localStorage.getItem("dbt.project")!==id){["kitTab","docsTab","dbt.view",
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.115.0";
+const KIT_VERSION = "v1.117.2";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -617,7 +626,7 @@ const AGENTS = [
   {id:"codebase-auditor",      name:"codebase-auditor",       icon:"🕵️", color:"red",     blurb:"independent whole-codebase quality audit"},
   {id:"template-reader",       name:"template-reader",        icon:"📚", color:"teal",    blurb:"studies Epic templates and docs, feeds the technique skills"},
   {id:"materials-expert",      name:"materials-expert",       icon:"🎨", color:"teal",    blurb:"audits materials, finds reusable ones, feeds the materials skill"},
-  {id:"skill-reflector",       name:"skill-reflector",        icon:"🧬", color:"cyan",    blurb:"queues lessons for the Skills page"},
+  {id:"skill-reflector",       name:"skill-reflector",        icon:"🧬", color:"cyan",    blurb:"queues lessons for the Knowledge page"},
   {id:"coder-prep",            name:"coder-prep",             icon:"🧩", color:"green",   blurb:"coder's helper: writes the Verse of one area in parallel"},
   {id:"second-brain-scout",    name:"second-brain-scout",     icon:"🔭", color:"teal",    blurb:"trainer's helper: reads one area, read-only, cheap model"},
   {id:"mcp-build",            name:"mcp-build",              icon:"🔨", color:"cyan",    blurb:"UEFN MCP: builds and edits assets and Verse, one writer at a time"},
@@ -760,6 +769,7 @@ function removeEphemeralNode(agentId){
   if (node) node.remove();
   const spoke = spokeEls[agentId];
   if (spoke) spoke.remove();
+  if (routeDots[agentId]) { routeDots[agentId].dot.remove(); delete routeDots[agentId]; }
   delete nodeEls[agentId];
   delete spokeEls[agentId];
   delete counts[agentId];
@@ -976,6 +986,12 @@ function refreshLeds(){
     }
     led.classList.remove("led-idle", "led-active", "led-waiting", "led-broken");
     led.classList.add("led-" + status);
+    // waiting is yellow on the whole card too (ring and pill), not only on the small LED, which a badge can cover
+    node.classList.toggle("waiting", status === "waiting");
+    if (!a.special){
+      const wp = node.querySelector(".node-pill");
+      if (wp){ if (status === "waiting"){ wp.textContent = "waiting"; wp.classList.add("wait"); } else if (wp.classList.contains("wait")){ wp.classList.remove("wait"); if (wp.textContent === "waiting") wp.textContent = status === "active" ? "working" : "idle"; } }
+    }
   });
 
   // Chief of Staff's own LED: green if a subagent is actively delegated-to (the existing
@@ -1082,6 +1098,7 @@ function logRow(evt, cardText){
 // Continuous "data flowing" pulses along an active agent's spoke — separate from the one-off
 // handoff pulse below. Keyed by agentId so start/stop can turn them on/off cleanly.
 const flowPulses = {};
+const routeDots = {};
 function startFlow(agentId){
   if (flowPulses[agentId]) return;
   const ns = "http://www.w3.org/2000/svg";
@@ -1106,7 +1123,7 @@ function stopFlow(agentId){
 // Short-lived handoff pulse from a "parent" agent node to a "child" one, used when one agent
 // invokes another while it's still active. Best-effort visualization, not a guaranteed call graph.
 function pulseLink(fromId, toId){
-  const a = nodeEls[fromId], b = nodeEls[toId];
+  const a = (typeof fromId === "string") ? nodeEls[fromId] : fromId, b = (typeof toId === "string") ? nodeEls[toId] : toId;
   if (!a || !b) return;
   const stageRect = stage.getBoundingClientRect();
   const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
@@ -1307,6 +1324,7 @@ function processEntries(entries){
 // these get written, one per PreToolUse/PostToolUse pair on that tool.
 let mcpActive = [];
 let mcpLastCount = 0;
+let mcpIdleTimer = null;
 
 function mcpLogRow(evt){
   const row = document.createElement("div");
@@ -1335,12 +1353,17 @@ function processMcpEntries(entries){
       mcpActive.push({caller: evt.caller, label: label, startTs: Date.parse(evt.ts) || Date.now()});
       setActive("__mcp_server__", label || ("called by " + evt.caller));
       bumpCount("__mcp_server__");
-      if (evt.caller !== "chief-of-staff" && nodeEls[evt.caller] && i >= replayFrom) pulseLink(evt.caller, "__mcp_server__");
+      const fresh = i >= replayFrom && (Date.now() - (Date.parse(evt.ts) || Date.now())) < 15000;   // only a live call pulses, never a replay of old lines
+      if (fresh && evt.caller !== "chief-of-staff" && nodeEls[evt.caller]) pulseLink(evt.caller, "__mcp_server__");
+      else if (fresh && evt.caller === "chief-of-staff") { const hub = document.querySelector(".hub .hub-core"); if (hub) pulseLink(hub, "__mcp_server__"); }   // the main session talks to the editor: the pulse leaves the hub
     } else if (evt.event === "stop"){
       const idx = mcpActive.map(x => x.caller).lastIndexOf(evt.caller);
       if (idx !== -1) mcpActive.splice(idx, 1); else if (mcpActive.length) mcpActive.pop();
-      if (mcpActive.length === 0) setIdle("__mcp_server__");
-      else setActive("__mcp_server__", mcpActive[mcpActive.length - 1].label || ("called by " + mcpActive[mcpActive.length - 1].caller));
+      if (mcpActive.length === 0) {
+        // a call can last a few milliseconds: keep the node lit for a moment so it can be seen
+        clearTimeout(mcpIdleTimer);
+        mcpIdleTimer = setTimeout(function(){ if (mcpActive.length === 0) { setIdle("__mcp_server__"); const l = nodeEls["__mcp_server__"] && nodeEls["__mcp_server__"].querySelector(".node-led"); if (l) { l.classList.remove("led-active"); l.classList.add("led-idle"); } } }, 1600);
+      } else setActive("__mcp_server__", mcpActive[mcpActive.length - 1].label || ("called by " + mcpActive[mcpActive.length - 1].caller));
     }
 
     if (i >= replayFrom) mcpLogRow(evt);
@@ -1348,9 +1371,9 @@ function processMcpEntries(entries){
   mcpLastCount = entries.length;
 
   const led = nodeEls["__mcp_server__"] && nodeEls["__mcp_server__"].querySelector(".node-led");
-  if (led){
-    led.classList.remove("led-idle", "led-active");
-    led.classList.add(mcpActive.length > 0 ? "led-active" : "led-idle");
+  if (led && mcpActive.length > 0){
+    led.classList.remove("led-idle");
+    led.classList.add("led-active");
   }
 }
 
@@ -1545,6 +1568,10 @@ function layoutOrbit(ts){
   const others = ALL_NODES.filter(a => positions[a.id] === undefined && nodeEls[a.id]);
   others.forEach((a, i) => { const ang = ((i / Math.max(1, others.length)) * 360 + 20 + offM) * Math.PI / 180; place(a.id, cx + minD * 0.2 * Math.cos(ang), cy + minD * 0.2 * Math.sin(ang), nodeScale * 0.7); });
 
+  // every route on the way from a working card up to the Chief of Staff lights up: a moon of a moon lights its own line, its head's line and the head's line to the hub
+  const routeSet = new Set();
+  active.forEach(al => { let id = al.agent, guard = 0; while (id && guard++ < 6){ routeSet.add(id); id = SPOKE_TARGET_OVERRIDE[id]; } });
+  Object.keys(nodeEls).forEach(id => { if (id !== "__you__" && nodeEls[id].classList.contains("active") && (nodeEls[id].classList.contains("special") || id.indexOf("__") === 0)){ let k = id, guard = 0; while (k && guard++ < 6){ routeSet.add(k); k = SPOKE_TARGET_OVERRIDE[k]; } } });
   ALL_NODES.forEach(a => {
     const node = nodeEls[a.id];
     if (!node) return;
@@ -1558,16 +1585,28 @@ function layoutOrbit(ts){
       spoke.setAttribute("x2", target.x);
       spoke.setAttribute("y2", target.y);
       const watchList = a.special ? (Array.isArray(a.watches) ? a.watches : [a.watches]) : [];
-      const isActive = active.some(al => al.agent === a.id) ||
-        (a.special && active.some(al => watchList.includes(al.agent)));
+      // !! matters: toggle("hot", undefined) flips the class instead of setting it, and `a.special && ...` is undefined for every normal agent
+      const isActive = !!(active.some(al => al.agent === a.id) || routeSet.has(a.id) ||
+        (a.special && active.some(al => watchList.includes(al.agent))));
       spoke.classList.toggle("hot", isActive);
+      // a dot travels along every hot route (node -> what it talks to); it is removed when the route cools
+      if (isActive && !routeDots[a.id]){
+        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("r", "3.2"); dot.setAttribute("class", "route-dot"); dot.setAttribute("fill", "rgb(var(--acc,75,216,255))");
+        svg.appendChild(dot); routeDots[a.id] = {dot, t0: ts + Math.random() * 600};
+      } else if (!isActive && routeDots[a.id]){ routeDots[a.id].dot.remove(); delete routeDots[a.id]; }
+      if (routeDots[a.id]){
+        const q = (((ts - routeDots[a.id].t0) % 1100) + 1100) % 1100 / 1100;
+        routeDots[a.id].dot.setAttribute("cx", pos.x + (target.x - pos.x) * q);
+        routeDots[a.id].dot.setAttribute("cy", pos.y + (target.y - pos.y) * q);
+      }
       if (a.id === "__obsidian_vault__"){
         // Recolored purple to visually match the librarian it points to — the vault's two
         // spokes are color-coded per "brain" (this one librarian-purple, the trainer one below
         // teal) so the tug-of-war between them reads as two distinct connections, not one.
         spoke.setAttribute("stroke", isActive ? "rgba(185,139,255,0.65)" : "rgba(185,139,255,0.22)");
       } else {
-        spoke.setAttribute("stroke", isActive ? "rgba(var(--acc,75,216,255),0.65)" : "rgba(var(--acc2,75,139,255),0.22)");
+        spoke.setAttribute("stroke", isActive ? "rgba(var(--acc,75,216,255),0.95)" : "rgba(var(--acc2,75,139,255),0.22)");
       }
     }
 
@@ -1575,8 +1614,9 @@ function layoutOrbit(ts){
     if (flow){
       const dur = 1400;
       const p = ((ts - flow.t0) % dur) / dur;
-      const px = pos.x + (cx - pos.x) * p;
-      const py = pos.y + (cy - pos.y) * p;
+      const ftid = SPOKE_TARGET_OVERRIDE[a.id], ft = (ftid && positions[ftid]) ? positions[ftid] : {x: cx, y: cy};
+      const px = pos.x + (ft.x - pos.x) * p;
+      const py = pos.y + (ft.y - pos.y) * p;
       flow.dot.setAttribute("cx", px);
       flow.dot.setAttribute("cy", py);
     }

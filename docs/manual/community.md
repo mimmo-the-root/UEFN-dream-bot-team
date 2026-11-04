@@ -10,11 +10,11 @@ Never shared: map names, Verse code, devices, blueprints, island codes, notes, e
 
 ## Only lessons from a published map
 
-A lesson can be shared only if it was learned on a **published** map. The kit checks that the project has an island code and that Epic has public data for it. A lesson from a map that is not published stays on your computer, and the Contribute button says why. When the map is published the lessons become shareable. The check is cached for a day and runs at the start of a session; the Skills page and the What's new page show the answer and the reason.
+A lesson can be shared only if it was learned on a **published** map. The kit checks that the project has an island code and that Epic has public data for it. A lesson from a map that is not published stays on your computer, and the Contribute button says why. When the map is published the lessons become shareable. The check is cached for a day and runs at the start of a session; the Knowledge page and the What's new page show the answer and the reason.
 
 ## How to contribute
 
-1. On the Skills page, tab **Community**, check that *Contribute to the community* is on and save your GitHub name once (it goes into the file name, so you never rename anything).
+1. On the Knowledge page, tab **Community**, check that *Contribute to the community* is on and save your GitHub name once (it goes into the file name, so you never rename anything).
 2. Open the tab **To share** and press **Contribute** next to a lesson or a recipe that is *Ready*. You see the exact JSON that would leave your computer, and GitHub opens with the file name, the title and the description already filled in: you only click. Every item goes through the same states: *Collected* (waiting, the reason is shown) → *Ready* → *Shared*; **Keep private** takes it out at any time before it is shared (**Make shareable** brings it back).
 3. Press **Open GitHub**. The new-file page opens with the lesson filled in. Rename the file to your GitHub handle (for example `ada.json`) and press *Propose new file*. GitHub opens a pull request from your own account.
 
@@ -24,7 +24,7 @@ A lesson can be shared only if it was learned on a **published** map. The kit ch
 
 An automatic check reads the pull request: only your lesson file, a valid format, and a screening against anything that tries to instruct an assistant. Nothing is deleted. A lesson moves through four levels: screened, hypothesis, confirmed, archived. A single lesson is published as a hypothesis, marked "to verify". Two different creators sending the same lesson, or the maintainer's decision, makes it confirmed. A curator agent prepares a weekly proposal, and the maintainer validates it before a release.
 
-You receive community lessons and recipes with the kit updates. They wait in the tab **To approve** of your Skills page, like your own: nothing is used until you approve it, and an approved item leaves the list. A recipe contains Verse code written by other people, so read it before you approve it.
+You receive community lessons and recipes with the kit updates. They wait in the tab **To approve** of your Knowledge page, like your own: nothing is used until you approve it, and an approved item leaves the list. A recipe contains Verse code written by other people, so read it before you approve it.
 
 ## Recipes
 
@@ -32,7 +32,7 @@ A **recipe** is how to rebuild something (a device, a mechanic, a map template, 
 
 ## For the maintainer
 
-The maintainer does not send his own lessons and recipes through GitHub. `publish.ps1` takes them straight from his profile: the recipes he did not keep private join the official recipes, and the lessons he did not keep private become community packs of the repo (`genre/<skill>/community/`). Both are privacy checked, and a file with findings is skipped and reported. A skill of yours that is not in the kit yet goes in whole at the release (the Skills tab marks it *new*); one that is already there gets only its lessons. After the release, users receive them in **To approve**. On the Lessons tab the *In the kit* column and the *Not in the kit yet* filter show what has already gone out.
+The maintainer does not send his own lessons and recipes through GitHub. `publish.ps1` takes them straight from his profile: the recipes he did not keep private join the official recipes, and the lessons he did not keep private become community packs of the repo (`genre/<skill>/community/`). Both are privacy checked, and a file with findings is skipped and reported. A skill of yours that is not in the kit yet goes in whole at the release (the Knowledge tab marks it *new*); one that is already there gets only its lessons. After the release, users receive them in **To approve**. On the Lessons tab the *In the kit* column and the *Not in the kit yet* filter show what has already gone out.
 
 ## Reputation
 

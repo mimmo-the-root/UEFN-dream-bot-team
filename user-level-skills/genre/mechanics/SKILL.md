@@ -32,7 +32,7 @@ JSON fields: `name`, `kind` (device | mechanic | template), `use` (what it is fo
 sentence), `devices` (list of "name: what it does"), `settings` (what to set on which device), `wiring` (what is connected to what),
 `files` (list of {name, code} for Verse), `assets` (what it needs, with where it comes from), `verify` (how to see that it works).
 
-The kit also prepares a recipe by itself from the Verse code (a Fab product, or every folder with a device in a map); refine it when you know more. The owner decides on the Skills page whether a recipe is shared in the kit.
+The kit also prepares a recipe by itself from the Verse code (a Fab product, or every folder with a device in a map); refine it when you know more. The owner decides on the Knowledge page whether a recipe is shared in the kit.
 
 No map names, personal paths, links or task ids in the text.
 

@@ -50,3 +50,5 @@ When you write a bug under "Newly reported", add a TABLE ROW with the same colum
 ## Always state what you verified
 
 End every report with two short lines: `Verified:` (what you actually checked and how: a file you read, a command you ran, a log you opened) and `NOT verified:` (what you did not or could not check, and why). Never give a PASS or READY for something listed under NOT verified without saying so in the same line. A check that only confirmed a name or a signature exists is not a check that the code builds or runs: say which of the two you did. If you ran nothing, write "ran nothing".
+
+Rules for every check (can't-look is not a pass): read `Claude/reference/CHECK-RULES.md`. Report anything you could not look at as NOT ASSESSED, never as a pass.

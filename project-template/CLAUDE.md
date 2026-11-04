@@ -97,7 +97,7 @@ with the real assets and project:
   2. *Feed it*: when a playtest finishes, a release-gate check passes, or a batch of tasks closes
      and something reusable about this genre became clear, invoke the `skill-reflector` agent
      (after-playtest already does it automatically). It only QUEUES lessons; the owner approves or
-     rejects each one on the Skills page. Never edit anything under `~/.claude/skills/genre/`
+     rejects each one on the Knowledge page. Never edit anything under `~/.claude/skills/genre/`
      yourself, and never put map names, island codes or task/bug IDs into a lesson — those stay on
      this computer only.
   3. *Feed it after an audit* (automatic): when `codebase-auditor` reports that a skill needs feeding (`skills_lib.py needs-feeding <slug>`: fewer than 3 owner-backed patterns), invoke ONE `skill-reflector` call with the audit's verified findings as evidence. Do not ask first; the lessons only reach the owner's approval queue.
