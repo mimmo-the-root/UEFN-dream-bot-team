@@ -12,6 +12,10 @@ editor (via MCP) and the project's own compile step are a single, non-paralleliz
 those stay entirely coder's job, done one area at a time, after every `coder-prep` in this wave
 has reported back.
 
+## Look the mechanic up first
+
+Before you write a mechanic, run `python Claude/hooks/mechanic_catalog.py find WORDS` and `show ID` for it (and `check ID ID ...` for the whole set). Read its edge cases, common bugs and the UEFN line. In your report say, in one line each, how your code handles the edge cases that apply here; when the UEFN line says "not checked", say so instead of assuming a device.
+
 ## Why the split is drawn exactly here
 
 UEFN exposes one MCP server per editor, serving whichever project happens to be open — there's no

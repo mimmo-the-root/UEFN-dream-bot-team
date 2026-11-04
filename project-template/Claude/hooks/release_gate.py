@@ -6,7 +6,7 @@
 
 DELIVERY-GATE.md has three lists, each line `- [ ]` that ONLY the owner turns into `- [x]`: (1) configuration Claude cannot do (the manual steps of
 the plan, the Island settings, Beta Access, Python scripting), (2) the private release (publish as private, test with the code), (3) memory:
-`- Memory used: NN%` written by the owner from UEFN (Project Size in the toolbar and Memory Usage in Publishing Validation). Claude never ticks a box. 100% or more blocks; 85% or more warns."""
+`- Memory used: NNN MB` (or `NN%` on an older UEFN) written by the owner from UEFN (Project Size in the toolbar and Memory Usage in Publishing Validation). Claude never ticks a box. 100% or more blocks; 85% or more warns."""
 import os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -20,6 +20,21 @@ VALIDATION = ("Experimental Features", "Memory Usage", "Download Size", "Asset S
 PRIVATE = ("Publish the island as PRIVATE (Fortnite > Publish, visibility private) for the test. The private code is only for you and your testers: do not write it anywhere in the kit; the island code the kit shows comes only from the official publication",
            "Open the island from the Fortnite client with the private code and check that it starts",
            "The private release is NOT made public before the playtest below passes")
+
+
+MEMORY_LIMIT_MB = 300   # UEFN 43.00 release notes; confirm in the editor
+ACCESSIBILITY = [
+    "The smallest text on screen can be read on a phone and from a TV across the room",
+    "Nothing important is told by colour alone: a shape, an icon, a word or a sound says it too",
+    "No rapid flashing; screen shake and big camera moves are short, and the game does not depend on them",
+    "A long press is never the only way to do something important",
+    "Time limits leave enough time to read, and the time left is always visible",
+    "The first minutes are forgiving: a new player can finish the first goal, and there is an easier way in when the genre allows it",
+    "Key information is not sound-only: spoken or sound-only cues also appear as text or an icon",
+    "Every action can be done with a gamepad, a keyboard or touch, whichever the island supports, and no menu needs a mouse",
+    "Loud or scary moments are not a surprise louder than the rest of the game, and a very scary one has a warning",
+    "Instructions are short and in plain words, shown at the moment they matter",
+]
 
 
 def build(d):
@@ -41,8 +56,9 @@ def build(d):
           "<!-- In UEFN the panel Publishing Validation lists five checks after you upload the private build. -->"]
     for s_ in VALIDATION:
         L.append("- [ ] Publishing Validation: " + s_ + " is green")
-    L += ["- Memory used: <NN>%", "", "## 5. Playtest",
+    L += ["- Memory used: <NN> MB (UEFN 43.00 and later show megabytes, the limit is 300 MB; an older UEFN shows a percentage: write NN%)", "", "## 5. Playtest",
           "- [ ] PLAYTEST.md filled with %s player(s), every row ok or turned into a task" % (e.get("players") or "the planned number of"), ""]
+    L += ["## 6. Accessibility (every player can play it)", "<!-- Play the first five minutes once with these in mind. A box you cannot tick is a task, not a failure. -->"] + ["- [ ] " + s_ for s_ in ACCESSIBILITY] + [""]
     return "\n".join(L)
 
 
@@ -53,15 +69,19 @@ def check(text):
         for l in s.splitlines():
             if l.startswith("- [ ]"):
                 block.append("not confirmed by the owner: " + l[6:].strip())
-    m = re.search(r"Memory used:\s*(\d+(?:\.\d+)?)\s*%", text)
+    # UEFN 43.00 and later show megabytes against a 300 MB limit; an older UEFN shows a percentage. Both are read.
+    m = re.search(r"Memory used:\s*(\d+(?:\.\d+)?)\s*(%|MB)", text, re.I)
     if not m:
-        block.append("Memory used: the owner has not written the percentage")
+        block.append("Memory used: the owner has not written the memory (NNN MB or NN%)")
     else:
         v = float(m.group(1))
-        if v >= 100:
-            block.append("Memory used %.0f%%: over the limit, reduce the map" % v)
-        elif v >= 85:
-            warn.append("Memory used %.0f%%: close to the limit" % v)
+        mb = m.group(2).lower() == "mb"
+        pct = 100.0 * v / MEMORY_LIMIT_MB if mb else v
+        shown = ("%.0f MB" % v) if mb else ("%.0f%%" % v)
+        if pct >= 100:
+            block.append("Memory used %s: over the limit, reduce the map" % shown)
+        elif pct >= 85:
+            warn.append("Memory used %s: close to the limit" % shown)
     return block, warn
 
 

@@ -1,0 +1,127 @@
+{
+ "schema": 1,
+ "genre": "simulation-tycoon",
+ "pack_version": 1,
+ "patterns": [
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Camera follows raw player position and jitters when the character collides with dense geometry.",
+   "statement": "Top-Down Camera: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-fc38d292f836"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Input-relative movement changes when the camera yaw or map rotation changes without remapping controls.",
+   "statement": "Top-Down Camera: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-fd882fc60b4a"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning coins",
+   "action": "Sellback, repair, and upgrade systems each use different currency IDs for what players see as the same coin balance.",
+   "statement": "Coins: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-93abf67e602a"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning gravity",
+   "action": "Gravity is applied in both Update and the fixed simulation loop, doubling fall acceleration on high frame rates.",
+   "statement": "Gravity: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-f12bcd621810"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning coins",
+   "action": "A purchase and reward arrive in the same frame or server tick and must resolve in a deterministic transaction order.",
+   "statement": "Coins: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-15ee32ee6950"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning gravity",
+   "action": "A body crosses from world gravity into a local field while airborne and keeps stale terminal velocity settings.",
+   "statement": "Gravity: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-0c81d5ade796"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning needs simulation",
+   "action": "An agent is asleep, injured, traveling, or in storage while needs continue to update.",
+   "statement": "Needs Simulation: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-12527bb0d123"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning needs simulation",
+   "action": "Need decay should create planning pressure before it creates unavoidable failure.",
+   "statement": "Needs Simulation: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-400814327419"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning tech tree",
+   "action": "Mutually exclusive branches need enough information for players to understand what they are giving up.",
+   "statement": "Tech Tree: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-8d5f005068d1"
+  },
+  {
+   "variant": "*",
+   "section": "launch-checklist",
+   "condition": "Making tech tree usable for every player",
+   "action": "Provide searchable tree views, prerequisite explanations, and clear blocked-state reasons.",
+   "statement": "Tech Tree: accessibility note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-e8f199085964"
+  }
+ ]
+}

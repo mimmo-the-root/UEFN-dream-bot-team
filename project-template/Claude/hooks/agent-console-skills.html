@@ -430,7 +430,7 @@ function load(){
 }
 load(); setInterval(load, 4000);
 </script>
-<script>document.getElementById("kitVersion").textContent = "v1.117.2";</script>
+<script>document.getElementById("kitVersion").textContent = "v1.119.0";</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */
@@ -785,7 +785,7 @@ function renderApprove(){
  var all=approveRows(),cnt=function(k){return all.filter(function(r){return r.k===k;}).length;};
  var list=all.filter(function(r){return AF==="all"||(AF==="les"&&r.k==="les")||(AF==="pack"&&r.k==="pack")||(AF==="rin"&&r.k==="rin")||(AF==="fab"&&r.k==="fab");});
  var pg=Math.min(APG,Math.max(0,Math.ceil(list.length/5)-1));APG=pg;
- var bulk=list.filter(function(r){return r.k==="rin"||r.k==="fab"||(r.k==="les"&&r.p.kind!=="contradiction");});
+ var bulk=list.filter(function(r){return r.k==="rin"||r.k==="fab"||(r.k==="les"&&r.p.kind!=="contradiction")||(r.k==="pack"&&!(r.p.conflicts||[]).length);});  /* a pack with a conflict is reviewed by hand */
  var h='<div class="kfilters">'+fil("af",AF,[["all","All",all.length],["les","My lessons",cnt("les")],["rin","Community recipes",cnt("rin")],["pack","Community lesson packs",cnt("pack")]].concat(isFab()||cnt("fab")?[["fab","Fab lessons",cnt("fab")]]:[]))+
   '<span class="grow"></span>'+(bulk.length>1?'<button class="kbtn ok" id="kApprAll">&#10003; Approve all '+bulk.length+'</button>':'')+'<span id="kApprMsg" class="ksub"></span></div>';
  h+='<table class="ktable"><tr><th>What</th><th>Text</th><th>Where from</th><th></th></tr>';
@@ -817,9 +817,10 @@ function renderApprove(){
   $("ap-"+id).onclick=function(){var off=[].slice.call(d.querySelectorAll("input[data-pack]")).filter(function(i){return !i.checked;}).map(function(i){return i.value;});post("/skills-act",{genre:p.genre,proposal:id,action:"approve",exclude:off}).then(done);};};});
  Array.prototype.forEach.call(box.querySelectorAll("button[data-ia]"),function(b){b.onclick=function(){post("/recipe-share",{inbox:true,id:b.getAttribute("data-iid"),decision:b.getAttribute("data-ia")}).then(done);};});
  Array.prototype.forEach.call(box.querySelectorAll("button[data-fa]"),function(b){b.onclick=function(){var id=b.getAttribute("data-id"),ta=$("fl_"+id);post("/fab-learn-act",{action:b.getAttribute("data-fa"),id:id,text:ta?ta.value:null}).then(function(j){if(!j.ok)$("kApprMsg").textContent=j.error||"did not work";done();});};});
- var aa=$("kApprAll");if(aa)aa.onclick=function(){aa.disabled=true;var ch=Promise.resolve(),n=0,msg=$("kApprMsg"),bad="";
+ var aa=$("kApprAll");if(aa)aa.onclick=function(){var np=bulk.filter(function(r){return r.k==="pack";}).length;if(np&&!window.confirm("Approve all "+bulk.length+"? This includes "+np+" lesson pack(s): every new lesson in them is added (official packs as reference, community packs as hypotheses). Packs with a conflict stay here for you to review."))return;aa.disabled=true;var ch=Promise.resolve(),n=0,msg=$("kApprMsg"),bad="";
   bulk.forEach(function(r){ch=ch.then(function(){var q;
    if(r.k==="les")q=post("/skills-act",{genre:r.p.genre,proposal:r.p.id,action:"approve",exclude:[]});
+   else if(r.k==="pack")q=post("/skills-act",{genre:r.p.genre,proposal:r.p.id,action:"approve",exclude:[]});
    else if(r.k==="rin")q=post("/recipe-share",{inbox:true,id:r.x.id,decision:"approve"});
    else{var ta=$("fl_"+r.x.id);q=post("/fab-learn-act",{action:"approve",id:r.x.id,text:ta?ta.value:null});}
    return q.then(function(j){if(j&&j.ok===false&&!bad)bad=j.error||"one did not work";n++;if(msg)msg.textContent=" "+n+" approved…";}).catch(function(){bad=bad||"could not reach the local server";});});});

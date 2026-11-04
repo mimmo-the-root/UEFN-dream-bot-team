@@ -1,1651 +1,3490 @@
 {
-"count": 388,
-"generated": "2026-10-16",
-"legend": "s: ok=answered ok in the lab, recipe=has a recipe, refused=lab guard said no, rejected=the editor said no, no_answer, never=not tried; c=1: ask the owner before calling",
+"count": 807,
+"generated": "2026-11-04",
+"legend": "s: ok=answered in the lab (by use or by validation), recipe=has a recipe, refused=the lab guard said no, rejected=the editor answered with an error (needs a fixture or other arguments), no_answer, never=not tried or skipped on purpose; c=1: ask the owner before calling",
 "summary": {
-"no_answer": 1,
-"ok": 357,
-"recipe": 2,
-"refused": 7,
-"rejected": 21
+"never": 60,
+"ok": 424,
+"recipe": 195,
+"refused": 30,
+"rejected": 98
 },
 "tools": {
-"EditorToolset.EditorAppToolset/AddAssetsToCollection": {
+"AIAssistantEditor/GetDockedContext": {
+"a": "scripting-batch",
+"s": "ok"
+},
+"AIAssistantEditor/GetProjectContext": {
+"a": "scripting-batch",
+"s": "ok"
+},
+"ConsoleToolset/GetLogCategories": {
 "a": "editor-logs",
 "s": "ok"
 },
-"EditorToolset.EditorAppToolset/CaptureAssetImage": {
-"a": "editor-logs",
-"s": "rejected",
-"why": "Asset not found: /Script/YokeHopUnkindUI.YokeHopUnkindUI"
-},
-"EditorToolset.EditorAppToolset/CaptureEditorImage": {
+"ConsoleToolset/GetLogEntries": {
 "a": "editor-logs",
 "s": "ok"
 },
-"EditorToolset.EditorAppToolset/CaptureViewport": {
+"ConsoleToolset/GetVerbosity": {
 "a": "editor-logs",
 "s": "ok"
 },
-"EditorToolset.EditorAppToolset/CreateCollection": {
+"ConsoleToolset/SetVerbosity": {
 "a": "editor-logs",
 "s": "ok"
 },
-"EditorToolset.EditorAppToolset/DestroyCollection": {
+"EditorToolset/AddActorsToDataLayer": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/AddAssetsToCollection": {
 "a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/AddComponent": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/AddCone": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/AddCube": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/AddCylinder": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/AddExpression": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/AddGradient": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/AddKey": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/AddRow": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/AddRows": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/AddSocket": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/AddSphere": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/AddTag": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/AddToSceneFromAsset": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/AddToSceneFromClass": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/AddUserAssetTags": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/AssignPhysicsAsset": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/CaptureAssetImage": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/CaptureEditorImage": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/CaptureViewport": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/ClearParameters": {
+"a": "materials",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/ConnectExpressions": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/ConnectToOutput": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/Create": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/CreateAtlas": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/CreateCollection": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/CreateDataLayerAsset": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/CreateFolder": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/CreateFunction": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/CreateGradient": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/CreateLevel": {
+"a": "level-devices",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"EditorToolset/CreateMaterial": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/CreateParameterCollection": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/Delete": {
+"a": "assets",
 "c": 1,
 "s": "ok"
 },
-"EditorToolset.EditorAppToolset/FocusOnActors": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetActiveEditorModes": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetAssetThumbnails": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetCVarValue": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetCameraTransform": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetCollectionAssets": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetContentBrowserPath": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetOpenAssets": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetSelectedActors": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetSelectedAssets": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetSelectedOutlinerFolders": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetShowFlag": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/GetVisibleActors": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/ListCollections": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/ListEditorModes": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/ListShowFlags": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/OpenEditorForAsset": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/RemoveAssetsFromCollection": {
-"a": "editor-logs",
+"EditorToolset/DeleteExpression": {
+"a": "materials",
 "c": 1,
 "s": "ok"
 },
-"EditorToolset.EditorAppToolset/ScreenCoordsToWorld": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SearchCVars": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SelectActors": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SelectAssets": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SelectOutlinerFolders": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SetCVarValue": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SetCameraTransform": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SetContentBrowserPath": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SetEditorMode": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SetShowFlag": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/SetViewportViewMode": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/ShowNotification": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.EditorAppToolset/WorldPosToScreenCoords": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.LogsToolset/GetLogCategories": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.LogsToolset/GetLogEntries": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.LogsToolset/GetVerbosity": {
-"a": "editor-logs",
-"s": "ok"
-},
-"EditorToolset.LogsToolset/SetVerbosity": {
-"a": "editor-logs",
-"s": "ok"
-},
-"GameplayTagsToolset.GameplayTagsToolset/FindReferencersByTag": {
-"a": "assets",
-"s": "rejected",
-"why": "Gameplay tag 'Cover_502' does not exist."
-},
-"GameplayTagsToolset.GameplayTagsToolset/GetTagInfo": {
-"a": "assets",
-"s": "rejected",
-"why": "Gameplay tag 'Cover_503' does not exist."
-},
-"GameplayTagsToolset.GameplayTagsToolset/ListTags": {
-"a": "assets",
-"s": "ok"
-},
-"GameplayTagsToolset.GameplayTagsToolset/ListTagsInSource": {
-"a": "assets",
-"s": "rejected",
-"why": "Tag source '/Script/YokeHopUnkindUI' does not exist."
-},
-"MVVMToolset.MVVMToolset/AddViewModelProperty": {
-"a": "ui-widgets",
-"s": "rejected",
-"why": "/Script/Engine.Blueprint"
-},
-"MVVMToolset.MVVMToolset/AddViewModelToWidget": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/CreateViewBinding": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/CreateViewEventBinding": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/FixupMVVMData": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/GetWidgetViewConfig": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/ListBindableWidgetProperties": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/ListConversionFunctions": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/ListViewModels": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/ListWidgetViewBindings": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/ListWidgetViewEvents": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/ListWidgetViewModels": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"MVVMToolset.MVVMToolset/RemoveWidgetViewBinding": {
-"a": "ui-widgets",
+"EditorToolset/DeleteFolder": {
+"a": "level-devices",
 "c": 1,
 "s": "ok"
 },
-"MVVMToolset.MVVMToolset/SetBindingMode": {
+"EditorToolset/DeleteParameterGroup": {
+"a": "materials",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/DeleteUnusedExpressions": {
+"a": "materials",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/DestroyCollection": {
+"a": "editor-logs",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/Diff": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/DiffFunction": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/DiffMaterial": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/DisconnectExpressions": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/DisconnectFromOutput": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/Duplicate": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/Exists": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/ExportPng": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/FindActors": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/FindAssets": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/FixUpRedirectors": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/FocusOnActors": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/GenerateConvexCollisions": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/GenerateLods": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/GetActiveEditorModes": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/GetActorAssetPath": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/GetActorBounds": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/GetActorTransform": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/GetActorsInDataLayer": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/GetActorsInFolder": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/GetAlphaStops": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetAssetClass": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/GetAssetContentRoots": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetAssetEditorSelection": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetAssetTags": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/GetAssetThumbnails": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/GetBoneChildren": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetBoneNames": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/GetBoneParent": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetBounds": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/GetCameraTransform": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/GetCanonicalActorState": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetChannelKeys": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetClass": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/GetCollectionAssets": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/GetCollisionChannels": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/GetCollisionComplexity": {
+"a": "editor-core",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"EditorToolset/GetColorStops": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetComponentActor": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/GetComponentTransform": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetComponents": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/GetContentBrowserPath": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/GetCurrentLevel": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/GetDataLayers": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/GetDependencies": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/GetExpressionInputNames": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/GetExpressionInputs": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/GetExpressionOutputNames": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/GetExpressions": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/GetFolders": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/GetGradients": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetKeys": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/GetLabel": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/GetLodCount": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetLodThresholds": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/GetMaterial": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetMaterialSlots": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetMetadataTags": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/GetMorphTargetNames": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetOpenAssets": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/GetParentComponent": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/GetPhysicsAsset": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/GetPivotLocation": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetProperties": {
+"a": "assets",
+"s": "recipe"
+},
+"EditorToolset/GetPropertyInput": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/GetQualityLevelMinLod": {
+"a": "editor-core",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"EditorToolset/GetQualityLevelMinLodDefault": {
+"a": "editor-core",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"EditorToolset/GetReferencers": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/GetReferencingMaterials": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/GetRootComponent": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/GetRows": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/GetScalarParameter": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/GetSchema": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/GetSectionCount": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetSelectedActors": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/GetSelectedAssets": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/GetSelectedOutlinerFolders": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/GetShowFlag": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/GetSize": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/GetSkeleton": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetSocketBone": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetSocketNames": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetSocketTransform": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/GetStaticSwitchParameter": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/GetStatistics": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/GetTags": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/GetTextureParameter": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/GetTriangleCount": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/GetUserAssetTags": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetVectorParameter": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/GetVertexCount": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/GetVirtualPaths": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/GetVisibleActors": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/HasTag": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/ImportFile": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/IsActorHidden": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/IsDirty": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/IsNaniteMesh": {
+"a": "editor-core",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"EditorToolset/LayoutExpressions": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/ListCollections": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/ListEditorModes": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/ListExpressionClasses": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/ListFolders": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/ListParameterGroups": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/ListParameters": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/ListProperties": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/ListRows": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/ListShowFlags": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/LoadActors": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/LoadAsset": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/LoadLevel": {
+"a": "level-devices",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"EditorToolset/LookAt": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/Move": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/OpenEditorForAsset": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/ReadTexture": {
+"a": "physics-mesh",
+"s": "ok"
+},
+"EditorToolset/Recompile": {
+"a": "materials",
+"s": "ok"
+},
+"EditorToolset/ReloadAsset": {
+"a": "assets",
+"s": "recipe"
+},
+"EditorToolset/RemoveActorsFromDataLayer": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/RemoveAssetsFromCollection": {
+"a": "editor-logs",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/RemoveCollisions": {
+"a": "physics-mesh",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/RemoveComponent": {
+"a": "level-devices",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/RemoveFromScene": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/RemoveGradient": {
+"a": "editor-core",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/RemoveLods": {
+"a": "physics-mesh",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/RemoveRow": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/RemoveRows": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/RemoveSocket": {
+"a": "physics-mesh",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/RemoveTag": {
+"a": "level-devices",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/RemoveUserAssetTags": {
+"a": "editor-core",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/RenameFolder": {
+"a": "level-devices",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/RenameParameterGroup": {
+"a": "materials",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/RenameRow": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/RenameRows": {
+"a": "assets",
+"c": 1,
+"s": "ok"
+},
+"EditorToolset/RenameSocket": {
+"a": "physics-mesh",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/ReplaceActorsWithAsset": {
+"a": "level-devices",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/ReplaceActorsWithClass": {
+"a": "level-devices",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/ResetProperties": {
+"a": "assets",
+"c": 1,
+"s": "recipe"
+},
+"EditorToolset/SampleGradient": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/SaveActor": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/SaveAsset": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/ScreenCoordsToWorld": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/SearchRowStructs": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/SearchSubclasses": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/SelectActors": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/SelectAssetEditorObjects": {
+"a": "editor-core",
+"s": "never"
+},
+"EditorToolset/SelectAssets": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/SelectOutlinerFolders": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/SetActorFolder": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/SetActorHidden": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/SetActorTransform": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/SetAlphaStops": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/SetCameraTransform": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/SetChannelKeys": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/SetCollisionComplexity": {
+"a": "editor-core",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"EditorToolset/SetColorStops": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/SetComponentTransform": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/SetContentBrowserPath": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/SetEditorMode": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/SetGradients": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/SetKeys": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/SetLabel": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/SetLodThresholds": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/SetMaterial": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/SetNaniteEnabled": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/SetParameterOverride": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/SetParent": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/SetParentComponent": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/SetPivotLocation": {
+"a": "editor-core",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"EditorToolset/SetProperties": {
+"a": "assets",
+"s": "recipe"
+},
+"EditorToolset/SetQualityLevelMinLod": {
+"a": "editor-core",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"EditorToolset/SetQualityLevelMinLodDefault": {
+"a": "editor-core",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"EditorToolset/SetRows": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/SetScalarParameter": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/SetShowFlag": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/SetSocketTransform": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"EditorToolset/SetStaticSwitchParameter": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/SetTextureParameter": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/SetVectorParameter": {
+"a": "materials",
+"s": "recipe"
+},
+"EditorToolset/SetViewportViewMode": {
+"a": "editor-logs",
+"s": "recipe"
+},
+"EditorToolset/ShowNotification": {
+"a": "editor-logs",
+"s": "ok"
+},
+"EditorToolset/TraceWorld": {
+"a": "level-devices",
+"s": "ok"
+},
+"EditorToolset/UnloadActors": {
+"a": "level-devices",
+"s": "recipe"
+},
+"EditorToolset/UpdateMetadataTags": {
+"a": "assets",
+"s": "ok"
+},
+"EditorToolset/ValidateAssets": {
+"a": "editor-core",
+"s": "ok"
+},
+"EditorToolset/WorldPosToScreenCoords": {
+"a": "editor-logs",
+"s": "ok"
+},
+"FortGameplayToolset/GetLocalPlayerState": {
+"a": "level-devices",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"GameplayTagsToolset/FindReferencersByTag": {
+"a": "assets",
+"s": "ok"
+},
+"GameplayTagsToolset/GetTagInfo": {
+"a": "assets",
+"s": "ok"
+},
+"GameplayTagsToolset/ListTags": {
+"a": "assets",
+"s": "ok"
+},
+"GameplayTagsToolset/ListTagsInSource": {
+"a": "assets",
+"s": "ok"
+},
+"InsightsToolset/CanCapture": {
+"a": "profiling",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"InsightsToolset/CanSnapshot": {
+"a": "profiling",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"InsightsToolset/GetCaptureStatus": {
+"a": "profiling",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"InsightsToolset/GetRecordedChannels": {
+"a": "profiling",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"InsightsToolset/ListCaptures": {
+"a": "profiling",
+"s": "ok"
+},
+"InsightsToolset/ListSavedCaptures": {
+"a": "profiling",
+"s": "ok"
+},
+"InsightsToolset/ListTargets": {
+"a": "profiling",
+"s": "ok"
+},
+"InsightsToolset/StartCapture": {
+"a": "profiling",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"InsightsToolset/StopCapture": {
+"a": "profiling",
+"c": 1,
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"InsightsToolset/TakeSnapshot": {
+"a": "profiling",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"MVVMToolset/AddViewCondition": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"MVVMToolset/AddViewModelProperty": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"MVVMToolset/AddViewModelToWidget": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/ClearConversionFunctionArgumentPath": {
+"a": "ui-widgets",
+"c": 1,
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"MVVMToolset/CreateViewBinding": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/CreateViewEventBinding": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/FixupMVVMData": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/GetWidgetViewConfig": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/ListBindableWidgetProperties": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/ListBindingConversionOptions": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"MVVMToolset/ListClassBindableFields": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"MVVMToolset/ListConversionFunctions": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/ListPropertyPathBindableFields": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"MVVMToolset/ListViewConditions": {
 "a": "ui-widgets",
 "s": "ok"
 },
-"MVVMToolset.MVVMToolset/SetWidgetViewConfig": {
+"MVVMToolset/ListViewModels": {
 "a": "ui-widgets",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_Assets/FindNiagaraScripts": {
-"a": "vfx-niagara",
+"MVVMToolset/ListWidgetViewBindings": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/ListWidgetViewEventBindings": {
+"a": "ui-widgets",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_Assets/GetAssetDiscoveryInfo": {
-"a": "vfx-niagara",
+"MVVMToolset/ListWidgetViewEvents": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/ListWidgetViewModels": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/RemoveViewCondition": {
+"a": "ui-widgets",
+"c": 1,
+"s": "rejected",
+"why": "needs a fixture"
+},
+"MVVMToolset/RemoveWidgetViewBinding": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"MVVMToolset/SetBindingMode": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MVVMToolset/SetConversionFunctionArgumentLiteral": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"MVVMToolset/SetEventBindingArgumentLiteral": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"MVVMToolset/SetViewConditionOperation": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"MVVMToolset/SetWidgetViewBindingEnabled": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"MVVMToolset/SetWidgetViewConfig": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"MetaSoundToolset/AttachBuilderToAsset": {
+"a": "audio",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"MetaSoundToolset/BuildToAsset": {
+"a": "audio",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"MetaSoundToolset/CommitBuilderToAsset": {
+"a": "audio",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"MetaSoundToolset/CreatePatchPresetBuilder": {
+"a": "audio",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"MetaSoundToolset/CreateSourcePresetBuilder": {
+"a": "audio",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"MetaSoundToolset/DetachBuilderFromAsset": {
+"a": "audio",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"MetaSoundToolset/FindMetaSoundAssets": {
+"a": "audio",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_Assets/GetNiagaraScriptDigest": {
-"a": "vfx-niagara",
-"s": "ok"
+"MetaSoundToolset/SetDefaults": {
+"a": "audio",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
 },
-"NiagaraToolsets.NiagaraToolset_Component/GetUserVariables": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_Component/GetVariable": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_Component/SetSystem": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_Component/SetVariable": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_Info/UEnum_Info": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/AddEmitter": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/AddModule": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/AddRenderer": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/AddSetParameterEntry": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/AddSetParametersModule": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/AddUserVariables": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/ApplyStackIssueFix": {
+"NiagaraToolsets/AddEmitter": {
 "a": "vfx-niagara",
 "s": "recipe"
 },
-"NiagaraToolsets.NiagaraToolset_System/CreateNiagaraSystem": {
+"NiagaraToolsets/AddModule": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/AddRenderer": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/AddSetParameterEntry": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/AddSetParametersModule": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/AddUserVariables": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/ApplyStackIssueFix": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/CreateNiagaraSystem": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/FindNiagaraScripts": {
 "a": "vfx-niagara",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetAvailableDynamicInputs": {
+"NiagaraToolsets/GetAssetDiscoveryInfo": {
 "a": "vfx-niagara",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetDataInterfaceSchema": {
+"NiagaraToolsets/GetAvailableDynamicInputs": {
 "a": "vfx-niagara",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetDynamicInputChain": {
+"NiagaraToolsets/GetDataInterfaceSchema": {
 "a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetDynamicInputChain": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetDynamicInputSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetDynamicInputSchemaFromAsset": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetEmitterData": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetEmitterInputValues": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetEmitterSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetEmitterSummary": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetEmitterTopology": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetModuleInputValues": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetModuleSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetModuleSchemaFromAsset": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetModuleTopology": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetNiagaraScriptDigest": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetRendererData": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetRendererSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetScriptStackInputValues": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetScriptStackTopology": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetStackInputData": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetStackInputSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetStackInputTopology": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetStackIssues": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetSystemCompileState": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetSystemData": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetSystemDependencies": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetSystemSchema": {
+"a": "vfx-niagara",
+"s": "ok"
+},
+"NiagaraToolsets/GetSystemSummary": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetUserVariables": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/GetVariable": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/RemoveEmitter": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "recipe"
+},
+"NiagaraToolsets/RemoveModule": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "recipe"
+},
+"NiagaraToolsets/RemoveRenderer": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "recipe"
+},
+"NiagaraToolsets/RemoveSetParameterEntry": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "recipe"
+},
+"NiagaraToolsets/RemoveUserVariables": {
+"a": "vfx-niagara",
+"c": 1,
+"s": "recipe"
+},
+"NiagaraToolsets/SetEmitterData": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/SetModuleEnabled": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/SetRendererData": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/SetStackInputData": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/SetSystem": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/SetSystemData": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/SetVariable": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"NiagaraToolsets/UEnum_Info": {
+"a": "vfx-niagara",
+"s": "recipe"
+},
+"PCGToolset/AddCommentBox": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/AddNode": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/AddSubgraphNode": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/ConnectNodePins": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/CreateGraph": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/DisconnectNodePins": {
+"a": "pcg",
 "s": "rejected",
-"why": "NiagaraExt_StackItemReference"
+"why": "argument shape to fix"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetDynamicInputSchema": {
-"a": "vfx-niagara",
-"s": "no_answer",
-"why": "NiagaraExt_StackItemReference"
+"PCGToolset/DrawSpline": {
+"a": "pcg",
+"s": "never",
+"why": "avoid: interactive: it waits for the owner to draw in the viewport, times out and leave"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetDynamicInputSchemaFromAsset": {
-"a": "vfx-niagara",
+"PCGToolset/ExecuteGraphInstance": {
+"a": "pcg",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetEmitterData": {
-"a": "vfx-niagara",
+"PCGToolset/GetGraphDescription": {
+"a": "pcg",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetEmitterInputValues": {
-"a": "vfx-niagara",
+"PCGToolset/GetGraphInstanceParams": {
+"a": "pcg",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetEmitterSchema": {
-"a": "vfx-niagara",
+"PCGToolset/GetGraphSchema": {
+"a": "pcg",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetEmitterSummary": {
-"a": "vfx-niagara",
+"PCGToolset/GetGraphStructure": {
+"a": "pcg",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetEmitterTopology": {
-"a": "vfx-niagara",
+"PCGToolset/GetNativeNodeSchema": {
+"a": "pcg",
 "s": "ok"
 },
-"NiagaraToolsets.NiagaraToolset_System/GetModuleInputValues": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetModuleSchema": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetModuleSchemaFromAsset": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetModuleTopology": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetRendererData": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetRendererSchema": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetScriptStackInputValues": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetScriptStackTopology": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetStackInputData": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetStackInputSchema": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetStackInputTopology": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetStackIssues": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetSystemCompileState": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetSystemData": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetSystemDependencies": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetSystemSchema": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetSystemSummary": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/GetUserVariables": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/RemoveEmitter": {
-"a": "vfx-niagara",
-"c": 1,
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/RemoveModule": {
-"a": "vfx-niagara",
-"c": 1,
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/RemoveRenderer": {
-"a": "vfx-niagara",
-"c": 1,
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/RemoveSetParameterEntry": {
-"a": "vfx-niagara",
-"c": 1,
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/RemoveUserVariables": {
-"a": "vfx-niagara",
-"c": 1,
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/SetEmitterData": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/SetModuleEnabled": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/SetRendererData": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/SetStackInputData": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"NiagaraToolsets.NiagaraToolset_System/SetSystemData": {
-"a": "vfx-niagara",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/AddBody": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/AddConstraint": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/CreateFromMesh": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/GetBodyMassScale": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/GetBodyNames": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/GetBodyPhysicsMode": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/GetBodyShapes": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/GetConstraints": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/RemoveBody": {
-"a": "physics-mesh",
-"c": 1,
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/RemoveConstraint": {
-"a": "physics-mesh",
-"c": 1,
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/RemoveShape": {
-"a": "physics-mesh",
-"c": 1,
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/SetBodyMassScale": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/SetBodyPhysicsMode": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/SetBox": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/SetCapsule": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/SetConstraintLimits": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"PhysicsToolsets.PhysicsAssetToolset/SetSphere": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"UMGToolSet.UMGToolSet/AddUIComponent": {
-"a": "ui-widgets",
+"PCGToolset/GetNodeDataView": {
+"a": "pcg",
 "s": "rejected",
-"why": "/Script/UMGEditor.WidgetBlueprint"
+"why": "argument shape to fix"
 },
-"UMGToolSet.UMGToolSet/AddWidget": {
-"a": "ui-widgets",
+"PCGToolset/GetNodeInfo": {
+"a": "pcg",
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/CompileWidgetBlueprint": {
-"a": "ui-widgets",
+"PCGToolset/ListAvailableSubgraphs": {
+"a": "pcg",
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/CreateWidgetBlueprint": {
-"a": "ui-widgets",
+"PCGToolset/ListGraphInstances": {
+"a": "pcg",
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/GetNamedSlots": {
-"a": "ui-widgets",
+"PCGToolset/ListNativeNodes": {
+"a": "pcg",
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/GetWidgetClassInfo": {
-"a": "ui-widgets",
+"PCGToolset/RemoveCommentBox": {
+"a": "pcg",
+"c": 1,
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/GetWidgetDescription": {
-"a": "ui-widgets",
+"PCGToolset/RemoveGraphParams": {
+"a": "pcg",
+"c": 1,
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/GetWidgetTreeDepth": {
-"a": "ui-widgets",
+"PCGToolset/RemoveNode": {
+"a": "pcg",
+"c": 1,
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/GetWidgets": {
-"a": "ui-widgets",
+"PCGToolset/RepositionNode": {
+"a": "pcg",
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/ListWidgetBlueprints": {
-"a": "ui-widgets",
+"PCGToolset/ResetGraphInstanceParams": {
+"a": "pcg",
+"c": 1,
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/ListWidgetClasses": {
-"a": "ui-widgets",
+"PCGToolset/RunPCGInstantGraph": {
+"a": "pcg",
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/MoveUIComponent": {
-"a": "ui-widgets",
+"PCGToolset/SetGraphDescription": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/SetGraphInstanceParams": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/SetGraphParams": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/SetNodeComment": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/SpawnGraphInstance": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/UpdateCommentBox": {
+"a": "pcg",
+"s": "ok"
+},
+"PCGToolset/UpdateNode": {
+"a": "pcg",
+"s": "ok"
+},
+"PhysicsToolsets/AddBody": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/AddConstraint": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/CreateFromMesh": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/GetBodyMassScale": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/GetBodyNames": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/GetBodyPhysicsMode": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/GetBodyShapes": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/GetConstraints": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/RemoveBody": {
+"a": "physics-mesh",
+"c": 1,
+"s": "recipe"
+},
+"PhysicsToolsets/RemoveConstraint": {
+"a": "physics-mesh",
+"c": 1,
+"s": "recipe"
+},
+"PhysicsToolsets/RemoveShape": {
+"a": "physics-mesh",
+"c": 1,
+"s": "recipe"
+},
+"PhysicsToolsets/SetBodyMassScale": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/SetBodyPhysicsMode": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/SetBox": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/SetCapsule": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/SetConstraintLimits": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"PhysicsToolsets/SetSphere": {
+"a": "physics-mesh",
+"s": "recipe"
+},
+"SceneCaptureToolset/Capture": {
+"a": "capture",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"SceneCaptureToolset/CaptureActiveEditorView": {
+"a": "capture",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"SceneCaptureToolset/CaptureGameViewport": {
+"a": "capture",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"SceneCaptureToolset/DescribeMode": {
+"a": "capture",
+"s": "ok"
+},
+"SceneCaptureToolset/GetActiveEditorView": {
+"a": "capture",
+"s": "ok"
+},
+"SceneCaptureToolset/ListModes": {
+"a": "capture",
+"s": "ok"
+},
+"SceneCaptureToolset/ListViews": {
+"a": "capture",
+"s": "never",
+"why": "avoid: the editor connection was reset when it was called with made-up arguments in the"
+},
+"SceneCaptureToolset/ListWorlds": {
+"a": "capture",
+"s": "ok"
+},
+"SpatialProfilerToolset/AcquireSource": {
+"a": "profiling",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"SpatialProfilerToolset/ClearSamples": {
+"a": "profiling",
 "c": 1,
 "s": "rejected",
-"why": "/Script/UMGEditor.WidgetBlueprint"
+"why": "needs a fixture"
 },
-"UMGToolSet.UMGToolSet/MoveWidget": {
+"SpatialProfilerToolset/GetMetricHotspots": {
+"a": "profiling",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"SpatialProfilerToolset/GetMetricStats": {
+"a": "profiling",
+"s": "ok"
+},
+"SpatialProfilerToolset/GetMonitorPerformanceEnabled": {
+"a": "profiling",
+"s": "ok"
+},
+"SpatialProfilerToolset/GetSamplingStatus": {
+"a": "profiling",
+"s": "ok"
+},
+"SpatialProfilerToolset/ListClients": {
+"a": "profiling",
+"s": "ok"
+},
+"SpatialProfilerToolset/ListMetrics": {
+"a": "profiling",
+"s": "ok"
+},
+"SpatialProfilerToolset/ListSources": {
+"a": "profiling",
+"s": "ok"
+},
+"SpatialProfilerToolset/OpenProfiler": {
+"a": "profiling",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"SpatialProfilerToolset/ReleaseSource": {
+"a": "profiling",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"SpatialProfilerToolset/RevealMetric": {
+"a": "profiling",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"SpatialProfilerToolset/SetEnabledMetrics": {
+"a": "profiling",
+"s": "ok"
+},
+"SpatialProfilerToolset/StartSampling": {
+"a": "profiling",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"SpatialProfilerToolset/StopSampling": {
+"a": "profiling",
+"c": 1,
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"ToolsetRegistry/CreateSkill": {
+"a": "scripting-batch",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"ToolsetRegistry/GetSkills": {
+"a": "scripting-batch",
+"s": "ok"
+},
+"ToolsetRegistry/ListSkills": {
+"a": "scripting-batch",
+"s": "ok"
+},
+"ToolsetRegistry/UpdateSkill": {
+"a": "scripting-batch",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"UMGToolSet/AddUIComponent": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"UMGToolSet/AddWidget": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/ClearWidgetLifetimeLog": {
 "a": "ui-widgets",
 "c": 1,
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/RemoveUIComponent": {
+"UMGToolSet/CompileWidgetBlueprint": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/CreateWidgetBlueprint": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/GetContainerWidgetNavigationDoc": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/GetNamedSlots": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"UMGToolSet/GetWidgetClassInfo": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/GetWidgetLifetimeEvents": {
+"a": "ui-widgets",
+"s": "never"
+},
+"UMGToolSet/GetWidgetLifetimeLogStatus": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/GetWidgets": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/ListWidgetBlueprints": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/ListWidgetClasses": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/MoveUIComponent": {
 "a": "ui-widgets",
 "c": 1,
 "s": "rejected",
-"why": "/Script/UMGEditor.WidgetBlueprint"
+"why": "needs a fixture"
 },
-"UMGToolSet.UMGToolSet/RemoveWidget": {
+"UMGToolSet/MoveWidget": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"UMGToolSet/RemoveUIComponent": {
+"a": "ui-widgets",
+"c": 1,
+"s": "rejected",
+"why": "needs a fixture"
+},
+"UMGToolSet/RemoveWidget": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"UMGToolSet/RenameWidget": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"UMGToolSet/ReplaceWidgetWithChild": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"UMGToolSet/ReplaceWidgetWithNamedSlot": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"UMGToolSet/ReplaceWidgetWithTemplate": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"UMGToolSet/SetNamedSlotContent": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"UMGToolSet/ShowWidgetLifetimeLogWindow": {
+"a": "ui-widgets",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"UMGToolSet/StartWidgetLifetimeLogging": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"UMGToolSet/StopWidgetLifetimeLogging": {
 "a": "ui-widgets",
 "c": 1,
 "s": "ok"
 },
-"UMGToolSet.UMGToolSet/RenameWidget": {
+"UMGToolSet/WrapWidgets": {
 "a": "ui-widgets",
+"s": "recipe"
+},
+"ValkyrieFortniteToolset/AddEventBinding": {
+"a": "level-devices",
+"s": "recipe"
+},
+"ValkyrieFortniteToolset/GetBindingOptions": {
+"a": "level-devices",
+"s": "recipe"
+},
+"ValkyrieFortniteToolset/GetClassicDeviceOptionValues": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/GetClientLogEntries": {
+"a": "session-regression",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/GetDeviceProperties": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/GetGameState": {
+"a": "session-regression",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/GetSessionStatus": {
+"a": "session-regression",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/GetVerseOutput": {
+"a": "level-devices",
+"s": "never"
+},
+"ValkyrieFortniteToolset/ListClassicDeviceOptions": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/ListClients": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/ListDeviceAssets": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/ListDeviceProperties": {
+"a": "level-devices",
+"s": "recipe"
+},
+"ValkyrieFortniteToolset/ListEventBindings": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/PlaceDevice": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieFortniteToolset/PushChanges": {
+"a": "session-regression",
 "c": 1,
-"s": "ok"
+"s": "recipe"
 },
-"UMGToolSet.UMGToolSet/ReplaceWidgetWithChild": {
-"a": "ui-widgets",
-"c": 1,
-"s": "ok"
-},
-"UMGToolSet.UMGToolSet/ReplaceWidgetWithNamedSlot": {
-"a": "ui-widgets",
-"c": 1,
-"s": "ok"
-},
-"UMGToolSet.UMGToolSet/ReplaceWidgetWithTemplate": {
-"a": "ui-widgets",
-"c": 1,
-"s": "ok"
-},
-"UMGToolSet.UMGToolSet/SetNamedSlotContent": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"UMGToolSet.UMGToolSet/WrapWidgets": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"ValkyrieToolset.DeviceToolset/AddEventBinding": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.DeviceToolset/GetBindingOptions": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.DeviceToolset/GetDeviceProperties": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.DeviceToolset/ListDeviceAssets": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.DeviceToolset/ListDeviceProperties": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.DeviceToolset/ListEventBindings": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.DeviceToolset/PlaceDevice": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.DeviceToolset/RemoveEventBinding": {
-"a": "level-devices",
-"c": 1,
-"s": "ok"
-},
-"ValkyrieToolset.DeviceToolset/SetDeviceProperty": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/AddComponent": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/CreateEntity": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/DeleteEntity": {
+"ValkyrieFortniteToolset/RemoveEventBinding": {
 "a": "level-devices",
 "c": 1,
-"s": "ok"
+"s": "recipe"
 },
-"ValkyrieToolset.EntityToolset/FindEntities": {
+"ValkyrieFortniteToolset/SetClassicDeviceOption": {
 "a": "level-devices",
 "s": "ok"
 },
-"ValkyrieToolset.EntityToolset/GetComponentProperty": {
+"ValkyrieFortniteToolset/SetDeviceProperty": {
 "a": "level-devices",
-"s": "ok"
+"s": "recipe"
 },
-"ValkyrieToolset.EntityToolset/GetComponents": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/GetEntityTransform": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/ListComponentClasses": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/ListComponentProperties": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/ListEntityClasses": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/RemoveComponent": {
-"a": "level-devices",
-"c": 1,
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/SetComponentProperty": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.EntityToolset/SetEntityTransform": {
-"a": "level-devices",
-"s": "ok"
-},
-"ValkyrieToolset.SessionToolset/GetClientLogEntries": {
+"ValkyrieFortniteToolset/StartGame": {
 "a": "session-regression",
 "s": "recipe"
 },
-"ValkyrieToolset.SessionToolset/GetGameState": {
+"ValkyrieFortniteToolset/StartSession": {
 "a": "session-regression",
+"s": "recipe"
+},
+"ValkyrieFortniteToolset/StopGame": {
+"a": "session-regression",
+"c": 1,
+"s": "recipe"
+},
+"ValkyrieFortniteToolset/StopSession": {
+"a": "session-regression",
+"c": 1,
+"s": "recipe"
+},
+"ValkyrieToolset/AddComponent": {
+"a": "level-devices",
+"s": "recipe"
+},
+"ValkyrieToolset/ApplyPrefabEdits": {
+"a": "scene-graph",
 "s": "ok"
 },
-"ValkyrieToolset.SessionToolset/GetSessionStatus": {
-"a": "session-regression",
+"ValkyrieToolset/BreakPrefabInstance": {
+"a": "scene-graph",
 "s": "ok"
 },
-"ValkyrieToolset.SessionToolset/PushChanges": {
-"a": "session-regression",
+"ValkyrieToolset/CreateEntity": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset/CreatePrefab": {
+"a": "scene-graph",
+"s": "ok"
+},
+"ValkyrieToolset/CreatePrefabFromEntities": {
+"a": "scene-graph",
+"s": "ok"
+},
+"ValkyrieToolset/DeleteEntity": {
+"a": "level-devices",
 "c": 1,
 "s": "ok"
 },
-"ValkyrieToolset.SessionToolset/StartGame": {
-"a": "session-regression",
+"ValkyrieToolset/EnablePythonForMainProject": {
+"a": "scene-graph",
+"s": "never",
+"why": "skipped on purpose (heavy, destructive or the owner deferred it)"
+},
+"ValkyrieToolset/FindEntities": {
+"a": "level-devices",
 "s": "ok"
 },
-"ValkyrieToolset.SessionToolset/StartSession": {
-"a": "session-regression",
+"ValkyrieToolset/GetComponentProperty": {
+"a": "level-devices",
+"s": "recipe"
+},
+"ValkyrieToolset/GetComponents": {
+"a": "level-devices",
+"s": "recipe"
+},
+"ValkyrieToolset/GetEntityTransform": {
+"a": "level-devices",
+"s": "recipe"
+},
+"ValkyrieToolset/GetPrefab": {
+"a": "scene-graph",
 "s": "ok"
 },
-"ValkyrieToolset.SessionToolset/StopGame": {
-"a": "session-regression",
+"ValkyrieToolset/GetPrefabForEntity": {
+"a": "scene-graph",
+"s": "ok"
+},
+"ValkyrieToolset/GetPrefabOverrides": {
+"a": "scene-graph",
+"s": "ok"
+},
+"ValkyrieToolset/IsPythonReadyForMainProject": {
+"a": "scene-graph",
+"s": "ok"
+},
+"ValkyrieToolset/ListComponentClasses": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset/ListComponentProperties": {
+"a": "level-devices",
+"s": "recipe"
+},
+"ValkyrieToolset/ListEntityClasses": {
+"a": "level-devices",
+"s": "ok"
+},
+"ValkyrieToolset/RemoveComponent": {
+"a": "level-devices",
+"c": 1,
+"s": "recipe"
+},
+"ValkyrieToolset/RenameEntity": {
+"a": "scene-graph",
 "c": 1,
 "s": "ok"
 },
-"ValkyrieToolset.SessionToolset/StopSession": {
-"a": "session-regression",
+"ValkyrieToolset/ReparentEntity": {
+"a": "scene-graph",
+"s": "ok"
+},
+"ValkyrieToolset/ResetPrefabInstance": {
+"a": "scene-graph",
 "c": 1,
 "s": "ok"
 },
-"ValkyrieToolset.ValkyriePythonToolset/EnablePythonInUEFN": {
+"ValkyrieToolset/SetComponentProperty": {
+"a": "level-devices",
+"s": "recipe"
+},
+"ValkyrieToolset/SetEntityTransform": {
+"a": "level-devices",
+"s": "recipe"
+},
+"VerseFieldsToolset/AddVerseField": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"VerseFieldsToolset/BindWidgetPropertyToVerseField": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"VerseFieldsToolset/DuplicateVerseField": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"VerseFieldsToolset/EditVerseField": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"VerseFieldsToolset/GetSupportedVerseFieldTypes": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"VerseFieldsToolset/ListVerseFields": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"VerseFieldsToolset/RemoveVerseField": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"VerseToolset/BuildAll": {
+"a": "verse-build",
+"s": "ok"
+},
+"VerseToolset/Copy": {
+"a": "verse-build",
+"s": "recipe"
+},
+"VerseToolset/CreateDirectory": {
+"a": "verse-build",
+"s": "recipe"
+},
+"VerseToolset/Delete": {
+"a": "verse-build",
+"c": 1,
+"s": "recipe"
+},
+"VerseToolset/FileTree": {
+"a": "verse-build",
+"s": "ok"
+},
+"VerseToolset/Grep": {
+"a": "verse-build",
+"s": "ok"
+},
+"VerseToolset/ListFiles": {
+"a": "verse-build",
+"s": "ok"
+},
+"VerseToolset/Move": {
+"a": "verse-build",
+"c": 1,
+"s": "recipe"
+},
+"VerseToolset/ReadFile": {
+"a": "verse-build",
+"s": "ok"
+},
+"VerseToolset/Replace": {
+"a": "verse-build",
+"c": 1,
+"s": "recipe"
+},
+"VerseToolset/WriteFile": {
+"a": "verse-build",
+"s": "ok"
+},
+"WidgetAnimationToolset/AddWidgetToAnimation": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"WidgetAnimationToolset/CreateWidgetAnimation": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"WidgetAnimationToolset/FindWidgetAnimation": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"WidgetAnimationToolset/GetWidgetAnimationBindings": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"WidgetAnimationToolset/ListWidgetAnimations": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"WidgetAnimationToolset/RemoveWidgetAnimation": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"WidgetAnimationToolset/RemoveWidgetBinding": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"WidgetAnimationToolset/RenameWidgetAnimation": {
+"a": "ui-widgets",
+"c": 1,
+"s": "recipe"
+},
+"WidgetAnimationToolset/SetWidgetAnimationDisplayLabel": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"WidgetAnimationToolset/SetWidgetAnimationLength": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"WidgetStaticAnalysisToolset/DescribeWidget": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"WidgetStaticAnalysisToolset/GetViewModelConnectionMap": {
+"a": "ui-widgets",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"WidgetStaticAnalysisToolset/GetWidgetConnectionMap": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"WidgetStaticAnalysisToolset/GetWidgetTreeDepth": {
+"a": "ui-widgets",
+"s": "recipe"
+},
+"WidgetStaticAnalysisToolset/TraceWidgetPropertyOverrides": {
+"a": "ui-widgets",
+"s": "ok"
+},
+"animation_toolset/add_actors": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_actors_by_name": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_actors_to_binding": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_binding_to_folder": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_event_repeater_section": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/add_event_trigger_section": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/add_key_bool": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/add_key_float": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_key_integer": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_key_string": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/add_layer_from_selection": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_marked_frame": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_root_folder": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_section": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_spawnable_from_class": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/add_spawnable_from_instance": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/add_track_to_binding": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_track_to_folder": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/add_track_to_sequence": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/bake_channel_keys": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/bake_space": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/bake_to_control_rig": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/bake_transform": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/blend_values_on_selected": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/clear_section_condition": {
+"a": "cinematics",
+"c": 1,
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/clear_selection": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/clear_track_condition": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/clear_track_row_condition": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/close_curve_editor": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/close_sequence": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/collapse_anim_layers": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/convert_to_custom_binding": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/convert_to_possessable": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/convert_to_spawnable": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/copy_bindings": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/copy_folders": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/copy_sections": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/copy_tracks": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/create_camera": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/create_level_sequence": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/curve_editor_empty_selection": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/curve_editor_select_keys": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/delete_all_marked_frames": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/delete_anim_layer": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/delete_marked_frame": {
+"a": "cinematics",
+"c": 1,
+"s": "never",
+"why": "avoid: CONFIRMED crash: called alone on a healthy editor with a made-up frame it droppe"
+},
+"animation_toolset/delete_space": {
+"a": "cinematics",
+"c": 1,
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/duplicate_anim_layer": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/empty_selection": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/expand_all_outliner_nodes": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/export_anim_sequence": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/find_binding_by_name": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/find_binding_by_tag": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/find_bindings_by_tag": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/find_marked_frame_by_label": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/find_or_create_track": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/find_tracks_by_type": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/fix_actor_references": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/focus_parent_sequence": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/focus_sub_sequence": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/force_evaluate": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/frame_selection": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_actor_transform_at_frame": {
+"a": "cinematics",
+"s": "never",
+"why": "avoid: the editor crashed (crash reporter dialog) right after this call with made-up ar"
+},
+"animation_toolset/get_all_binding_tags": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_anim_layers": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_anim_mode_gizmo_scale": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_anim_mode_hide_manips": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_anim_mode_hierarchy": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_anim_mode_local_spaces": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_anim_mode_nulls": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_anim_mode_only_rig_sel": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_binding_id": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_binding_name": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_binding_tags": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_bindings": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_bool": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_bound_objects": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_channel_names": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_child_possessables": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_clock_source": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_control_rigs": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_controls_info": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_controls_mask": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/get_current_sequence": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_curve_editor_selected_keys": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_custom_binding_objects": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_custom_binding_type": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_custom_bindings_of_type": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_deactivated_nodes": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_default_value": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_display_rate": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_euler_transform": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_evaluation_type": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_float": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_focused_sequence": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_folder_contents": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_int": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_keys": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_keys_by_index": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_linked_anim_sequences": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_linked_level_sequence": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_locked_nodes": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_loop_mode": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_marked_frames": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_muted_nodes": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_node_label": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_outliner_children": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/get_outliner_paths": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_outliner_selection": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_outliner_tree": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_pinned_nodes": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_playback_range": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_playback_speed": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_playhead_frame": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_position": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_priority_order": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_root_folders": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_rotator": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_scale": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_section_blend_type": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_section_completion_mode": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_section_condition": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_section_ease_in": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_section_ease_out": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_section_post_roll_frames": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_section_pre_roll_frames": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_section_properties": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_section_range": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_section_row_index": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_section_to_key": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_sections": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_sections_for_nodes": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_selected_bindings": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_selected_channels": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_selected_controls": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_selected_folders": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_selected_key_channels": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_selected_sections": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_selected_tracks": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_selection_range": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_sequence_lock_state": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_soloed_nodes": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_sub_sequence_hierarchy": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_tick_resolution": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_track_condition": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_track_display_name": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_track_filter_names": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_track_row_condition": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_tracks_on_binding": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/get_tracks_on_sequence": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_transform": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_vector2d": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/get_view_range": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_work_range": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/get_world_transform": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/has_section_end_frame": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/has_section_start_frame": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/hide_all_controls": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/import_fbx": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/import_fbx_to_rig": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/is_camera_cut_locked": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/is_curve_editor_open": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/is_curve_shown": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/is_fk_control_rig": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/is_layered_control_rig": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/is_node_expanded": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/is_node_expanded_by_path": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/is_playback_range_locked": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/is_playing": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/is_sequence_locked": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/is_track_filter_active": {
+"a": "cinematics",
+"s": "never"
+},
+"animation_toolset/key_controls": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/key_controls_at_frames": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/link_anim_sequence": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/load_anim_into_rig": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/merge_anim_layers": {
+"a": "cinematics",
+"c": 1,
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/mirror_selected_controls": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/move_space": {
+"a": "cinematics",
+"c": 1,
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/open_curve_editor": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/open_sequence": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/paste_bindings": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/paste_folders": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/paste_sections": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/paste_tracks": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/pause": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/play": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/play_to": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/rebind_component": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/refresh_sequence": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/remove_actors_from_binding": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/remove_all_bindings": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/remove_binding": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/remove_binding_tag": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/remove_invalid_bindings": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/remove_key_at_frame": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/remove_root_folder": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/remove_section": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/remove_track": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/remove_track_from_sequence": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/reorder_anim_layers": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/replace_binding_with_actors": {
+"a": "cinematics",
+"c": 1,
+"s": "ok"
+},
+"animation_toolset/restore_pre_animated_state": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/save_default_spawnable_state": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/select_bindings": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/select_channels": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/select_control": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/select_folders": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/select_mirrored_controls": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/select_sections": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/select_tracks": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_anim_mode_gizmo_scale": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_anim_mode_hide_manips": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_anim_mode_hierarchy": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_anim_mode_local_spaces": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_anim_mode_nulls": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_anim_mode_only_rig_sel": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_binding_name": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_bool": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_byte_track_enum": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_camera_cut_binding": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/set_camera_lock": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_clock_source": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_controls_mask": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/set_default_value": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_display_rate": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/set_euler_transform": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_evaluation_type": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_float": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_int": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_layered_mode": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_loop_mode": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_node_deactivated": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_node_expanded": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_node_locked": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_node_muted": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_node_pinned": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_node_solo": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_nodes_expanded_by_path": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_outliner_selection": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_playback_range": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/set_playback_range_locked": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_playback_speed": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/set_playhead_frame": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_position": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_priority_order": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_property_name_and_path": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_rotator": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_scale": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_section_animation": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_section_blend_type": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/set_section_completion_mode": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/set_section_condition": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/set_section_ease_in": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_section_ease_out": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_section_end_bounded": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_section_post_roll_frames": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_section_pre_roll_frames": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_section_range": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/set_section_row_index": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_section_start_bounded": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_selection_range": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_sequence_locked": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_space": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_tick_resolution": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_track_condition": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/set_track_display_name": {
+"a": "cinematics",
+"s": "never",
+"why": "avoid: suspected: the editor lost its connection right at this call in one run; not rep"
+},
+"animation_toolset/set_track_filter_active": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_track_row_condition": {
+"a": "cinematics",
+"s": "rejected",
+"why": "needs a fixture"
+},
+"animation_toolset/set_transform": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_vector2d": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/set_view_range": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_work_range": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/set_world_transform": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/show_all_controls": {
+"a": "cinematics",
+"s": "rejected",
+"why": "argument shape to fix"
+},
+"animation_toolset/show_curve": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/snap_control_rig": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/tag_binding": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/tween_control_rig": {
+"a": "cinematics",
+"s": "refused",
+"why": "the lab guard said no"
+},
+"animation_toolset/untag_binding": {
+"a": "cinematics",
+"s": "ok"
+},
+"animation_toolset/zero_transforms": {
+"a": "cinematics",
+"s": "ok"
+},
+"editor_toolset/execute_python": {
 "a": "scripting-batch",
 "s": "ok"
 },
-"ValkyrieToolset.ValkyriePythonToolset/IsPythonEnabledInUEFN": {
+"editor_toolset/execute_tool_script": {
 "a": "scripting-batch",
 "s": "ok"
 },
-"ValkyrieToolset.VerseToolset/BuildAll": {
-"a": "verse-build",
-"s": "ok"
-},
-"ValkyrieToolset.VerseToolset/Copy": {
-"a": "verse-build",
-"s": "ok"
-},
-"ValkyrieToolset.VerseToolset/CreateDirectory": {
-"a": "verse-build",
-"s": "ok"
-},
-"ValkyrieToolset.VerseToolset/Delete": {
-"a": "verse-build",
-"c": 1,
-"s": "ok"
-},
-"ValkyrieToolset.VerseToolset/Grep": {
-"a": "verse-build",
-"s": "ok"
-},
-"ValkyrieToolset.VerseToolset/ListFiles": {
-"a": "verse-build",
-"s": "ok"
-},
-"ValkyrieToolset.VerseToolset/Move": {
-"a": "verse-build",
-"c": 1,
-"s": "ok"
-},
-"ValkyrieToolset.VerseToolset/ReadFile": {
-"a": "verse-build",
-"s": "ok"
-},
-"ValkyrieToolset.VerseToolset/Replace": {
-"a": "verse-build",
-"c": 1,
-"s": "ok"
-},
-"ValkyrieToolset.VerseToolset/WriteFile": {
-"a": "verse-build",
-"s": "ok"
-},
-"VerseFieldsToolset.VerseFieldsToolset/AddVerseField": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"VerseFieldsToolset.VerseFieldsToolset/BindWidgetPropertyToVerseField": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"VerseFieldsToolset.VerseFieldsToolset/DuplicateVerseField": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"VerseFieldsToolset.VerseFieldsToolset/EditVerseField": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"VerseFieldsToolset.VerseFieldsToolset/GetSupportedVerseFieldTypes": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"VerseFieldsToolset.VerseFieldsToolset/ListVerseFields": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"VerseFieldsToolset.VerseFieldsToolset/RemoveVerseField": {
-"a": "ui-widgets",
-"c": 1,
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/AddWidgetToAnimation": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/CreateWidgetAnimation": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/FindWidgetAnimation": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/GetWidgetAnimationBindings": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/ListWidgetAnimations": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/RemoveWidgetAnimation": {
-"a": "ui-widgets",
-"c": 1,
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/RemoveWidgetBinding": {
-"a": "ui-widgets",
-"c": 1,
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/RenameWidgetAnimation": {
-"a": "ui-widgets",
-"c": 1,
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/SetWidgetAnimationDisplayLabel": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"WidgetAnimationToolset.WidgetAnimationToolset/SetWidgetAnimationLength": {
-"a": "ui-widgets",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/add_component": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/add_tag": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/diff": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/get_actor_bounds": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/get_actor_transform": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/get_component_actor": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/get_components": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/get_label": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/get_parent_component": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/get_root_component": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/get_tags": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/has_tag": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/look_at": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/remove_component": {
-"a": "level-devices",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/remove_tag": {
-"a": "level-devices",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/set_actor_transform": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/set_label": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.actor.ActorTools/set_parent_component": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/create_folder": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/delete": {
-"a": "assets",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/duplicate": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/exists": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/find_assets": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/get_asset_class": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/get_asset_tags": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/get_dependencies": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/get_metadata_tags": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/get_referencers": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/is_dirty": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/list_folders": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/load_asset": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/move": {
-"a": "assets",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/reload_asset": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/save_assets": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.asset.AssetTools/update_metadata_tags": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/add_key": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/add_row": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/create": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/diff": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/get_keys": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/import_file": {
-"a": "assets",
-"s": "rejected",
-"why": "Source file not found: /Script/YokeHopUnkindUI"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/list_rows": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/remove_row": {
-"a": "assets",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/rename_row": {
-"a": "assets",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.curve_table.CurveTableTools/set_keys": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/add_rows": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/create": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/diff": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/get_rows": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/get_schema": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/import_file": {
-"a": "assets",
-"s": "rejected",
-"why": "Source file not found: /Script/YokeHopUnkindUI"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/list_rows": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/remove_rows": {
-"a": "assets",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/rename_rows": {
-"a": "assets",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/search_row_structs": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.data_table.DataTableTools/set_rows": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/add_expression": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/connect_expressions": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/connect_to_output": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/create_function": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/create_material": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/create_parameter_collection": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/delete_expression": {
-"a": "materials",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/delete_parameter_group": {
-"a": "materials",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/delete_unused_expressions": {
-"a": "materials",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/diff_function": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/diff_material": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/disconnect_expressions": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/disconnect_from_output": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/get_expression_input_names": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/get_expression_inputs": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/get_expression_output_names": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/get_expressions": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/get_property_input": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/get_referencing_materials": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/get_statistics": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/layout_expressions": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/list_expression_classes": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/list_parameter_groups": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/recompile": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material.MaterialTools/rename_parameter_group": {
-"a": "materials",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/clear_parameters": {
-"a": "materials",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/create": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/diff": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_scalar_parameter": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_static_switch_parameter": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_texture_parameter": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/get_vector_parameter": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/list_parameters": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_parameter_override": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_parent": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_scalar_parameter": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_static_switch_parameter": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_texture_parameter": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.material_instance.MaterialInstanceTools/set_vector_parameter": {
-"a": "materials",
-"s": "ok"
-},
-"editor_toolset.toolsets.object.ObjectTools/get_class": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.object.ObjectTools/get_properties": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.object.ObjectTools/list_properties": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.object.ObjectTools/reset_properties": {
-"a": "assets",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.object.ObjectTools/search_subclasses": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.object.ObjectTools/set_properties": {
-"a": "assets",
-"s": "ok"
-},
-"editor_toolset.toolsets.primitive.PrimitiveTools/add_cone": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.primitive.PrimitiveTools/add_cube": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.primitive.PrimitiveTools/add_cylinder": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.primitive.PrimitiveTools/add_sphere": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.programmatic.ProgrammaticToolset/execute_tool_script": {
+"editor_toolset/get_execution_environment": {
 "a": "scripting-batch",
 "s": "ok"
 },
-"editor_toolset.toolsets.programmatic.ProgrammaticToolset/get_execution_environment": {
+"editor_toolset/get_symbol": {
 "a": "scripting-batch",
 "s": "ok"
 },
-"editor_toolset.toolsets.scene.SceneTools/add_actors_to_data_layer": {
-"a": "level-devices",
+"editor_toolset/grep_stubs": {
+"a": "scripting-batch",
 "s": "ok"
 },
-"editor_toolset.toolsets.scene.SceneTools/add_to_scene_from_asset": {
-"a": "level-devices",
+"editor_toolset/read_me": {
+"a": "scripting-batch",
 "s": "ok"
 },
-"editor_toolset.toolsets.scene.SceneTools/add_to_scene_from_class": {
-"a": "level-devices",
+"editor_toolset/search_symbols": {
+"a": "scripting-batch",
 "s": "ok"
 },
-"editor_toolset.toolsets.scene.SceneTools/create_data_layer_asset": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/create_level": {
-"a": "level-devices",
+"geometry_toolset/append_box": {
+"a": "pcg",
 "s": "rejected",
-"why": "Failed to create level ''."
+"why": "needs a fixture"
 },
-"editor_toolset.toolsets.scene.SceneTools/delete_folder": {
-"a": "level-devices",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/diff": {
-"a": "level-devices",
+"geometry_toolset/append_cone": {
+"a": "pcg",
 "s": "rejected",
-"why": "Could not load scene asset:"
+"why": "needs a fixture"
 },
-"editor_toolset.toolsets.scene.SceneTools/find_actors": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/get_actor_asset_path": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/get_actors_in_data_layer": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/get_actors_in_folder": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/get_collision_channels": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/get_current_level": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/get_data_layers": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/get_folders": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/is_actor_hidden": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/load_actors": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/load_level": {
-"a": "level-devices",
+"geometry_toolset/append_cylinder": {
+"a": "pcg",
 "s": "rejected",
-"why": "Cannot load '': level does not exist."
+"why": "needs a fixture"
 },
-"editor_toolset.toolsets.scene.SceneTools/remove_actors_from_data_layer": {
-"a": "level-devices",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/remove_from_scene": {
-"a": "level-devices",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/rename_folder": {
-"a": "level-devices",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/replace_actors_with_asset": {
-"a": "level-devices",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/replace_actors_with_class": {
-"a": "level-devices",
-"c": 1,
+"geometry_toolset/append_disc": {
+"a": "pcg",
 "s": "rejected",
-"why": "/Script/CoreUObject.Class"
+"why": "needs a fixture"
 },
-"editor_toolset.toolsets.scene.SceneTools/save_actor": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/set_actor_folder": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/set_actor_hidden": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/trace_world": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.scene.SceneTools/unload_actors": {
-"a": "level-devices",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/add_socket": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/assign_physics_asset": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bone_children": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bone_names": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bone_parent": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_bounds": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_lod_count": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_material": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_material_slots": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_morph_target_names": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_physics_asset": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_section_count": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_skeleton": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_socket_bone": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_socket_names": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_socket_transform": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/get_vertex_count": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/import_file": {
-"a": "physics-mesh",
+"geometry_toolset/append_sphere": {
+"a": "pcg",
 "s": "rejected",
-"why": "Source file not found: /Script/YokeHopUnkindUI"
+"why": "needs a fixture"
 },
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/remove_socket": {
-"a": "physics-mesh",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/rename_socket": {
-"a": "physics-mesh",
-"c": 1,
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/set_material": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.skeletal_mesh.SkeletalMeshTools/set_socket_transform": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/generate_convex_collisions": {
-"a": "physics-mesh",
-"s": "refused",
-"why": "/Script/Engine.StaticMesh"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/generate_lods": {
-"a": "physics-mesh",
-"s": "refused",
-"why": "/Script/Engine.StaticMesh"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_bounds": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_lod_count": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_lod_thresholds": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_material": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_material_slots": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_triangle_count": {
-"a": "physics-mesh",
+"geometry_toolset/append_torus": {
+"a": "pcg",
 "s": "rejected",
-"why": "/Script/Engine.StaticMesh"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/get_vertex_count": {
-"a": "physics-mesh",
-"s": "rejected",
-"why": "/Script/Engine.StaticMesh"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/import_file": {
-"a": "physics-mesh",
-"s": "rejected",
-"why": "Source file not found: /Script/YokeHopUnkindUI"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/is_nanite_enabled": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/remove_collisions": {
-"a": "physics-mesh",
-"c": 1,
-"s": "refused",
-"why": "/Script/Engine.StaticMesh"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/remove_lods": {
-"a": "physics-mesh",
-"c": 1,
-"s": "refused",
-"why": "/Script/Engine.StaticMesh"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/set_lod_thresholds": {
-"a": "physics-mesh",
-"s": "refused",
-"why": "/Script/Engine.StaticMesh"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/set_material": {
-"a": "physics-mesh",
-"s": "rejected",
-"why": "/Script/Engine.MaterialInterface; /Script/Engine.StaticMesh"
-},
-"editor_toolset.toolsets.static_mesh.StaticMeshTools/set_nanite_enabled": {
-"a": "physics-mesh",
-"s": "refused",
-"why": "/Script/Engine.StaticMesh"
-},
-"editor_toolset.toolsets.texture.TextureTools/export_png": {
-"a": "physics-mesh",
-"s": "refused",
-"why": "/Script/Engine.Texture2D"
-},
-"editor_toolset.toolsets.texture.TextureTools/get_size": {
-"a": "physics-mesh",
-"s": "ok"
-},
-"editor_toolset.toolsets.texture.TextureTools/import_file": {
-"a": "physics-mesh",
-"s": "rejected",
-"why": "TextureFactory does not support \".\" files. Allowed: ['bmp', 'dds', 'exr', 'hdr', 'ies', 'j"
-},
-"editor_toolset.toolsets.texture.TextureTools/read_texture": {
-"a": "physics-mesh",
-"s": "ok"
+"why": "needs a fixture"
 }
-}
+},
+"uefn": "43.00"
 }

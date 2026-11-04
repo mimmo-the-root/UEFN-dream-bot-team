@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.117.2
-updated: kit-1.117.2
+created: kit-1.119.0
+updated: kit-1.119.0
 sources: [docs/manual/mcp-engine.md]
 type: kit
 status: current
@@ -118,6 +118,29 @@ You can also skip the long batteries completely: if enough people share what the
 - A normal close is not a crash. A killed editor is a crash. The crash window from Epic's reporter next to a healthy editor is not a crash either.
 - **A running editor is never closed or killed by an agent.** If UEFN stops on the start screen, the agent tells you and you open the project. To avoid that, set UEFN to open the last project on start: `python Claude/hooks/uefn_session.py set-load-on-startup LastProject` (only while UEFN is closed; it keeps a backup).
 
+## UEFN 43.00: 807 tools, named one by one
+
+On 43.00 the server offers **807 tools in 24 toolsets**. Each tool has its own name for Claude Code (`mcp__unreal-mcp__<Toolset>_<Tool>`) instead of one generic `call_tool`; scripts are asynchronous (`async def run()` with `await execute_tool(...)`); argument names are camelCase and the filter of `FindAssets` is nested. The kit's guards, the console and the recipes read both the old and the new shape, and a shipped table (`mcp-names-43.json`) joins the old tool names to the new ones, so a recipe or a proof is not lost when a tool is only renamed. UEFN is also the container of other Unreal Editor tools (MetaSound, Niagara, PCG, Sequencer, MetaHuman and more): they appear as toolsets of the same server and are covered like the rest.
+
+**A silent update is noticed.** The 43.00 server reports no version at all, so the kit compares a fingerprint of the whole catalog and finds renames (same description, or the same name with other case or underscores), new tools with their first-seen date, reworded tools and removed tools, even between two UEFN releases. A cheap look at the list of tools runs at most every ten minutes; the full map and tests only when the fingerprint changed.
+
+**Do I test everything again after a rename?** No. A tool that was only renamed, with the same description and the same argument names, keeps its proof. A recipe goes back to *to replay* only when its tool changed, lost an argument name it sends, or disappeared. Only new and failed tools are tried again; the lab keeps a list of what is already validated.
+
+**Tools that stop the editor.** A tool that closed the connection or crashed the editor goes on an avoid list (`mcp-avoid.json`, plus a list the map learns on your computer). The guard refuses it, the safe tests skip it, and only you can remove it after trying it in a throwaway project. Tools that wait for you to act in the viewport (like the PCG spline drawing) are on the list too.
+
+**One agent per area.** Ten agents each own a slice of the toolset (reads of the editor, the level and PCG, assets, devices, Scene Graph entities, Verse and sessions, UI, effects and audio, profiling, Sequencer), so two of them do not write to the editor at the same time. `python Claude/hooks/mcp_owner.py Toolset/Tool` says who owns a tool; a tool Epic adds tomorrow belongs to the main session until a rule names its owner.
+
+**Epic's own skills.** The server lists about thirty skills of its own. The kit does not copy them: `uefn-epic-skills` says when to read one first and what the kit adds (what to decide and prove).
+
+## Known traps of UEFN 43.00
+
+- A level sequence made through the MCP is not saved by itself; an editor restart loses it. Save it, or rebuild it.
+- Some tools stop the editor when called with made-up arguments, and the sample arguments of a map are made up. Call a tool with real ones, from a reading, or on a fixture made for it.
+- Positions are shown in LUF but tools take engine XYZ.
+- The project's class filter refuses some classes (a plain static mesh actor, for example); use a plain actor with a component.
+- A preset or builder that reads an asset outside the project is refused by the lab guard: copy the asset into the lab first.
+- Experimental features (the health and damage pipeline, the model NPCs, `timer`, `playable`, Gaussian splat) make an island that cannot be published.
+
 ## Known traps of UEFN 42.20
 
 These are written in the skills too, so the agents avoid them.
@@ -138,4 +161,4 @@ These are written in the skills too, so the agents avoid them.
 - **UEFN 42.40 asks two new questions** that block the editor until you answer: a trust prompt when a project opens and a notice to enable Python Editor Scripting.
 
 ## Sources
-- The kit manual, chapter "The MCP engine" (docs/manual/mcp-engine.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "The MCP engine" (docs/manual/mcp-engine.md), kit v1.119.0. Rebuilt on every kit release: do not edit this page, edit the manual.

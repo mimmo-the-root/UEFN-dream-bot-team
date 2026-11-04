@@ -1807,8 +1807,8 @@ function jAudit(st){
   return jGhost(ok, html, 'Not run yet. After the build, <code>/audit</code> checks the game against the rules, Fab and the island compliance, and this page lists what it found.');
 }
 function jDelivery(st){
-  const ok = st.gateExists, lines = (st.gate.match(/^- \[[ xX]\].*$/gm)||[]), mem = /Memory used:\s*(\d+)\s*%/i.exec(st.gate);
-  const html = '<div class="card"><div class="label">Delivery gate <span class="cnt">' + st.gateDone + '/' + st.gateAll + ' ticked by you</span>' + (mem ? ' · memory ' + mem[1] + '%' : '') + '</div>' +
+  const ok = st.gateExists, lines = (st.gate.match(/^- \[[ xX]\].*$/gm)||[]), mem = /Memory used:\s*(\d+(?:\.\d+)?)\s*(%|MB)/i.exec(st.gate);
+  const html = '<div class="card"><div class="label">Delivery gate <span class="cnt">' + st.gateDone + '/' + st.gateAll + ' ticked by you</span>' + (mem ? ' · memory ' + mem[1] + (mem[2].toUpperCase()==='MB' ? ' MB' : '%') : '') + '</div>' +
     '<div class="jbar" style="margin:8px 0;"><i style="width:' + (st.gateAll ? Math.round(100*st.gateDone/st.gateAll) : 0) + '%"></i></div>' +
     '<div class="jchk">' + (lines.length ? lines.map(l => { const d = /\[[xX]\]/.test(l); return '<div><span class="' + (d ? "jok" : "jno") + '">' + (d ? "✓" : "☐") + '</span>' + escH(l.replace(/^- \[[ xX]\]\s*/, "")) + '</div>'; }).join("") :
       '<div><span class="jno">·</span>Private release and Publishing Validation</div><div><span class="jno">·</span>Memory check with your flags</div><div><span class="jno">·</span>Playtest with the real number of players</div>') + '</div>' +
@@ -1924,8 +1924,8 @@ async function renderDelivery(){
     } else out.push("Audit: not run yet — after the build, run <code>/audit</code>.");
     if (d.exists && !d.error){
       const all = (d.content.match(/- \[[ xX]\]/g)||[]).length, done = (d.content.match(/- \[[xX]\]/g)||[]).length;
-      const mem = /Memory used:\s*(\d+)\s*%/i.exec(d.content);
-      out.push("Gate: " + done + "/" + all + " lines ticked by the owner" + (mem ? " · memory " + mem[1] + "%" : " · memory not written yet") + (all && done===all && mem ? " — ready for the private release" : ""));
+      const mem = /Memory used:\s*(\d+(?:\.\d+)?)\s*(%|MB)/i.exec(d.content);
+      out.push("Gate: " + done + "/" + all + " lines ticked by the owner" + (mem ? " · memory " + mem[1] + (mem[2].toUpperCase()==="MB" ? " MB" : "%") : " · memory not written yet") + (all && done===all && mem ? " — ready for the private release" : ""));
       const sc = /-\s*Scan:\s*(.*)/i.exec(d.content); out.push("Compliance scan: " + (sc && sc[1].trim() ? escH(sc[1].trim()) : "not run (run /audit)"));
     } else out.push("Gate: not started — <code>/delivery</code> writes the list of what only the owner can do.");
     out.push("Manual steps: open DELIVERY-GATE.md — Claude never ticks a box, you do.");
@@ -1965,7 +1965,7 @@ async function refreshDocs(){
 }
 setInterval(refreshDocs, 5000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.117.2";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.119.0";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

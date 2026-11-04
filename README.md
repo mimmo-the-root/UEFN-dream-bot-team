@@ -15,9 +15,10 @@ v1.114 is the **first milestone**, not the end: the whole loop from an idea to a
 
 ## What you get
 
-- **Twenty-two agents, one job each** (seventeen team agents and five UEFN MCP sub-agents). The one that writes the code never reviews it.
+- **Thirty-two agents, one job each** (seventeen team agents, five UEFN MCP sub-agents for the lab, and ten area agents that each own a slice of the editor's tools). The one that writes the code never reviews it.
 - **A plan-first loop.** Idea, spec, plan, tasks, environment, build, audit, delivery. A task is done only when two independent reviewers agree, and a step that belongs to you is shown as "your turn", never as green.
-- **The whole UEFN MCP mapped.** 388 tools, with arguments, prerequisites, cleanup and known traps; 387 recipes proven on a live editor.
+- **The whole UEFN MCP mapped, and followed.** 807 tools on UEFN 43.00 (388 on 42.40), found and compared by themselves, so a silent update or a renamed tool is noticed; every tool is in one of four states (proven, answered, not tried, to replay) and known editor crashers are refused.
+- **A catalog of 223 game mechanics** (`/mechanic`): what each needs, its edge cases and usual bugs, and how UEFN does it.
 - **An Agent Console.** A local dashboard: who is working, where the game stands, what needs you, what it cost, and a Score page that compares the game with its own plan.
 - **It learns from your maps** and keeps your data on your computer. Sharing lessons is optional and private by default.
 - **A Fab mode** for products you sell: the kit checks the package against Epic's rules and writes the listing and the user manual, and installs nothing in the product.
@@ -80,8 +81,11 @@ One design system for every page: colour means status (green done, amber your tu
 
 Also: **Stats** (time and tokens), **Score** (the game against its plan, criterion by criterion), **News** (what changed in the kit) and **Fab** (is the product package ready).
 
-## What's new (v1.108 - v1.117.2)
+## What's new (v1.108 - v1.119.0)
 
+- **v1.119, one agent per area.** Ten agents each own a slice of the 807 editor tools (reads, level and PCG, assets, devices, Scene Graph, Verse and sessions, UI, effects and audio, profiling, Sequencer); the guard keeps each in its own area.
+- **v1.118, mechanics.** A catalog of 223 mechanics with `/mechanic find`, `show` and `check`; 90 reference lessons for nine genres; accessibility checks in the delivery gate; "Approve all" for lesson packs; the Knowledge numbers follow the lab.
+- **v1.117, UEFN 43.00.** New tool names, autodiscovery of new, renamed and removed tools, Epic's skills, `uefn-version-upgrade` for every release, quests, profiling and PCG skills, the loop bar of each release on the Docs page, and the console sees the worker's scripts.
 - **v1.116, honest checks.** A check that could not look is reported as not assessed and never as a pass (delivery gate, Score, `/kit-doctor`), and a document over 40 KB is read by part, not whole.
 - **v1.115, genre guides and design rules.** Starting guides for strategy (tower defense), shooter, deathrun and platformer, adventure and RPG, simulation and tycoon, plus survival and roguelike; seven mechanic recipes (loot box, waves, shop, levels, needs, ordered steps, checkpoints); short design rules for feel, layout, camera and sound, and enemies; the Motion button and the light across the top work again.
 - **v1.114, study and design.** `/spec` and `/game-plan` start from the kit's knowledge and write their sources; `/environment` lists what only you can do; one design system for all console pages (`console-ui` skill and `ui_lint.py`), lighter pulses, aligned numbers, no side stripes; the idea and philosophy in words and pictures.
@@ -103,7 +107,7 @@ Read **[the manual](https://mimmo-the-root.github.io/UEFN-dream-bot-team/)**: a 
 ```
 project-template/       Files copied into each map project's Content/ folder (hooks, document
                          templates, the Agent Console, the project rules)
-user-level-agents/       The 22 agent definitions, installed once into ~/.claude/agents/
+user-level-agents/       The 32 agent definitions, installed once into ~/.claude/agents/
 user-level-memory/       Base rules loaded in every session
 user-level-skills/       Shared skills, installed once into ~/.claude/skills/
 second-brain-template/   Optional Obsidian vault for reusable mechanics

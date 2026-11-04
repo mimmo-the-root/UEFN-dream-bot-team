@@ -10,7 +10,7 @@ Music: `teaser-music.mp3`, an original, warm and relaxed track generated for the
 |---|---|---|
 | 0:00-0:05 | Hook | "Something is coming" / "Tell it your dream. Watch a team build it." / COMING SOON |
 | 0:05-0:50 | Eight hand-drawn pictures, 5.6 s each | You have a game in your head / Meet 22 little specialists / Don't polish the prompt. Build the system. / Built on the loop real startups use / From an idea to a playable MVP. And beyond. / "Done" is not said. It is proven. / You say yes only where it matters / Every mistake becomes a lesson |
-| 0:50-1:07 | Take this with you | MVP, proven, 22 agents one job each, you say yes where it matters, every mistake a rule (plus an optional second brain), free and open source |
+| 0:50-1:07 | Take this with you | MVP, proven, 32 agents one job each, you say yes where it matters, every mistake a rule (plus an optional second brain), free and open source |
 | 1:07-1:29 | A first look | Aura and Drift, panels that breathe and data that ripples, Readiness, the manual that comes alive |
 | 1:29-1:37 | Closing | Coming soon / Star the repo / Follow @mimmo_the_root / "The first milestone. Not the end." |
 

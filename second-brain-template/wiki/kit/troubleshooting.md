@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.117.2
-updated: kit-1.117.2
+created: kit-1.119.0
+updated: kit-1.119.0
 sources: [docs/manual/troubleshooting.md]
 type: kit
 status: current
@@ -21,7 +21,7 @@ The copy in `~/.claude/` updates itself too: at most once every 6 hours the sess
 - `/kit-update` updates the current project now.
 - `/kit-update --fetch` first downloads the latest release from GitHub into `~/.claude/kit-template/`, then updates the project.
 - After an update, **open a new session** (rules, agents and hooks are read at the start) and reload the console page.
-- At the first start after an update the kit tells you what changed, in numbers: "Updated to v1.116.0. Got 5 features, 4 fixes and 8 other changes", with up to three highlights. The numbers come from the release notes (`CHANGELOG.md`); a note that starts with `[feature]`, `[fix]` or `[other]` is counted as that kind, others are sorted by their wording.
+- At the first start after an update the kit tells you what changed, in numbers: for example "Updated to v1.119.0. Got 8 features, 4 fixes and 1 other change", counted over every release since the one you had, with up to three highlights. The numbers come from the release notes (`CHANGELOG.md`); a note that starts with `[feature]`, `[fix]` or `[other]` is counted as that kind, others are sorted by their wording.
 
 ## The doctor
 
@@ -117,4 +117,4 @@ Open an issue on the [GitHub repo](https://github.com/mimmo-the-root/UEFN-dream-
 - [[community|Community]]
 
 ## Sources
-- The kit manual, chapter "Troubleshooting" (docs/manual/troubleshooting.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Troubleshooting" (docs/manual/troubleshooting.md), kit v1.119.0. Rebuilt on every kit release: do not edit this page, edit the manual.

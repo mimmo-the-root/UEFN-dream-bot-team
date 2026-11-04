@@ -1,0 +1,709 @@
+{
+ "note": "What the kit has checked in UEFN for each mechanic of mechanics-catalog.json. how: recipe, device, verse or no. verified: true only when it was run or compiled in the editor.",
+ "mechanics": {
+  "ai.enemy_spawn_director": {
+   "how": "recipe",
+   "recipe": "wave director",
+   "verified": true,
+   "note": "waves in order, one spawner per wave; compiles on 43.00"
+  },
+  "economy.loot_table": {
+   "how": "recipe",
+   "recipe": "weighted loot box",
+   "verified": true,
+   "note": "a button opens a box, one item picked by weight"
+  },
+  "economy.shop": {
+   "how": "recipe",
+   "recipe": "currency and shop",
+   "verified": true,
+   "note": "earn money over time, buy a reward with a button"
+  },
+  "economy.coins": {
+   "how": "recipe",
+   "recipe": "currency and shop",
+   "verified": true
+  },
+  "economy.idle_income": {
+   "how": "recipe",
+   "recipe": "currency and shop",
+   "verified": true,
+   "note": "income per second"
+  },
+  "progression.experience_points": {
+   "how": "recipe",
+   "recipe": "persistent levels",
+   "verified": true,
+   "note": "kept between sessions"
+  },
+  "progression.level_up": {
+   "how": "recipe",
+   "recipe": "persistent levels",
+   "verified": true
+  },
+  "survival.hunger": {
+   "how": "recipe",
+   "recipe": "hunger and needs",
+   "verified": true,
+   "note": "a need falls, a button restores it, an empty need hurts"
+  },
+  "survival.thirst": {
+   "how": "recipe",
+   "recipe": "hunger and needs",
+   "verified": true,
+   "note": "same recipe, another need"
+  },
+  "puzzle.sequence_memory": {
+   "how": "recipe",
+   "recipe": "ordered objectives",
+   "verified": false,
+   "note": "the ordered triggers are the base; the memory game needs more Verse"
+  },
+  "ui_ux.checkpoint_notification": {
+   "how": "recipe",
+   "recipe": "course checkpoints",
+   "verified": false,
+   "note": "the checkpoint recipe respawns; the message is a HUD message device"
+  },
+  "camera.screen_shake": {
+   "how": "no",
+   "what": "UEFN has no direct camera shake",
+   "verified": true,
+   "note": "use sound, effects and text for the feel (game-feel-uefn)"
+  },
+  "progression.achievement_system": {
+   "how": "verse",
+   "what": "Progression API (quests and objectives)",
+   "verified": false,
+   "note": "see the uefn-quests skill; compiled in the lab, not run"
+  },
+  "ui_ux.quest_marker": {
+   "how": "verse",
+   "what": "objective_device or tracker_device with the Progression API",
+   "verified": false,
+   "note": "see uefn-quests"
+  },
+  "accessibility.adjustable_difficulty": {
+   "how": "verse",
+   "note": "a difficulty setting read in Verse that scales spawner counts and damage",
+   "verified": false
+  },
+  "accessibility.assist_mode": {
+   "how": "verse",
+   "note": "a Verse preset that switches several assists on together",
+   "verified": false
+  },
+  "accessibility.colorblind_modes": {
+   "how": "no",
+   "note": "a Fortnite player setting, not controllable from a map; use shape and text cues",
+   "verified": false
+  },
+  "accessibility.text_scaling": {
+   "how": "no",
+   "note": "a Fortnite player setting; keep map text large by design",
+   "verified": false
+  },
+  "accessibility.toggle_hold_option": {
+   "how": "no",
+   "note": "a Fortnite player setting for standard inputs",
+   "verified": false
+  },
+  "ai.chase": {
+   "how": "device",
+   "device": "GuardSpawner_V2",
+   "note": "guards chase on perception; wildlife spawners also pursue",
+   "verified": false
+  },
+  "ai.investigate_noise": {
+   "how": "device",
+   "device": "GuardSpawner_V2",
+   "note": "guards react to noise and last known position",
+   "verified": false
+  },
+  "ai.line_of_sight_detection": {
+   "how": "device",
+   "device": "PerceptionTrigger",
+   "note": "fires when a player is seen; also Trigger_Perception",
+   "verified": false
+  },
+  "ai.patrol": {
+   "how": "device",
+   "device": "AIPatrolPath",
+   "note": "a path for guards to walk; used with GuardSpawner_V2",
+   "verified": false
+  },
+  "camera.camera_lock_on": {
+   "how": "no",
+   "note": "no lock-on camera device; fake with Verse or a fixed perspective",
+   "verified": false
+  },
+  "camera.smooth_follow_camera": {
+   "how": "device",
+   "device": "ControlPerspective",
+   "note": "changes the player camera mode; smooth follow is not a setting",
+   "verified": false
+  },
+  "camera.top_down_camera": {
+   "how": "device",
+   "device": "ControlPerspective",
+   "note": "top-down style via the camera/perspective devices; check the options",
+   "verified": false
+  },
+  "combat.aim_down_sights": {
+   "how": "no",
+   "note": "a weapon behaviour of the item, not a map device",
+   "verified": false
+  },
+  "combat.block": {
+   "how": "no",
+   "note": "no block action for players; Verse could fake it with damage handling",
+   "verified": false
+  },
+  "combat.combo_chain": {
+   "how": "verse",
+   "note": "count hits in a time window in Verse; MeleeDesigner for the swings",
+   "verified": false
+  },
+  "combat.damage_over_time": {
+   "how": "device",
+   "device": "DamageVolume_V2",
+   "note": "damage every interval while inside; FireVolume_V2 for burning",
+   "verified": false
+  },
+  "combat.guard_break": {
+   "how": "no",
+   "note": "no direct way; Verse over damage events",
+   "verified": false
+  },
+  "combat.hit_stun": {
+   "how": "no",
+   "note": "no direct way; Verse could briefly disable movement",
+   "verified": false
+  },
+  "combat.invincibility_frames": {
+   "how": "verse",
+   "note": "a short protection window in Verse; island settings have a spawn immunity time",
+   "verified": false
+  },
+  "combat.knockback": {
+   "how": "verse",
+   "note": "Verse launch/push on damage; needs a check of the exact call",
+   "verified": false
+  },
+  "combat.melee_attack": {
+   "how": "device",
+   "device": "MeleeDesigner",
+   "note": "designs melee weapons: damage, speed, range",
+   "verified": false
+  },
+  "combat.ranged_attack": {
+   "how": "device",
+   "device": "ItemGranter",
+   "note": "grants weapons; ItemSpawner for pickups",
+   "verified": false
+  },
+  "combat.reload": {
+   "how": "no",
+   "note": "weapon item behaviour",
+   "verified": false
+  },
+  "combat.shield": {
+   "how": "device",
+   "device": "ItemGranter",
+   "note": "grants shield items; PowerUp for a timed effect (check)",
+   "verified": false
+  },
+  "crafting.crafting_queue": {
+   "how": "verse",
+   "note": "a timed queue in Verse with ItemGranter at the end",
+   "verified": false
+  },
+  "crafting.recipe_crafting": {
+   "how": "device",
+   "device": "Devices_ConditionalButton_V2",
+   "note": "a conditional button checks items, ItemRemover and ItemGranter finish the recipe",
+   "verified": false
+  },
+  "crafting.workbench": {
+   "how": "device",
+   "device": "WeaponModBench",
+   "note": "a bench for weapon mods; for general crafting use a button plus Verse",
+   "verified": false
+  },
+  "economy.resource_conversion": {
+   "how": "device",
+   "device": "ItemRemover",
+   "note": "ItemRemover takes the input, ItemGranter gives the output, a button triggers it",
+   "verified": false
+  },
+  "horror.hiding": {
+   "how": "device",
+   "device": "DisguiseDevice",
+   "note": "makes a player look like a prop; a hide spot also needs a Verse or trigger rule",
+   "verified": false
+  },
+  "horror.light_resource": {
+   "how": "verse",
+   "note": "a light-energy value in Verse with PointLight devices",
+   "verified": false
+  },
+  "horror.monster_patrol": {
+   "how": "device",
+   "device": "AIPatrolPath",
+   "note": "with GuardSpawner_V2 as the monster",
+   "verified": false
+  },
+  "horror.safe_room": {
+   "how": "device",
+   "device": "Barrier",
+   "note": "a barrier with a trigger; a Timer can close it",
+   "verified": false
+  },
+  "horror.sanity_meter": {
+   "how": "verse",
+   "note": "a stat kept in Verse and shown with HUDController_V2",
+   "verified": false
+  },
+  "meta.player_profile_stats": {
+   "how": "verse",
+   "note": "persistent data in Verse; GlobalSaveData for shared data",
+   "verified": false
+  },
+  "movement.air_dash": {
+   "how": "verse",
+   "note": "no direct device; a launch in Verse",
+   "verified": false
+  },
+  "movement.climbing": {
+   "how": "device",
+   "device": "Ledge",
+   "note": "ledge/climb devices; also Ascender (check)",
+   "verified": false
+  },
+  "movement.crouch": {
+   "how": "no",
+   "note": "a default player action",
+   "verified": false
+  },
+  "movement.dash": {
+   "how": "verse",
+   "note": "a launch in Verse; MovementModulator for speed boosts",
+   "verified": false
+  },
+  "movement.dodge_roll": {
+   "how": "verse",
+   "note": "no direct way",
+   "verified": false
+  },
+  "movement.run": {
+   "how": "device",
+   "device": "MovementModulator",
+   "note": "changes movement speed",
+   "verified": false
+  },
+  "movement.slide": {
+   "how": "no",
+   "note": "a default player action; class settings may toggle it",
+   "verified": false
+  },
+  "movement.sprint": {
+   "how": "device",
+   "device": "MovementModulator",
+   "note": "speed changes; ClassDesigner for the sprint option",
+   "verified": false
+  },
+  "movement.stamina_movement": {
+   "how": "verse",
+   "note": "a stamina value in Verse that drives MovementModulator",
+   "verified": false
+  },
+  "movement.walk": {
+   "how": "device",
+   "device": "MovementModulator",
+   "note": "changes walk speed",
+   "verified": false
+  },
+  "multiplayer.matchmaking_lobby": {
+   "how": "device",
+   "device": "RoundSettings_V2",
+   "note": "lobby through round and spawn settings; MatchmakingPortal_V2 sends players to another island",
+   "verified": false
+  },
+  "multiplayer.revive_teammate": {
+   "how": "device",
+   "device": "DBNO",
+   "note": "downed-but-not-out with reviving by teammates",
+   "verified": false
+  },
+  "narrative.branching_dialogue": {
+   "how": "device",
+   "device": "Conversation",
+   "note": "a conversation device; PopupDialog and ModalDialog for choices",
+   "verified": false
+  },
+  "narrative.codex_journal": {
+   "how": "verse",
+   "note": "a UI list kept in Verse",
+   "verified": false
+  },
+  "narrative.reputation_choice": {
+   "how": "verse",
+   "note": "a score per faction in Verse",
+   "verified": false
+  },
+  "narrative.reputation_gating": {
+   "how": "verse",
+   "note": "Verse check that opens a LockDevice or Barrier",
+   "verified": false
+  },
+  "physics.gravity": {
+   "how": "device",
+   "device": "MovementModulator",
+   "note": "gravity setting for players",
+   "verified": false
+  },
+  "physics.moving_platform": {
+   "how": "device",
+   "device": "PropMover",
+   "note": "moves props along a path",
+   "verified": false
+  },
+  "physics.one_way_platform": {
+   "how": "no",
+   "note": "no device for one-way collision",
+   "verified": false
+  },
+  "physics.physics_push_pull": {
+   "how": "device",
+   "device": "CP_Device_PropManipulation",
+   "note": "prop manipulation; PhysicsBoulder_V2 for pushable bodies (check)",
+   "verified": false
+  },
+  "platforming.coyote_time": {
+   "how": "no",
+   "note": "player controller behaviour, not exposed",
+   "verified": false
+  },
+  "platforming.double_jump": {
+   "how": "device",
+   "device": "ClassDesigner",
+   "note": "class option for jumping (check); otherwise Verse",
+   "verified": false
+  },
+  "platforming.jump_buffering": {
+   "how": "no",
+   "note": "player controller behaviour",
+   "verified": false
+  },
+  "platforming.ledge_climb": {
+   "how": "device",
+   "device": "Ledge",
+   "note": "ledge device",
+   "verified": false
+  },
+  "platforming.ledge_grab": {
+   "how": "device",
+   "device": "Ledge",
+   "note": "ledge device",
+   "verified": false
+  },
+  "platforming.variable_jump_height": {
+   "how": "no",
+   "note": "MovementModulator changes jump height, not variable by press",
+   "verified": false
+  },
+  "procedural_generation.biome_generation": {
+   "how": "no",
+   "note": "no runtime way; PCG graphs make scenery while building (editor tools)",
+   "verified": false
+  },
+  "procedural_generation.loot_generation": {
+   "how": "device",
+   "device": "ItemSpawner",
+   "note": "random item spawner; RNG device for weighted picks",
+   "verified": false
+  },
+  "procedural_generation.room_connection_graph": {
+   "how": "verse",
+   "note": "a graph and spawn/teleport logic in Verse",
+   "verified": false
+  },
+  "procedural_generation.seeded_generation": {
+   "how": "verse",
+   "note": "Verse random with your own seed value",
+   "verified": false
+  },
+  "progression.crafting_unlocks": {
+   "how": "verse",
+   "note": "unlock flags in Verse",
+   "verified": false
+  },
+  "progression.equipment_rarity": {
+   "how": "device",
+   "device": "ItemSpawner",
+   "note": "item rarity is a setting of the granted item",
+   "verified": false
+  },
+  "progression.respec": {
+   "how": "verse",
+   "note": "reset values in Verse",
+   "verified": false
+  },
+  "progression.skill_tree": {
+   "how": "verse",
+   "note": "a tree of unlock flags in Verse with a UI",
+   "verified": false
+  },
+  "progression.unlockable_abilities": {
+   "how": "verse",
+   "note": "Verse with ClassDesigner/ClassSelector for class abilities",
+   "verified": false
+  },
+  "progression.upgrade_shop": {
+   "how": "device",
+   "device": "VendingMachine",
+   "note": "vending machine with costs; ItemSpawnerVendingMachine variant",
+   "verified": false
+  },
+  "puzzle.key_and_lock": {
+   "how": "device",
+   "device": "KeyLock_V2",
+   "note": "key and lock pair",
+   "verified": false
+  },
+  "puzzle.pressure_plate": {
+   "how": "device",
+   "device": "Trigger",
+   "note": "trigger volume; TrickTile for tiles",
+   "verified": false
+  },
+  "puzzle.sliding_block": {
+   "how": "device",
+   "device": "PropMover",
+   "note": "moves a prop on a path from a trigger",
+   "verified": false
+  },
+  "puzzle.timed_door": {
+   "how": "device",
+   "device": "Barrier",
+   "note": "Barrier opened by a Timer",
+   "verified": false
+  },
+  "rhythm.beat_matching": {
+   "how": "verse",
+   "note": "timing check in Verse; DrumSequencer for the audio",
+   "verified": false
+  },
+  "rhythm.combo_multiplier": {
+   "how": "verse",
+   "note": "a counter in Verse",
+   "verified": false
+  },
+  "rhythm.note_lane": {
+   "how": "verse",
+   "note": "lanes and notes drawn with UI in Verse",
+   "verified": false
+  },
+  "rhythm.sync_window": {
+   "how": "verse",
+   "note": "time-window check in Verse",
+   "verified": false
+  },
+  "roguelike.permadeath": {
+   "how": "device",
+   "device": "RoundSettings_V2",
+   "note": "spawn limit / elimination ends the run; EliminationManager",
+   "verified": false
+  },
+  "roguelike.pick_one_upgrade_choice": {
+   "how": "verse",
+   "note": "choice UI in Verse; Simple_Voting_Option for a simple vote",
+   "verified": false
+  },
+  "roguelike.procedural_floor": {
+   "how": "verse",
+   "note": "Verse picks and activates room groups",
+   "verified": false
+  },
+  "roguelike.random_powerups": {
+   "how": "device",
+   "device": "PowerUp",
+   "note": "power-up device with RNG to choose",
+   "verified": false
+  },
+  "roguelike.relic_synergy": {
+   "how": "verse",
+   "note": "rules over owned relic flags in Verse",
+   "verified": false
+  },
+  "roguelike.run_based_progression": {
+   "how": "verse",
+   "note": "persistable data in Verse",
+   "verified": false
+  },
+  "simulation.needs_simulation": {
+   "how": "verse",
+   "note": "values over time in Verse with a HUD",
+   "verified": false
+  },
+  "stealth.alert_state": {
+   "how": "device",
+   "device": "GuardSpawner_V2",
+   "note": "guards have alert states",
+   "verified": false
+  },
+  "stealth.noise_meter": {
+   "how": "verse",
+   "note": "derive from player movement in Verse",
+   "verified": false
+  },
+  "stealth.shadow_cover": {
+   "how": "verse",
+   "note": "light volumes plus a Verse check",
+   "verified": false
+  },
+  "stealth.visibility_meter": {
+   "how": "verse",
+   "note": "Verse computes it from distance and light",
+   "verified": false
+  },
+  "strategy.fog_of_war": {
+   "how": "no",
+   "note": "no direct way",
+   "verified": false
+  },
+  "strategy.tech_tree": {
+   "how": "verse",
+   "note": "unlock flags in Verse",
+   "verified": false
+  },
+  "strategy.territory_control": {
+   "how": "device",
+   "device": "CaptureArea_V2",
+   "note": "capture areas with team ownership",
+   "verified": false
+  },
+  "strategy.unit_counter_system": {
+   "how": "verse",
+   "note": "damage multiplier table in Verse",
+   "verified": false
+  },
+  "survival.day_night_cycle": {
+   "how": "device",
+   "device": "DaySequence_Device",
+   "note": "day sequence device",
+   "verified": false
+  },
+  "survival.durability": {
+   "how": "no",
+   "note": "an item property, not a map setting",
+   "verified": false
+  },
+  "survival.health": {
+   "how": "device",
+   "device": "ClassDesigner",
+   "note": "max health per class; HealPowerup and DamageVolume_V2 change it",
+   "verified": false
+  },
+  "survival.oxygen": {
+   "how": "no",
+   "note": "no direct way; a Verse timer while in Water_V2",
+   "verified": false
+  },
+  "survival.stamina": {
+   "how": "verse",
+   "note": "a value in Verse",
+   "verified": false
+  },
+  "time.cooldown_time": {
+   "how": "device",
+   "device": "Timer",
+   "note": "a timer per ability",
+   "verified": false
+  },
+  "time.day_night_schedule": {
+   "how": "device",
+   "device": "DaySequence_Device",
+   "note": "timed day phases",
+   "verified": false
+  },
+  "time.timed_challenge": {
+   "how": "device",
+   "device": "TimedObjective_V2",
+   "note": "a timed objective",
+   "verified": false
+  },
+  "traversal.grappling_hook": {
+   "how": "no",
+   "note": "no grapple device; Zipline, GrindVine and GrindRail are the near options",
+   "verified": false
+  },
+  "traversal.ladder_climb": {
+   "how": "device",
+   "device": "Ascender",
+   "note": "a climbing aid (check); Ledge too",
+   "verified": false
+  },
+  "ui_ux.accessibility_remap_controls": {
+   "how": "no",
+   "note": "a Fortnite setting",
+   "verified": false
+  },
+  "ui_ux.cooldown_indicator": {
+   "how": "device",
+   "device": "HUDController_V2",
+   "note": "HUDMessage for text; a bar needs Verse UI",
+   "verified": false
+  },
+  "ui_ux.dialogue_choice": {
+   "how": "device",
+   "device": "PopupDialog",
+   "note": "also ModalDialog and Conversation",
+   "verified": false
+  },
+  "ui_ux.interaction_prompt": {
+   "how": "device",
+   "device": "Button",
+   "note": "interact text on the button device",
+   "verified": false
+  },
+  "ui_ux.inventory_grid": {
+   "how": "verse",
+   "note": "a custom Verse UI; the Fortnite inventory is fixed",
+   "verified": false
+  },
+  "ui_ux.minimap": {
+   "how": "device",
+   "device": "MapControllerDevice",
+   "note": "with MapIndicator and MapMarker",
+   "verified": false
+  },
+  "ui_ux.radial_menu": {
+   "how": "verse",
+   "note": "a Verse UI",
+   "verified": false
+  },
+  "ui_ux.tutorial_prompt": {
+   "how": "device",
+   "device": "HUDMessage",
+   "note": "also PopupDialog",
+   "verified": false
+  },
+  "vehicles.fuel": {
+   "how": "device",
+   "device": "FuelPump",
+   "note": "a fuel pump device (check how fuel is modeled)",
+   "verified": false
+  },
+  "vehicles.vehicle_acceleration": {
+   "how": "no",
+   "note": "vehicle stats are fixed per vehicle; VehicleModBoxSpawner gives mods",
+   "verified": false
+  },
+  "vehicles.vehicle_braking": {
+   "how": "no",
+   "note": "vehicle stats are fixed per vehicle",
+   "verified": false
+  }
+ }
+}

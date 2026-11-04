@@ -86,7 +86,7 @@ Steps 1 to 4 are the way to the MVP. Steps 5 and 6 are the loop going around aga
 
 1. **You** bring the dream, the choices and what only a person can do.
 2. **The plan** says what "done" means, written first.
-3. **The team** of 22 helpers does the work, one job each.
+3. **The team** of 32 helpers does the work, one job each.
 4. **The editor** is the place where every tool is known and every trick was tried for real.
 5. **Proof** comes from the editor: built, read back, checked, played.
 6. **Your yes**: only you tick the box.

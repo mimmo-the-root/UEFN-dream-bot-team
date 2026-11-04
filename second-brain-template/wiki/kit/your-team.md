@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.117.2
-updated: kit-1.117.2
+created: kit-1.119.0
+updated: kit-1.119.0
 sources: [docs/manual/your-team.md]
 type: kit
 status: current
@@ -60,7 +60,7 @@ Haiku is the lighter, cheaper model; Sonnet is the stronger one. No agent uses O
 
 ## The five MCP sub-agents
 
-Five of the twenty-two are sub-agents that do the hands-on work through UEFN's MCP. You do not call them yourself: the `coder` calls them, one narrow task each (about 15 MCP calls, a reply of 10 lines at most), and assembles the result. Only one of them writes at a time, because the editor is a single shared instance.
+Five of the thirty-two are sub-agents that do the hands-on work through UEFN's MCP. You do not call them yourself: the `coder` calls them, one narrow task each (about 15 MCP calls, a reply of 10 lines at most), and assembles the result. Only one of them writes at a time, because the editor is a single shared instance.
 
 | Sub-agent | Model | Job |
 |---|---|---|
@@ -69,6 +69,23 @@ Five of the twenty-two are sub-agents that do the hands-on work through UEFN's M
 | mcp-level | Sonnet | Exploration lab: actors, devices, event bindings, entities, meshes, physics assets, in a disposable lab project. Not used to build your game. |
 | mcp-ui-assets | Haiku | Widget Blueprints, assets and data tables. |
 | mcp-material-vfx | Haiku | Exploration lab: materials, material instances and Niagara, in a disposable lab project. Not used to build your game. |
+
+## The ten area agents
+
+For your own game, ten more agents each own one area of UEFN's tools. The main session (or Cod as coordinator) hands one step to the right one; each reads back what it changed and answers in ten lines. The kit's guard refuses a tool that belongs to another agent and says who owns it, so two agents never fight over the editor. Reads of the editor core are open to all.
+
+| Agent | Model | Owns |
+|---|---|---|
+| scene-scout | Haiku | Reads of the scene and assets; scene capture. Never changes anything. |
+| env-builder | Sonnet | Actors, components, folders, data layers, camera, PCG, geometry, physics assets. |
+| asset-builder | Sonnet | Materials, textures, data tables, collections, meshes, imports. |
+| device-builder | Sonnet | Place devices, properties, event bindings, gameplay tags. |
+| entity-builder | Sonnet | Scene Graph entities, components, prefabs. |
+| verse-dev | Sonnet | Verse build, push, sessions, logs. |
+| ui-builder | Sonnet | Widgets, view models, widget animations. |
+| fx-audio | Sonnet | Niagara and MetaSound. |
+| perf-profiler | Sonnet | Spatial Profiler and Insights measurements. |
+| cinematics | Sonnet | Sequencer sequences, tracks, keys. |
 
 ## What reports tell you
 
@@ -79,4 +96,4 @@ The audit agents (`qa-regression`, `release-gate`, `codebase-auditor`) end every
 Create an agent with the same name in that project's `.claude/agents/` folder. It wins there and only there.
 
 ## Sources
-- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.119.0. Rebuilt on every kit release: do not edit this page, edit the manual.

@@ -265,7 +265,25 @@ TOOLSET_AREA = {"PCGToolset": "pcg", "animation_toolset": "cinematics", "Niagara
                 "editor_toolset": "scripting-batch", "ToolsetRegistry": "scripting-batch", "AIAssistantEditor": "scripting-batch"}
 
 
-def tool_states(merged, tools, stale_keys=(), tests=None):
+def ledger_ok_tools(led):
+    """Tools with at least one answered call (r == "ok") in the explore ledger, as "Toolset/Tool" keys (old or new names). A validation sweep or a
+    replay run writes there, so the top card moves with the lab without a hand-built file. {} if there is no ledger."""
+    out = set()
+    try:
+        with open(led, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                try:
+                    r = json.loads(line)
+                except ValueError:
+                    continue
+                if r.get("r") == "ok" and r.get("toolset") and r.get("tool"):
+                    out.add(r["toolset"] + "/" + r["tool"])
+    except OSError:
+        pass
+    return out
+
+
+def tool_states(merged, tools, stale_keys=(), tests=None, ledger_ok=()):
     """The same four states over the tools of the server (the unit of the top card): proven (a proven recipe), answered (a test or the lab got an answer,
     or a recipe that only answered), replay (a recipe that failed, or whose tool changed), not tried (the rest). Tools and recipes use the old or
     the new names: the shipped 43.00 table joins them. Returns {"total", "proven", "answered", "not_tried", "replay", "areas": [...], "new": {...}}."""
@@ -290,6 +308,11 @@ def tool_states(merged, tools, stale_keys=(), tests=None):
     for n in (tests or {}):
         if (tests or {}).get(n) == "ok":
             put(n, "answered")
+    for k in ledger_ok:   # the ledger writes the old name (Toolset.Sub/Tool); in the 43.00 map the toolset is flat (Toolset/Tool)
+        c = table.get(k, k)
+        if c not in state and "/" in k:
+            c = k.split("/", 1)[0].split(".")[0] + "/" + k.split("/", 1)[1]
+        put(c, "answered")
     try:
         for k, e in json.load(open(os.path.join(HERE, "mcp-known-tools.json"), encoding="utf-8")).get("tools", {}).items():
             if e.get("s") in ("ok", "recipe"):
@@ -387,7 +410,7 @@ def progress(ledger=None, recipes_path=None, history=None, tools=None):
                 tests = json.load(open(tp, encoding="utf-8")).get("results", {}) if os.path.isfile(tp) else {}
             except Exception:
                 tests = {}
-            out["tool_states"] = tool_states(merged, tools, stale_keys, tests)
+            out["tool_states"] = tool_states(merged, tools, stale_keys, tests, ledger_ok_tools(led))
         hp = history or os.path.join(os.path.dirname(led), "recipes-history.json")
         out["history"] = _history(hp, n["proven"], n["tool-ok"])
         return out

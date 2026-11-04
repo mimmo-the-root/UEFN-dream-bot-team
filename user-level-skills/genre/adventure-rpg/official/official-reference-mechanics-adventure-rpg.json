@@ -1,0 +1,127 @@
+{
+ "schema": 1,
+ "genre": "adventure-rpg",
+ "pack_version": 1,
+ "patterns": [
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Occlusion fades the wrong roof or leaves invisible collision blocking the view.",
+   "statement": "Top-Down Camera: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-dd0e9b621a48"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Screen-space bounds ignore UI safe areas and place the player under HUD panels.",
+   "statement": "Top-Down Camera: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-2bc65f97fd81"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning combo chain",
+   "action": "Combo index fails to reset after interruption and the next attack starts at step three.",
+   "statement": "Combo Chain: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-62930fb7eb02"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning combo chain",
+   "action": "Attack cancel metadata differs between client and server, causing desync in networked combat.",
+   "statement": "Combo Chain: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-46c0a10c2232"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning melee attack",
+   "action": "Fast movement during active frames should not let the hitbox skip through small targets.",
+   "statement": "Melee Attack: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-aa39cbf0b17c"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning melee attack",
+   "action": "One swing must define whether it can hit one target once, many targets once, or the same target repeatedly.",
+   "statement": "Melee Attack: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-b477cda43817"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning ranged attack",
+   "action": "Firing near cover should not spawn projectiles behind walls or inside the shooter's collision.",
+   "statement": "Ranged Attack: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-a1c6e7e2a807"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning ranged attack",
+   "action": "Long reach needs counter-pressure such as reload, ammo, spread, travel, cover, recoil, or enemy mobility.",
+   "statement": "Ranged Attack: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-f3adfd689abc"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning coins",
+   "action": "Early prices should teach the value of coins, while late sinks need enough capacity to absorb farming without making casual play feel stalled.",
+   "statement": "Coins: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-5a24dd79bb56"
+  },
+  {
+   "variant": "*",
+   "section": "launch-checklist",
+   "condition": "Making coins usable for every player",
+   "action": "Show wallet changes as readable deltas with icons and text, not only tiny animated numbers.",
+   "statement": "Coins: accessibility note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-015408df5848"
+  }
+ ]
+}

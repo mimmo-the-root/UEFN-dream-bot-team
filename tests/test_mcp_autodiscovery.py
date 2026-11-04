@@ -97,6 +97,15 @@ st = RS2.tool_states(merged, tools, stale_keys=["A.B/Gone"], tests={"N/Tested": 
 TD2.names_43 = old_tbl
 ok(st["proven"] == 1 and st["replay"] == 2 and st["answered"] == 1 and st["not_tried"] == 1 and st["total"] == 5, "tool states: proven, answered by a test, replay (stale or failed), not tried add up to all tools")
 ok(sum(a["total"] for a in st["areas"]) == 5 and all(a["proven"] + a["tool_ok"] + a["unverified"] + a["replay"] == a["total"] for a in st["areas"]), "areas use the same four states and add up")
+# the explore ledger moves the top card: an answered call (old name Toolset.Sub/Tool) marks the flat 43.00 tool as answered
+import tempfile
+with tempfile.TemporaryDirectory() as _d:
+    _led = os.path.join(_d, "l.jsonl")
+    with open(_led, "w") as _f:
+        _f.write(json.dumps({"toolset": "Ed.SubTools", "tool": "Get", "r": "ok"}) + "\n" + json.dumps({"toolset": "Ed.SubTools", "tool": "Bad", "r": "rejected"}) + "\n")
+    _lo = RS2.ledger_ok_tools(_led)
+    _st = RS2.tool_states({}, {"Ed/Get": {}, "Ed/Bad": {}}, (), {}, _lo)
+    ok(_lo == {"Ed.SubTools/Get"} and _st["answered"] == 1 and _st["not_tried"] == 1, "ledger: an answered call counts, a rejected one does not")
 print("states tests OK")
 
 # 5. a recipe's argument names against the saved map, offline

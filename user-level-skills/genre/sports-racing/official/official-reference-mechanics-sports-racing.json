@@ -1,0 +1,127 @@
+{
+ "schema": 1,
+ "genre": "sports-racing",
+ "pack_version": 1,
+ "patterns": [
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning vehicle acceleration",
+   "action": "Throttle input remains latched after driver disconnect, pause, or seat exit.",
+   "statement": "Vehicle Acceleration: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-acd83db12bfa"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning vehicle acceleration",
+   "action": "Traction modifiers are applied after velocity cap, making mud affect launch but not top pace.",
+   "statement": "Vehicle Acceleration: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-4f9d2c49cd9c"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning vehicle braking",
+   "action": "Braking applies a direct velocity clamp and ignores traction, causing instant stops on ice.",
+   "statement": "Vehicle Braking: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-cf5d3445f951"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning vehicle braking",
+   "action": "Reverse engages while the vehicle is still moving forward too quickly.",
+   "statement": "Vehicle Braking: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-24730035da4a"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Tall walls, roofs, trees, and bridges can hide the player or target unless occlusion policy is explicit.",
+   "statement": "Top-Down Camera: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-d8916d59d04e"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Zooming out can reveal spoiler areas, hidden rooms, or enemies behind fog-of-war bounds.",
+   "statement": "Top-Down Camera: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-b3ecde4701a4"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning daily challenge",
+   "action": "Device clock differs from the server clock and shows the wrong challenge window.",
+   "statement": "Daily Challenge: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-fe2aa5f91d95"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning daily challenge",
+   "action": "Daily rewards should motivate return visits without feeling mandatory for core progression.",
+   "statement": "Daily Challenge: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-3fa271f66af2"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning slow motion",
+   "action": "Lower simulation scale gives dramatic readability but can trivialize aiming, dodging, and puzzle execution.",
+   "statement": "Slow Motion: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-28bfa582da1f"
+  },
+  {
+   "variant": "*",
+   "section": "launch-checklist",
+   "condition": "Making slow motion usable for every player",
+   "action": "Allow players to reduce or disable motion distortion, heavy screen effects, and audio pitch shifts during slow motion.",
+   "statement": "Slow Motion: accessibility note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-d687466b19f6"
+  }
+ ]
+}

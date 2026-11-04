@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.117.2
-updated: kit-1.117.2
+created: kit-1.119.0
+updated: kit-1.119.0
 sources: [docs/manual/commands.md]
 type: kit
 status: current
@@ -15,6 +15,7 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 | Command | What it does | When |
 |---|---|---|
 | `/spec [idea or material] [--new-idea] [--improve N] [--jam] [--days N] [--theme "..."]` | Start a game from an idea, or iterate its spec: genre, scored idea, 5-line loop, spec v0, technical risks, one approval | You have an idea, or none: start here. |
+| `/mechanic find WORDS | show ID | check ID ID ...` | Look up a game mechanic (what it needs, its parameters, edge cases, bugs, how UEFN does it) or check a set of mechanics before you build them | You are choosing what the game does: look a mechanic up, or check a set before building. |
 | `/game-plan [--jam]` | Turn the approved game spec into the principles (CONSTITUTION.md) and the technical plan (PLAN.md), with one approval | The spec is approved. |
 | `/task-list` | Break the approved plan into tasks (T-xxx) with verifiable criteria, stories, dependencies and parallel marks, ready for coder | The plan is approved. |
 | `/consistency` | Read-only coherence check of spec, plan and tasks with a severity per finding, before building or after a change | Before building: do spec, plan and tasks agree? |
@@ -76,4 +77,4 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 - `/demo --auto`: the same round, no questions: the AI approves for you and writes it down. The Docs page shows the clock.
 
 ## Sources
-- The kit manual, chapter "All the commands" (docs/manual/commands.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "All the commands" (docs/manual/commands.md), kit v1.119.0. Rebuilt on every kit release: do not edit this page, edit the manual.

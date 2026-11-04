@@ -70,10 +70,12 @@ assert rg.main(["init", os.path.dirname(os.path.dirname(gd))]) == 0
 gt = open(os.path.join(gd, "DELIVERY-GATE.md"), encoding="utf-8").read()
 blk, wr = rg.check(gt)
 assert len(blk) >= 14 and any("Memory used" in x for x in blk) and any("Compliance" in x or "Third-party" in x for x in blk) and any("Cooked for Platforms" in x for x in blk) and "## 2. Compliance" in gt and "Island Settings: Max players = 4" in gt
-ticked = gt.replace("- [ ]", "- [x]").replace("<NN>%", "90%")
+ticked = gt.replace("- [ ]", "- [x]").replace("<NN> MB", "270 MB")
 blk, wr = rg.check(ticked)
-assert not blk and wr and "90%" in wr[0]
-assert rg.check(ticked.replace("90%", "100%"))[0]
+assert not blk and wr and "270 MB" in wr[0]
+assert rg.check(ticked.replace("270 MB", "300 MB"))[0]
+assert rg.check(ticked.replace("270 MB", "90%"))[1] and not rg.check(ticked.replace("270 MB", "90%"))[0] and rg.check(ticked.replace("270 MB", "100%"))[0]   # an older UEFN writes a percentage
+assert "## 6. Accessibility" in gt and sum(1 for l in gt.split("## 6. Accessibility", 1)[1].splitlines() if l.startswith("- [ ]")) == len(rg.ACCESSIBILITY) >= 8
 assert rg.main(["init", os.path.dirname(os.path.dirname(gd))]) == 0 and open(os.path.join(gd, "DELIVERY-GATE.md"), encoding="utf-8").read() == gt
 # audit ledger: limits of the self-healing
 it = al.add([], "old Verse header", "minor", "a.verse")

@@ -1,0 +1,127 @@
+{
+ "schema": 1,
+ "genre": "shooter",
+ "pack_version": 1,
+ "patterns": [
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning ranged attack",
+   "action": "Projectile visuals and damage traces use different origins, causing visible misses to hit.",
+   "statement": "Ranged Attack: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-e9e953d248df"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning ranged attack",
+   "action": "Ammo is consumed before server rejection and not refunded after prediction correction.",
+   "statement": "Ranged Attack: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-993c4ce26e3e"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning toggle/hold option",
+   "action": "Changing setting while action is held leaves the action stuck active.",
+   "statement": "Toggle/Hold Option: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-251aac0cf705"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning toggle/hold option",
+   "action": "One local player changes input mode and overwrites another player’s profile.",
+   "statement": "Toggle/Hold Option: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-6feaa9d909c3"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning screen shake",
+   "action": "Pausing during a shake should define whether decay freezes, completes instantly, or resumes from remaining trauma.",
+   "statement": "Screen Shake: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-465063e24330"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning screen shake",
+   "action": "Cinematic cameras, split-screen, spectating, and photo mode need opt-in shake routing.",
+   "statement": "Screen Shake: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-00e4e8aa104c"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning aim down sights",
+   "action": "Entering ADS while sprinting, reloading, climbing, or swimming needs priority rules.",
+   "statement": "Aim Down Sights: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-350562e42dc3"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Strict screen-space bounds make the camera stable; loose bounds make fast movement feel more responsive.",
+   "statement": "Top-Down Camera: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-31a8ad162c97"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Top-down views often require enemy telegraphs and projectiles to be readable at smaller screen sizes.",
+   "statement": "Top-Down Camera: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-29a7ba2953ef"
+  },
+  {
+   "variant": "*",
+   "section": "launch-checklist",
+   "condition": "Making aim down sights usable for every player",
+   "action": "Offer hold/toggle settings, scoped sensitivity, reticle options, and reduced zoom-motion settings.",
+   "statement": "Aim Down Sights: accessibility note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-4dbed4e7aacc"
+  }
+ ]
+}

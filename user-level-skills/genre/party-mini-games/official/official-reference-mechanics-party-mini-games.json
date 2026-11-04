@@ -1,0 +1,127 @@
+{
+ "schema": 1,
+ "genre": "party-mini-games",
+ "pack_version": 1,
+ "patterns": [
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning beat matching",
+   "action": "Latency offset is applied twice to held notes or repeated taps.",
+   "statement": "Beat Matching: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-0bbd2851dd41"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning beat matching",
+   "action": "Pause resumes chart scrolling but not the audio clock baseline.",
+   "statement": "Beat Matching: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-e2786472f58c"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning note lane",
+   "action": "Rendered note position drifts from audio-clock judgment because animation uses frame delta.",
+   "statement": "Note Lane: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-f84548c502c0"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning note lane",
+   "action": "Lane input mapping changes in settings but existing spawned notes keep old lane ids.",
+   "statement": "Note Lane: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-c7e59c2f9b60"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning screen shake",
+   "action": "Repeated rapid events should accumulate through a cap rather than stacking into unreadable camera motion.",
+   "statement": "Screen Shake: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-76f5201000e5"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning screen shake",
+   "action": "Reticles, health bars, subtitles, and interaction prompts should not inherit shake unless the UI is intentionally diegetic.",
+   "statement": "Screen Shake: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-301408dac0d8"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Vertical layers such as stairs, flying enemies, or basements can be ambiguous from overhead view.",
+   "statement": "Top-Down Camera: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-880fb07837e4"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning top-down camera",
+   "action": "Wider zoom improves planning but can reduce surprise and reveal encounter setup.",
+   "statement": "Top-Down Camera: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-02b358e5ddea"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning asymmetric roles",
+   "action": "Every role needs moments of agency; a support role should not spend most of the session waiting for others.",
+   "statement": "Asymmetric Roles: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-eb5df26e47a0"
+  },
+  {
+   "variant": "*",
+   "section": "launch-checklist",
+   "condition": "Making asymmetric roles usable for every player",
+   "action": "Offer roles with lower mechanical intensity and roles with lower communication demands where the game supports them.",
+   "statement": "Asymmetric Roles: accessibility note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-7a4048be6fe1"
+  }
+ ]
+}

@@ -1,0 +1,127 @@
+{
+ "schema": 1,
+ "genre": "survival",
+ "pack_version": 1,
+ "patterns": [
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning hiding",
+   "action": "The camera clips outside lockers or under beds during enter and peek transitions.",
+   "statement": "Hiding: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-ed4024df8600"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning hiding",
+   "action": "Exit placement pushes the player into a wall or directly into monster collision.",
+   "statement": "Hiding: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-dfb119f35cbc"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning light resource",
+   "action": "Fuel drains twice because both the item and equipped light update the same resource.",
+   "statement": "Light Resource: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-aaee41537836"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning light resource",
+   "action": "Refill transactions consume inventory before validating capacity or current source type.",
+   "statement": "Light Resource: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-19f50ec6555c"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning monster patrol",
+   "action": "The player enters a safe room while the monster is already chasing at the boundary.",
+   "statement": "Monster Patrol: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-4e44fd7dda42"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning monster patrol",
+   "action": "A noise lure and line-of-sight event arrive during the same AI decision step.",
+   "statement": "Monster Patrol: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-6666316410a0"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning sanity meter",
+   "action": "Sanity drops below a critical threshold during a cutscene, menu, or non-interactive scare.",
+   "statement": "Sanity Meter: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-842279ccb090"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning sanity meter",
+   "action": "Sanity pressure should give players enough warning to react before severe effects begin.",
+   "statement": "Sanity Meter: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-5e89d380b93e"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning permadeath",
+   "action": "Meta rewards can soften failure, but too much account power can make early-run decisions irrelevant.",
+   "statement": "Permadeath: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-ed6aa3448922"
+  },
+  {
+   "variant": "*",
+   "section": "launch-checklist",
+   "condition": "Making permadeath usable for every player",
+   "action": "Offer practice, assist, or non-competitive modes if the full run-loss rule blocks players from learning.",
+   "statement": "Permadeath: accessibility note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-432edfd9ca07"
+  }
+ ]
+}

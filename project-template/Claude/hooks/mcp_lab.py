@@ -60,7 +60,7 @@ LEDGER = os.path.join(LOGS, "explore-ledger.jsonl")
 SRC = os.environ.get("LAB_SRC", "agent")
 MARKER = os.path.join(HERE, "..", "LAB-PROJECT.txt")
 NEVER = re.compile(r"delete|remove_asset|import|StartSession|StopSession|StartGame|StopGame|PushChanges|BuildAll|exit|quit|restart|shutdown|open_level|load_level|new_level|save_level|SetCVar|set_cvar|console|python", re.I)
-HARD_NEVER = re.compile(r"exit|quit|restart|shutdown", re.I)
+HARD_NEVER = re.compile(r"exit|quit|restart|shutdown", re.I)  # matched against whole camelCase / snake_case words of the tool name
 DISK_PATH = re.compile(r"^[A-Za-z]:[\\/]|^\\\\|^/(home|mnt|Users|usr|etc|var)/", re.I)
 EXPLORE = os.path.join(HERE, "..", "logs", "_explore")  # the one folder on disk the lab may read from or write to (import_file, export_png)
 EXPLORE_TOOLS = ("import_file", "export_png")
@@ -278,7 +278,7 @@ def refusal(ts, tool, args):
             return bad
         _checked = True
     strs = list(_strings(args))
-    if HARD_NEVER.search(tool):
+    if any(HARD_NEVER.fullmatch(w) for w in re.findall(r"[A-Z]+(?![a-z])|[A-Z]?[a-z0-9]+", tool)):  # whole words only: GetCollisionComplexity is not "exit"
         return "never: quitting or restarting the editor ends the MCP server"
     if _save_all(tool, args):
         return "refused: save_assets without asset_paths would save every unsaved asset; name the assets you changed"

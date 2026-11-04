@@ -209,4 +209,4 @@ _empty = _tf.mkdtemp()
 _buf = io.StringIO()
 with contextlib.redirect_stdout(_buf):
     _code = mcp_map.find(["asset", "move"], _empty)
-ok(_code == 0 and "AssetTools/move" in _buf.getvalue(), "find without a live map falls back to the known tool names (move an asset = AssetTools/move)")
+ok(_code == 0 and "EditorToolset/Move" in _buf.getvalue(), "find without a live map falls back to the known tool names (move an asset = EditorToolset/Move)")

@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.117.2
-updated: kit-1.117.2
+created: kit-1.119.0
+updated: kit-1.119.0
 sources: [docs/manual/the-console.md]
 type: kit
 status: current
@@ -16,7 +16,7 @@ The console runs on your own computer. It starts by itself when you open a sessi
 
 ## Console
 
-The live view, drawn like a small solar system. The chief of staff, which is your main Claude session, is the sun. Five **planets** orbit it, one per group: BUILD (coder), CONTROL (intent-reviewer), RELEASE (release-gate), MEMORY (the Obsidian Vault) and UEFN MCP (the MCP server). The other agents are the **moons** of their planet: they turn around it in the opposite direction and more slowly. An agent lights up while it works, and a pulse travels from one to another on a hand-off. You are the small red card near the sun.
+The live view, drawn like a small solar system. The chief of staff, which is your main Claude session, is the sun. Six **planets** orbit it, one per group: BUILD (coder), CONTROL (intent-reviewer), RELEASE (release-gate), MEMORY (the Obsidian Vault), UEFN MCP (the MCP server) and UEFN AREAS (the ten agents that each own one area of the editor's tools, see [[your-team|Your team]]). The other agents are the **moons** of their planet: they turn around it in the opposite direction and more slowly. An agent lights up while it works, and a pulse travels from one to another on a hand-off. You are the small red card near the sun. The MCP server pulses on every call to the editor, whether it comes from a session or from a script that goes through the lab wrapper (the pulse carries the name of the caller: the chief of staff, `cod`, or an area agent), and the lines between the working agent, its planet and the sun move while it works. An agent that waits for you has a yellow badge.
 
 - **Session running for** and **tokens this session** in one compact row at the top, so the whole system stays visible without scrolling. The token count is an approximation, summed from the session transcript; its details (in, out, cache) sit beside the total.
 - **Summary line** (1.114): one line under the menu says where the work stands (tasks done, what Claude is building, what is built and waits for your playtest, open bugs) and, when only you can move on, the amber sentence "Your turn: play one round and tell Claude what you saw". It is read from the project's roadmap and bug list, never typed.
@@ -58,6 +58,8 @@ The project's own documents, read from `Claude/docs/`: the game idea, spec and p
 
 - Three progress bars at the top: **Roadmap progress**, **Bug fixing progress** and **Release status**.
 - **Next action** (1.114): the card has a fixed order: **Found** (where we are), **Advice** (what Claude does), **Then**, and last, in an amber box, the **Question for you**. It has a **Copy text** button: nothing runs by itself, you paste the text in Claude Code and every change still waits for your approval. A task that is built and only waits for your playtest is shown as "Your turn", never as "Claude is building". The project name shows next to it and in the connection line (for a UEFN project the name of the folder above `Content`).
+- **The loop bar** (1.117): under steps Tasks to Play and confirm, a bar shows the tasks of the release in progress (for example `P1-R1: 6/11 tasks`). Those steps repeat for every release, so they have their own colour. When you confirm the release in *Play and confirm*, the bar moves to the next release of the Release column of `ROADMAP.md`; *Later* is the backlog and is not counted. The same step shows a counter of tasks done.
+- **Audit and Performance tabs** (1.117): in the second row of tabs, next to Bugs, Status and Documents, *Audit* shows the last audit (bugs by severity, what was verified and what was not) and *Performance* shows `PERFORMANCE.md` (metrics against the budget, memory in MB, the worst areas). The second row has the same look as the top menu.
 - **The workflow as arrows** (1.114): Idea, Spec, Plan, Tasks, Environment, Build, Audit, Delivery. The arrow of the step in progress is lit and pulses; a finished step turns fully green; the ones not started are grey. When a step finishes, the page opens the next one by itself, so while Claude Code works you do not have to click: Build shows each task row light up as it changes, Environment each scenery row. After Delivery comes a ninth step, **Your turn**: everything that is left for you (tasks blocked on you, audit findings, what Claude cannot do). A task blocked on something only you can do turns the Build arrow red and the flow stops there until you act. Bugs, Status and Documents are the small tabs below. Every step shows its page even before there is any data (greyed, with the command that fills it), so you can see what is coming.
 - **Your turn and Play and confirm** (1.115): two steps where only you act. Step 8 "Your turn" lists what the build waits for (a device field the tools cannot fill, a choice), each with a **Done** button; the agent waits and goes on by itself when all are done. The last step lists the main things the player does (from the game loop); you play, and press **Gameplay works: confirm** only if you saw it work. What the agent checked by itself during the build is shown in the Build panel, not asked of you again.
 - **Ideas** (Idea step): one tab per idea, up to 5, each with its score, verdict, weak points and score history, and a **Compare** tab. With `/spec --improve N` you rework an idea to raise its score; `/spec --new-idea` adds another. If you have your own material (notes, a half-written spec) give it to `/spec`: it is the starting point; with nothing, Claude Code proposes three ideas and works with you.
@@ -101,7 +103,7 @@ What the kit has learned, and what waits for you. At the top, four cards (what w
 - **Lessons**, **Recipes**, **Skills**: everything the kit knows, with filters and a search.
 - **Maps & products**: every project the kit learns from, with a bar for how much is learned.
 - **This map** (or **This product** in a Fab product): the genre and type, the steps of the learning, the blueprint and the recipes of the project you are in.
-- **UEFN MCP**: how many of UEFN's tools have a recipe ("recipes cover 225 of 388 tools, 221 proven") and how many answered in tests, the safe tests, and the latest news. Four rings (proven by use, tool answered, not verified, failed), a bar per area and the growth over the last weeks. It fills by itself, see [[mcp-engine|The MCP engine]].
+- **Editor tools** (before 43.00: UEFN MCP): the whole toolset in the same four states, for tools and for recipes: **proven** (the exact call worked while doing real work), **answered** (the tool replied once), **not tried** and **to replay** (a call that failed, or a tool Epic changed, renamed its arguments or removed). Each area has a bar with the same four colours, in two or three columns. Beside it, *Autodiscovery* shows what was found by itself (new, renamed, reworded, removed tools; first-seen dates; Epic's skills) and a compact *Not in the kit yet* list. The numbers follow the lab: every answered call in its ledger moves a tool to *answered*. It fills by itself, see [[mcp-engine|The MCP engine]].
 - **Community**: the switch to share, covered in [[community|Community]].
 
 In a Fab product the console also has a **Checklist** tab (see [[fab-product-project|A Fab product project]]).
@@ -155,6 +157,7 @@ The rules and the reasons are in [the console design](https://github.com/mimmo-t
 When your computer holds a newer kit version than the project you are in, the console says so. Run `/kit-update`, open a new session, and reload the page.
 
 ## Related articles
+- [[your-team|Your team]]
 - [[the-second-brain|The second brain]]
 - [[mcp-engine|The MCP engine]]
 - [[community|Community]]
@@ -162,4 +165,4 @@ When your computer holds a newer kit version than the project you are in, the co
 - [[skills-and-lessons|Skills and lessons]]
 
 ## Sources
-- The kit manual, chapter "The console" (docs/manual/the-console.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "The console" (docs/manual/the-console.md), kit v1.119.0. Rebuilt on every kit release: do not edit this page, edit the manual.

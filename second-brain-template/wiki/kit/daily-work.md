@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.117.2
-updated: kit-1.117.2
+created: kit-1.119.0
+updated: kit-1.119.0
 sources: [docs/manual/daily-work.md]
 type: kit
 status: current
@@ -111,6 +111,14 @@ A long session slows down and gets expensive because the conversation fills up. 
 
 If you leave a session running overnight with UEFN open, Claude Code can wait out "overloaded" errors instead of stopping. Set `CLAUDE_CODE_RETRY_WATCHDOG=1` (needs a recent Claude Code, 2.1.186 or later) and, to cap the wait, `CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS=1800000` (30 minutes; 2.1.295 or later). The computer and UEFN must stay awake and open, and an error about a spending limit still stops the run.
 
+## Looking a mechanic up before you build it
+
+Before the coder writes a mechanic, `/mechanic find WORDS` and `/mechanic show ID` print its card: what it needs, the usual parameter ranges, the edge cases, the bugs people hit, balance and accessibility notes, and the line about how UEFN does it (a device, Verse, or no direct way; each line says whether it was checked in the editor). `/mechanic check ID ID ...` takes the set you chose and lists what you forgot (a mechanic that needs another), what clashes, the systems you build once for several mechanics, a rough cost, and the first slice to build. The catalog has 223 mechanics from an open dataset (public domain) and a UEFN column that grows as devices are checked.
+
+## When Epic ships a new UEFN
+
+About every 15 days. The skill `uefn-version-upgrade` is the routine: save the Verse digests before updating, diff them after (`digest_diff.py`), read what the tools learned by themselves (Knowledge, *Editor tools*: new, renamed, reworded and removed tools, also from silent updates), keep from the release notes only what touches the kit, and write a short file per release. A project made on an older version is built first, and the first error is read, not the last.
+
 ## Commands that run without asking
 
 New projects come with a short list of pre-approved commands in `.claude/settings.json`: the kit's read-only checks (`verse_check`, `verse_map`, `text_scan`, `agent_cost`, and `ui_kit_check` with `--check` or `--diff`, run with `py -3`, `python` or `python3`) and the read-only Git commands `git status`, `git diff` and `git log`. Everything that writes, deletes or publishes still asks you. Projects made before 1.105.0 keep their own settings untouched: to get the same convenience, copy the `allow` list from the kit's `project-template/.claude/settings.json` into your project's file, or add the rules one by one with `/permissions`.
@@ -120,4 +128,4 @@ New projects come with a short list of pre-approved commands in `.claude/setting
 Every project's `STATUS.md` has the same format, so a short script can scan all your project folders and build one table with the last update, the next step and the open issues. The kit does not ship it because it depends on how you lay out your disk.
 
 ## Sources
-- The kit manual, chapter "A working day" (docs/manual/daily-work.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "A working day" (docs/manual/daily-work.md), kit v1.119.0. Rebuilt on every kit release: do not edit this page, edit the manual.

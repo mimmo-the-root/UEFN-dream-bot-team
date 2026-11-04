@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.117.2
-updated: kit-1.117.2
+created: kit-1.119.0
+updated: kit-1.119.0
 sources: [docs/manual/from-idea-to-game.md]
 type: kit
 status: current
@@ -54,7 +54,7 @@ Each step is checked by its script and then read with fresh eyes by a second age
 
 ## Step 8 and 9: `/audit` and `/delivery`
 
-When the build is finished, `/audit` looks for bugs. Small ones on the constitution's list are fixed by the kit (3 attempts per bug, 10 per audit, with a restore point); a bug that breaks a success criterion or touches the spec is **never** fixed alone: it comes to you with a recommendation. `/delivery` writes `DELIVERY-GATE.md`: what Claude cannot do (Beta Access, Python scripting, Island settings, the manual steps), the private release, and `Memory used: NN%` that you read from UEFN. **Only you tick the boxes.** 100% memory blocks, 85% warns. After a good playtest the game is delivered and the cycle starts again: new ideas, `/spec`, `/game-plan`, `/task-list`.
+When the build is finished, `/audit` looks for bugs. Small ones on the constitution's list are fixed by the kit (3 attempts per bug, 10 per audit, with a restore point); a bug that breaks a success criterion or touches the spec is **never** fixed alone: it comes to you with a recommendation. `/delivery` writes `DELIVERY-GATE.md`: what Claude cannot do (Beta Access, Python scripting, Island settings, the manual steps), the private release, and the memory you read from UEFN: `Memory used: NNN MB` (UEFN 43.00 checks it at every cook, limit 300 MB) or the older percentage. **Only you tick the boxes.** At the limit it blocks, at 85% of it it warns. The gate has a sixth section of ten plain accessibility checks (readable text, nothing by colour alone, no rapid flashing, no long-press-only action, enough time, a forgiving start, and so on). `/performance` measures the open map with the profiler first, and writes `PERFORMANCE.md`. After a good playtest the game is delivered and the cycle starts again: new ideas, `/spec`, `/game-plan`, `/task-list`.
 
 ## Reading the Docs page
 
@@ -86,4 +86,4 @@ The demo refuses when the project already has your own spec, a plan or tasks, an
 - A tab is missing: the project has tasks and no `GAME-SPEC.md`; run `/spec` or the demo in a test project.
 
 ## Sources
-- The kit manual, chapter "From an idea to a playable game" (docs/manual/from-idea-to-game.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "From an idea to a playable game" (docs/manual/from-idea-to-game.md), kit v1.119.0. Rebuilt on every kit release: do not edit this page, edit the manual.

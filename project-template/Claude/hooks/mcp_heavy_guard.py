@@ -75,13 +75,30 @@ def avoided(call):
     return ""
 
 
+def wrong_owner(payload, call):
+    """A sub-agent of the kit calling a tool that belongs to another agent (hooks/mcp_owner.py). The main session is never limited, and a payload
+    that does not name an agent is not judged. Switch off with UEFN_KIT_OWNERS=0. '' to allow."""
+    try:
+        if os.environ.get("UEFN_KIT_OWNERS") == "0":
+            return ""
+        agent = str((payload or {}).get("agent_type") or "")
+        if not agent or not call.get("tool"):
+            return ""
+        import mcp_owner as O
+        if O.allowed(agent, call["toolset"], call["tool"]):
+            return ""
+        return O.refusal(agent, call["toolset"], call["tool"])
+    except Exception:
+        return ""
+
+
 def main():
     try:
         if os.environ.get("UEFN_KIT_GUARD") == "0":
             return 0
         p = json.loads(sys.stdin.read() or "{}")
         c = N.read(p)
-        why = verdict(c["tool"], c["args"] if c["shape"] == "new" else _args(p.get("tool_input") or {}), N.script_text(c)) or avoided(c)
+        why = verdict(c["tool"], c["args"] if c["shape"] == "new" else _args(p.get("tool_input") or {}), N.script_text(c)) or avoided(c) or wrong_owner(p, c)
         if why:
             print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": why}}))
     except Exception:

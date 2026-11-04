@@ -1,0 +1,127 @@
+{
+ "schema": 1,
+ "genre": "roguelike",
+ "pack_version": 1,
+ "patterns": [
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning dash",
+   "action": "Dash moves by transform position and bypasses collision sweeps, causing wall clips at low frame rates.",
+   "statement": "Dash: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-73ad6fbb5d56"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning dash",
+   "action": "Recharge starts on button press instead of successful activation, rewarding invalid repeated inputs.",
+   "statement": "Dash: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-32fc28cbc0c2"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning level up",
+   "action": "Only one level reward is granted during multi-level gains.",
+   "statement": "Level Up: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-517d5e0fcca9"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning level up",
+   "action": "Derived stats recalculate before equipment or skill modifiers are reloaded, causing temporary wrong values.",
+   "statement": "Level Up: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-bd8c3c5e8255"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning skill tree",
+   "action": "Removing a prerequisite node during respec must also remove or disable dependent nodes.",
+   "statement": "Skill Tree: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-e2d499b269df"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning skill tree",
+   "action": "UI navigation must handle large trees with keyboard, mouse, gamepad, touch, zoom, and search.",
+   "statement": "Skill Tree: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-8f3f31fc03b4"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning unlockable abilities",
+   "action": "An ability unlocks while the player is airborne, in combat, or in a menu and should not steal input unexpectedly.",
+   "statement": "Unlockable Abilities: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-af551ade741a"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning unlockable abilities",
+   "action": "New verbs should arrive when the game has space to teach and test them, not only when the XP curve needs a reward.",
+   "statement": "Unlockable Abilities: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-b32d8b55e5d5"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning permadeath",
+   "action": "Permanent run loss is easier to accept when runs are short enough or post-run learning is obvious.",
+   "statement": "Permadeath: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-3882c27f97f1"
+  },
+  {
+   "variant": "*",
+   "section": "launch-checklist",
+   "condition": "Making permadeath usable for every player",
+   "action": "Provide confirmation and readable consequences for abandoning or deleting a run.",
+   "statement": "Permadeath: accessibility note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-da604f290128"
+  }
+ ]
+}

@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.117.2
-updated: kit-1.117.2
+created: kit-1.119.0
+updated: kit-1.119.0
 sources: [docs/manual/how-the-kit-thinks.md]
 type: kit
 status: current
@@ -86,7 +86,7 @@ Steps 1 to 4 are the way to the MVP. Steps 5 and 6 are the loop going around aga
 
 1. **You** bring the dream, the choices and what only a person can do.
 2. **The plan** says what "done" means, written first.
-3. **The team** of 22 helpers does the work, one job each.
+3. **The team** of 32 helpers does the work, one job each.
 4. **The editor** is the place where every tool is known and every trick was tried for real.
 5. **Proof** comes from the editor: built, read back, checked, played.
 6. **Your yes**: only you tick the box.
@@ -188,4 +188,4 @@ The goal was never a system that does not need you. It is a system that needs yo
 - [[skills-and-lessons|Skills and lessons]]
 
 ## Sources
-- The kit manual, chapter "How the kit thinks" (docs/manual/how-the-kit-thinks.md), kit v1.117.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "How the kit thinks" (docs/manual/how-the-kit-thinks.md), kit v1.119.0. Rebuilt on every kit release: do not edit this page, edit the manual.

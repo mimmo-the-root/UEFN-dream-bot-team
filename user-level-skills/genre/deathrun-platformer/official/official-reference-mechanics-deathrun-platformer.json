@@ -1,0 +1,127 @@
+{
+ "schema": 1,
+ "genre": "deathrun-platformer",
+ "pack_version": 1,
+ "patterns": [
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning ranged attack",
+   "action": "Spread uses frame-random state and breaks deterministic replays or seeded runs.",
+   "statement": "Ranged Attack: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-c9aac76cee9b"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning ranged attack",
+   "action": "Projectiles continue after scene unload because lifetime cleanup is tied to renderer visibility.",
+   "statement": "Ranged Attack: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-c24cab8094cd"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning air dash",
+   "action": "Dash charge resets repeatedly on wall contact and enables unintended climbing.",
+   "statement": "Air Dash: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-454206091b4c"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning air dash",
+   "action": "Air dash uses ground friction and loses distance immediately.",
+   "statement": "Air Dash: common bug",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-262608384427"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning dash",
+   "action": "Dashing into a concave corner should stop or slide consistently without tunneling through thin collision.",
+   "statement": "Dash: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-aca44b877d4c"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning dash",
+   "action": "A buffered dash pressed before landing must choose whether to use ground rules, air rules, or be rejected.",
+   "statement": "Dash: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-4087ae22127b"
+  },
+  {
+   "variant": "*",
+   "section": "pitfalls",
+   "condition": "Adding or tuning dodge roll",
+   "action": "Roll direction should be captured at activation, not drift when lock-on target or camera heading changes mid-roll.",
+   "statement": "Dodge Roll: edge case",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-47e024b5354d"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning dodge roll",
+   "action": "Long i-frame windows make roll a timing solution; long displacement makes it a spacing solution.",
+   "statement": "Dodge Roll: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-43bd5887a4cb"
+  },
+  {
+   "variant": "*",
+   "section": "balance",
+   "condition": "Adding or tuning run",
+   "action": "Run pace sets the expected density of levels; increasing it may require wider lanes and earlier enemy telegraphs.",
+   "statement": "Run: balance note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-01416dadc486"
+  },
+  {
+   "variant": "*",
+   "section": "launch-checklist",
+   "condition": "Making run usable for every player",
+   "action": "Offer always-run or toggle-run options when holding a modifier would be fatiguing.",
+   "statement": "Run: accessibility note",
+   "tier": "reference",
+   "status": "active",
+   "support": 0,
+   "against": 0,
+   "id": "p-4670176533d0"
+  }
+ ]
+}

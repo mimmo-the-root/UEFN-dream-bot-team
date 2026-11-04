@@ -1,6 +1,30 @@
 {
  "note": "Tools that stopped the editor (the connection was reset right after the call). The guard refuses them, the map tests skip them. Remove an entry only after the owner has tried the tool in a throwaway project.",
  "avoid": {
-  "SceneCaptureToolset/ListViews": {"why": "the editor connection was reset when it was called with made-up arguments in the 43.00 deep test (2026-11-03); the editor stopped answering", "date": "2026-11-03", "state": "suspected"}
+  "SceneCaptureToolset/ListViews": {
+   "why": "the editor connection was reset when it was called with made-up arguments in the 43.00 deep test (2026-11-03); the editor stopped answering",
+   "date": "2026-11-03",
+   "state": "suspected"
+  },
+  "animation_toolset/get_actor_transform_at_frame": {
+   "why": "the editor crashed (crash reporter dialog) right after this call with made-up arguments (SequencerControlRigTools.get_actor_transform_at_frame, 2026-11-04, validation 044)",
+   "date": "2026-11-04",
+   "state": "suspected"
+  },
+  "PCGToolset/DrawSpline": {
+   "why": "interactive: it waits for the owner to draw in the viewport, times out and leaves a PCG Area Tool actor (validation 042, 2026-11-04). Call it only with the owner at the editor",
+   "date": "2026-11-04",
+   "state": "interactive"
+  },
+  "animation_toolset/set_track_display_name": {
+   "why": "suspected: the editor lost its connection right at this call in one run; not reproduced (the run that skipped it was stable). Test alone with the owner at the editor",
+   "date": "2026-11-04",
+   "state": "suspected"
+  },
+  "animation_toolset/delete_marked_frame": {
+   "why": "CONFIRMED crash: called alone on a healthy editor with a made-up frame it dropped the connection and the crash dialog appeared (validation 047, 2026-11-04)",
+   "date": "2026-11-04",
+   "state": "confirmed"
+  }
  }
 }

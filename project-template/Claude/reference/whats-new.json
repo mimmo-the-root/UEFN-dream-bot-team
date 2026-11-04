@@ -1,6 +1,29 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.119.0": {
+   "title": "One agent per area of the editor",
+   "features": 2,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Ten agents, one for each area of the 807 editor tools",
+    "The guard keeps each agent in its area",
+    "Cod as coordinator is measured, not assumed"
+   ]
+  },
+  "1.118.0": {
+   "title": "Mechanics from an open dataset: lessons, catalog, accessibility",
+   "features": 6,
+   "fixes": 4,
+   "other": 0,
+   "headlines": [
+    "A catalog of 223 game mechanics, and `/mechanic`",
+    "A check of the mechanics you chose",
+    "90 reference lessons from edge cases, bugs and balance notes",
+    "Accessibility in the delivery gate"
+   ]
+  },
   "1.117.2": {
    "title": "The console sees the worker's scripts",
    "features": 0,
