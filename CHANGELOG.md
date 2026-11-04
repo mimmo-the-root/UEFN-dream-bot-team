@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.121.10 — Build step shows the Fix queue
+
+- [fix] **The Build step shows the work of the Fix queue.** Every row of the release shows its kind (bug, audit, perf, feature) and source, a Fix this button, and Scheduled or In progress while a Fix command holds it; the header says how many tasks are in progress or scheduled from the queue and the bar shows "working now".
+
+## v1.121.9 — Status badges follow the fix queue
+
+- [fix] **The status column agrees with the fix banner.** A task that is in a scheduled or running Fix now shows Scheduled or In progress in its own row (Tasks, Bugs, Audit and Performance tables) instead of To do; it goes back to the real ROADMAP status when the fix ends.
+
+## v1.121.8 — Audit findings show their task and release
+
+- [new] **Audit tab: every finding shows the task and the release that carry it, with a Fix this button.** The link is the Source column of ROADMAP.md (`AUDIT #4`, `AUDIT #5-15`); a task titled "minor findings" covers the minor ones nobody named; a finding with no task says "no task".
+
+## v1.121.7 — Roadmap without scrollbar
+
+- [fix] **The Roadmap tab has no horizontal scrollbar.** Releases in progress or queued sit in a grid of at most 4 per row and wrap to the next row; finished releases are stacked as one thin line each (name and done count) under the grid.
+
+## v1.121.6 — The relay starts by itself
+
+- [new] **The mailbox worker starts by itself.** Until now `/relay` had to be typed by hand, so a scheduled Fix waited in the inbox for nobody. At session start, if the project has a mailbox, no `STOP` file and no poll in the last 6 minutes (`outbox/HEARTBEAT.md`), the session hook tells Claude to run `/relay` in its first reply. A project can switch this off with an empty file `Claude/relay/NO-AUTOSTART`; a second session does not start a second worker while the first one is polling.
+- [new] **The console says when nobody is listening.** A scheduled Fix now shows a red "Nobody is listening" line with the reason (never started, stopped, no poll for N min) and what to type.
+
+## v1.121.5 — Fixes queue up, one button per task
+
+- [fix] **While one fix is scheduled, the other Fix buttons are no longer locked.** Each press adds its own command to the relay queue (Scheduled, In progress, Done are shown for every command); only a task that is already in a waiting or running fix is locked, and "Fix all" offers just the tasks not yet queued. The Bugs, Audit and Performance tables now have a "Fix this" button on every open row, not only "Fix all".
+
+## v1.121.4 — Tests no longer open a console
+
+- [fix] **Running the tests or publish.cmd opened a console on "root_FAB_rainbow".** The Fab-product test runs the global session hook for a throwaway folder named root_FAB_rainbow; on Windows that hook really started a console server for it and opened the browser, and the server stayed running. `fab_lab.autostart` now does nothing when `UEFN_KIT_NO_CONSOLE` is set; `tests/run_all.py` and the three tests that run the hook set it, and a new test fails if a test run ever starts a process or a browser tab.
+
 ## v1.121.3 — Fix buttons: Scheduled, In progress, Done
 
 - [feature] **Fix buttons have a mini workflow.** After the confirm click every Fix button locks and a bar under the tabs (visible on every tab) says **Scheduled** (the command waits in the relay inbox: nothing runs yet, do not click again), **In progress** (Claude Code took it) and then **Finished**. Finished says honestly what happened: it lists the tasks that are still open and shows the Status line Claude Code wrote in its result (for example "partial: needs a play session"). The state comes from where the command file sits (inbox, running, done), read every 3 seconds.

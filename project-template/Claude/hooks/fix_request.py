@@ -3,7 +3,7 @@
 Only validated ids go in: each must be T-<3 digits>, exist in Claude/docs/ROADMAP.md and still be open. The command text is a fixed
 template; no task text, path or free text from the page is ever copied into it.
 Usage: python fix_request.py <project dir> [--dry] T-002 T-003      (prints one JSON line {"ok", "id", "file", "ids", "prompt"} or {"ok": false, "error"})"""
-import json, os, re, sys
+import json, os, re, sys, time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 OPEN = re.compile(r"^(to do|todo|in progress|blocked|da fare|in corso|bloccat\w*|wip)\b", re.I)
@@ -79,12 +79,32 @@ def _fix_cmds(project):
     return sorted(out, key=lambda x: x["id"], reverse=True)
 
 
+def relay_state(project):
+    """Is a session polling the mailbox? The worker rewrites outbox/HEARTBEAT.md at every poll (every 120 s idle, 300 s when blocked), so a file older than 6 minutes means nobody is listening."""
+    rl = os.path.join(project, "Claude", "relay")
+    if os.path.exists(os.path.join(rl, "STOP")):
+        return {"alive": False, "age": None, "why": "stopped"}
+    hb = os.path.join(rl, "outbox", "HEARTBEAT.md")
+    try:
+        age = int(time.time() - os.path.getmtime(hb))
+    except OSError:
+        return {"alive": False, "age": None, "why": "never started"}
+    return {"alive": age <= 360, "age": age, "why": "" if age <= 360 else "no poll for %d min" % (age // 60)}
+
+
 def status(project):
-    """{"active": the fix waiting or running (or None), "last": the newest finished one (or None)}. The console shows Scheduled / In progress / Done from this."""
+    """{"active": the fix running, else the oldest waiting (or None), "queue": every fix waiting or running, oldest first, "busy": {task id: "scheduled"|"running"}, "last": the newest finished one (or None)}.
+    The console shows Scheduled / In progress / Done from this; a task already in a waiting or running fix cannot be queued twice, any other task can."""
     cmds = _fix_cmds(project)
-    act = next((c for c in cmds if c["state"] in ("scheduled", "running")), None)
+    queue = sorted([c for c in cmds if c["state"] in ("scheduled", "running")], key=lambda x: x["id"])
+    act = next((c for c in queue if c["state"] == "running"), queue[0] if queue else None)
+    busy = {}
+    for c in queue:
+        for i in c["ids"]:
+            if busy.get(i) != "running":
+                busy[i] = c["state"]
     last = next((c for c in cmds if c["state"] == "done"), None)
-    return {"active": act, "last": last}
+    return {"active": act, "queue": queue, "busy": busy, "last": last, "relay": relay_state(project)}
 
 
 def enqueue(project, ids, dry=False):
@@ -99,9 +119,10 @@ def enqueue(project, ids, dry=False):
             return {"ok": False, "error": "%s is not in ROADMAP.md" % i}
         if not OPEN.match(tasks[i].get("status", "")):
             return {"ok": False, "error": "%s is not open (status: %s)" % (i, tasks[i].get("status", ""))}
-    act = status(project)["active"]
-    if act:   # one fix at a time: a second click must not pile up commands or replace the prompt of one that is waiting or running
-        return {"ok": False, "error": "a fix is already %s (command %s: %s). Wait until it is done." % ("scheduled" if act["state"] == "scheduled" else "in progress", act["id"], ", ".join(act["ids"])), "active": act}
+    busy = status(project)["busy"]
+    dup = [i for i in ids if i in busy]
+    if dup:   # the same task twice would give two commands editing the same work; other tasks may queue behind (Claude Code takes the inbox in order)
+        return {"ok": False, "error": "%s already in a fix that is %s: pick other tasks" % (", ".join(dup), "in progress" if any(busy[i] == "running" for i in dup) else "scheduled")}
     rdir = os.path.join(project, "Claude", "relay")
     if not os.path.isdir(os.path.join(rdir, "inbox")):
         return {"ok": False, "error": "no relay folder in this project (Claude/relay/inbox): copy the text instead"}

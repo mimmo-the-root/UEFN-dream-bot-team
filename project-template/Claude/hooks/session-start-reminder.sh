@@ -98,5 +98,19 @@ owner reports a specific problem with it.
 EOF
 )
 
+# v1.121.6: the mailbox worker (/relay) starts by itself: Fix buttons and planner commands wait in inbox/ until a session polls it.
+rl="$project_dir/Claude/relay"
+if [ -d "$rl/inbox" ] && [ ! -e "$rl/STOP" ] && [ ! -e "$rl/NO-AUTOSTART" ]; then
+  hb="$rl/outbox/HEARTBEAT.md"
+  if [ ! -f "$hb" ] || [ -n "$(find "$hb" -mmin +6 2>/dev/null)" ]; then
+    context="$context"$(cat <<'EOF'
+
+
+The mailbox worker is not running for this project (no fresh Claude/relay/outbox/HEARTBEAT.md, no Claude/relay/STOP). The console's Fix buttons and the planner drop commands into Claude/relay/inbox/ and nothing happens until a session polls it. In your first reply, start it yourself with /relay (no permission needed) and say so in one line. If the owner wants this session to stay a plain chat, they say so; to switch the automatic start off for the project they create the file Claude/relay/NO-AUTOSTART.
+EOF
+)
+  fi
+fi
+
 jq -n --arg ctx "$context" '{hookSpecificOutput:{hookEventName:"SessionStart",additionalContext:$ctx}}'
 exit 0

@@ -247,6 +247,8 @@ def autostart(root, port=8766, open_browser=True):
     """Session start of a Fab product: make sure the console of THIS product is running (a newer one replaces an older one) and open it in the
     browser when it was not running yet. Started through PowerShell's Start-Process on Windows (it outlives the hook and the agent's own shell,
     which a plain background command does not). Returns the URL or None."""
+    if os.environ.get("UEFN_KIT_NO_CONSOLE"):   # set by tests/run_all.py: a test run must never start a console or open the browser
+        return None
     lab = ensure_lab(root)
     here = os.path.normcase(os.path.abspath(lab))
     probe = {}   # port -> whoami (None = nobody answers). Fast probes: a closed port on Windows costs up to the timeout, and the session hook has only 30 s.

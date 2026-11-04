@@ -1,6 +1,70 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.121.10": {
+   "title": "Build step shows the Fix queue",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The Build step shows the work of the Fix queue"
+   ]
+  },
+  "1.121.9": {
+   "title": "Status badges follow the fix queue",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The status column agrees with the fix banner"
+   ]
+  },
+  "1.121.8": {
+   "title": "Audit findings show their task and release",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "[new] **Audit tab: every finding shows the task and the release that carry it, with a Fix this button.** The l"
+   ]
+  },
+  "1.121.7": {
+   "title": "Roadmap without scrollbar",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The Roadmap tab has no horizontal scrollbar"
+   ]
+  },
+  "1.121.6": {
+   "title": "The relay starts by itself",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "[new] **The mailbox worker starts by itself.** Until now `/relay` had to be typed by hand, so a scheduled Fix ",
+    "[new] **The console says when nobody is listening.** A scheduled Fix now shows a red \"Nobody is listening\" lin"
+   ]
+  },
+  "1.121.5": {
+   "title": "Fixes queue up, one button per task",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "While one fix is scheduled, the other Fix buttons are no longer locked"
+   ]
+  },
+  "1.121.4": {
+   "title": "Tests no longer open a console",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Running the tests or publish.cmd opened a console on \"root_FAB_rainbow\""
+   ]
+  },
   "1.121.3": {
    "title": "Fix buttons: Scheduled, In progress, Done",
    "features": 1,

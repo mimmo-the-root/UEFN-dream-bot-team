@@ -1,5 +1,6 @@
 """Fab lab: lessons of a Fab product are recorded in the profile, never in the project."""
 import json, os, shutil, subprocess, sys, tempfile
+os.environ.setdefault("UEFN_KIT_NO_CONSOLE", "1")   # a test run never starts a console or opens the browser
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, os.path.join(ROOT, "user-level-hooks"))
 ok = lambda c, m: (print(("PASS " if c else "FAIL ") + m), c or sys.exit(1))
@@ -105,6 +106,7 @@ try:
     fl._whoami, fl.console = fake_whoami, fake_console
     try:
         t0 = _t.time()
+        os.environ.pop("UEFN_KIT_NO_CONSOLE", None)   # console and whoami are faked here, nothing real starts
         url = fl.autostart(fab, open_browser=False) if os.name != "nt" else None
         if os.name != "nt":
             ok(url == "http://127.0.0.1:8767/" and started == [8767], "console of the product starts on the next free port when 8766 is taken")

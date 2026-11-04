@@ -8,7 +8,7 @@ steps += [("privacy_scan", [sys.executable, os.path.join(root, "tool", "privacy_
           ("token_budget", [sys.executable, os.path.join(root, "tool", "token_budget.py")])]
 bad = 0
 for name, cmd in steps:
-    r = subprocess.run(cmd, cwd=root, capture_output=True, text=True, timeout=300, encoding="utf-8", errors="replace")
+    r = subprocess.run(cmd, cwd=root, capture_output=True, text=True, timeout=300, env=dict(os.environ, UEFN_KIT_NO_CONSOLE="1"), encoding="utf-8", errors="replace")
     ok = r.returncode == 0
     print(("ok    " if ok else "FAIL  ") + name)
     if not ok:

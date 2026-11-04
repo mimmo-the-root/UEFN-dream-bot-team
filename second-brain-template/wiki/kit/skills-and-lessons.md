@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.121.3
-updated: kit-1.121.3
+created: kit-1.121.10
+updated: kit-1.121.10
 sources: [docs/manual/skills-and-lessons.md]
 type: kit
 status: current
@@ -94,4 +94,4 @@ A **lesson** is a short rule. A **recipe** is how to rebuild something, step by 
 - [[the-console|The console]]
 
 ## Sources
-- The kit manual, chapter "Skills and lessons" (docs/manual/skills-and-lessons.md), kit v1.121.3. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Skills and lessons" (docs/manual/skills-and-lessons.md), kit v1.121.10. Rebuilt on every kit release: do not edit this page, edit the manual.

@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.121.3
-updated: kit-1.121.3
+created: kit-1.121.10
+updated: kit-1.121.10
 sources: [docs/manual/the-second-brain.md]
 type: kit
 status: current
@@ -85,4 +85,4 @@ The checks prove that a page copies its source, not that the source is right. A 
 - [[install|Full installation]]
 
 ## Sources
-- The kit manual, chapter "The second brain" (docs/manual/the-second-brain.md), kit v1.121.3. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "The second brain" (docs/manual/the-second-brain.md), kit v1.121.10. Rebuilt on every kit release: do not edit this page, edit the manual.

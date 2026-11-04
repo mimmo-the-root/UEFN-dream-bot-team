@@ -173,6 +173,21 @@ the tab or wants to reopen it. Only touch the console server yourself (stop/rest
 owner reports a specific problem with it.
 "@
 
+    # v1.121.6: the mailbox worker (/relay) starts by itself: Fix buttons and planner commands wait in inbox/ until a session polls it.
+    try {
+        $rl = Join-Path $projectDir "Claude\relay"
+        if ((Test-Path (Join-Path $rl "inbox")) -and -not (Test-Path (Join-Path $rl "STOP")) -and -not (Test-Path (Join-Path $rl "NO-AUTOSTART"))) {
+            $hb = Join-Path $rl "outbox\HEARTBEAT.md"
+            if (-not (Test-Path $hb) -or ((Get-Date) - (Get-Item $hb).LastWriteTime).TotalMinutes -gt 6) {
+                $context += @"
+
+
+The mailbox worker is not running for this project (no fresh Claude/relay/outbox/HEARTBEAT.md, no Claude/relay/STOP). The console's Fix buttons and the planner drop commands into Claude/relay/inbox/ and nothing happens until a session polls it. In your first reply, start it yourself with /relay (no permission needed) and say so in one line. If the owner wants this session to stay a plain chat, they say so; to switch the automatic start off for the project they create the file Claude/relay/NO-AUTOSTART.
+"@
+            }
+        }
+    } catch {}
+
     $output = [ordered]@{
         hookSpecificOutput = [ordered]@{
             hookEventName     = "SessionStart"

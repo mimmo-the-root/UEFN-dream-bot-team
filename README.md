@@ -81,7 +81,7 @@ One design system for every page: colour means status (green done, amber your tu
 
 Also: **Stats** (time and tokens), **Score** (the game against its plan, criterion by criterion), **News** (what changed in the kit) and **Fab** (is the product package ready).
 
-## What's new (v1.108 - v1.121.3)
+## What's new (v1.108 - v1.121.10)
 
 - **v1.119, one agent per area.** Ten agents each own a slice of the 807 editor tools (reads, level and PCG, assets, devices, Scene Graph, Verse and sessions, UI, effects and audio, profiling, Sequencer); the guard keeps each in its own area.
 - **v1.118, mechanics.** A catalog of 223 mechanics with `/mechanic find`, `show` and `check`; 90 reference lessons for nine genres; accessibility checks in the delivery gate; "Approve all" for lesson packs; the Knowledge numbers follow the lab.

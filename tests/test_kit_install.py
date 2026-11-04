@@ -1,4 +1,5 @@
 import json, os, subprocess, sys, tempfile, shutil
+os.environ.setdefault("UEFN_KIT_NO_CONSOLE", "1")   # a test run never starts a console or opens the browser
 
 hooks = os.path.join(os.path.dirname(__file__), "..", "user-level-hooks")
 home = tempfile.mkdtemp()

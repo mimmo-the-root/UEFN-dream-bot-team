@@ -1,5 +1,6 @@
 """Automatic profile update: the global SessionStart hook starts a throttled background check; kit_fetch --auto installs a newer release."""
 import importlib.util, io, os, shutil, sys, tempfile, zipfile
+os.environ.setdefault("UEFN_KIT_NO_CONSOLE", "1")   # a test run never starts a console or opens the browser
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(root, "project-template", "Claude", "hooks"))
 import kit_fetch

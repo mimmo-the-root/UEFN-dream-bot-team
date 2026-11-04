@@ -45,15 +45,29 @@ try:
     # mini workflow: scheduled (waiting in inbox) -> in progress (running) -> done; one fix at a time, no second click
     rd = os.path.join(d, "Claude", "relay")
     s = fr.status(d); assert s["active"] == {"id": "058", "state": "scheduled", "ids": ["T-002", "T-003"]}, s
-    for again in (["T-002"], ["T-005"]):   # the same task, or another one: refused while a fix is waiting
-        r = fr.enqueue(d, again); assert not r["ok"] and "058" in r["error"] and "scheduled" in r["error"], r
+    r = fr.enqueue(d, ["T-002"]); assert not r["ok"] and "T-002" in r["error"] and "scheduled" in r["error"], r   # the same task twice: refused
+    assert s["busy"] == {"T-002": "scheduled", "T-003": "scheduled"} and len(s["queue"]) == 1, s
     os.replace(os.path.join(rd, "inbox", "058-fix-tasks.md"), os.path.join(rd, "running", "058-fix-tasks.md"))
     s = fr.status(d); assert s["active"]["state"] == "running" and s["active"]["id"] == "058", s
-    r = fr.enqueue(d, ["T-005"]); assert not r["ok"] and "in progress" in r["error"], r
+    r = fr.enqueue(d, ["T-003"]); assert not r["ok"] and "in progress" in r["error"], r
+    r = fr.enqueue(d, ["T-005"]); assert r["ok"] and r["id"] == "059", r   # another task queues behind the running one
+    s = fr.status(d); assert [c["id"] for c in s["queue"]] == ["058", "059"] and s["active"]["id"] == "058" and s["busy"]["T-005"] == "scheduled", s
+    os.remove(os.path.join(rd, "inbox", "059-fix-tasks.md"))
     os.replace(os.path.join(rd, "running", "058-fix-tasks.md"), os.path.join(rd, "done", "058-fix-tasks.md"))
     open(os.path.join(rd, "outbox", "058-fix-tasks.result.md"), "w", encoding="utf-8").write("# 058 - Fix\nStatus: partial - T-003 NOT done, needs a play session\n")
     s = fr.status(d); assert s["active"] is None and s["last"] == {"id": "058", "state": "done", "ids": ["T-002", "T-003"], "result": "partial - T-003 NOT done, needs a play session"}, s
     assert fr.enqueue(d, ["T-005"])["ok"], "a new fix may start once the last one is done"
+    # the mailbox worker: alive only while HEARTBEAT.md is fresh (v1.121.6); the console warns "Nobody is listening" otherwise
+    import time
+    hb = os.path.join(rd, "outbox", "HEARTBEAT.md")
+    if os.path.exists(hb): os.remove(hb)
+    st = fr.status(d)["relay"]; assert not st["alive"] and st["why"] == "never started", st
+    open(hb, "w").write("state: idle\n"); assert fr.status(d)["relay"]["alive"]
+    old = time.time() - 900; os.utime(hb, (old, old)); st = fr.status(d)["relay"]; assert not st["alive"] and "15 min" in st["why"], st
+    open(os.path.join(rd, "STOP"), "w").close(); assert fr.status(d)["relay"]["why"] == "stopped"
+    for hook in ("session-start-reminder.ps1", "session-start-reminder.sh"):   # both hooks tell the session to run /relay, unless the owner opted out
+        t = open(os.path.join(os.path.dirname(fr.__file__), hook), encoding="utf-8").read()
+        assert "NO-AUTOSTART" in t and "/relay" in t and "HEARTBEAT" in t, hook
     print("fix request tests OK")
 finally:
     shutil.rmtree(d, ignore_errors=True)
