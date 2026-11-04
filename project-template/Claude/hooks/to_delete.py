@@ -6,7 +6,7 @@
   python to_delete.py clean <project> <folder|--all>  # deletes one parked folder (name yyyymmdd-hhmmss) or all of them
 Only paths inside <project>/_to_delete are ever deleted. Prints one JSON object. Exit 0."""
 import json, os, re, shutil, subprocess, sys, time
-NAME = re.compile(r"^\d{8}-\d{6}(-\d+)?$")
+NAME = re.compile(r"\d{8}-\d{6}(-\d+)?")   # used with fullmatch: a trailing newline does not pass
 
 def root(project):
     return os.path.join(project, "_to_delete")
@@ -20,7 +20,7 @@ def listing(project):
     if os.path.isdir(r):
         for n in sorted(os.listdir(r), reverse=True):
             p = os.path.join(r, n)
-            if os.path.isdir(p) and NAME.match(n):
+            if os.path.isdir(p) and NAME.fullmatch(n):
                 files = [os.path.relpath(os.path.join(a, f), p).replace("\\", "/") for a, _, fs in os.walk(p) for f in fs]
                 out.append({"name": n, "files": files[:50], "count": len(files), "bytes": _size(p)})
     return {"ok": True, "folder": r, "folders": out, "total": sum(x["count"] for x in out), "bytes": sum(x["bytes"] for x in out)}
@@ -49,13 +49,19 @@ def open_folder(project):
         return {"ok": False, "error": str(e), "folder": r}
 
 def clean(project, which):
-    r = root(project)
+    """Deletes parked folders. The name comes from a request (the console) or the command line, so it is never joined into a path: a parked folder is
+    picked from the directory listing by exact name, and the resolved path must still be a direct child of _to_delete (no link, no .. , no newline tricks)."""
+    r = os.path.realpath(root(project))
     if not os.path.isdir(r): return {"ok": True, "deleted": []}
-    names = [n for n in os.listdir(r) if NAME.match(n)] if which == "--all" else ([which] if NAME.match(which or "") else [])
-    if not names: return {"ok": True, "deleted": []} if which == "--all" else {"ok": False, "error": "unknown folder"}
+    which = which if isinstance(which, str) else ""
+    if which != "--all" and not NAME.fullmatch(which): return {"ok": False, "error": "unknown folder"}
+    names = [n for n in os.listdir(r) if NAME.fullmatch(n) and (which == "--all" or n == which)]
+    if not names: return {"ok": True, "deleted": []}
     gone = []
     for n in names:
-        p = os.path.join(r, n)
+        p = os.path.realpath(os.path.join(r, n))
+        if os.path.dirname(p) != r or not p.startswith(r + os.sep):
+            continue   # a link or a path that leads out of _to_delete is never followed
         if os.path.isdir(p):
             try: shutil.rmtree(p); gone.append(n)
             except OSError as e: return {"ok": False, "error": str(e), "deleted": gone}

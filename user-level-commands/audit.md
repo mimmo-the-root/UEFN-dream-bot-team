@@ -10,6 +10,8 @@ You audit the game when the build is finished, before the delivery. Input: `$ARG
 
 **1b. Break the game on paper.** Ask `qa-regression` to read the code and the docs and answer, case by case, the eight questions of the playtest section "Break the game": nobody in the round, a player who leaves, a tie, nothing achieved, the longest name, something stuck or lost, the last second, a late joiner. For each: what the player sees and a verdict OK / Gap / Cannot tell from the files. Write the table in `AUDIT.md` under "Break the game"; every Gap is a finding (step 2) with a task in `ROADMAP.md`.
 
+**1c. Measure performance.** Run `/performance` (it needs a play session; without one it says so, and the audit records "performance not measured" as a finding of its own). Its findings join the list below.
+
 **2. Classify and record.** Each finding goes to the ledger: `python audit_log.py add "text" --class minor|medium|major --where file`. The classes are the ones of the Self-healing block of `CONSTITUTION.md`: minor (a clear compile error, an old header, a name outside the rules), medium (breaks an acceptance criterion), major (an error in the requirement, any change to `GAME-SPEC.md`).
 
 **3. Heal.** Minor findings you fix yourself, one at a time: save a restore point first, fix, run the check again, then `python audit_log.py fix N` (or `fix N --failed`). The ledger enforces 3 attempts per finding and 10 automatic fixes; after that a finding goes to the owner. Medium and major findings you NEVER fix alone.
@@ -17,5 +19,7 @@ You audit the game when the build is finished, before the delivery. Input: `$ARG
 **Known rules first.** Before anything goes to the owner, check every finding against the rules the kit already has (`CONSTITUTION.md`, the `/environment` device rules, the Island settings of the plan). A finding that is a known rule and can be fixed with the MCP or the files (a device label, a folder, a header, an Island setting the MCP can set, a plan value out of date, a stale `DELIVERY-GATE.md` or `AUDIT.md`) is fixed by you, read back, and shown to the owner only as one line in the summary (`fixed: ...`). The owner list holds only what a person must do in the editor or in Fortnite, each with the exact steps (where to click, the value, the device and field names) and a checkbox; a finding is never a vague statement. Island settings: list for the owner only the values that differ and that the MCP could not set.
 
 **4. Ask.** Show the owner only what is left: the medium and major findings, each with what breaks, who is affected, and your recommendation. One question per finding (fix it this way / leave it / change the spec). A change to the spec goes through `/spec` and the plan and tasks are redone. Then run the audit again until `python audit_log.py status` exits 0.
+
+**5. Tasks.** Ask `planner-docs` to turn the findings into ROADMAP tasks (Kind `audit` or `perf`, Source `AUDIT #N` / `PERF #N`): one per medium or major finding, the minor ones together in one task, all in the Active release, so the roadmap shows everything still to do.
 
 Report: how many fixed alone, how many for the owner, what you recommend. Name `AUDIT.md`; do not paste it. The next step is `/delivery`.

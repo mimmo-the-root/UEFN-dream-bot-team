@@ -34,7 +34,7 @@ sentence), `devices` (list of "name: what it does"), `settings` (what to set on 
 
 The kit also prepares a recipe by itself from the Verse code (a Fab product, or every folder with a device in a map); refine it when you know more. The owner decides on the Knowledge page whether a recipe is shared in the kit.
 
-No map names, personal paths, links or task ids in the text.
+No map names, personal paths, links or task ids in the text. A Verse module path (`/<account>@fortnite.com/<project>/...`) counts as one: `recipe-add` replaces it with `/<Account>@fortnite.com/<Project>/...` by itself; when you copy such a recipe into a project, put that project's own account and name back in the `using` lines.
 
 <!-- PATTERNS:BEGIN -->
 <!-- PATTERNS:END -->

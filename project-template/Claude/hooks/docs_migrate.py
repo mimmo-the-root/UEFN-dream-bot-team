@@ -10,8 +10,22 @@ What it does, and only this:
 Prints what changed, or nothing. Exit 0 always. Idempotent."""
 import os, re, shutil, sys, time
 
-TASK_COLS = ["ID", "Feature", "Status", "Acceptance criteria", "Priority", "Release"]
-DEFAULTS = {"Release": "Unassigned"}
+TASK_COLS = ["ID", "Feature", "Status", "Acceptance criteria", "Priority", "Release", "Kind", "Source"]
+DEFAULTS = {"Release": "Unassigned", "Kind": "feature"}
+
+
+def infer_kind_source(text):
+    """Kind (feature|bug|audit|perf) and Source (B-033, AUDIT #7, PERF #2) guessed from a task's own text."""
+    m = re.search(r"\bB-\d{3}\b", text)
+    if m:
+        return "bug", m.group(0)
+    if re.search(r"\baudit\b", text, re.I):
+        n = re.search(r"(?:finding\s*)?#(\d+)", text, re.I)
+        return "audit", ("AUDIT #" + n.group(1)) if n else ""
+    if re.search(r"\b(performance|perf|profil\w*)\b", text, re.I):
+        n = re.search(r"PERF\s*#(\d+)", text, re.I)
+        return "perf", ("PERF #" + n.group(1)) if n else ""
+    return "feature", ""
 
 
 def split(line):
@@ -49,13 +63,24 @@ def migrate_roadmap(text):
         new_head = want + extra
         if head == new_head:
             continue
-        out = []
-        for r in rows:
+        def conv(r):
             d = {low[k]: (r[k] if k < len(r) else "") for k in range(len(low))}
             cells = [d.get(w.lower(), DEFAULTS.get(w, "")) or DEFAULTS.get(w, "") if w.lower() not in d else d[w.lower()] for w in want]
             cells = [c if c != "" or w not in DEFAULTS else DEFAULTS[w] for c, w in zip(cells, want)]
+            text = " ".join(d.get(k, "") for k in ("feature", "acceptance criteria"))
+            kind, src = infer_kind_source(text)
+            for k, (w, inf) in enumerate((("Kind", kind), ("Source", src))):
+                if w.lower() not in d or not d[w.lower()]:
+                    cells[len(TASK_COLS) - 2 + k] = inf
             cells += [d.get(e.lower(), "") for e in extra]
-            out.append(join(cells))
+            return join(cells)
+        out = [conv(r) for r in rows]
+        # rows of the same table that sit after a blank line or comment (a hand-grouped table): same columns, same conversion
+        k = b
+        while k < len(lines) and not re.match(r"^#{1,6}\s", lines[k]):
+            if re.match(r"^\|\s*T-\d+", lines[k]):
+                lines[k] = conv(split(lines[k]))
+            k += 1
         block = [join(new_head), "|" + "---|" * len(new_head)] + out
         lines[a:b] = block
         notes.append("ROADMAP.md: tasks table aligned to the contract columns (%d rows kept)" % len(out))

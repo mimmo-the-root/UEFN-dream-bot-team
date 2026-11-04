@@ -173,6 +173,9 @@ DOC_FILES = {
     "genre": ".genre",
     "genreprop": "map/genre-proposal.json",
     "learnlog": "map/learn-log.json",
+    "learnprogress": "map/PROGRESS.md",
+    "devices": "map/DEVICES.md",
+    "mapmeta": "map/meta.json",
 }
 GENRE_FILE = os.path.join(DOCS_DIR, ".genre")
 COMMUNITY_SUMMARY_FILE = os.path.join(os.path.dirname(ROOT), "community", "community-summary.json")
@@ -657,6 +660,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._map_learn()
         if self.path.startswith("/gate-tick"):
             return self._gate_tick()
+        if self.path.startswith("/fix-request"):
+            return self._fix_request()
         if self.path.startswith("/fab-act"):
             return self._fab_act()
         if skills_lib is None or not (self.path.startswith("/skills-act") or self.path.startswith("/skills-check") or self.path.startswith("/genre-confirm") or self.path.startswith("/community-act") or self.path.startswith("/recipe-share") or self.path.startswith("/release-hold")):
@@ -721,6 +726,18 @@ class Handler(http.server.BaseHTTPRequestHandler):
             else:
                 res = release_gate.tick(os.path.join(DOCS_DIR, "DELIVERY-GATE.md"), int(data.get("line") or 0), bool(data.get("on")), str(data.get("h") or ""))
             self._send_json_status(200, res)
+        except (ValueError, OSError, ImportError) as e:
+            self._send_json_status(400, {"ok": False, "error": str(e)})
+
+    def _fix_request(self):
+        # Tasks tab: "Fix these". Same-origin only; fix_request.py accepts nothing but ids of open ROADMAP tasks and writes one relay command from a fixed template.
+        if not self._origin_ok():
+            return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
+        try:
+            import fix_request
+            n = int(self.headers.get("Content-Length") or 0)
+            data = json.loads(self.rfile.read(min(n, 4096)).decode("utf-8") or "{}")
+            self._send_json_status(200, fix_request.enqueue(PROJECT_DIR, data.get("ids"), dry=bool(data.get("dry"))))
         except (ValueError, OSError, ImportError) as e:
             self._send_json_status(400, {"ok": False, "error": str(e)})
 

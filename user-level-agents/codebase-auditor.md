@@ -46,6 +46,8 @@ Don't critique what you don't yet understand. Before flagging anything:
 
 ## Step 2 — the audit itself
 
+**Every Verse file is read in full, always.** No size limit, no sampling, no "too long, I read the head": a file past the Read tool's own cap is read in consecutive parts (offset/limit) until its last line. List the files with `python Claude/hooks/verse_map.py` first and, in the report, state `Verse files read in full: N of N`. A file you could not read completely is named under `NOT verified:` with the reason.
+
 **No code, no code findings.** If the project has no Verse files, everything about Verse code does not exist and must not be reported at all, not even as "minor" or "not applicable": no logger/`Print()`, header comment, `DemoDisplay`, state-machine, compile-error, TODO or deprecated-Verse-API finding, and no BUGS.md entry for them. A finding exists only if you can point to the thing that is wrong (a file, a device, a setting); the absence of code is never a finding. A device-only map is audited on its devices, settings, wiring, performance and Outliner only.
 
 
@@ -121,6 +123,11 @@ faster is not a category exempt from being rechecked.
    backed by the owner's maps), say so in your report and tell the main session to invoke ONE `skill-reflector`
    call with this audit's verified findings as the evidence (it queues at most 3 lessons per slug for the owner's
    approval on the Knowledge page). If none needs it, do nothing. Never write to the skills yourself.
+3c. **Leave a trace the owner can see (always, even with zero findings).** Append each finding with
+   `python Claude/hooks/audit_log.py add "<text>" --class minor|medium|major --where <file>` (this is the only file you write;
+   it is the audit ledger, `Claude/docs/AUDIT.md`), then append one line to `Claude/logs/agent-console.jsonl` so the console shows the result:
+   `{"agent":"codebase-auditor","event":"verdict","result":"pass"|"reject","task":"audit","ts":"<ISO8601 UTC>","detail":"<N findings: a major, b medium, c minor; Verse files read in full: X of X>"}`
+   (`pass` when nothing major or medium is open, `reject` otherwise).
 4. If you found the same category of issue repeated across many files (e.g. logger missing
    everywhere, not just one file), report it as one finding with every location listed — don't
    generate twenty near-identical findings that would each become their own noisy task.
@@ -128,6 +135,7 @@ faster is not a category exempt from being rechecked.
 ## What you don't do
 
 - Don't write or edit Verse, don't place/reconfigure devices, don't compile.
+- The only files you write are `Claude/docs/AUDIT.md` (through `audit_log.py`) and the verdict line in `Claude/logs/agent-console.jsonl`.
 - Don't modify `Claude/docs/STATUS.md`, `ROADMAP.md`, or `BUGS.md` yourself — that's
   `planner-docs`'s job, working from your report.
 - Don't re-run a full project-wide analysis reflexively if you (or `project-bootstrap`) already

@@ -62,7 +62,7 @@ try {
     if ($payload.hook_event_name -ne "PreToolUse") { exit 0 }
 
     $agent = $payload.tool_input.subagent_type
-    if (-not $agent) { $agent = "unknown" }
+    if (-not $agent) { $agent = "general-purpose" }  # no subagent_type: the Agent tool runs general-purpose and its stop event says so
     $desc = $payload.tool_input.description
     if (-not $desc) { $desc = "" }
 

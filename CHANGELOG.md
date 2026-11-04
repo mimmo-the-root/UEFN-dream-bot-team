@@ -1,9 +1,58 @@
 # Changelog
 
+## v1.121.1 — Recipes no longer block the publish
+
+- [fix] **Publish refused recipes with a Verse module path.** A path like `/<account>@fortnite.com/<project>/...` matches the e-mail rule of the privacy check and also names the map. `recipe-add` now stores a placeholder (`/<Account>@fortnite.com/<Project>`), and `collect_recipes.py` cleans the same path in recipes saved by an older kit, so the publish no longer stops on it. The mechanics skill says to put the project's own account and name back when a recipe is copied into a project.
+- [fix] **publish.ps1 rebuilds the kit numbers and wiki after collecting recipes.** Collecting recipes and promoting skills changes the counts, and the tests then failed with "kit stats are OUT OF DATE"; the two builds now run before the tests.
+
+## v1.121.0 — Fix this / Fix all buttons
+
+- [feature] **"Fix this" and "Fix all" buttons on the Tasks tab** (and "Fix all" on the Bugs, Audit and Performance tabs). A click first shows exactly what will be sent; a second click ("Confirm and send once") puts ONE command in `Claude/relay/inbox/` for Claude Code, so the owner confirms the whole list once. The command is a fixed text: the server (`fix_request.py`, both the Python and the PowerShell console) accepts only ids like T-012 that exist in ROADMAP.md and are still open, and copies no task text, path or free text from the page. Claude Code does them one at a time, most serious first, and stops at the first task that fails twice. With no relay folder the box says so and offers "Copy text instead".
+
+## v1.120.3 — Learn status says done only at 100%
+
+- [fix] **Learn tab said "done" at 67%.** The status pill now says done only when the learning bar is at 100%; below that it says in progress.
+
+## v1.120.2 — Live rail: no more unknown agent, no stuck cards
+
+- [fix] **"unknown" card in LIVE - who is working now.** A subagent started without a type is the general-purpose one, and its stop event says so; the start hook (PowerShell and shell) now logs that name instead of "unknown", so the card closes when the work ends.
+- [fix] **Stuck cards.** The Docs page live rail and the live badges on task rows ignore a start that got no stop for 45 minutes (the main console already did), so a lost stop event no longer shows an agent working for an hour.
+
+## v1.120.1 — Environment and Learn read real data on the PowerShell server
+
+- [fix] **Environment and Learn showed generic text on projects served by the PowerShell console.** The three data keys added in 1.119.2 (devices, learnprogress, mapmeta) existed only in agent-console-server.py; agent-console-server.ps1 now has them, and a new test fails whenever the two servers' document lists differ.
+- [fix] Roadmap tab: task titles are no longer cut mid-word; they wrap in the column.
+
+## v1.120.0 — Every piece of work is a task
+
+- [feature] **Every piece of work is a task.** The ROADMAP task table gets two columns, Kind (feature, bug, audit, perf) and Source (B-033, AUDIT #7, PERF #2). Old tables are repaired by themselves after a kit update (kept rows, kept extra columns, also tables split by blank lines); Kind and Source are guessed from the task text and never overwrite a value set by hand. `docs_lint` accepts both the old six columns and the new eight.
+- [feature] **Console: Roadmap tab.** One column per release: the release in progress highlighted, queued ones next, finished ones dimmed, Later last; each shows done/total and what is still open by kind.
+- [feature] **Console: Tasks tab** (was Status). It opens on the release in progress, shows a strip with what is In progress now, and filter chips by kind with open counts. Bugs, Audit and Performance tabs show the current release's tasks of their kind on top; their orange badges count open tasks of that kind.
+- [feature] **Audit and performance feed the roadmap.** `/audit` now runs `/performance` and asks planner-docs for one task per medium or major finding and ONE task for all the minor ones. `/performance` numbers its findings (PERF #N) and makes a task each.
+- [other] Agent text grew slightly (task rules in planner-docs and perf-profiler); token baseline raised on purpose.
+- [fix] **Performance data never reached the console.** `perf-profiler` has no Write tool, so PERFORMANCE.md was never written; it now returns a table and `/performance` writes the file.
+
+## v1.119.3 — Orange count badges
+
+- [fix] **The open count on the Bugs, Status and Audit tabs is an orange circle**, so it is seen at a glance.
+
+## v1.119.2 — Flow page reads the real project
+
+- [fix] **One set of numbers on every page.** The hero, the Build step and the release list now count the same thing: tasks planned in a release. Out-of-scope tasks and the backlog (Later) are shown apart ("68 of 71 done, not counted: 13 out of scope, 5 in the backlog") and never enter the percentage. Before, the pages showed 68/70, 68/75 and 68/88 for the same project.
+- [feature] **A map that was started before the kit is read as it is.** With no GAME-SPEC but a ROADMAP, the journey marks Idea, Spec, Genre and Plan as done from your documents and the central box follows the real state ("Release P1-R1: 0 of 2 done, next T-099"), not "describe your game idea".
+- [feature] **The Tasks step is now Release.** The task lists are paged one release per slide with arrows, the release in progress first and finished releases last; Release status in the top bar is a slideshow with arrows, no scrollbar, and marks the release in progress. Build shows only the current release (x of y, percent of that release) and the whole-project line beneath it.
+- [feature] **Real data in Environment, Audit, Performance, Learn and Delivery.** Environment lists what was read from the level (actors, Verse devices, device groups) and the open points; Audit shows the findings the last audit sent to BUGS.md and the progress of their release; Performance shows what the level contains until a measurement exists; Learn has a log on the left and a status box on the right (percent, number of things learned, each part); Delivery shows readiness computed from your documents until DELIVERY-GATE.md exists. The tab badges (Bugs, Status, Audit) show the open count.
+
+## v1.119.1 — Console ring and audit fixes
+
+- [fix] **The console's token ring no longer covers the moons.** With six groups the outer arc was a circle while the groups sit on an ellipse, so moons crossed it. The arc now follows the stage, the groups sit on an even ring and the moon orbits are tighter, so UEFN AREAS and UEFN MCP no longer touch either.
+- [fix] **No size limit on Verse files, and the audit leaves a trace.** The project rule that told agents to skim Verse files over ~300 lines is gone: every Verse file is read in full (a long one in consecutive parts). The code auditor now says `Verse files read in full: N of N`, writes its findings to `Claude/docs/AUDIT.md` and sends a verdict to the console, so a finished audit no longer lives only in the chat. The token budget baseline for agents is raised for the ten area agents and this step.
+
 ## v1.119.0 — One agent per area of the editor
 
 - [feature] **Ten agents, one for each area of the 807 editor tools.** `scene-scout` (reads), `env-builder` (level, PCG, geometry, physics), `asset-builder` (materials, data tables, meshes), `device-builder`, `entity-builder` (Scene Graph), `verse-dev` (build, session, logs), `ui-builder`, `fx-audio` (Niagara, MetaSound), `perf-profiler` and `cinematics` (Sequencer). Every tool has exactly one owner; a tool Epic adds later goes to the main session until a rule names its owner.
 - [feature] **The guard keeps each agent in its area.** When a hook payload names one of these agents, a tool that belongs to another is refused with the owner's name; reads of the editor core are open to all, the main session is never limited, and `UEFN_KIT_OWNERS=0` switches it off. `python Claude/hooks/mcp_owner.py Toolset/Tool` prints an owner, `--list` the split of the saved map.
+- [fix] **Two code-scanning alerts closed (path injection in `to_delete.py`).** Cleaning the parked `_to_delete` folders took the folder name from the request and joined it into a path. The name is now matched exactly against the folder listing, must be a whole name (a trailing newline no longer passes), and the resolved path must be a direct child of `_to_delete`, so a link or a `..` can never lead out of it. New test: `test_to_delete`.
 - [other] **Cod as coordinator is measured, not assumed.** The three-way comparison on one demo (alone, alone with grouped calls, coordinator with these agents) is queued in the plan; the agents are adopted for writes only if it is at least 25% faster at no more than 20% more tokens.
 
 ## v1.118.0 — Mechanics from an open dataset: lessons, catalog, accessibility

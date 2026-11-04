@@ -15,6 +15,9 @@ sys.path.insert(0, HERE)
 import privacy_scan as PS   # same patterns as the repo scan
 
 
+_MODULE_PATH = re.compile(r"/[A-Za-z0-9._-]+@fortnite\.com/[A-Za-z0-9._-]+")   # a Verse module path: looks like an e-mail address and names the map
+
+
 def skills_dir():
     return os.environ.get("UEFN_SKILLS_DIR") or os.path.join(os.path.expanduser("~"), ".claude", "skills")
 
@@ -64,6 +67,8 @@ def collect(dry=False, skills=None, repo=None):
         for r in todo:
             clean = {k: v for k, v in r.items() if k not in ("maps", "share", "share_at", "added", "fab", "tier", "origin")}
             clean["origin"] = "official"
+            if clean.get("files"):   # recipes saved before the kit cleaned them keep the raw module path: clean it here too
+                clean["files"] = [dict(x, code=_MODULE_PATH.sub("/<Account>@fortnite.com/<Project>", x.get("code", ""))) if isinstance(x, dict) else x for x in clean["files"]]
             bad = findings(json.dumps(clean, ensure_ascii=False))
             if bad:
                 refused.append((slug, r.get("name", ""), ", ".join(bad)))

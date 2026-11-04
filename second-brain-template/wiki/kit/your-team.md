@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.119.0
-updated: kit-1.119.0
+created: kit-1.121.1
+updated: kit-1.121.1
 sources: [docs/manual/your-team.md]
 type: kit
 status: current
@@ -96,4 +96,4 @@ The audit agents (`qa-regression`, `release-gate`, `codebase-auditor`) end every
 Create an agent with the same name in that project's `.claude/agents/` folder. It wins there and only there.
 
 ## Sources
-- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.119.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.121.1. Rebuilt on every kit release: do not edit this page, edit the manual.

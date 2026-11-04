@@ -2,8 +2,8 @@
   "agents": 32,
   "mcp_subagents": 5,
   "skills": 49,
-  "lessons": 366,
+  "lessons": 395,
   "mcp_tools": 807,
   "recipes_proven": 387,
-  "version": "1.119.0"
+  "version": "1.121.1"
 }

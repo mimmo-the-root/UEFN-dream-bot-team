@@ -605,7 +605,7 @@ if(id&&localStorage.getItem("dbt.project")!==id){["kitTab","docsTab","dbt.view",
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.119.0";
+const KIT_VERSION = "v1.121.1";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -1527,12 +1527,12 @@ function renderPanels(){
 setInterval(renderPanels, 700); renderPanels();
 
 function updateOverlays(ts, rect, cx, cy, positions, offP){
-  const R = Math.min(rect.width, rect.height) / 2 - 8, total = groupTokens.reduce((a, b) => a + b, 0);
+  const RX = rect.width / 2 - 8, RY = rect.height / 2 - 8, total = groupTokens.reduce((a, b) => a + b, 0);
   let a0 = -90 + offP;
   GROUPS.forEach((g, i) => {
     const hp = positions[g.head];
     if (hp){
-      const rm = Math.min(rect.width, rect.height) * (g.moons.length > 8 ? 0.125 : (g.moons.length > 4 ? 0.14 : 0.115));
+      const rm = Math.min(rect.width, rect.height) * (g.moons.length > 8 ? 0.105 : (g.moons.length > 4 ? 0.12 : 0.105));
       const tint = tintEls[i]; tint.style.width = tint.style.height = (2 * (rm + 36)) + "px"; tint.style.transform = "translate(" + (hp.x - rm - 36) + "px," + (hp.y - rm - 36) + "px)";
       const lab = labelEls[i]; lab.style.transform = "translate(" + hp.x + "px," + (hp.y - rm - 44) + "px) translateX(-50%)";
       let wait = 0; [g.head].concat(g.moons).forEach(id => { if (nodeState(id) === "waiting") wait++; });
@@ -1541,8 +1541,8 @@ function updateOverlays(ts, rect, cx, cy, positions, offP){
     const arc = tokArcs[i], lt = tokLabs[i];
     if (VIEW.tok && total > 0){
       const span = groupTokens[i] / total * 360, a1 = a0 + Math.max(2, span) - 2, big = (a1 - a0) > 180 ? 1 : 0, rad = d => d * Math.PI / 180;
-      arc.setAttribute("d", "M" + (cx + R * Math.cos(rad(a0))) + " " + (cy + R * Math.sin(rad(a0))) + " A" + R + " " + R + " 0 " + big + " 1 " + (cx + R * Math.cos(rad(a1))) + " " + (cy + R * Math.sin(rad(a1))));
-      arc.style.display = ""; const am = rad((a0 + a1) / 2); lt.setAttribute("x", cx + (R - 14) * Math.cos(am)); lt.setAttribute("y", cy + (R - 14) * Math.sin(am) + 3); lt.textContent = fmtTok(groupTokens[i]); lt.style.display = "";
+      arc.setAttribute("d", "M" + (cx + RX * Math.cos(rad(a0))) + " " + (cy + RY * Math.sin(rad(a0))) + " A" + RX + " " + RY + " 0 " + big + " 1 " + (cx + RX * Math.cos(rad(a1))) + " " + (cy + RY * Math.sin(rad(a1))));
+      arc.style.display = ""; const am = rad((a0 + a1) / 2); lt.setAttribute("x", cx + (RX - 14) * Math.cos(am)); lt.setAttribute("y", cy + (RY - 14) * Math.sin(am) + 3); lt.textContent = fmtTok(groupTokens[i]); lt.style.display = "";
       a0 += span;
     } else { arc.style.display = "none"; lt.style.display = "none"; }
   });
@@ -1568,10 +1568,11 @@ function layoutOrbit(ts){
   function place(id, x, y, sc){ const node = nodeEls[id]; if (!node) return; node.style.transform = `translate(${x}px, ${y}px) scale(${sc})`; positions[id] = {x, y}; }
   GROUPS.forEach((g, gi) => {
     const ang = (gi / GROUPS.length) * 360 - 90 + offP;
-    const ring = GROUPS.length > 5 ? 0.33 : 0.265;  // six groups: a wider ring so the ten area agents do not sit on their neighbours
-    const hx = cx + rect.width * ring * Math.cos(ang * Math.PI / 180), hy = cy + rect.height * ring * Math.sin(ang * Math.PI / 180);
+    const ring = GROUPS.length > 5 ? 0.32 : 0.265;  // six groups: a wider ring so the ten area agents do not sit on their neighbours
+    const ringY = ring;  // groups and moons stay inside the token arc, which follows the stage ellipse
+    const hx = cx + rect.width * ring * Math.cos(ang * Math.PI / 180), hy = cy + rect.height * ringY * Math.sin(ang * Math.PI / 180);
     place(g.head, hx, hy, nodeScale * 0.95);
-    const dense = g.moons.length > 8, rm = minD * (dense ? 0.125 : (g.moons.length > 4 ? 0.14 : 0.115)), msc = nodeScale * (dense ? 0.5 : 0.72);
+    const dense = g.moons.length > 8, rm = minD * (dense ? 0.105 : (g.moons.length > 4 ? 0.12 : 0.105)), msc = nodeScale * (dense ? 0.5 : 0.72);
     g.moons.forEach((m, j) => {
       const a = ((j / g.moons.length) * 360 + 35 + offM) * Math.PI / 180;
       place(m, hx + rm * Math.cos(a), hy + rm * Math.sin(a), msc);

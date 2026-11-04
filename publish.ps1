@@ -41,6 +41,11 @@ if ($hasPy) { py -3 tool/build_whats_new.py } else { python tool/build_whats_new
 if ($LASTEXITCODE -ne 0) { throw "build_whats_new.py failed: nothing was published" }
 if ($hasPy) { py -3 tool/build_manual.py } else { python tool/build_manual.py }
 if ($LASTEXITCODE -ne 0) { throw "build_manual.py failed: nothing was published" }
+# 1d. kit numbers and wiki: collecting recipes and promoting skills above changes the counts, so rebuild them before the tests compare
+if ($hasPy) { py -3 tool/build_kit_stats.py } else { python tool/build_kit_stats.py }
+if ($LASTEXITCODE -ne 0) { throw "build_kit_stats.py failed: nothing was published" }
+if ($hasPy) { py -3 tool/build_kit_wiki.py } else { python tool/build_kit_wiki.py }
+if ($LASTEXITCODE -ne 0) { throw "build_kit_wiki.py failed: nothing was published" }
 
 # 2. tests (tests, privacy scan, skill validator, token budget)
 if ($hasPy) { py -3 tests/run_all.py } else { python tests/run_all.py }

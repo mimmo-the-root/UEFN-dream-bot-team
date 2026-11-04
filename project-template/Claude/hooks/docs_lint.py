@@ -4,7 +4,8 @@ Prints one line per problem and exits 1 when something is wrong, 0 otherwise. Re
 Usage: python Claude/hooks/docs_lint.py [project dir]   (default: CLAUDE_PROJECT_DIR or cwd)"""
 import os, re, sys
 
-TASK_COLS = ["id", "feature", "status", "acceptance criteria", "priority", "release"]
+TASK_COLS = ["id", "feature", "status", "acceptance criteria", "priority", "release", "kind", "source"]
+TASK_COLS_OLD = TASK_COLS[:6]  # accepted until docs_migrate adds Kind and Source
 BUG_COLS = ["title", "severity", "status"]
 PHASE_COLS = ["id", "phase", "goal", "exit criteria", "status"]
 TASK_OK = re.compile(r"^(to do|todo|in progress|blocked|done|out of scope|da fare|in corso|bloccat\w*|fatto|fuori scope|wip|complet\w*|chiuso|closed|risolto|resolved)\b", re.I)
@@ -41,7 +42,7 @@ def lint(project):
             found += 1
             if found > 1:
                 out.append("ROADMAP.md line %d: a second tasks table; keep ONE table under '## Tasks'" % line)
-            if head != TASK_COLS:
+            if head not in (TASK_COLS, TASK_COLS_OLD):
                 out.append("ROADMAP.md line %d: columns are %s; expected exactly: %s" % (line, " | ".join(head), " | ".join(TASK_COLS)))
             for r in rows:
                 tid = r.get("id", "")
@@ -52,6 +53,8 @@ def lint(project):
                 seen.add(tid)
                 if not TASK_OK.match(r.get("status", "")):
                     out.append("ROADMAP.md %s: status '%s' must start with To do / In progress / Blocked / Done / Out of scope" % (tid, r.get("status", "")))
+                if r.get("kind", "feature") not in ("feature", "bug", "audit", "perf", ""):
+                    out.append("ROADMAP.md %s: Kind '%s' must be feature, bug, audit or perf" % (tid, r.get("kind")))
                 if not r.get("release", "").strip():
                     out.append("ROADMAP.md %s: empty Release cell (the console groups by it)" % tid)
         if not found:

@@ -36,7 +36,7 @@ if [ "$tool_name" != "Task" ] && [ "$tool_name" != "Agent" ]; then exit 0; fi
 hook_event=$(echo "$payload" | jq -r '.hook_event_name // empty' 2>/dev/null)
 [ "$hook_event" = "PreToolUse" ] || exit 0
 
-agent=$(echo "$payload" | jq -r '.tool_input.subagent_type // "unknown"' 2>/dev/null)
+agent=$(echo "$payload" | jq -r '.tool_input.subagent_type // "general-purpose"' 2>/dev/null)
 desc=$(echo "$payload" | jq -r '.tool_input.description // ""' 2>/dev/null)
 ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 

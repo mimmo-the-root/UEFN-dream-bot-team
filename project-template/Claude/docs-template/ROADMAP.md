@@ -32,13 +32,15 @@ what "this release" means.)
 ## Tasks
 
 <!-- FORMAT CONTRACT (the Agent Console reads exactly this; run `python Claude/hooks/docs_lint.py` after every edit):
-     ONE table under this heading, columns in this order: ID | Feature | Status | Acceptance criteria | Priority | Release.
+     ONE table under this heading, columns in this order: ID | Feature | Status | Acceptance criteria | Priority | Release | Kind | Source.
+     Kind is feature, bug, audit or perf (every piece of work is a task, whatever its origin); Source names where it came from
+     (B-033, AUDIT #7, PERF #2) and is empty for a feature. Minor audit findings are grouped into ONE task.
      The Release cell is never empty: P0-R1, P1-R2... or Later (the backlog). The console groups tasks by it.
      Never add a second tasks table, never move tasks into prose sections, never rename or reorder columns. -->
 
-| ID | Feature | Status | Acceptance criteria | Priority | Release |
-|---|---|---|---|---|---|
-| T-001 | (example — replace) | To do | (short, verifiable — "the player can X and Y happens") | MVP | P0-R1 |
+| ID | Feature | Status | Acceptance criteria | Priority | Release | Kind | Source |
+|---|---|---|---|---|---|---|---|
+| T-001 | (example — replace) | To do | (short, verifiable — "the player can X and Y happens") | MVP | P0-R1 | feature |  |
 
 Status values (the cell must START with one of these words; any note goes after it, e.g. "Done - verified in play"): **To do** (not started) / **In progress** (coder is actively on it — flips this
 itself) / **Blocked** (blocked — coder flips this and says why in STATUS.md) / **Done** (done —

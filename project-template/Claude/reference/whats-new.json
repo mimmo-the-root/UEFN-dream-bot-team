@@ -1,14 +1,106 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.121.1": {
+   "title": "Recipes no longer block the publish",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "Publish refused recipes with a Verse module path",
+    "publish.ps1 rebuilds the kit numbers and wiki after collecting recipes"
+   ]
+  },
+  "1.121.0": {
+   "title": "Fix this / Fix all buttons",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "\"Fix this\" and \"Fix all\" buttons on the Tasks tab"
+   ]
+  },
+  "1.120.3": {
+   "title": "Learn status says done only at 100%",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Learn tab said \"done\" at 67%"
+   ]
+  },
+  "1.120.2": {
+   "title": "Live rail: no more unknown agent, no stuck cards",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "\"unknown\" card in LIVE - who is working now",
+    "Stuck cards"
+   ]
+  },
+  "1.120.1": {
+   "title": "Environment and Learn read real data on the PowerShell server",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "Environment and Learn showed generic text on projects served by the PowerShell console",
+    "Roadmap tab: task titles are no longer cut mid-word; they wrap in the column"
+   ]
+  },
+  "1.120.0": {
+   "title": "Every piece of work is a task",
+   "features": 4,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "Every piece of work is a task",
+    "Console: Roadmap tab",
+    "Console: Tasks tab",
+    "Audit and performance feed the roadmap"
+   ]
+  },
+  "1.119.3": {
+   "title": "Orange count badges",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The open count on the Bugs, Status and Audit tabs is an orange circle"
+   ]
+  },
+  "1.119.2": {
+   "title": "Flow page reads the real project",
+   "features": 3,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "One set of numbers on every page",
+    "A map that was started before the kit is read as it is",
+    "The Tasks step is now Release",
+    "Real data in Environment, Audit, Performance, Learn and Delivery"
+   ]
+  },
+  "1.119.1": {
+   "title": "Console ring and audit fixes",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "The console's token ring no longer covers the moons",
+    "No size limit on Verse files, and the audit leaves a trace"
+   ]
+  },
   "1.119.0": {
    "title": "One agent per area of the editor",
    "features": 2,
-   "fixes": 0,
+   "fixes": 1,
    "other": 1,
    "headlines": [
     "Ten agents, one for each area of the 807 editor tools",
     "The guard keeps each agent in its area",
+    "Two code-scanning alerts closed (path injection in `to_delete.py`)",
     "Cod as coordinator is measured, not assumed"
    ]
   },

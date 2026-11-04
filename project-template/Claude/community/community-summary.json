@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.115.0"
+   "tag": "v1.121.0"
   },
   "state": {
    "genres": [],
@@ -22,14 +22,13 @@
   }
  },
  "release": {
-  "date": "2026-11-04",
+  "date": "2026-11-05",
   "items": [
-   "[feature] Ten agents, one for each area of the 807 editor tools. `scene-scout` (reads), `env-builder` (level, PCG, geometry, physics), `asset-builder` (materials, data tables, meshes), `device-builder`, `entity-builder` (Scene Graph), `verse-dev` (build, session, logs), `ui-builder`, `fx-audio` (Niagara, MetaSound), `perf-profiler` and `cinematics` (Sequencer). Every tool has exactly one owner; a tool Epic adds later goes to the main session until a rule names its owner.",
-   "[feature] The guard keeps each agent in its area. When a hook payload names one of these agents, a tool that belongs to another is refused with the owner's name; reads of the editor core are open to all, the main session is never limited, and `UEFN_KIT_OWNERS=0` switches it off. `python Claude/hooks/mcp_owner.py Toolset/Tool` prints an owner, `--list` the split of the saved map.",
-   "[other] Cod as coordinator is measured, not assumed. The three-way comparison on one demo (alone, alone with grouped calls, coordinator with these agents) is queued in the plan; the agents are adopted for writes only if it is at least 25% faster at no more than 20% more tokens."
+   "[fix] Publish refused recipes with a Verse module path. A path like `/<account>@fortnite.com/<project>/...` matches the e-mail rule of the privacy check and also names the map. `recipe-add` now stores a placeholder (`/<Account>@fortnite.com/<Project>`), and `collect_recipes.py` cleans the same path in recipes saved by an older kit, so the publish no longer stops on it. The mechanics skill says to put the project's own account and name back when a recipe is copied into a project.",
+   "[fix] publish.ps1 rebuilds the kit numbers and wiki after collecting recipes. Collecting recipes and promoting skills changes the counts, and the tests then failed with \"kit stats are OUT OF DATE\"; the two builds now run before the tests."
   ],
-  "tag": "v1.119.0",
-  "title": "v1.119.0 \u2014 One agent per area of the editor"
+  "tag": "v1.121.1",
+  "title": "v1.121.1 \u2014 Recipes no longer block the publish"
  },
  "schema": 1,
  "skills": [],

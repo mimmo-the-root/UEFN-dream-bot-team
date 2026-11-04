@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "genre": "survival",
-  "pack_version": 56,
+  "pack_version": 82,
   "patterns": [
     {
       "id": "p-a1f601ba2ec5",
@@ -584,6 +584,292 @@
       "tier": "hypothesis",
       "status": "active",
       "section": "performance",
+      "support": 1
+    },
+    {
+      "id": "p-15f9564d7fb6",
+      "variant": "zombie-waves",
+      "statement": "Without a cap, rapid kills stack one widget and one cleanup task each for the full display time; a per-player cap bounds both and is purely cosmetic.",
+      "condition": "Frequent cosmetic UI pop-ups are spawned per reward event",
+      "action": "Cap simultaneously visible pop-ups per player with a weak_map counter and release the slot in the cleanup task",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "performance",
+      "support": 1
+    },
+    {
+      "id": "p-5c3e2137095a",
+      "variant": "zombie-waves",
+      "statement": "Verse has no public task Cancel; racing against a cancel event cuts off all nested suspended work and prevents orphan tasks.",
+      "condition": "A spawned per-entity tracking task must be cancelled when the round ends",
+      "action": "Wrap the task body in a race against an event that the round-end routine signals",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-9639ca91729d",
+      "variant": "zombie-waves",
+      "statement": "A stored integer bucket makes resets idempotent across sessions and rejoins, with no per-player timers.",
+      "condition": "Daily or periodic quests must reset for all players at a fixed time of day",
+      "action": "Compute a reset bucket as floor((unixTime - resetHour*3600)/86400), compare it with the player's stored bucket, and run one loop that sleeps until the next boundary",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-84928dd0007e",
+      "variant": "zombie-waves",
+      "statement": "Repeated device getters inside refresh helpers multiply reads per second per player; compute once and share.",
+      "condition": "A live widget refreshes every second and reads device state per slot",
+      "action": "Read each device value once per slot per refresh and pass it to the helpers that format progress, text and button state",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "performance",
+      "support": 1
+    },
+    {
+      "id": "p-bd7ec91ab4c6",
+      "variant": "zombie-waves",
+      "statement": "Never trust a live tracker read after completion; a cached completion value stops progress regressing.",
+      "condition": "A tracker device may reset its own value when its target is reached",
+      "action": "Cache the target value into the persisted progress in the completion handler and display the max of live and cached value",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "persistence",
+      "support": 1
+    },
+    {
+      "id": "p-a0f4a0b58dec",
+      "variant": "zombie-waves",
+      "statement": "A persisted next-claim timestamp keeps the cooldown honest across sessions; the cycle index comes from a modulo and the reward stays configurable on native triggers.",
+      "condition": "A per-player login or daily reward with a cooldown",
+      "action": "Persist ClaimedDays and NextClaimAtEpoch per player, let only the day equal to ClaimedDays mod N be claimable once now >= NextClaimAtEpoch, and fire a per-day trigger for the actual reward",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-577d18219f91",
+      "variant": "zombie-waves",
+      "statement": "An event signalled before anyone awaits is lost, not queued; ordering the spawns removes the race.",
+      "condition": "A timed event must signal listeners that start waiting at the same moment",
+      "action": "Spawn the Await watchers before the coroutine that signals, and use a single device-level loop for the widget phases",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-5be3fa7c5632",
+      "variant": "zombie-waves",
+      "statement": "A grace window with a pending flag stops rapid leave/rejoin from racing several resets, and a boss round also needs a timeout race so a failed spawn cannot softlock the loop.",
+      "condition": "All players are down or leave during a round",
+      "action": "End the round early without paying the round reward, wait a 5s grace period after the last player leaves with a single-flight flag, then reset only if still empty",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "death-strategies",
+      "support": 1
+    },
+    {
+      "id": "p-a9f5e3b2787c",
+      "variant": "zombie-waves",
+      "statement": "A reset timer never fires success and a completed Stop-mode timer cannot restart, so without the race and the Reset the loop hangs or silently skips rounds.",
+      "condition": "A wave loop waits on a native timer that a reset can stop",
+      "action": "Race the timer SuccessEvent against a ResetSignal event that the reset routine fires, and Reset() a stopped timer before each Start()",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-086e81edede2",
+      "variant": "zombie-waves",
+      "statement": "Tiered pools plus a linear payout scale quantity, variety and reward with no per-round tuning tables.",
+      "condition": "Rounds scale difficulty by round number",
+      "action": "Enable one more spawner pool every 2 rounds, add independent random pools from a minimum round with a fixed chance, and pay kill gold as base plus step times pool index plus a per-round bonus",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-9e1b1830aa6d",
+      "variant": "zombie-waves",
+      "statement": "Spawner devices do not share a bulk-despawn API, so cleanup must match the type; check the digest before assuming a call exists.",
+      "condition": "A wave spawner pool must be cleaned up at round end and the spawner type differs",
+      "action": "Use the cleanup call each device type really has: EliminateCreatures for creature spawners, DespawnAll(false) for NPC spawners, per-agent GetAgents then Despawn for wildlife spawners, then Disable",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-96d6b5b383c3",
+      "variant": "zombie-waves",
+      "statement": "A single independent roll with a returned flag gives surprise rounds that the UI can announce without extra state.",
+      "condition": "A special rare round (invasion) should occasionally replace a normal wave",
+      "action": "Roll once per round from a minimum round and, on a hit, enable every spawner of both pools and return a flag so the loop shows a distinct round-start message",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-cc261c4dd539",
+      "variant": "zombie-waves",
+      "statement": "Item grants and Print carry no_rollback effects that cannot live inside a decides function.",
+      "condition": "A Verse function must grant items and also be able to fail",
+      "action": "Split it: a decides function that only updates the balance map, and a separate always-succeeding function that grants items and logs, called only after the first succeeds",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-da70aabfbe9b",
+      "variant": "zombie-waves",
+      "statement": "An agent-name message renders empty after the player leaves, and a stale snapshot shows the same player twice after a rejoin.",
+      "condition": "A leaderboard or HUD shows departed players or has to survive a rejoin",
+      "action": "Store a frozen snapshot keyed by player identity, dedupe it on rejoin and before each new snapshot, cap the list FIFO, and store a generic label instead of a lazily rendered agent-name message",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "launch-checklist",
+      "support": 1
+    },
+    {
+      "id": "p-67c1e944ee52",
+      "variant": "zombie-waves",
+      "statement": "Batched writes bound persistent-write cost; flushing before a snapshot or leave keeps the displayed value correct.",
+      "condition": "Per-player lifetime stats are updated on every kill or reward event",
+      "action": "Accumulate deltas in an in-memory pending counter and flush them in one batched write per player on a periodic loop and before a player leaves",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "persistence",
+      "support": 1
+    },
+    {
+      "id": "p-1e7644601ce2",
+      "variant": "zombie-waves",
+      "statement": "A single failed GetPlayerUI at join leaves the player without a widget for the whole session; the run counter stops older animations cutting newer ones.",
+      "condition": "A UI widget creation can run before the player UI is ready",
+      "action": "Retry creation in a loop every 0.25-0.5s up to about 10s, stop if the player left, and guard overlapping animations with a per-player run counter",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-1577be21e58a",
+      "variant": "zombie-waves",
+      "statement": "Input mode All captures every input including movement; None makes the widget non-clickable, so a clickable on-screen button needs a separate design.",
+      "condition": "A passive HUD or status widget must not block movement or push-to-talk",
+      "action": "Add it with ui_input_mode None and reserve All for deliberate modal popups that also pause the player with a camera",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-f7ed0941dd95",
+      "variant": "zombie-waves",
+      "statement": "Decides effects are rejected inside Subscribe callback chains, and uncancelled per-player subscriptions keep firing for departed players.",
+      "condition": "A callback chain driven by Subscribe must do arithmetic or per-player work",
+      "action": "Avoid decides calls such as Quotient or a bare slash in that call graph, hand-roll the division, store each player's cancelables and prune every per-player map on leave",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-84149d28978d",
+      "variant": "zombie-waves",
+      "statement": "A once-per-session bonus never reset on party changes cannot be exploited by leaving and rejoining; confirming the grant exposes silent inventory-cap failures.",
+      "condition": "A co-op map should reward playing in a party",
+      "action": "Scale a one-time-per-session bonus by party size in integer basis points, grant it through a dedicated item granter, and confirm the grant with the granter event raced against a short timeout",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-6ac7f49d51a3",
+      "variant": "zombie-waves",
+      "statement": "Replacing or pruning a token cancels a pending timeout without a task handle, so stale timers cannot reset newer state.",
+      "condition": "A task or timer cannot be cancelled and a state may change while it sleeps",
+      "action": "Give each armed timer a per-player token, store it in a map, and on wake-up do nothing if the stored token no longer matches",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-7ac50f89c5ec",
+      "variant": "zombie-waves",
+      "statement": "A disconnect inside the activation area never fires the exit event, and events without player identity must reset all active widgets to a safe state.",
+      "condition": "An AI conversation widget can be left stuck in listening or thinking",
+      "action": "Arm a timeout when the player finishes speaking, reset the widget to an unavailable state on error or timeout, and tear down the pairing both on volume exit and on player removal",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-d1edb9f26846",
+      "variant": "zombie-waves",
+      "statement": "An island has a small hard cap on persistent variables, and a class literal that omits a field resets it to the default, so a single copy helper prevents silent data loss.",
+      "condition": "More persistent state is needed than the platform allows module-scoped persistent variables",
+      "action": "Keep one persistable class in one weak_map, add new fields with defaults, and write only through a single copy helper that carries every field forward and checks the size guard",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "persistence",
+      "support": 1
+    },
+    {
+      "id": "p-983a30432dad",
+      "variant": "zombie-waves",
+      "statement": "A roll range starting at zero gives an extra outcome so a zero percent chance still fires; a device that starts disabled may need Restart after Enable to spawn.",
+      "condition": "A random ambient effect should appear on some rounds only",
+      "action": "Roll an integer from 1 to the upper bound against a percent, pick one effect device at random, Enable then Restart it, and disable it at round end",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-d979cdab78f6",
+      "variant": "zombie-waves",
+      "statement": "Barrier collision is global, so a per-player ignore list is the unlock; the ignore state must be re-applied after respawn and the bonus guarded against repeat grants.",
+      "condition": "A VIP or unlocked area is gated by a barrier for non-qualifying players",
+      "action": "Add qualifying players to each barrier ignore list, re-apply after respawn, and guard the one-time bonus with an in-memory per-session map",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-d00ab411c9bc",
+      "variant": "zombie-waves",
+      "statement": "Per-player persisted redemption stops reuse across sessions, and a text version counter prevents an older timed reset from wiping a newer message.",
+      "condition": "A code-entry device lets players redeem codes for rewards",
+      "action": "Persist redeemed codes per player for one-time codes, version every message shown with a counter so a stale delayed reset cannot clear newer text, and fire a configurable trigger on success",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "launch-checklist",
+      "support": 1
+    },
+    {
+      "id": "p-347c7a887842",
+      "variant": "zombie-waves",
+      "statement": "A per-iteration counter drifts slow under load, and the last checkpoint of a cycle is never crossed unless the wrap is counted.",
+      "condition": "A timed reward ladder repeats over one continuous play counter",
+      "action": "Measure elapsed time against the real clock and count the cycle wrap as the last checkpoint",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
       "support": 1
     }
   ]

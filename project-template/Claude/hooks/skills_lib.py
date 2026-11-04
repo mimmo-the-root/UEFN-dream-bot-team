@@ -2034,6 +2034,14 @@ def recipes_list(slug, query=""):
 RECIPE_FIELDS = ("parent", "use", "steps", "params", "kind", "devices", "settings", "wiring", "files", "assets", "verify")
 
 
+_MODULE_PATH = re.compile(r"/[A-Za-z0-9._-]+@fortnite\.com/[A-Za-z0-9._-]+")
+
+
+def anonymize_verse(code):
+    """A Verse module path is /<account>@fortnite.com/<project>/...: it looks like an e-mail address and names the map. Recipes keep a placeholder."""
+    return _MODULE_PATH.sub("/<Account>@fortnite.com/<Project>", code or "")
+
+
 def recipe_add(slug, recipe, map_name):
     """Add or update a learned recipe; the map counts once. recipe: name, parent, use, steps[], params[]."""
     slug = _slug(slug)
@@ -2044,6 +2052,8 @@ def recipe_add(slug, recipe, map_name):
         fl = recipe.get(k)
         if fl is not None and (not isinstance(fl, list) or any(not isinstance(x, dict) or not x.get("name") or len(str(x.get("code", ""))) > 40000 for x in fl)):
             return {"ok": False, "error": "files must be a list of {name, code} (code up to 40000 characters each)"}
+    if recipe.get("files"):
+        recipe = dict(recipe, files=[dict(x, code=anonymize_verse(x.get("code", ""))) for x in recipe["files"]])
     mk = _map_key(map_name)
     lp = os.path.join(ldir(slug), "recipes.json")
     os.makedirs(ldir(slug), exist_ok=True)

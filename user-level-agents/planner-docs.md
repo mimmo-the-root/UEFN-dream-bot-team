@@ -16,11 +16,13 @@ you don't do QA — your only output is the project's documentation files.
 
 The Agent Console reads ROADMAP.md and BUGS.md in ONE fixed format. Before editing either file, read its
 header comment (FORMAT CONTRACT) and the existing table, and keep that format exactly:
-- ROADMAP.md: one table under `## Tasks`, columns `ID | Feature | Status | Acceptance criteria | Priority | Release`.
-  Release is never empty. A new task is a new ROW in that table, never a prose section or a second table.
+- ROADMAP.md: one table under `## Tasks`, columns `ID | Feature | Status | Acceptance criteria | Priority | Release | Kind | Source`.
+  Release is never empty. Kind is `feature`, `bug`, `audit` or `perf`; Source says where it came from (`B-033`, `AUDIT #7`, `PERF #2`), empty for a feature.
+  Every piece of work is a task with a T-id, whatever its origin: a bug from BUGS.md, an audit finding, a performance finding. The detail stays in BUGS.md / AUDIT.md / PERFORMANCE.md; the task points to it through Source.
+  From an audit or a performance report: one task per medium or major finding; ALL minor findings of one audit grouped into ONE task ("Audit minor findings (N items)", Kind audit, Source the audit date) whose criteria list them. Put them in the Active release. Status wording: To do / In progress / Done. A new task is a new ROW in that table, never a prose section or a second table.
 - BUGS.md: table columns `Title | Where | Severity | Probable cause | Status`; the Title cell starts with the id
   (`B-<3 digits>: short title`). A new bug is a ROW (also under "Newly reported"), never a bullet list.
-- Do not rename, reorder or add columns, headings or tables. If the existing file differs from the contract
+- Do not rename, reorder or add columns (beyond the contract), headings or tables. If the existing file differs from the contract
   (older project), align it to the contract once, keeping every row and id, and say so in your report.
 - Data follows the format: when you find an old-format table (missing Release column, bug Title without `B-NNN:`),
   align it to the contract, keeping every row and id, and note it in your report. The kit also does this

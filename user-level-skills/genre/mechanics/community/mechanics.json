@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "genre": "mechanics",
+  "pack_version": 3,
+  "patterns": [
+    {
+      "id": "p-2c1d3f0167ff",
+      "variant": "*",
+      "statement": "Shared bars should refresh on a timer and only write changed values, not on every single hit.",
+      "condition": "When one shared display (boss bar, team score, shared progress) would be redrawn on every hit or event, for every player at once.",
+      "action": "Refresh the shared display on a fixed timer with a low rate, and write only the values that actually changed.",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    },
+    {
+      "id": "p-cf32a25b981b",
+      "variant": "*",
+      "statement": "Keep saved data in its own module with one write path, separate from game logic, so one mistake cannot wipe unrelated progress.",
+      "condition": "When one saved-data store is shared by several unrelated systems (progress, unlocks, stats, purchases) and is written from one large script.",
+      "action": "Move the storage into its own module with a single write path, separate from gameplay logic, and run a save-and-reload check after every change to it.",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    },
+    {
+      "id": "p-30580c2dfad5",
+      "variant": "*",
+      "statement": "When many awards land at the same moment, queue them and let each consumer drain the queue, so no reward is silently lost.",
+      "condition": "When many awards land at the same instant and each consumer listens again only after handling the previous signal.",
+      "action": "Queue each recipient's amount in one shared place and let every consumer drain that queue, instead of firing one signal per recipient in a tight loop.",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    }
+  ]
+}
