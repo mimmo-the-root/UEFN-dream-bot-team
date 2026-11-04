@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.114.0"
+   "tag": "v1.115.0"
   },
   "state": {
    "genres": [],
@@ -22,14 +22,14 @@
   }
  },
  "release": {
-  "date": "2026-10-30",
+  "date": "2026-11-04",
   "items": [
-   "Badges. The README and the console show two more badges: format Agent Skills and last commit.",
-   "Starting guides for the genres that had none, mechanic recipes and design rules. New genre skills with a reference pack each (79 items in all, in the kit's own words and written for UEFN): Strategy (tower and wave defense), Shooter, Deathrun & Platformer, Adventure & RPG (quests and escape rooms), Simulation & Tycoon, plus a reference pack for Survival and one for Roguelike. They reach the Skills page as one proposal per genre and nothing applies until the owner approves; learned lessons always outrank them. Seven new recipes in the `mechanics` skill: weighted loot box, wave director, currency and shop, persistent levels, hunger and needs, ordered objectives, course checkpoints (the six with Verse are compile-checked in the editor before they count as built). Four short discipline skills (`game-feel-uefn`, `level-design-uefn`, `camera-audio-uefn`, `game-ai-uefn`) and an index (`uefn-disciplines`) that says which one to read for a concept. `validate_skills.py` now checks discipline skills (trigger words in the description, a \"When not to use\" line, a size limit, existing skill names), and the token baseline for skill entry points rose by 16 000 characters for these.",
-   "The Motion button works again on every page. Six reduced-motion rules (Docs: the step arrows and rings, the live bars; Console: the hub, the alert, the thinking dots; Flow) still switched the movement off when Windows has animation effects off, even with Motion on. They now carry `html:not(.motion-full)`, and `ui_lint.py` fails the build when a reduced-motion rule lacks it."
+   "[feature] Ten agents, one for each area of the 807 editor tools. `scene-scout` (reads), `env-builder` (level, PCG, geometry, physics), `asset-builder` (materials, data tables, meshes), `device-builder`, `entity-builder` (Scene Graph), `verse-dev` (build, session, logs), `ui-builder`, `fx-audio` (Niagara, MetaSound), `perf-profiler` and `cinematics` (Sequencer). Every tool has exactly one owner; a tool Epic adds later goes to the main session until a rule names its owner.",
+   "[feature] The guard keeps each agent in its area. When a hook payload names one of these agents, a tool that belongs to another is refused with the owner's name; reads of the editor core are open to all, the main session is never limited, and `UEFN_KIT_OWNERS=0` switches it off. `python Claude/hooks/mcp_owner.py Toolset/Tool` prints an owner, `--list` the split of the saved map.",
+   "[other] Cod as coordinator is measured, not assumed. The three-way comparison on one demo (alone, alone with grouped calls, coordinator with these agents) is queued in the plan; the agents are adopted for writes only if it is at least 25% faster at no more than 20% more tokens."
   ],
-  "tag": "v1.115.0",
-  "title": "v1.115.0 \u2014 Starting guides for five genres, mechanic recipes, design rules, Motion fixed"
+  "tag": "v1.119.0",
+  "title": "v1.119.0 \u2014 One agent per area of the editor"
  },
  "schema": 1,
  "skills": [],
