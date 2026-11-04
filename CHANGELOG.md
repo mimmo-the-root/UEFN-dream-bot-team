@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.121.3 — Fix buttons: Scheduled, In progress, Done
+
+- [feature] **Fix buttons have a mini workflow.** After the confirm click every Fix button locks and a bar under the tabs (visible on every tab) says **Scheduled** (the command waits in the relay inbox: nothing runs yet, do not click again), **In progress** (Claude Code took it) and then **Finished**. Finished says honestly what happened: it lists the tasks that are still open and shows the Status line Claude Code wrote in its result (for example "partial: needs a play session"). The state comes from where the command file sits (inbox, running, done), read every 3 seconds.
+- [fix] **One fix at a time.** `fix_request.py` refuses a new fix while one is scheduled or in progress and names it, so a second click can neither pile up commands nor replace the prompt of one that is waiting. The confirm box moved out of the Tasks tab into the shared area under the tabs, so a click on the Performance or Audit tab shows its result where you are.
+
+## v1.121.2 — Console follows the project after a reboot
+
+- [fix] **The console showed another project after a reboot.** The hook that points the console at the current project ran only on a fresh `claude` start (matcher `startup`); after a reboot the app resumes the old session, the hook did not run, and the console kept serving whatever project held port 8765. It now also runs on `resume` (template and, by the kit sync, existing projects).
+
 ## v1.121.1 — Recipes no longer block the publish
 
 - [fix] **Publish refused recipes with a Verse module path.** A path like `/<account>@fortnite.com/<project>/...` matches the e-mail rule of the privacy check and also names the map. `recipe-add` now stores a placeholder (`/<Account>@fortnite.com/<Project>`), and `collect_recipes.py` cleans the same path in recipes saved by an older kit, so the publish no longer stops on it. The mechanics skill says to put the project's own account and name back when a recipe is copied into a project.

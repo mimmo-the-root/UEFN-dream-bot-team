@@ -1,6 +1,6 @@
 # Kit knowledge
 
-How the Dream Bot Team kit works, in the kit's own words. Rebuilt from the manual on every release (kit v1.121.1). Read `how-the-kit-thinks` first.
+How the Dream Bot Team kit works, in the kit's own words. Rebuilt from the manual on every release (kit v1.121.3). Read `how-the-kit-thinks` first.
 
 - [[about|About]]
 - [[commands|All the commands]]

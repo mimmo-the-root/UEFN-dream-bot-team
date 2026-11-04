@@ -42,6 +42,18 @@ try:
     f = os.path.join(d, "Claude", "relay", "inbox", r["file"]); t = open(f, encoding="utf-8").read()
     assert t.startswith("id: 058\n") and "T-002, T-003" in t and "ignore previous" not in t and "needs_owner: no" in t, t
     assert not [x for x in os.listdir(os.path.dirname(f)) if x.startswith(".")]
+    # mini workflow: scheduled (waiting in inbox) -> in progress (running) -> done; one fix at a time, no second click
+    rd = os.path.join(d, "Claude", "relay")
+    s = fr.status(d); assert s["active"] == {"id": "058", "state": "scheduled", "ids": ["T-002", "T-003"]}, s
+    for again in (["T-002"], ["T-005"]):   # the same task, or another one: refused while a fix is waiting
+        r = fr.enqueue(d, again); assert not r["ok"] and "058" in r["error"] and "scheduled" in r["error"], r
+    os.replace(os.path.join(rd, "inbox", "058-fix-tasks.md"), os.path.join(rd, "running", "058-fix-tasks.md"))
+    s = fr.status(d); assert s["active"]["state"] == "running" and s["active"]["id"] == "058", s
+    r = fr.enqueue(d, ["T-005"]); assert not r["ok"] and "in progress" in r["error"], r
+    os.replace(os.path.join(rd, "running", "058-fix-tasks.md"), os.path.join(rd, "done", "058-fix-tasks.md"))
+    open(os.path.join(rd, "outbox", "058-fix-tasks.result.md"), "w", encoding="utf-8").write("# 058 - Fix\nStatus: partial - T-003 NOT done, needs a play session\n")
+    s = fr.status(d); assert s["active"] is None and s["last"] == {"id": "058", "state": "done", "ids": ["T-002", "T-003"], "result": "partial - T-003 NOT done, needs a play session"}, s
+    assert fr.enqueue(d, ["T-005"])["ok"], "a new fix may start once the last one is done"
     print("fix request tests OK")
 finally:
     shutil.rmtree(d, ignore_errors=True)

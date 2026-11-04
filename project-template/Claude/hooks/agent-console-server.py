@@ -737,6 +737,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             import fix_request
             n = int(self.headers.get("Content-Length") or 0)
             data = json.loads(self.rfile.read(min(n, 4096)).decode("utf-8") or "{}")
+            if data.get("state"):   # the console asks every few seconds: scheduled / in progress / done
+                return self._send_json_status(200, fix_request.status(PROJECT_DIR))
             self._send_json_status(200, fix_request.enqueue(PROJECT_DIR, data.get("ids"), dry=bool(data.get("dry"))))
         except (ValueError, OSError, ImportError) as e:
             self._send_json_status(400, {"ok": False, "error": str(e)})

@@ -437,6 +437,8 @@ tr.flash td{position:relative;}tr.flash td::before{content:"";position:absolute;
     <div class="flowrow" id="flowRow"><div class="stp" id="pageSteps" role="tablist" aria-label="Workflow"></div></div>
     <div id="loopBar"></div>
     <div class="pt" id="pageTabs" role="tablist"></div>
+    <div id="fixBar"></div>
+    <div id="fixBox"></div>
     <div class="pp" data-p="idea" id="pIdea"></div>
     <div class="pp" data-p="spec" id="pSpec"></div>
     <div class="pp" data-p="genre" id="pGenre"></div>
@@ -499,7 +501,6 @@ tr.flash td{position:relative;}tr.flash td::before{content:"";position:absolute;
     <div class="pp" data-p="status">
     <div class="card" id="statusTasks" style="margin-bottom:22px;">
       <div class="label" style="margin-bottom:6px;">Tasks and status</div>
-      <div id="fixBox"></div>
       <div id="statusTaskTable" style="font-size:11.5px;color:var(--dim);">loading…</div>
       <a href="#" onclick="openPreview('roadmap');return false;" style="display:block;margin-top:10px;font-size:11.5px;color:var(--blue);">Open full ROADMAP.md →</a>
     </div>
@@ -972,7 +973,7 @@ function groupByRelease(rows){
   return keyed.map(o => ({ name: o.name, rows: groups[o.name] }));
 }
 
-// ---- v1.121.1: ONE definition of the numbers, release order, and paged boxes ------------------------------
+// ---- v1.121.3: ONE definition of the numbers, release order, and paged boxes ------------------------------
 // total = tasks planned into a release (not out of scope, not Later/backlog); out of scope and backlog are counted apart and never in the %.
 function relStats(allRows){
   const scope = (allRows || []).filter(t => statusBucket(t.status) !== "outOfScope");
@@ -1311,7 +1312,7 @@ async function renderStatusTasks(){
   if (KF !== "all") rows = rows.filter(r => taskKind(r) === KF);
   if (!allRows.length){ empty('No tasks yet. After the plan is approved, <code>/task-list</code> fills this table: one row per task with its status.'); return; }
   const trow = r => { const badge = statusBadgeForTask(r.status), pri = priorityPill(r.priority);
-    return '<tr data-id="' + escH((r.id || "").trim()) + '"><td><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "(untitled)").replace(/~~/g, "")) + ' <span class="tkind ' + taskKind(r) + '">' + KINDS[taskKind(r)] + '</span>' + (r.source ? ' <small style="color:var(--dim);">' + escH(r.source) + '</small>' : '') + (statusBucket(r.status) === "todo" || statusBucket(r.status) === "active" || statusBucket(r.status) === "blocked" ? ' <button type="button" class="kchip fixb" onclick="fixAsk([\'' + escH((r.id || "").trim()) + '\'])">Fix this</button>' : '') + '</td><td><span class="badge ' + badge.cls + '" title="' + escH(r.status || "") + '"><span class="dot"></span>' + escH(badge.label) + '</span></td><td><span class="pill ' + pri.cls + '">' + escH(pri.label) + '</span></td></tr>'; };
+    return '<tr data-id="' + escH((r.id || "").trim()) + '"><td><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "(untitled)").replace(/~~/g, "")) + ' <span class="tkind ' + taskKind(r) + '">' + KINDS[taskKind(r)] + '</span>' + (r.source ? ' <small style="color:var(--dim);">' + escH(r.source) + '</small>' : '') + (statusBucket(r.status) === "todo" || statusBucket(r.status) === "active" || statusBucket(r.status) === "blocked" ? ' ' + fixBtn([(r.id || "").trim()], "Fix this", false) : '') + '</td><td><span class="badge ' + badge.cls + '" title="' + escH(r.status || "") + '"><span class="dot"></span>' + escH(badge.label) + '</span></td><td><span class="pill ' + pri.cls + '">' + escH(pri.label) + '</span></td></tr>'; };
   const h2 = '<table class="datatable"><tr><th style="width:56px;">ID</th><th>Task</th><th style="width:150px;">Status</th><th style="width:70px;">Priority</th></tr>';
   const isOpenT = r => { const b = statusBucket(r.status); return b === "todo" || b === "active" || b === "blocked"; };
   const PER = 12, slides = [];
@@ -1326,7 +1327,7 @@ async function renderStatusTasks(){
   const cur = (relOrder(groupByRelease(allRows))[0] || {rows: []}).rows;
   const doing = cur.filter(r => statusBucket(r.status) === "active");
   const openIds = cur.filter(r => (KF === "all" || taskKind(r) === KF) && (statusBucket(r.status) === "todo" || statusBucket(r.status) === "active" || statusBucket(r.status) === "blocked")).map(r => (r.id || "").trim()).filter(Boolean);
-  const fixAll = openIds.length ? ' <button type="button" class="kchip on" style="margin-left:8px;" onclick="fixAsk(' + jsArr(openIds) + ')">Fix all ' + openIds.length + ' open' + (KF === "all" ? "" : " " + escH(KF)) + ' in this release</button>' : '';
+  const fixAll = openIds.length ? ' ' + fixBtn(openIds, "Fix all " + openIds.length + " open" + (KF === "all" ? "" : " " + KF) + " in this release", true) : '';
   const strip = '<div class="nowstrip">' + (doing.length ? '▶ In progress now: ' + doing.map(r => '<b>' + escH(r.id) + '</b> ' + escH((r.feature || "").replace(/~~/g, "").slice(0, 60))).join(" · ") : 'Nothing in progress right now.') + fixAll + '</div>';
   const cnt = k => allRows.filter(r => k === "all" || taskKind(r) === k).filter(r => statusBucket(r.status) !== "done").length;
   const chips = '<div class="kchips">' + ["all"].concat(Object.keys(KINDS)).map(k => '<button type="button" class="kchip' + (KF === k ? " on" : "") + '" onclick="setKF(\'' + k + '\')">' + (k === "all" ? "All" : KINDS[k]) + ' ' + cnt(k) + '</button>').join("") + '</div>';
@@ -1337,9 +1338,42 @@ function jsArr(ids){ return '[' + ids.map(i => "'" + String(i).replace(/[^A-Za-z
 function fixPost(ids, dry){
   return fetch("/fix-request", {method: "POST", headers: {"Content-Type": "application/json", "X-Skills-Action": "1"}, body: JSON.stringify({ids: ids, dry: !!dry})}).then(r => r.json());
 }
+// one fix at a time: Scheduled (waiting in the relay inbox) -> In progress (Claude Code took it) -> Done. While one is active every Fix button is locked.
+let FIX = {active: null, last: null}, fixSeen = "", fixDismissed = "", fixSending = false;
+function fixBtn(ids, label, on){
+  const a = FIX.active;
+  if (a || fixSending){
+    const mine = a && ids.some(i => a.ids.indexOf(i) >= 0);
+    const txt = mine ? (a.state === "running" ? "In progress" : "Scheduled") : label;
+    return '<button type="button" class="kchip" disabled style="opacity:.6;cursor:default;" title="A fix is already ' + (a && a.state === "running" ? "in progress" : "scheduled") + ': wait until it is done">' + escH(txt) + '</button>';
+  }
+  return '<button type="button" class="kchip' + (on ? " on" : "") + '" onclick="fixAsk(' + jsArr(ids) + ')">' + escH(label) + '</button>';
+}
+function fixBanner(){
+  const el = document.getElementById("fixBar"); if (!el) return;
+  const a = FIX.active, l = FIX.last; let h = "";
+  if (a) h = a.state === "running" ? '▶ <b>In progress</b> · command ' + escH(a.id) + ' · ' + escH(a.ids.join(", ")) + '. Claude Code is working on it; the task statuses below change by themselves.'
+    : '⏳ <b>Scheduled</b> · command ' + escH(a.id) + ' · ' + escH(a.ids.join(", ")) + '. Nothing is running yet: Claude Code starts it at its next poll (up to 2 minutes). Do not click again.';
+  else if (l && fixDismissed !== l.id){
+    const left = l.ids.filter(i => { const r = (lastSt && lastSt.tasks || []).find(t => (t.id || "").trim() === i); return r && statusBucket(r.status) !== "done"; });
+    h = (left.length ? '⚠ <b>Finished, not complete</b> · command ' + escH(l.id) + ': still open ' + escH(left.join(", ")) : '✔ <b>Done</b> · command ' + escH(l.id) + ' · ' + escH(l.ids.join(", "))) + (l.result ? ' · ' + escH(l.result) : '') + '. <button type="button" class="kchip" onclick="fixDismiss(\'' + escH(l.id) + '\')">Close</button>';
+  }
+  el.innerHTML = h ? '<div class="nowstrip" style="margin:8px 0;">' + h + '</div>' : "";
+}
+function fixDismiss(id){ fixDismissed = id; fixBanner(); }
+function fixPoll(){
+  return fetch("/fix-request", {method: "POST", headers: {"Content-Type": "application/json", "X-Skills-Action": "1"}, body: JSON.stringify({state: true})}).then(r => r.json()).then(j => {
+    if (!j || j.ok === false) return;
+    const key = JSON.stringify([j.active, j.last && j.last.id]);
+    FIX = {active: j.active || null, last: j.last || null};
+    fixBanner();
+    if (key !== fixSeen){ fixSeen = key; try{ renderStatusTasks(); renderJourney(); }catch(e){} }
+  }).catch(() => {});
+}
+setInterval(fixPoll, 3000); setTimeout(fixPoll, 600);
 function fixAsk(ids){
   const box = document.getElementById("fixBox"); if (!box) return;
-  if (curTab !== "status"){ curTab = "status"; jShow(); }
+  if (FIX.active || fixSending) return;
   box.innerHTML = '<div class="nowstrip">Preparing…</div>';
   fixPost(ids, true).then(j => {
     if (!j.ok){ box.innerHTML = '<div class="nowstrip" style="color:var(--red);">' + escH(j.error || "could not prepare") + ' <button type="button" class="kchip" onclick="fixClose()">Close</button></div>'; return; }
@@ -1349,11 +1383,13 @@ function fixAsk(ids){
       '<button type="button" class="kchip" id="fixCopy">Copy text instead</button></div>';
     document.getElementById("fixCopy").onclick = function(){ try{ navigator.clipboard.writeText(j.prompt); this.textContent = "Copied"; }catch(e){ this.textContent = "Select the text above"; } };
     document.getElementById("fixGo").onclick = function(){
-      this.disabled = true; this.textContent = "Sending…";
+      this.disabled = true; this.textContent = "Sending…"; fixSending = true;
       fixPost(j.ids, false).then(r => {
-        box.innerHTML = r.ok ? '<div class="nowstrip">✔ Queued as relay command <b>' + escH(r.id) + '</b> (' + escH(r.ids.join(", ")) + '). Claude Code picks it up at its next poll; the task statuses below change by themselves. <button type="button" class="kchip" onclick="fixClose()">Close</button></div>'
+        fixSending = false;
+        if (r.ok){ FIX.active = {id: r.id, state: "scheduled", ids: r.ids}; fixBanner(); try{ renderStatusTasks(); renderJourney(); }catch(e){} }
+        box.innerHTML = r.ok ? ""
           : '<div class="nowstrip" style="color:var(--red);">' + escH(r.error || "not sent") + ' <button type="button" class="kchip" onclick="fixClose()">Close</button></div>';
-      }).catch(() => { box.innerHTML = '<div class="nowstrip" style="color:var(--red);">Could not reach the local server. <button type="button" class="kchip" onclick="fixClose()">Close</button></div>'; });
+      }).catch(() => { fixSending = false; box.innerHTML = '<div class="nowstrip" style="color:var(--red);">Could not reach the local server. <button type="button" class="kchip" onclick="fixClose()">Close</button></div>'; });
     };
   }).catch(() => { box.innerHTML = '<div class="nowstrip" style="color:var(--red);">Could not reach the local server. <button type="button" class="kchip" onclick="fixClose()">Close</button></div>'; });
 }
@@ -1549,7 +1585,7 @@ async function jState(){
   const [g, p, c, r, au, dl, tm, gn, gp, ll, osd, pf, bg, lp, dv] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer","genre","genreprop","learnlog","ownersteps","performance","bugs","learnprogress","devices"].map(fetchDoc));
   const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
   const rowsAll = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
-  /* v1.121.1: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
+  /* v1.121.3: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
   const tasks = rowsAll.filter(t => statusBucket(t.status) !== "outOfScope" && !isBacklogRow(t));
   st.rowsAll = rowsAll; st.stats = relStats(rowsAll); st.bugsRaw = bg && bg.exists && !bg.error ? bg.content : ""; st.learnRaw = lp && lp.exists && !lp.error ? lp.content : ""; st.devRaw = dv && dv.exists && !dv.error ? dv.content : "";
   st.roadRaw = r.exists ? r.content : ""; st.osRaw = osd.exists && !osd.error ? osd.content : "";
@@ -1888,7 +1924,7 @@ function jIdea(st){ const hint = '<b>Not started.</b> Two ways in, both with <co
 function jSpec(st){ return jGhost(st.hasSpec, jSpec0(st), 'Waiting for <code>/spec</code>. This page will show the checklist of the spec (loop, story with test, success criteria, assumptions) and the technical risks with a level.'); }
 function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/game-plan</code>.' : 'Waiting for the approved spec. <code>/game-plan</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
 function bucketPill(s){ const b = statusBucket(s); return b==="done" ? '<span class="jpill jgreen">Done</span>' : b==="active" ? '<span class="jpill jlive">In progress</span>' : b==="blocked" ? '<span class="jpill jred">Blocked</span>' : '<span class="jpill">To do</span>'; }
-// ---- v1.121.1: real data from the project documents (no sample text for a project that exists) ----------------
+// ---- v1.121.3: real data from the project documents (no sample text for a project that exists) ----------------
 function auditFromDocs(st){
   const out = []; if (!st.bugsRaw) return out;
   let rows = []; try{ rows = parseBugsBacklog(st.bugsRaw); }catch(e){ rows = []; }
@@ -2069,7 +2105,7 @@ function kindTable(st, k){
   const open = rows.filter(t => statusBucket(t.status) !== "done").length, rn = st.rel0 ? st.rel0.cur.name : "";
   rows.sort((a, b) => ((statusBucket(b.status) !== "done") - (statusBucket(a.status) !== "done")) || idNum(a.id) - idNum(b.id));
   const ids = rows.filter(t => statusBucket(t.status) !== "done").map(t => (t.id || "").trim()).filter(Boolean);
-  return '<div class="card" style="margin-bottom:12px;"><div class="label" style="margin-bottom:6px;">' + KINDS[k] + ' tasks in ' + escH(rn) + ' · ' + open + ' open of ' + rows.length + (ids.length ? ' <button type="button" class="kchip on" style="margin-left:8px;" onclick="fixAsk(' + jsArr(ids) + ')">Fix all ' + ids.length + '</button>' : '') + '</div><table class="datatable"><tr><th style="width:56px;">ID</th><th>Task</th><th style="width:130px;">Status</th></tr>' +
+  return '<div class="card" style="margin-bottom:12px;"><div class="label" style="margin-bottom:6px;">' + KINDS[k] + ' tasks in ' + escH(rn) + ' · ' + open + ' open of ' + rows.length + (ids.length ? ' ' + fixBtn(ids, "Fix all " + ids.length, true) : '') + '</div><table class="datatable"><tr><th style="width:56px;">ID</th><th>Task</th><th style="width:130px;">Status</th></tr>' +
     rows.map(r => { const b = statusBadgeForTask(r.status); return '<tr><td><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "").replace(/~~/g, "")) + (r.source ? ' <small style="color:var(--dim);">' + escH(r.source) + '</small>' : '') + '</td><td><span class="badge ' + b.cls + '"><span class="dot"></span>' + b.label + '</span></td></tr>'; }).join("") + '</table></div>';
 }
 function jRoadmap(st){
@@ -2198,7 +2234,7 @@ async function refreshDocs(){
 }
 setInterval(refreshDocs, 5000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.121.1";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.121.3";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

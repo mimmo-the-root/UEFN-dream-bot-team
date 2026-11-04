@@ -169,12 +169,18 @@ def repair_settings(project):
                         changed += 1
                 keep.append(h)
             e["hooks"] = keep
+    notes = ["settings.json: reminder hook repaired"] if changed else []
+    # the console hook must also fire when a session is RESUMED (after a reboot the app resumes the old session)
+    for e in (d.get("hooks") or {}).get("SessionStart", []):
+        if e.get("matcher") == "startup" and any("session-start-reminder" in h.get("command", "") for h in e.get("hooks", [])):
+            e["matcher"] = "startup|resume"
+            changed += 1
+            notes.append("settings.json: console hook now also runs when a session is resumed")
     if changed:
         with open(pp, "w", encoding="utf-8", newline="\n") as f:
             json.dump(d, f, indent=2, ensure_ascii=False)
             f.write("\n")
-        return ["settings.json: reminder hook repaired"]
-    return []
+    return notes
 
 
 def merge_claude_md(project, tpl):

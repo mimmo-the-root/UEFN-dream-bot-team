@@ -78,8 +78,8 @@
         ]
       },
       {
-        "_comment": "Only fires when you launch `claude` fresh (matcher 'startup'), not on every /clear or /compact. If the optional Agent Console is installed on this project, deterministically ensures its server is running AND correctly scoped to THIS project (killing and replacing a stale/wrong-project server bound to the same port if needed), then opens it in your default browser automatically, before Claude's first reply — no permission asked, nothing to answer. On Windows without bash available, use session-start-reminder.ps1 (already set below); with bash/WSL/Git Bash you can switch to session-start-reminder.sh.",
-        "matcher": "startup",
+        "_comment": "Fires when you launch `claude` fresh and when a session is resumed (matcher 'startup|resume': after a reboot the app resumes the old session), not on every /clear or /compact. If the optional Agent Console is installed on this project, deterministically ensures its server is running AND correctly scoped to THIS project (killing and replacing a stale/wrong-project server bound to the same port if needed), then opens it in your default browser automatically, before Claude's first reply — no permission asked, nothing to answer. On Windows without bash available, use session-start-reminder.ps1 (already set below); with bash/WSL/Git Bash you can switch to session-start-reminder.sh.",
+        "matcher": "startup|resume",
         "hooks": [
           {
             "type": "command",

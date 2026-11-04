@@ -540,7 +540,10 @@ $RequestHandler = {
                         } elseif ($path -eq "/fix-request") {
                             $ids = @($d.ids | ForEach-Object { [string]$_ })
                             $dry = @(); if ($d.dry) { $dry = @("--dry") }
-                            $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "fix_request.py") (@($State.ProjectDir) + $dry + $ids)
+                            if ($d.state) { $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "fix_request.py") @($State.ProjectDir, "--status") }
+                            else {
+                                $json = & $sk (Join-Path (Split-Path $State.SkillsLibPath -Parent) "fix_request.py") (@($State.ProjectDir) + $dry + $ids)
+                            }
                         } elseif ($path -eq "/map-learn") {
                             $a = @("map-learn", "--project", $State.ProjectDir)
                         } elseif ($path -eq "/genre-confirm") {

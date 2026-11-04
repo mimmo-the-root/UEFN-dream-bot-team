@@ -50,6 +50,43 @@ def _next_id(rdir):
     return "%03d" % (n + 1)
 
 
+def _fix_cmds(project):
+    """The fix commands of this project, by place: inbox = scheduled (waiting), running = in progress, done = finished. Newest first."""
+    out = []
+    for sub, state in (("inbox", "scheduled"), ("running", "running"), ("done", "done")):
+        d = os.path.join(project, "Claude", "relay", sub)
+        if not os.path.isdir(d):
+            continue
+        for f in os.listdir(d):
+            m = re.match(r"^(\d{3})-fix-tasks\.md$", f)
+            if not m:
+                continue
+            try:
+                head = open(os.path.join(d, f), encoding="utf-8", errors="replace").read(600)
+            except OSError:
+                continue
+            t = re.search(r"^title:.*?:\s*((?:T-\d{3}(?:,\s*)?)+)", head, re.M)
+            item = {"id": m.group(1), "state": state, "ids": re.findall(r"T-\d{3}", t.group(1)) if t else []}
+            if state == "done":   # the outcome Claude Code wrote: finished does not mean every task was fixed
+                try:
+                    rt = open(os.path.join(project, "Claude", "relay", "outbox", f.replace(".md", ".result.md")), encoding="utf-8", errors="replace").read(2000)
+                    sm = re.search(r"^Status:\s*(.+)$", rt, re.M)
+                    if sm:
+                        item["result"] = sm.group(1).strip()[:200]
+                except OSError:
+                    pass
+            out.append(item)
+    return sorted(out, key=lambda x: x["id"], reverse=True)
+
+
+def status(project):
+    """{"active": the fix waiting or running (or None), "last": the newest finished one (or None)}. The console shows Scheduled / In progress / Done from this."""
+    cmds = _fix_cmds(project)
+    act = next((c for c in cmds if c["state"] in ("scheduled", "running")), None)
+    last = next((c for c in cmds if c["state"] == "done"), None)
+    return {"active": act, "last": last}
+
+
 def enqueue(project, ids, dry=False):
     if not isinstance(ids, (list, tuple)) or not ids:
         return {"ok": False, "error": "no task ids given"}
@@ -62,6 +99,9 @@ def enqueue(project, ids, dry=False):
             return {"ok": False, "error": "%s is not in ROADMAP.md" % i}
         if not OPEN.match(tasks[i].get("status", "")):
             return {"ok": False, "error": "%s is not open (status: %s)" % (i, tasks[i].get("status", ""))}
+    act = status(project)["active"]
+    if act:   # one fix at a time: a second click must not pile up commands or replace the prompt of one that is waiting or running
+        return {"ok": False, "error": "a fix is already %s (command %s: %s). Wait until it is done." % ("scheduled" if act["state"] == "scheduled" else "in progress", act["id"], ", ".join(act["ids"])), "active": act}
     rdir = os.path.join(project, "Claude", "relay")
     if not os.path.isdir(os.path.join(rdir, "inbox")):
         return {"ok": False, "error": "no relay folder in this project (Claude/relay/inbox): copy the text instead"}
@@ -84,4 +124,7 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     dry = "--dry" in a
     a = [x for x in a if x != "--dry"]
-    print(json.dumps(enqueue(a[0], a[1:], dry=dry) if a else {"ok": False, "error": "usage"}))
+    if len(a) == 2 and a[1] == "--status":
+        print(json.dumps(status(a[0])))
+    else:
+        print(json.dumps(enqueue(a[0], a[1:], dry=dry) if a else {"ok": False, "error": "usage"}))
