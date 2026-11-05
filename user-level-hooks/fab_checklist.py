@@ -353,7 +353,8 @@ def refresh(root, lab):
     ensure_third_party(root)
     st = scan_state(root, lab)
     read_editor_validation(root, lab)
-    read_verse_build(lab)
+    if st.get("verse"):
+        read_verse_build(lab)
     read_texture_sizes(root, lab)
     return st
 
@@ -536,7 +537,9 @@ def stations(root, st, lab):
         vi = _item("b-valid", "UEFN validation: no errors or consequential warnings", "pass", "ed", "%s: 0 errors, 0 warnings." % val.get("at", ""))
     vbd = _jload(os.path.join(lab, "verse-build.json"), None)
     vt = "Verse compiles with no errors or warnings"
-    if not vbd:
+    if not st["verse"]:   # no Verse file in the product: nothing to compile, the editor is not asked
+        verse_item = _item("b-verse", vt, "na", "kit", "No Verse code in the product: nothing to compile.")
+    elif not vbd:
         verse_item = _item("b-verse", vt, "todo", "ed", "Not built yet.", "Press Run all checks: the kit asks the open editor to build the Verse code.")
     elif vbd["state"] == "clean" and not vbd["warnings"]:
         verse_item = _item("b-verse", vt, "pass", "ed", "%s: build finished with 0 errors, 0 warnings (%d Verse file(s))." % (vbd["at"], st["verse"]))

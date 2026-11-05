@@ -67,7 +67,7 @@ try:
     ok(ids["b-dev"]["s"] == ids["b-verse"]["s"] and ids["b-dev"]["w"] == "ed" and ids["b-play"]["s"] == "manual", "with Verse code the devices check mirrors the Verse build, the play loop stays yours")
     os.remove(os.path.join(root, "Content", "Prod", "Verse", "main.verse"))
     d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
-    ok(ids["b-dev"]["s"] == "na" and ids["b-play"]["s"] == "na", "no Verse code: devices and play loop are skipped by themselves")
+    ok(ids["b-dev"]["s"] == "na" and ids["b-play"]["s"] == "na" and ids["b-verse"]["s"] == "na", "no Verse code: the Verse build, devices and play loop are skipped by themselves")
     open(os.path.join(root, "Content", "Prod", "Verse", "main.verse"), "w").write("using { /Verse.org/Simulation }\n")
     # textures: read from the editor, both sides a power of 2, 2k at most
     ok([FC.tex_problem(*a) for a in ((1024, 2048), (1000, 512), (4096, 4096), (0, 0))] == ["", "not a power of 2", "larger than 2k", "size unreadable"], "texture rule: power of 2, 2k at most")

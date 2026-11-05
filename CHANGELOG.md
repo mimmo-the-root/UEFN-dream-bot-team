@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.123.6 — Fab: no Verse build without Verse code, project MCP server found
+
+- [fix] **A product with no Verse code waited for a Verse build that cannot exist.** "Verse compiles" now skips itself (and the kit no longer asks the editor to build) when the product has no Verse file; it stayed open with "unexpected reply from UEFN".
+- [fix] **The editor's MCP server added to one project was not found.** The kit looked only at the project's `.mcp.json` and the global servers of `~/.claude.json`, not at the ones `claude mcp add` stores under the project's own entry, so "the editor was not reachable" could appear with UEFN open. It now reads those too.
+
 ## v1.123.5 — Fab: Docs station and performance check
 
 - [new] **A Docs station in the Fab checklist (now 8 stations).** Between Listing and Extra: one check for each document the kit creates (README, AUTHOR, SETTINGS when there is Verse code), blocking when the README is missing and warning with the number of TODO lines left, plus the third-party declaration (moved from Listing). The fix text names the existing command (`fab_pack.py docs --apply`, `listing-fill`).

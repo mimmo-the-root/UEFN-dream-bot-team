@@ -69,6 +69,19 @@ def find_url(project=None):
             u = cfg.get("url") if isinstance(cfg, dict) else None
             if u and ("unreal" in name.lower() or "uefn" in name.lower() or "127.0.0.1" in u or "localhost" in u):
                 return u
+    # Claude Code keeps the servers added with `claude mcp add` for one project under projects.<path>.mcpServers of ~/.claude.json
+    try:
+        projs = json.load(open(os.path.join(os.path.expanduser("~"), ".claude.json"), encoding="utf-8-sig")).get("projects") or {}
+    except (OSError, ValueError, AttributeError):
+        projs = {}
+    norm = lambda x: os.path.normcase(os.path.normpath(x)).replace("\\", "/").rstrip("/")
+    here = norm(project) if project else ""
+    ordered = sorted(projs.items(), key=lambda kv: 0 if here and norm(kv[0]) in (here, norm(os.path.dirname(here))) else 1)
+    for _path, pj in ordered:
+        for name, cfg in ((pj or {}).get("mcpServers") or {}).items():
+            u = cfg.get("url") if isinstance(cfg, dict) else None
+            if u and ("unreal" in name.lower() or "uefn" in name.lower() or "127.0.0.1" in u or "localhost" in u):
+                return u
     return "http://127.0.0.1:8000/mcp"
 
 

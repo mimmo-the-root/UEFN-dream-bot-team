@@ -210,3 +210,11 @@ _buf = io.StringIO()
 with contextlib.redirect_stdout(_buf):
     _code = mcp_map.find(["asset", "move"], _empty)
 ok(_code == 0 and "EditorToolset/Move" in _buf.getvalue(), "find without a live map falls back to the known tool names (move an asset = EditorToolset/Move)")
+# the editor's server added to one project (~/.claude.json projects.<path>.mcpServers) is found, not only the global one
+_h = _tf.mkdtemp(); _old = (os.environ.get("HOME"), os.environ.get("USERPROFILE"), os.environ.get("UEFN_MCP_URL"))
+os.environ["HOME"] = os.environ["USERPROFILE"] = _h; os.environ.pop("UEFN_MCP_URL", None)
+json.dump({"projects": {"C:/x/Prod": {"mcpServers": {"unreal": {"url": "http://127.0.0.1:1234/mcp"}}}}}, open(os.path.join(_h, ".claude.json"), "w"))
+ok(mcp_map.find_url("C:/x/Prod") == "http://127.0.0.1:1234/mcp", "find_url reads the server added to this project in ~/.claude.json")
+for _k, _v in zip(("HOME", "USERPROFILE", "UEFN_MCP_URL"), _old):
+    if _v is None: os.environ.pop(_k, None)
+    else: os.environ[_k] = _v
