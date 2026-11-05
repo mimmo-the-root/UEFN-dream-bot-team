@@ -170,6 +170,10 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
 .nx .cmd{background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--blue);}
 .nx .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
 .pp{display:none;}.pp.on{display:block;}
+/* Fab product: the journey of a map (idea, spec, release...) is replaced by the stations of the Fab checklist */
+.fabmode #islandStrip,.fabmode .hero,.fabmode #nxRow,.fabmode #pageTabs,.fabmode #fixBar,.fabmode #fixBox{display:none !important;}
+.fabmode .pp{display:none !important;}.fabmode #pFab{display:block !important;}
+.fabst td{vertical-align:top;font-size:12px;}.fabst .ev{color:var(--dim);font-size:11px;margin-top:2px;}.fabst .fx{color:var(--amber);font-size:11px;margin-top:2px;}
 .jgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;margin-bottom:16px;}
 @media (max-width:900px){.jgrid{grid-template-columns:1fr;}}
 .jstack{display:flex;flex-direction:column;gap:16px;min-width:0;}
@@ -442,6 +446,7 @@ tr.flash td{position:relative;}tr.flash td::before{content:"";position:absolute;
     <div class="pt" id="pageTabs" role="tablist"></div>
     <div id="fixBar"></div>
     <div id="fixBox"></div>
+    <div class="pp" data-p="fab" id="pFab"></div>
     <div class="pp" data-p="idea" id="pIdea"></div>
     <div class="pp" data-p="spec" id="pSpec"></div>
     <div class="pp" data-p="genre" id="pGenre"></div>
@@ -976,7 +981,7 @@ function groupByRelease(rows){
   return keyed.map(o => ({ name: o.name, rows: groups[o.name] }));
 }
 
-// ---- v1.122.1: ONE definition of the numbers, release order, and paged boxes ------------------------------
+// ---- v1.123.0: ONE definition of the numbers, release order, and paged boxes ------------------------------
 // total = tasks planned into a release (not out of scope, not Later/backlog); out of scope and backlog are counted apart and never in the %.
 function relStats(allRows){
   const scope = (allRows || []).filter(t => statusBucket(t.status) !== "outOfScope");
@@ -1595,7 +1600,7 @@ async function jState(){
   const [g, p, c, r, au, dl, tm, gn, gp, ll, osd, pf, bg, lp, dv] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer","genre","genreprop","learnlog","ownersteps","performance","bugs","learnprogress","devices"].map(fetchDoc));
   const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
   const rowsAll = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
-  /* v1.122.1: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
+  /* v1.123.0: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
   const tasks = rowsAll.filter(t => statusBucket(t.status) !== "outOfScope" && !isBacklogRow(t));
   st.rowsAll = rowsAll; st.stats = relStats(rowsAll); st.bugsRaw = bg && bg.exists && !bg.error ? bg.content : ""; st.learnRaw = lp && lp.exists && !lp.error ? lp.content : ""; st.devRaw = dv && dv.exists && !dv.error ? dv.content : "";
   st.roadRaw = r.exists ? r.content : ""; st.osRaw = osd.exists && !osd.error ? osd.content : "";
@@ -1934,7 +1939,7 @@ function jIdea(st){ const hint = '<b>Not started.</b> Two ways in, both with <co
 function jSpec(st){ return jGhost(st.hasSpec, jSpec0(st), 'Waiting for <code>/spec</code>. This page will show the checklist of the spec (loop, story with test, success criteria, assumptions) and the technical risks with a level.'); }
 function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/game-plan</code>.' : 'Waiting for the approved spec. <code>/game-plan</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
 function bucketPill(s){ const b = statusBucket(s); return b==="done" ? '<span class="jpill jgreen">Done</span>' : b==="active" ? '<span class="jpill jlive">In progress</span>' : b==="blocked" ? '<span class="jpill jred">Blocked</span>' : '<span class="jpill">To do</span>'; }
-// ---- v1.122.1: real data from the project documents (no sample text for a project that exists) ----------------
+// ---- v1.123.0: real data from the project documents (no sample text for a project that exists) ----------------
 function auditFromDocs(st){
   const out = []; if (!st.bugsRaw) return out;
   let rows = []; try{ rows = parseBugsBacklog(st.bugsRaw); }catch(e){ rows = []; }
@@ -2144,6 +2149,30 @@ function jRoadmap(st){
   return '<div class="card"><div class="label" style="margin-bottom:6px;">Roadmap — the release in progress first, queued releases next, finished ones dimmed</div>' + ph + '<div class="rmcols">' + cols + '</div>' + (finRows.length ? '<div class="rmfin">' + finRows.join("") + '</div>' : "") + '</div>';
 }
 function esc2(x){ return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+// Fab product (1.123): the arrows are the 7 stations of the Fab checklist (data of /fab-data, the same as the Checklist page); the loop bar is the verdict.
+let FAB_MODE = false, fabSel = "";
+const FAB_ST = {pass: ["Pass", "green"], fail: ["Fail", "red"], warn: ["Warning", "amber"], todo: ["To do", "grey"], manual: ["Your check", "amber"], na: ["n/a", "grey"]};
+const FAB_WHO = {kit: "done by the kit", ed: "needs a record from UEFN", you: "only you can judge", x: "added after a rejection"};
+function fabStationState(s){ const it = s.items || []; if (it.some(i => i.s === "fail")) return "blocked"; return it.every(i => i.s === "pass" || i.s === "na") ? "done" : "open"; }
+async function fabJourney(){
+  const pf = document.getElementById("pFab"); if (!pf) return;
+  let d = null; try{ d = await (await fetch("/fab-data", {cache: "no-store"})).json(); }catch(e){}
+  if (!d || d.error || !d.stations){ pf.innerHTML = '<div class="card">The Fab checklist is not readable now' + (d && d.error ? ': ' + escH(String(d.error)) : '') + '.</div>'; return; }
+  const sts = d.stations, nowI = sts.findIndex(x => fabStationState(x) !== "done");
+  if (!fabSel || !sts.some(x => x.id === fabSel)) fabSel = (sts[nowI >= 0 ? nowI : 0]).id;
+  const cnt = x => { const it = x.items || [], ok = it.filter(i => i.s === "pass" || i.s === "na").length; return ok + "/" + it.length; };
+  document.getElementById("pageSteps").innerHTML = sts.map((x, i) => { const base = fabStationState(x), c = base === "open" ? (i === nowI ? "now" : "") : base;
+    return '<span class="stw ' + c + (i === 0 ? " f" : "") + '"><button class="stp-b ' + c + (x.id === fabSel ? " on" : "") + '" role="tab" aria-selected="' + (x.id === fabSel) + '" data-s="' + escH(x.id) + '" title="' + escH(x.d || "") + '"><span class="stt"><span class="jd ' + c + '"></span><span class="stp-n">' + (i + 1) + '</span></span><span class="stl">' + escH(String(x.n).replace(/^\d+\s*/, "")) + ' <span class="cnt">' + cnt(x) + '</span></span></button></span>'; }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll("#pageSteps .stp-b"), b => { b.onclick = () => { fabSel = b.getAttribute("data-s"); fabJourney(); }; });
+  const c = d.counts || {}, pct = d.pct || 0;
+  document.getElementById("loopBar").innerHTML = '<div class="lp"><span class="lp-tag">Fab check &middot; ' + escH(String(d.verdict || "")) + '</span><div class="lp-bar"><i style="width:' + pct + '%"></i></div><span class="lp-n"><b>' + pct + '%</b> &middot; ' + (c.pass || 0) + ' pass &middot; ' + (c.fail || 0) + ' fail &middot; ' + (c.todo || 0) + ' to do &middot; ' + (c.manual || 0) + ' your check</span><span class="lp-note">' + escH(String(d.message || "")) + '</span></div>';
+  const cur = sts.find(x => x.id === fabSel) || sts[0];
+  const rows = (cur.items || []).slice().sort((a, b) => ["fail", "warn", "todo", "manual", "pass", "na"].indexOf(a.s) - ["fail", "warn", "todo", "manual", "pass", "na"].indexOf(b.s)).map(i => { const b = FAB_ST[i.s] || [i.s, "grey"];
+    return '<tr><td style="width:96px;"><span class="badge ' + b[1] + '"><span class="dot"></span>' + escH(b[0]) + '</span></td><td><b>' + escH(i.t || "") + '</b>' + (i.ev ? '<div class="ev">' + escH(i.ev) + '</div>' : '') + (i.fix && i.s !== "pass" ? '<div class="fx">' + escH(i.fix) + '</div>' : '') + '</td><td style="width:150px;color:var(--dim);font-size:11px;">' + escH(FAB_WHO[i.w] || "") + '</td></tr>'; }).join("");
+  pf.innerHTML = '<div class="card fabst"><div class="label">' + escH(cur.n) + ' <span class="jpill">' + cnt(cur) + ' green</span></div><div style="color:var(--dim);font-size:12px;margin:4px 0 8px;">' + escH(cur.d || "") + '</div><table class="datatable"><tr><th>State</th><th>Check and evidence</th><th>Who</th></tr>' + rows + '</table>' +
+    '<a href="agent-console-fab.html" style="display:inline-block;margin-top:10px;font-size:11.5px;color:var(--blue);">Tick your checks, paste the UEFN validation and run the kit checks on the Checklist page &rarr;</a></div>';
+}
+fetch("/whoami").then(r => r.json()).then(w => { if (w && w.fab){ FAB_MODE = true; document.documentElement.classList.add("fabmode"); document.body.classList.add("fabmode"); fabJourney(); } }).catch(() => {});
 function jTabs(st, next){
   const ss = jSteps(st);
   st.rel = jRelease(st.tasks, ss.state.owner === "done");
@@ -2164,6 +2193,7 @@ function jTabs(st, next){
 }
 function jShow(){ document.querySelectorAll(".pp").forEach(e => e.classList.toggle("on", e.getAttribute("data-p")===curTab)); Array.prototype.forEach.call(document.querySelectorAll("#pageSteps .stp-b, #pageTabs .tab"), b => { const on = b.getAttribute("data-t")===curTab; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); }); }
 async function renderJourney(){
+  if (FAB_MODE) return fabJourney();
   try{
     const st = await jState(), next = jNext(st);
     const ss = jSteps(st);
@@ -2254,7 +2284,7 @@ async function refreshDocs(){
 }
 setInterval(refreshDocs, 5000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.122.1";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.123.0";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

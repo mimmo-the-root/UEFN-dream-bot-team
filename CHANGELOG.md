@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.123.0 — A Fab product's workflow is its checks
+
+- [new] **A Fab product's Status page shows its checks, not the journey of a map.** In a Fab product the arrows are the 7 stations of the Fab checklist (Project, Content, Build, Listing, Extra, Zip, Submit), each with its green count and its state (done, now, stopped by a failed check); the loop bar is the verdict with the percentage and the counts; a click on a station lists its checks with state, who does it, the evidence and what to do. The map-only blocks (hero cards, next action, Island line, release tabs) are hidden there. The Checklist page stays the place to tick your checks and paste the UEFN validation.
+
 ## v1.122.1 — Learn-slicer agent, next fixed, docs up to date
 
 - [new] **A new agent, `learn-slicer` (now 33).** It runs one slice of the learning and shows in the console among the memory agents, so the cost table and the live rail name it instead of a generic agent. `/learn-map` starts it for every slice (with `general-purpose` as fallback until it is installed).

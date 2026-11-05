@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.122.0"
+   "tag": "v1.122.1"
   },
   "state": {
    "genres": [],
@@ -24,12 +24,10 @@
  "release": {
   "date": "2026-11-05",
   "items": [
-   "[new] A new agent, `learn-slicer` (now 33). It runs one slice of the learning and shows in the console among the memory agents, so the cost table and the live rail name it instead of a generic agent. `/learn-map` starts it for every slice (with `general-purpose` as fallback until it is installed).",
-   "[fix] `verse_map.py next` printed the usage text instead of the next slice (it was missing from the list of commands); `sync_lab_from_repo.py` now also copies the kit's slash commands (`learn-map`, `learn-slice`) to a lab.",
-   "[other] The manual and the relay README are up to date. Your team (33 agents), the console chapter (Fix queue, Nobody is listening, findings linked to tasks, Roadmap layout, Kind and Source), Skills and lessons (learning in slices) and the relay README (`/relay` starts by itself, `NO-AUTOSTART`)."
+   "[new] A Fab product's Status page shows its checks, not the journey of a map. In a Fab product the arrows are the 7 stations of the Fab checklist (Project, Content, Build, Listing, Extra, Zip, Submit), each with its green count and its state (done, now, stopped by a failed check); the loop bar is the verdict with the percentage and the counts; a click on a station lists its checks with state, who does it, the evidence and what to do. The map-only blocks (hero cards, next action, Island line, release tabs) are hidden there. The Checklist page stays the place to tick your checks and paste the UEFN validation."
   ],
-  "tag": "v1.122.1",
-  "title": "v1.122.1 \u2014 Learn-slicer agent, next fixed, docs up to date"
+  "tag": "v1.123.0",
+  "title": "v1.123.0 \u2014 A Fab product's workflow is its checks"
  },
  "schema": 1,
  "skills": [],

@@ -1,6 +1,15 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.0": {
+   "title": "A Fab product's workflow is its checks",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "[new] **A Fab product's Status page shows its checks, not the journey of a map.** In a Fab product the arrows "
+   ]
+  },
   "1.122.1": {
    "title": "Learn-slicer agent, next fixed, docs up to date",
    "features": 1,
