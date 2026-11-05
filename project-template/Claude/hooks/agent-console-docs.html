@@ -981,7 +981,7 @@ function groupByRelease(rows){
   return keyed.map(o => ({ name: o.name, rows: groups[o.name] }));
 }
 
-// ---- v1.123.6: ONE definition of the numbers, release order, and paged boxes ------------------------------
+// ---- v1.123.7: ONE definition of the numbers, release order, and paged boxes ------------------------------
 // total = tasks planned into a release (not out of scope, not Later/backlog); out of scope and backlog are counted apart and never in the %.
 function relStats(allRows){
   const scope = (allRows || []).filter(t => statusBucket(t.status) !== "outOfScope");
@@ -1600,7 +1600,7 @@ async function jState(){
   const [g, p, c, r, au, dl, tm, gn, gp, ll, osd, pf, bg, lp, dv] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer","genre","genreprop","learnlog","ownersteps","performance","bugs","learnprogress","devices"].map(fetchDoc));
   const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
   const rowsAll = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
-  /* v1.123.6: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
+  /* v1.123.7: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
   const tasks = rowsAll.filter(t => statusBucket(t.status) !== "outOfScope" && !isBacklogRow(t));
   st.rowsAll = rowsAll; st.stats = relStats(rowsAll); st.bugsRaw = bg && bg.exists && !bg.error ? bg.content : ""; st.learnRaw = lp && lp.exists && !lp.error ? lp.content : ""; st.devRaw = dv && dv.exists && !dv.error ? dv.content : "";
   st.roadRaw = r.exists ? r.content : ""; st.osRaw = osd.exists && !osd.error ? osd.content : "";
@@ -1939,7 +1939,7 @@ function jIdea(st){ const hint = '<b>Not started.</b> Two ways in, both with <co
 function jSpec(st){ return jGhost(st.hasSpec, jSpec0(st), 'Waiting for <code>/spec</code>. This page will show the checklist of the spec (loop, story with test, success criteria, assumptions) and the technical risks with a level.'); }
 function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/game-plan</code>.' : 'Waiting for the approved spec. <code>/game-plan</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
 function bucketPill(s){ const b = statusBucket(s); return b==="done" ? '<span class="jpill jgreen">Done</span>' : b==="active" ? '<span class="jpill jlive">In progress</span>' : b==="blocked" ? '<span class="jpill jred">Blocked</span>' : '<span class="jpill">To do</span>'; }
-// ---- v1.123.6: real data from the project documents (no sample text for a project that exists) ----------------
+// ---- v1.123.7: real data from the project documents (no sample text for a project that exists) ----------------
 function auditFromDocs(st){
   const out = []; if (!st.bugsRaw) return out;
   let rows = []; try{ rows = parseBugsBacklog(st.bugsRaw); }catch(e){ rows = []; }
@@ -2123,13 +2123,14 @@ function paintLoopBar(st, ss){
 }
 // v1.120: every piece of work is a task; the Bugs, Audit and Performance tabs show the current release's tasks of their kind first.
 function kindTable(st, k){
-  const rows = (st.curRows || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "outOfScope");
+  const rows = (st.tasks || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "outOfScope");   // v1.123.7: every release, so the number on the tab is the number of rows below
   if (!rows.length) return "";
   const open = rows.filter(t => statusBucket(t.status) !== "done").length, rn = st.rel0 ? st.rel0.cur.name : "";
-  rows.sort((a, b) => ((statusBucket(b.status) !== "done") - (statusBucket(a.status) !== "done")) || idNum(a.id) - idNum(b.id));
+  const isCur = t => (t.release || "").trim() === rn;
+  rows.sort((a, b) => ((statusBucket(b.status) !== "done") - (statusBucket(a.status) !== "done")) || (isCur(b) - isCur(a)) || idNum(a.id) - idNum(b.id));
   const ids = rows.filter(t => statusBucket(t.status) !== "done").map(t => (t.id || "").trim()).filter(Boolean);
-  return '<div class="card" style="margin-bottom:12px;"><div class="label" style="margin-bottom:6px;">' + KINDS[k] + ' tasks in ' + escH(rn) + ' · ' + open + ' open of ' + rows.length + (ids.length ? ' ' + fixBtn(ids, "Fix all " + ids.length, true) : '') + '</div><table class="datatable"><tr><th style="width:56px;">ID</th><th>Task</th><th style="width:130px;">Status</th></tr>' +
-    rows.map(r => { const b = taskBadge(r), rid = (r.id || "").trim(); return '<tr><td><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "").replace(/~~/g, "")) + (r.source ? ' <small style="color:var(--dim);">' + escH(r.source) + '</small>' : '') + (rid && statusBucket(r.status) !== "done" ? ' ' + fixBtn([rid], "Fix this", false) : '') + '</td><td><span class="badge ' + b.cls + '"><span class="dot"></span>' + b.label + '</span></td></tr>'; }).join("") + '</table></div>';
+  return '<div class="card" style="margin-bottom:12px;"><div class="label" style="margin-bottom:6px;">' + KINDS[k] + ' tasks · ' + open + ' open of ' + rows.length + (ids.length ? ' ' + fixBtn(ids, "Fix all " + ids.length, true) : '') + '</div><table class="datatable"><tr><th style="width:56px;">ID</th><th>Task</th><th style="width:130px;">Status</th></tr>' +
+    rows.map(r => { const b = taskBadge(r), rid = (r.id || "").trim(); return '<tr><td><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "").replace(/~~/g, "")) + (r.source ? ' <small style="color:var(--dim);">' + escH(r.source) + '</small>' : '') + ((r.release || "").trim() ? ' <small style="color:var(--dim);">· ' + escH(r.release.trim()) + '</small>' : '') + (rid && statusBucket(r.status) !== "done" ? ' ' + fixBtn([rid], "Fix this", false) : '') + '</td><td><span class="badge ' + b.cls + '"><span class="dot"></span>' + b.label + '</span></td></tr>'; }).join("") + '</table></div>';
 }
 function jRoadmap(st){
   const rows = (st.tasks || []).filter(t => statusBucket(t.status) !== "outOfScope");
@@ -2182,9 +2183,9 @@ function jTabs(st, next){
       (t[0]==="build" && st.tasks.length ? ' <span class="cnt">' + (st.rel ? st.rel.cur.done + '/' + st.rel.cur.total : st.done + '/' + st.tasks.length) + '</span>' : "") + '</span></button></span>'; }).join("");
   paintLoopBar(st, ss);
   const nBug = (function(){ try{ return parseBugsBacklog(st.bugsRaw || "").filter(isBugOpen).length; }catch(e){ return 0; } })();
-  const nRel = (st.curRows || []).filter(t => statusBucket(t.status) !== "done").length, nAud = st.auditExists ? st.auditOpen : (st.audFix || []).filter(f => f.open).length;
-  const nk = k => (st.curRows || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "done" && statusBucket(t.status) !== "outOfScope").length;
-  const hasK = k => (st.curRows || []).some(t => taskKind(t) === k);
+  const nRel = (st.tasks || []).filter(t => statusBucket(t.status) !== "done" && statusBucket(t.status) !== "outOfScope").length, nAud = st.auditExists ? st.auditOpen : (st.audFix || []).filter(f => f.open).length;
+  const nk = k => (st.tasks || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "done" && statusBucket(t.status) !== "outOfScope").length;
+  const hasK = k => (st.tasks || []).some(t => taskKind(t) === k);
   const cnt2 = {bugs: hasK("bug") ? nk("bug") : nBug, status: nRel, auditdoc: hasK("audit") ? nk("audit") : nAud, perf: nk("perf")};
   document.getElementById("pageTabs").innerHTML = SECOND.map(t => '<button class="tab' + (t[0]===curTab ? " on" : "") + '" role="tab" aria-selected="' + (t[0]===curTab) + '" data-t="' + t[0] + '">' + t[1] + (cnt2[t[0]] ? ' <span class="cnt">' + cnt2[t[0]] + '</span>' : '') + '</button>').join("");
   Array.prototype.forEach.call(document.querySelectorAll("#pageSteps .stp-b, #pageTabs .tab"), b => { b.onclick = () => { userPickAt = Date.now(); curTab = b.getAttribute("data-t"); try{ localStorage.setItem("docsTab", curTab); }catch(e){} jShow(); }; });
@@ -2284,7 +2285,7 @@ async function refreshDocs(){
 }
 setInterval(refreshDocs, 5000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.123.6";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.123.7";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

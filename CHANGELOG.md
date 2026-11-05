@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.123.7 — Tabs: the numbers on Tasks, Bugs and Audit count the whole roadmap
+
+- [fix] **The numbers on the Tasks, Bugs and Audit tabs did not match the chips.** The chips (All, feature, bug, audit, perf) count the open tasks of the whole roadmap, while the tab numbers and the Bugs/Audit tables counted only the current release: a map with its audit tasks in the next release showed "Tasks 3", "All 10" and no number on Audit. The tab numbers now count the whole roadmap, and the Bugs, Audit and Performance tables list the tasks of every release (the current one first, the release name beside each).
+
 ## v1.123.6 — Fab: no Verse build without Verse code, project MCP server found
 
 - [fix] **A product with no Verse code waited for a Verse build that cannot exist.** "Verse compiles" now skips itself (and the kit no longer asks the editor to build) when the product has no Verse file; it stayed open with "unexpected reply from UEFN".
