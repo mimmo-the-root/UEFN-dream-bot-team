@@ -116,6 +116,15 @@ def apply(extracted, home):
     return changed, backup
 
 
+def _clock_done(home):
+    """A finished check (nothing newer, or the new release installed) starts the 6 hours; a failed one does not, so the next session start tries again."""
+    try:
+        import update_clock
+        update_clock.done(home)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def auto():
     """Background mode (started by the global SessionStart hook, never blocks a session): if a newer release exists,
     download it into the profile. Projects pick it up at their next session start (kit_sync). Quiet; one log line."""
@@ -145,6 +154,7 @@ def auto():
         tag = latest_tag()
         if cur and not kit_sync._newer(tag.lstrip("v"), cur):
             say("up to date (%s)" % cur)
+            _clock_done(home)
             return 0
         import tempfile
         tmp = tempfile.mkdtemp(prefix="kitfetch-")
@@ -152,6 +162,7 @@ def auto():
             new = extract(release_zip(tag), tmp)
             n, _backup = apply(tmp, home)
             say("profile %s -> %s (%s): %d file(s)" % (cur or "none", new, tag, n))
+            _clock_done(home)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
     except Exception as e:  # noqa: BLE001

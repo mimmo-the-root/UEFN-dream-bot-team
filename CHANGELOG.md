@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.123.2 — Kit update: first check at opening, then every 6 hours
+
+- [fix] **The kit looked for a new release only if 6 hours had passed since the last attempt, even right after switching the computer on.** The console showed "Update available" while Claude Code did not start the update. Now the first session start after the computer was switched on checks at once; after that, every 6 hours. The 6 hours start when a check finishes (up to date, or the release installed); a check that could not finish (no network) is retried at the next session start, not more often than every 15 minutes. The new kit still reaches the project at the next session start after the download. Off switches unchanged: `UEFN_KIT_AUTOUPDATE=0` or `~/.claude/kit-auto-update.off`.
+
 ## v1.123.1 — Answering Fab product starts its console
 
 - [fix] **A new Fab product got no console in the session where you answered "Fab product".** The console of a Fab product started only at the NEXT session start, and the agent, finding no `Claude/hooks`, offered the kit-template console (another project's data). Now `kit_install.py --kind <root> fab` starts the console of the product (its own lab, port 8766 or the next free one), prints its address, and says plainly that the template console is not the one to use; when it cannot start, it prints the exact command to run.

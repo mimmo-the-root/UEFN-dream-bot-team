@@ -45,19 +45,37 @@ try:
     real_popen = subprocess.Popen; subprocess.Popen = P
     os.environ["HOME"] = os.path.join(d, "home"); os.environ["USERPROFILE"] = os.path.join(d, "home")
     tpl = os.path.join(home, "kit-template")
+    ok(os.path.exists(os.path.join(home, "kit-update-check.stamp")), "a finished check starts the 6 hours")
+    os.remove(os.path.join(home, "kit-update-check.stamp"))   # the checks above ran in this test: start from a new computer
     ok(ns["maybe_auto_update"](tpl) is True and len(calls) == 1, "the hook starts the background check")
     ok(ns["maybe_auto_update"](tpl) is False and len(calls) == 1, "the second session within 6 hours does not")
-    os.remove(os.path.join(home, "kit-update-check.stamp")); open(os.path.join(home, "kit-auto-update.off"), "w").close()
+    for f in ("kit-update-check.stamp", "kit-update-attempt.stamp"):
+        try: os.remove(os.path.join(home, f))
+        except OSError: pass
+    open(os.path.join(home, "kit-auto-update.off"), "w").close()
     ok(ns["maybe_auto_update"](tpl) is False, "kit-auto-update.off switches it off")
     subprocess.Popen = real_popen
     # the project hook (kit_sync) starts the same background check, so `/kit-update --fetch` once is enough to switch it on
     import kit_sync
     calls.clear(); subprocess.Popen = P
-    for f in ("kit-update-check.stamp", "kit-auto-update.off"):
+    for f in ("kit-update-check.stamp", "kit-update-attempt.stamp", "kit-auto-update.off"):
         try: os.remove(os.path.join(home, f))
         except OSError: pass
     ok(kit_sync.auto_update_check() is True and len(calls) == 1 and kit_sync.auto_update_check() is False, "kit_sync (project hook) starts the check once per 6 hours")
     subprocess.Popen = real_popen
+    # update_clock: first check at opening (after boot), then every 6 hours, failed checks retried after 15 minutes
+    import update_clock, time
+    h = os.path.join(d, "clk"); os.makedirs(h); now = time.time()
+    ok(update_clock.due(h, now, boot=now - 100), "no stamp: the first session start checks")
+    update_clock.done(h); st = os.path.join(h, "kit-update-check.stamp")
+    os.utime(st, (now - 3600, now - 3600))
+    ok(not update_clock.due(h, now, boot=now - 7200), "checked 1 h ago, same boot: not due")
+    ok(update_clock.due(h, now, boot=now - 1800), "checked before the computer was switched on: due at opening")
+    os.utime(st, (now - 7 * 3600, now - 7 * 3600))
+    ok(update_clock.due(h, now, boot=now - 9 * 3600), "older than 6 hours: due")
+    update_clock.attempt(h)
+    ok(not update_clock.due(h, now, boot=now - 100), "a check just started is not repeated at once")
+    ok(update_clock.due(h, now + 16 * 60, boot=now - 100), "a check that never finished is retried after 15 minutes")
     # release_zip: prefers the kit.zip asset (GitHub counts its downloads), falls back to the source zip
     import json
     seen = []

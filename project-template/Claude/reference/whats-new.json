@@ -1,6 +1,15 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.2": {
+   "title": "Kit update: first check at opening, then every 6 hours",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The kit looked for a new release only if 6 hours had passed since the last attempt, even right after switching"
+   ]
+  },
   "1.123.1": {
    "title": "Answering Fab product starts its console",
    "features": 0,

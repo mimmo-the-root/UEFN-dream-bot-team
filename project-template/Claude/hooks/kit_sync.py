@@ -695,11 +695,10 @@ def auto_update_check():
     if os.environ.get("UEFN_KIT_AUTOUPDATE") == "0" or os.path.exists(os.path.join(home, "kit-auto-update.off")) or not os.path.isfile(fetch):
         return False
     try:
-        if os.path.exists(stamp) and time.time() - os.path.getmtime(stamp) < 6 * 3600:
+        import update_clock   # first session start after the computer was switched on, then every 6 hours; a check that failed is retried
+        if not update_clock.due(home):
             return False
-        os.makedirs(home, exist_ok=True)
-        with open(stamp, "w") as f:
-            f.write(str(time.time()))
+        update_clock.attempt(home)
     except OSError:
         return False
     kw = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "close_fds": True}

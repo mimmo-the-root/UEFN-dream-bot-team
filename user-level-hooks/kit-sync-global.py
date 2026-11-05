@@ -80,10 +80,17 @@ def maybe_auto_update(tpl):
     if not os.path.isfile(fetch):
         return False
     try:
-        if os.path.exists(stamp) and time.time() - os.path.getmtime(stamp) < 6 * 3600:
-            return False
-        with open(stamp, "w") as f:
-            f.write(str(time.time()))
+        try:   # v1.123.2: the first session start after the computer was switched on checks at once, then every 6 hours; a failed check is retried
+            sys.path.insert(0, os.path.dirname(fetch))
+            import update_clock
+            if not update_clock.due(home):
+                return False
+            update_clock.attempt(home)
+        except ImportError:   # an older profile without update_clock.py: the old rule, every 6 hours
+            if os.path.exists(stamp) and time.time() - os.path.getmtime(stamp) < 6 * 3600:
+                return False
+            with open(stamp, "w") as f:
+                f.write(str(time.time()))
     except OSError:
         return False
     kw = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "close_fds": True}
