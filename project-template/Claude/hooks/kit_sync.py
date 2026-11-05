@@ -27,8 +27,8 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", "Claude/community/", "Claude/community-revoked.json", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md", ".claude/commands/verse-map.md", ".claude/commands/learn-map.md", ".claude/commands/learn-slice.md", ".claude/commands/verse-check.md", ".claude/commands/text-scan.md", ".claude/commands/handoff.md", ".claude/commands/ui-kit-check.md", ".claude/commands/mcp-snapshot.md", ".claude/commands/devlog.md", ".claude/commands/jam-check.md", ".claude/commands/concept-card.md", ".claude/commands/editor-changes.md")
-CREATE_ONLY = ("Claude/docs-template/",)
+MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", "Claude/community/", "Claude/community-revoked.json", "Claude/relay/RELAY-README.md", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md", ".claude/commands/verse-map.md", ".claude/commands/learn-map.md", ".claude/commands/learn-slice.md", ".claude/commands/verse-check.md", ".claude/commands/text-scan.md", ".claude/commands/handoff.md", ".claude/commands/ui-kit-check.md", ".claude/commands/mcp-snapshot.md", ".claude/commands/devlog.md", ".claude/commands/jam-check.md", ".claude/commands/concept-card.md", ".claude/commands/editor-changes.md")
+CREATE_ONLY = ("Claude/docs-template/", "Claude/relay/")   # v1.123.8: the mailbox folders (inbox, running, done, outbox) exist in every updated project, so /relay can start and the Fix button has somewhere to write
 SKIP_PARTS = ("__pycache__",)
 FAILED = []
 BLOCK_RE = re.compile(r"<!-- KIT:BEGIN ([\w-]+) -->.*?<!-- KIT:END \1 -->", re.S)
@@ -70,7 +70,7 @@ def sync_files(project, tpl):
     changed, added, backup = [], [], None
     for rel, src in _walk(tpl):
         managed = rel.startswith(MANAGED)
-        create_only = rel.startswith(CREATE_ONLY)
+        create_only = not managed and rel.startswith(CREATE_ONLY)
         if not (managed or create_only):
             continue
         dst = os.path.join(project, *rel.split("/"))

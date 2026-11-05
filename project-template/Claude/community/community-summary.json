@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.123.3"
+   "tag": "v1.123.5"
   },
   "state": {
    "genres": [],
@@ -22,14 +22,15 @@
   }
  },
  "release": {
-  "date": "2026-11-05",
+  "date": "2026-11-06",
   "items": [
-   "[new] A Docs station in the Fab checklist (now 8 stations). Between Listing and Extra: one check for each document the kit creates (README, AUTHOR, SETTINGS when there is Verse code), blocking when the README is missing and warning with the number of TODO lines left, plus the third-party declaration (moved from Listing). The fix text names the existing command (`fab_pack.py docs --apply`, `listing-fill`).",
-   "[new] Performance in the Build station. \"Performance: measured in a play session, nothing over its budget\" reads the last `/performance` measurement of the product (the same table as a map's PERFORMANCE.md, kept in the product's lab). Not measured: to do, with what to run; a metric over its budget or near it: warning with the metric and the worst area. `/performance` writes into the lab when the project is a Fab product, and `/fab-check` runs it when a play session is open. Run all checks re-reads the file; it does not start a play session.",
-   "[new] A Copy button on each text of the Fab listing. Title, short description, description and tags of the console's Listing card copy to the clipboard with one click, ready to paste into the portal."
+   "[fix] A project made before the mailbox never got it from a kit update. The update copied hooks, commands and docs templates but not `Claude/relay/`, so on an old map `/relay` had no inbox to poll, the session-start autostart (which looks for the inbox) never fired and a Fix button had nowhere to write. The update now installs `RELAY-README.md` (refreshed at every update) and the four folders `inbox`, `running`, `done`, `outbox` (created once, never touched again: a command waiting in the inbox survives).",
+   "[fix] The numbers on the Tasks, Bugs and Audit tabs did not match the chips. The chips (All, feature, bug, audit, perf) count the open tasks of the whole roadmap, while the tab numbers and the Bugs/Audit tables counted only the current release: a map with its audit tasks in the next release showed \"Tasks 3\", \"All 10\" and no number on Audit. The tab numbers now count the whole roadmap, and the Bugs, Audit and Performance tables list the tasks of every release (the current one first, the release name beside each).",
+   "[fix] A product with no Verse code waited for a Verse build that cannot exist. \"Verse compiles\" now skips itself (and the kit no longer asks the editor to build) when the product has no Verse file; it stayed open with \"unexpected reply from UEFN\".",
+   "[fix] The editor's MCP server added to one project was not found. The kit looked only at the project's `.mcp.json` and the global servers of `~/.claude.json`, not at the ones `claude mcp add` stores under the project's own entry, so \"the editor was not reachable\" could appear with UEFN open. It now reads those too."
   ],
-  "tag": "v1.123.5",
-  "title": "v1.123.5 \u2014 Fab: Docs station and performance check"
+  "tag": "v1.123.8",
+  "title": "v1.123.8 \u2014 Old projects get the relay mailbox when the kit updates them"
  },
  "schema": 1,
  "skills": [],

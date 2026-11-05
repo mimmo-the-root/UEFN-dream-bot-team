@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.123.8 — Old projects get the relay mailbox when the kit updates them
+
+- [fix] **A project made before the mailbox never got it from a kit update.** The update copied hooks, commands and docs templates but not `Claude/relay/`, so on an old map `/relay` had no inbox to poll, the session-start autostart (which looks for the inbox) never fired and a Fix button had nowhere to write. The update now installs `RELAY-README.md` (refreshed at every update) and the four folders `inbox`, `running`, `done`, `outbox` (created once, never touched again: a command waiting in the inbox survives).
+
 ## v1.123.7 — Tabs: the numbers on Tasks, Bugs and Audit count the whole roadmap
 
 - [fix] **The numbers on the Tasks, Bugs and Audit tabs did not match the chips.** The chips (All, feature, bug, audit, perf) count the open tasks of the whole roadmap, while the tab numbers and the Bugs/Audit tables counted only the current release: a map with its audit tasks in the next release showed "Tasks 3", "All 10" and no number on Audit. The tab numbers now count the whole roadmap, and the Bugs, Audit and Performance tables list the tasks of every release (the current one first, the release name beside each).
