@@ -21,6 +21,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import fab_pack  # noqa: E402
+import fab_assets  # noqa: E402
 
 GENERIC_TAGS = {"game", "system", "tool", "tools", "asset", "assets", "pack", "fortnite", "uefn", "verse", "map", "kit"}
 
@@ -139,6 +140,12 @@ def read_listing(root):
         return "" if (not v or v.upper().startswith("TODO")) else v
 
     out["title"], out["short"] = field("Title"), field("Short description")
+    out["short_unlabeled"] = False
+    if not out["short"]:   # written without the "Short description:" label: the first paragraph after the title, before the first "## " section
+        m = re.search(r"^\s*Title:.*\n+((?:(?!##)[^\n]+\n?)+)", text, re.I | re.M)
+        v = " ".join(m.group(1).split()) if m else ""
+        if v and not v.upper().startswith("TODO") and not re.match(r"^\w[\w ]*:\s", v):
+            out["short"], out["short_unlabeled"] = v, True
     out["desc"] = section("Description")
     out["tags"] = [t.strip().lstrip("-* ").strip() for t in re.split(r"[,\n]", section("Tags")) if t.strip().lstrip("-* ").strip()]
     tech = re.search(r"^##\s+Technical details\s*\n(.*?)(?=^##\s|\Z)", text, re.I | re.M | re.S)
@@ -264,6 +271,61 @@ def read_verse_build(lab, checker=None):
     return rec
 
 
+TEX_MAX = 2048
+
+
+def tex_problem(x, y):
+    """Why a texture size is not allowed ('' when it is): both sides a power of 2 and at most 2k."""
+    if not (isinstance(x, int) and isinstance(y, int)) or x <= 0 or y <= 0:
+        return "size unreadable"
+    if x & (x - 1) or y & (y - 1):
+        return "not a power of 2"
+    if x > TEX_MAX or y > TEX_MAX:
+        return "larger than 2k"
+    return ""
+
+
+def read_texture_sizes(root, lab, client=None, budget=90.0):
+    """Ask the open editor (read only) for every Texture2D of the product and its size, and keep the result.
+    Record: {at, reachable, count, bad:[{n,x,y,why}], error}. Never a guess: an editor that does not answer leaves the check to do."""
+    rec = {"at": time.strftime("%Y-%m-%d %H:%M"), "reachable": False, "count": 0, "bad": [], "partial": False}
+    try:
+        mm = _mcp_map()
+        if client is None:
+            url = mm.find_url(root)
+            if not mm.port_open(url):
+                raise RuntimeError("UEFN is not reachable")
+            client = mm.Client(url)
+            client.start()
+        mount = fab_assets.own_mount(root)
+        if not mount:
+            raise RuntimeError("no .uplugin: the mount of the product is unknown")
+        txt = client.call("call_tool", {"toolset_name": "editor_toolset.toolsets.asset.AssetTools", "tool_name": "find_assets",
+                                        "arguments": {"folder_path": "/" + mount, "asset_type": {"refPath": "/Script/Engine.Texture2D"}, "recursive": True}})
+        rec["reachable"] = True
+        data = mm.parse_text(txt)
+        if isinstance(data, dict):
+            data = data.get("assets") or data.get("result") or data.get("paths") or []
+        paths = [x if isinstance(x, str) else (x.get("refPath") or x.get("path") or "") for x in (data or [])]
+        paths = [p for p in paths if p]
+        t0 = time.time()
+        for p in paths:
+            if time.time() - t0 > budget:
+                rec["partial"] = True
+                break
+            sz = mm.parse_text(client.call("call_tool", {"toolset_name": "editor_toolset.toolsets.texture.TextureTools", "tool_name": "get_size",
+                                                         "arguments": {"texture": {"refPath": p}}}))
+            x, y = (sz.get("x"), sz.get("y")) if isinstance(sz, dict) else (None, None)
+            rec["count"] += 1
+            why = tex_problem(x, y)
+            if why:
+                rec["bad"].append({"n": p.rsplit(".", 1)[-1], "x": x, "y": y, "why": why})
+    except Exception as e:  # not reachable, odd reply: the check stays "to do"
+        rec["error"] = str(e)[:120]
+    _jsave(os.path.join(lab, "textures.json"), rec)
+    return rec
+
+
 def ensure_third_party(root):
     """Recreate FabListing/third_party.md when the listing folder exists but the file is gone (never overwrites)."""
     d = os.path.join(fab_pack.product_folder(root), "FabListing")
@@ -280,6 +342,7 @@ def refresh(root, lab):
     st = scan_state(root, lab)
     read_editor_validation(root, lab)
     read_verse_build(lab)
+    read_texture_sizes(root, lab)
     return st
 
 
@@ -294,10 +357,27 @@ def scan_state(root, lab=None):
     st["has_content"] = os.path.isdir(os.path.join(root, "Content"))
     st["verse"] = len(fab_pack.verse_files(root)) if st["has_content"] else 0
     st["assets"] = sum(1 for _ in _walk_assets(root))
+    st["audio"] = has_audio(root)
     st["zips"] = [top + ".zip"] if os.path.isfile(os.path.join(os.path.dirname(root.rstrip("/\\")), top + ".zip")) else []
     if lab:
         _jsave(os.path.join(lab, "checklist-cache.json"), st)
     return st
+
+
+def has_audio(root):
+    """True when an asset names a sound class in its name table (SoundWave, SoundCue, MetaSound): the audio check applies only then."""
+    for base, dirs, files in os.walk(os.path.join(root, "Content")):
+        dirs[:] = [d for d in dirs if d not in fab_pack.UEFN_INTERNAL and d not in fab_pack.FORBIDDEN_DIRS]
+        for f in files:
+            if f.endswith(".uasset"):
+                try:
+                    with open(os.path.join(base, f), "rb") as fh:
+                        head = fh.read(262144)
+                except OSError:
+                    continue
+                if b"SoundWave" in head or b"SoundCue" in head or b"MetaSoundSource" in head:
+                    return True
+    return False
 
 
 def _walk_names(root):
@@ -394,6 +474,20 @@ def stations(root, st, lab):
     out.append({"id": "project", "n": "1 Project", "d": "Is it one clean, complete project?", "items": s1})
 
     # 2 Content
+    tx = _jload(os.path.join(lab, "textures.json"), None)
+    tt = "Textures: width and height are powers of 2, 2k at most"
+    if not tx:
+        tex_item = _item("c-tex", tt, "todo", "ed", "Not read yet.", "Press Run all checks: the kit reads the sizes from the open editor.")
+    elif not tx.get("reachable"):
+        tex_item = _item("c-tex", tt, "todo", "ed", "%s: %s." % (tx["at"], tx.get("error") or "the editor did not answer"), "Open UEFN with this project and press Run all checks.")
+    elif not tx["count"]:
+        tex_item = _item("c-tex", tt, "na", "kit", "%s: no texture in the product." % tx["at"])
+    elif tx["bad"]:
+        tex_item = _item("c-tex", tt, "fail", "ed", "%s: %d of %d textures: %s." % (tx["at"], len(tx["bad"]), tx["count"], _short(["%s %sx%s (%s)" % (b["n"], b["x"], b["y"], b["why"]) for b in tx["bad"]], 3)),
+                         "Resize them in the editor (Texture Editor, or import a smaller file), then press Run all checks.")
+    else:
+        tex_item = _item("c-tex", tt, "warn" if tx.get("partial") else "pass", "ed",
+                         "%s: %d textures read, all powers of 2, none above 2k.%s" % (tx["at"], tx["count"], " The editor was slow: not every texture was read, press Run all checks again." if tx.get("partial") else ""))
     foreign = _verdict_item("c-foreign", "No reference to assets of another project", "x", B, W, "%d assets read, no foreign import." % st["assets"], r"another project|not part of this project",
                             "Clean the references in the editor, then run the check again.")
     s2 = [
@@ -402,8 +496,9 @@ def stations(root, st, lab):
                       "Rebuild or re-save those assets inside this project."),
         _verdict_item("c-users", "No Windows user name left in the import paths", "x", B, W, "No user name found in the source paths.", r"Windows user",
                       "Clean the import path in the editor; declare the source of each file in station 4."),
-        _item("c-tex", "Textures: width and height are powers of 2, 2k at most", "manual", "ed", "The kit cannot read texture sizes yet.", "In the Content Browser sort the textures by size and look once."),
-        _item("c-audio", "Audio: .wav source, no distortion or hitching", "manual", "you", "", "Listen to every sound once."),
+        tex_item,
+        (_item("c-audio", "Audio: .wav source, no distortion or hitching", "manual", "you", "", "Listen to every sound once.") if st.get("audio")
+         else _item("c-audio", "Audio: .wav source, no distortion or hitching", "na", "kit", "No sound in the product: nothing to check.")),
         _item("c-work", "Assets complete, work as intended, no visual defects", "manual", "you", "", "Play the map and look at every screen."),
     ]
     out.append({"id": "content", "n": "2 Content", "d": "Do the assets belong to this project and look right?", "items": s2})
@@ -439,11 +534,19 @@ def stations(root, st, lab):
         verse_item = _item("b-verse", vt, "fail", "ed", "%s: %d errors. %s" % (vbd["at"], vbd["errors"], vbd["message"][:200]), "Fix them in the code, then press Run all checks.")
     else:
         verse_item = _item("b-verse", vt, "todo", "ed", "%s: %s" % (vbd["at"], vbd.get("reason") or "the editor did not answer."), "Open UEFN with this project and press Run all checks.")
+    dt = "Devices are clean: clear names, no loose nodes, no errors"
+    pt = "Map loads with no errors or warnings in a play session"
+    if not st["verse"]:   # no Verse code: no device of the product to check, nothing runs in a play session
+        dev_item = _item("b-dev", dt, "na", "kit", "No Verse device in the product: nothing to check.")
+        play_item = _item("b-play", pt, "na", "kit", "No Verse code in the product: nothing runs in a play session.")
+    else:   # the build of the Verse code is the verdict on the devices: the kit knows it, the owner does not tick it
+        dev_item = _item("b-dev", dt, verse_item["s"], "ed", ("From the Verse build: " + verse_item["ev"]) if verse_item["ev"] else "", verse_item["fix"])
+        play_item = _item("b-play", pt, "manual", "you", "", "Start a play session and read the log.")
     s3 = [
         verse_item,
         vi,
-        _item("b-dev", "Devices are clean: clear names, no loose nodes, no errors", "manual", "you", "", "Open the widget graphs and the level once."),
-        _item("b-play", "Map loads with no errors or warnings in a play session", "manual", "you", "", "Start a play session and read the log."),
+        dev_item,
+        play_item,
     ]
     out.append({"id": "build", "n": "3 Build", "d": "Does it compile and validate with no errors?", "items": s3})
 
@@ -456,7 +559,7 @@ def stations(root, st, lab):
         s4 = [
             _item("l-title", "Title", "pass" if 0 < ttl <= 30 else ("warn" if ttl else "todo"), "kit",
                   "%d characters." % ttl if ttl else "Not written yet.", "" if 0 < ttl <= 30 else ("Shorten it to about 30 characters." if ttl else "Write the title in listing.md.")),
-            _item("l-short", "Short description", "pass" if lst["short"] else "todo", "kit", "%d characters." % len(lst["short"]) if lst["short"] else "Not written yet.", "" if lst["short"] else "Write it in listing.md."),
+            _item("l-short", "Short description", ("warn" if lst.get("short_unlabeled") else "pass") if lst["short"] else "todo", "kit", ("%d characters.%s" % (len(lst["short"]), " The text sits under the title without the label: put 'Short description:' in front of it." if lst.get("short_unlabeled") else "")) if lst["short"] else "Not written yet.", "" if lst["short"] else "Write it in listing.md."),
             _item("l-desc", "Description", "pass" if len(lst["desc"]) > 200 else ("warn" if lst["desc"] else "todo"), "kit",
                   "%d characters." % len(lst["desc"]) if lst["desc"] else "Not written yet.", "" if len(lst["desc"]) > 200 else "Say what it does, what is included and how it is used."),
             _item("l-tags", "Tags", "todo" if not lst["tags"] else "pass", "kit",

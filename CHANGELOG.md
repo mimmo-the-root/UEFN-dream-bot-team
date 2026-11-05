@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.123.3 — Fab checks: textures read by the kit, audio and devices only when they exist
+
+- [new] **Textures are checked by the kit.** Station 2 asks the open editor for every texture of the product and its size (read only) and blocks a texture that is not a power of 2 or is larger than 2k, naming it and its size. No texture in the product: the check is skipped. Editor closed: it stays "to do", never a guess.
+- [new] **Checks that do not apply skip themselves.** The audio check appears only when the product has a sound asset. With no Verse code, "devices are clean" and the play-session check are skipped. With Verse code, "devices are clean" is no longer ticked by hand: it follows the Verse build, which the kit already runs.
+- [fix] **"Short description: not written yet" when it was written.** A short text placed under the title without the `Short description:` label was ignored. The kit now reads it, shows a warning asking for the label, and `listing.md` created by the kit always has the label.
+
 ## v1.123.2 — Kit update: first check at opening, then every 6 hours
 
 - [fix] **The kit looked for a new release only if 6 hours had passed since the last attempt, even right after switching the computer on.** The console showed "Update available" while Claude Code did not start the update. Now the first session start after the computer was switched on checks at once; after that, every 6 hours. The 6 hours start when a check finishes (up to date, or the release installed); a check that could not finish (no network) is retried at the next session start, not more often than every 15 minutes. The new kit still reaches the project at the next session start after the download. Off switches unchanged: `UEFN_KIT_AUTOUPDATE=0` or `~/.claude/kit-auto-update.off`.

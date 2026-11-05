@@ -63,6 +63,56 @@ try:
         FC.read_verse_build(lab, lambda r=res: r)
         d = FC.build(root, lab); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
         ok(ids["b-verse"]["s"] == st and txt in ids["b-verse"]["ev"], "Verse build %s -> %s" % (res["state"], st))
+    # devices and play loop follow the Verse code; the dev check is the build verdict
+    ok(ids["b-dev"]["s"] == ids["b-verse"]["s"] and ids["b-dev"]["w"] == "ed" and ids["b-play"]["s"] == "manual", "with Verse code the devices check mirrors the Verse build, the play loop stays yours")
+    os.remove(os.path.join(root, "Content", "Prod", "Verse", "main.verse"))
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(ids["b-dev"]["s"] == "na" and ids["b-play"]["s"] == "na", "no Verse code: devices and play loop are skipped by themselves")
+    open(os.path.join(root, "Content", "Prod", "Verse", "main.verse"), "w").write("using { /Verse.org/Simulation }\n")
+    # textures: read from the editor, both sides a power of 2, 2k at most
+    ok([FC.tex_problem(*a) for a in ((1024, 2048), (1000, 512), (4096, 4096), (0, 0))] == ["", "not a power of 2", "larger than 2k", "size unreadable"], "texture rule: power of 2, 2k at most")
+    class TexFake:
+        def call(self, name, args):
+            a = args["arguments"]
+            if args["tool_name"] == "find_assets":
+                return json.dumps(["/m/T/Good.Good", "/m/T/Odd.Odd"])
+            return json.dumps({"x": 1000, "y": 512} if a["texture"]["refPath"].endswith("Odd") else {"x": 512, "y": 512})
+    tr = FC.read_texture_sizes(root, lab, TexFake())
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(tr["count"] == 2 and ids["c-tex"]["s"] == "fail" and "Odd 1000x512" in ids["c-tex"]["ev"], "a texture that is not a power of 2 blocks, by name and size")
+    class TexOk(TexFake):
+        def call(self, name, args): return json.dumps(["/m/T/Good.Good"]) if args["tool_name"] == "find_assets" else json.dumps({"x": 2048, "y": 256})
+    FC.read_texture_sizes(root, lab, TexOk())
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(ids["c-tex"]["s"] == "pass", "textures all right: automatic pass")
+    class TexNone(TexFake):
+        def call(self, name, args): return "[]"
+    FC.read_texture_sizes(root, lab, TexNone())
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(ids["c-tex"]["s"] == "na", "no texture in the product: skipped")
+    os.remove(os.path.join(lab, "textures.json"))
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(ids["c-tex"]["s"] == "todo" and "Run all checks" in ids["c-tex"]["fix"], "textures never read: to do, never a guess")
+    # audio only when the product has a sound asset
+    ok(ids["c-audio"]["s"] == "na", "no sound asset: the audio check is skipped")
+    open(os.path.join(root, "Content", "Prod", "Boom.uasset"), "wb").write(b"\xc1\x83\x2a\x9e" + b"SoundWave" + b"\0" * 40)
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(ids["c-audio"]["s"] == "manual", "a sound asset: the audio check appears, for you to listen")
+    os.remove(os.path.join(root, "Content", "Prod", "Boom.uasset"))
+    # a short description written without its label is found (and the label asked for)
+    lp = os.path.join(base, "L"); os.makedirs(lp)
+    shutil.copy(os.path.join(os.path.dirname(__file__), "..", "user-level-hooks", "fab_pack.py"), lp)   # keep the import path honest
+    real_lp = FC.listing_path
+    FC.listing_path = lambda r: os.path.join(lp, "listing.md")
+    open(os.path.join(lp, "listing.md"), "w").write("# Fab listing texts\n\nTitle: My Kit\n\nOne customizable material for weapon walls.\n\n## Description\n\nText\n")
+    r = FC.read_listing(root)
+    ok(r["short"] == "One customizable material for weapon walls." and r["short_unlabeled"], "an unlabeled short text under the title is read as the short description")
+    open(os.path.join(lp, "listing.md"), "w").write("# Fab listing texts\n\nTitle: My Kit\n\nShort description: TODO\n\n## Description\n\nText\n")
+    ok(FC.read_listing(root)["short"] == "", "a TODO short description is still empty")
+    open(os.path.join(lp, "listing.md"), "w").write("# Fab listing texts\n\nTitle: My Kit\n\nShort description: Labeled text.\n\n## Description\n\nText\n")
+    r = FC.read_listing(root)
+    ok(r["short"] == "Labeled text." and not r["short_unlabeled"], "a labeled short description stays labeled")
+    FC.listing_path = real_lp
     ok(FC.ensure_third_party(root) is False, "third_party.md is not recreated without a FabListing folder")
     os.makedirs(os.path.join(fab_pack.product_folder(root), "FabListing"))
     ok(FC.ensure_third_party(root) is True and FC.ensure_third_party(root) is False, "a missing third_party.md is recreated once and never overwritten")
@@ -133,11 +183,11 @@ try:
             return r.status, json.loads(r.read())
         except urllib.error.HTTPError as e:
             return e.code, json.loads(e.read())
-    ok(act({"action": "tick", "id": "c-audio", "on": True}, hdr=False)[0] == 403, "an action without the page header is refused")
-    code, j = act({"action": "tick", "id": "c-audio", "on": True})
+    ok(act({"action": "tick", "id": "c-work", "on": True}, hdr=False)[0] == 403, "an action without the page header is refused")
+    code, j = act({"action": "tick", "id": "c-work", "on": True})
     ok(code == 200 and j["ok"], "a tick is accepted")
     data = json.loads(op.open(url + "/fab-data").read())
-    ok({i["id"]: i for s in data["stations"] for i in s["items"]}["c-audio"]["s"] == "pass", "the tick shows in the next read")
+    ok({i["id"]: i for s in data["stations"] for i in s["items"]}["c-work"]["s"] == "pass", "the tick shows in the next read")
     code, j = act({"action": "validation", "text": "0 errors, 0 warnings", "skip_fixup": True})
     ok(code == 200 and j["ok"], "a validation log is recorded")
     fl = data["listing"].get("files") or []

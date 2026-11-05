@@ -1,6 +1,17 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.3": {
+   "title": "Fab checks: textures read by the kit, audio and devices only when they exist",
+   "features": 2,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "[new] **Textures are checked by the kit.** Station 2 asks the open editor for every texture of the product and",
+    "[new] **Checks that do not apply skip themselves.** The audio check appears only when the product has a sound ",
+    "\"Short description: not written yet\" when it was written"
+   ]
+  },
   "1.123.2": {
    "title": "Kit update: first check at opening, then every 6 hours",
    "features": 0,

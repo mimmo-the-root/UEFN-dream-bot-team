@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.2
-updated: kit-1.123.2
+created: kit-1.123.3
+updated: kit-1.123.3
 sources: [docs/manual/skill-catalog.md]
 type: kit
 status: current
@@ -94,4 +94,4 @@ User-level skills are installed in `~/.claude/skills/<name>/`. The kit does not 
 - [[skills-and-lessons|Skills and lessons]]
 
 ## Sources
-- The kit manual, chapter "Skills catalog" (docs/manual/skill-catalog.md), kit v1.123.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Skills catalog" (docs/manual/skill-catalog.md), kit v1.123.3. Rebuilt on every kit release: do not edit this page, edit the manual.

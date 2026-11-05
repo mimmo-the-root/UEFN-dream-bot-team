@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.2
-updated: kit-1.123.2
+created: kit-1.123.3
+updated: kit-1.123.3
 sources: [docs/manual/fab-product-project.md]
 type: kit
 status: current
@@ -89,4 +89,4 @@ Take the captures in the editor (the skill uses the proven recipes and the lab g
 Shortening over-long paths and checking third-party licences are done by hand: `check` lists the paths over the limit and the third-party content, and you decide what to rename or declare.
 
 ## Sources
-- The kit manual, chapter "A Fab product project" (docs/manual/fab-product-project.md), kit v1.123.2. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "A Fab product project" (docs/manual/fab-product-project.md), kit v1.123.3. Rebuilt on every kit release: do not edit this page, edit the manual.
