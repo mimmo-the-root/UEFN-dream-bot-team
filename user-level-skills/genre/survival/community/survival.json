@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "genre": "survival",
-  "pack_version": 125,
+  "pack_version": 129,
   "patterns": [
     {
       "id": "p-a1f601ba2ec5",
@@ -1101,6 +1101,39 @@
       "tier": "hypothesis",
       "status": "active",
       "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-4bc92f835e5b",
+      "variant": "zombie-waves",
+      "statement": "Deriving the reward from the level avoids per-level iteration, flicker and stale rewards after multi-level jumps or drops.",
+      "condition": "A cosmetic reward (aura, badge) is tied to level thresholds and level can also go down or jump several levels at once",
+      "action": "Compute the target reward directly from the final level (highest threshold <= level), fire a cleanup signal then only that reward, and skip firing when the target is unchanged",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-b660ba573c4d",
+      "variant": "zombie-waves",
+      "statement": "Test buttons must be off by default and must not persist, so they cannot corrupt saved progress in production.",
+      "condition": "A debug or test-only trigger exists in a shipped map",
+      "action": "Subscribe it only behind a default-false editable flag, and make test grants session-only so they never write persistent data.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "launch-checklist",
+      "support": 1
+    },
+    {
+      "id": "p-e233c4fb1410",
+      "variant": "zombie-waves",
+      "statement": "Derive the reward from the level and fire only on a real change, so multi-level jumps and drops stay correct and effects do not flicker.",
+      "condition": "A cosmetic reward (aura, badge) depends on a level that can change in both directions",
+      "action": "Compute the target reward directly from the current level (highest threshold at or below it), compare with the previous target, and fire the cleanup and the new reward only when the target changed.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
       "support": 1
     }
   ]
