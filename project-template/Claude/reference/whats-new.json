@@ -1,6 +1,17 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.122.1": {
+   "title": "Learn-slicer agent, next fixed, docs up to date",
+   "features": 1,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "[new] **A new agent, `learn-slicer` (now 33).** It runs one slice of the learning and shows in the console amo",
+    "`verse_map.py next` printed the usage text instead of the next slice",
+    "The manual and the relay README are up to date"
+   ]
+  },
   "1.122.0": {
    "title": "Learning in slices, a fresh agent each",
    "features": 1,

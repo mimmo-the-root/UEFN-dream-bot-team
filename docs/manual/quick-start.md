@@ -38,7 +38,7 @@ claude mcp add --transport http unreal-mcp --scope user http://127.0.0.1:8000/mc
 4. Tell it: *Read Claude/SETUP-INSTRUCTIONS.md and set up this project.* It checks the connection, asks what the project is, and sets up the rest.
 5. On the first session, ask for **project-bootstrap**. With existing code it maps the project and writes a first spec and bug list. With an empty project it asks you questions instead of inventing anything.
 
-> **Checkpoint** Open `http://127.0.0.1:8765/` in your browser. The console is running, and it shows 32 agents, all idle.
+> **Checkpoint** Open `http://127.0.0.1:8765/` in your browser. The console is running, and it shows 33 agents, all idle.
 
 > **Tip** Open the console as that web address, not as a file from your disk, or it cannot talk to the local server.
 

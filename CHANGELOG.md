@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.122.1 — Learn-slicer agent, next fixed, docs up to date
+
+- [new] **A new agent, `learn-slicer` (now 33).** It runs one slice of the learning and shows in the console among the memory agents, so the cost table and the live rail name it instead of a generic agent. `/learn-map` starts it for every slice (with `general-purpose` as fallback until it is installed).
+- [fix] **`verse_map.py next` printed the usage text instead of the next slice** (it was missing from the list of commands); `sync_lab_from_repo.py` now also copies the kit's slash commands (`learn-map`, `learn-slice`) to a lab.
+- [other] **The manual and the relay README are up to date.** Your team (33 agents), the console chapter (Fix queue, Nobody is listening, findings linked to tasks, Roadmap layout, Kind and Source), Skills and lessons (learning in slices) and the relay README (`/relay` starts by itself, `NO-AUTOSTART`).
+
 ## v1.122.0 — Learning in slices, a fresh agent each
 
 - [fix] **The What's new page lists every change since the last published release, not only the last entry.** Between two publishes the kit goes through many versions; the summary built at publish now collects the changelog lines of all of them (newest first, 12 at most). The lab sync (`sync_lab_from_repo.py`) also copies `Claude/community/` now: before, a lab kept the news of an old release (v1.115.0) whatever its kit version.

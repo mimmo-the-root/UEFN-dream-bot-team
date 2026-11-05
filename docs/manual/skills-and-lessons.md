@@ -12,7 +12,7 @@ At the first message of a session, before answering it, the kit reads three thin
 2. Your **project documents**, compared with the code. Where they disagree, the kit corrects the document, with a backup, never silently.
 3. The **devices placed in the level**, their wiring and settings, and the island configuration, through the UEFN connection. This needs UEFN open; otherwise it waits for next time.
 
-It never interviews you about your map. If a session stops halfway, the next one continues where it stopped. You can force it with `/learn-map`, and rebuild only the Verse map with `/verse-map`.
+It never interviews you about your map. If a session stops halfway, the next one continues where it stopped. The learning runs in slices (1.122): `/learn-map` only coordinates and a fresh `learn-slicer` agent does each slice (genre, one batch of code, one batch of documents, the devices, the blueprint), so a big map no longer makes one agent re-read its whole history at every resume; the progress is in the files, not in anybody's memory. You can force it with `/learn-map`, and rebuild only the Verse map with `/verse-map`.
 
 ## Checking that the code builds
 

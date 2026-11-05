@@ -25,6 +25,9 @@ parallel: no | yes   (yes = see "Parallel commands" below)
 agent: the kit agent that does it when parallel (coder, coder-prep, planner-docs, qa-regression, second-brain-librarian, mcp-level, ...); default: a general subagent
 ```
 
+## The worker starts by itself (1.121.6)
+At session start, when the project has this mailbox, no `STOP` file and no `NO-AUTOSTART` file, and `outbox/HEARTBEAT.md` is older than 6 minutes (nobody is polling), the session hook tells the session to run `/relay` in its first reply. A second session does not start a second worker while the first one polls. The console warns "Nobody is listening" when a scheduled fix waits and the heartbeat is older than 6 minutes.
+
 ## HEARTBEAT.md (the worker rewrites it at every poll; the planner reads it to know it works)
 ```
 state: idle | running NNN | paused | blocked (reason) | stopped

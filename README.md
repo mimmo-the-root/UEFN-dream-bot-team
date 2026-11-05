@@ -81,7 +81,7 @@ One design system for every page: colour means status (green done, amber your tu
 
 Also: **Stats** (time and tokens), **Score** (the game against its plan, criterion by criterion), **News** (what changed in the kit) and **Fab** (is the product package ready).
 
-## What's new (v1.108 - v1.122.0)
+## What's new (v1.108 - v1.122.1)
 
 - **v1.119, one agent per area.** Ten agents each own a slice of the 807 editor tools (reads, level and PCG, assets, devices, Scene Graph, Verse and sessions, UI, effects and audio, profiling, Sequencer); the guard keeps each in its own area.
 - **v1.118, mechanics.** A catalog of 223 mechanics with `/mechanic find`, `show` and `check`; 90 reference lessons for nine genres; accessibility checks in the delivery gate; "Approve all" for lesson packs; the Knowledge numbers follow the lab.
@@ -107,7 +107,7 @@ Read **[the manual](https://mimmo-the-root.github.io/UEFN-dream-bot-team/)**: a 
 ```
 project-template/       Files copied into each map project's Content/ folder (hooks, document
                          templates, the Agent Console, the project rules)
-user-level-agents/       The 32 agent definitions, installed once into ~/.claude/agents/
+user-level-agents/       The 33 agent definitions, installed once into ~/.claude/agents/
 user-level-memory/       Base rules loaded in every session
 user-level-skills/       Shared skills, installed once into ~/.claude/skills/
 second-brain-template/   Optional Obsidian vault for reusable mechanics

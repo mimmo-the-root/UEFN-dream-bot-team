@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.121.10"
+   "tag": "v1.122.0"
   },
   "state": {
    "genres": [],
@@ -24,11 +24,12 @@
  "release": {
   "date": "2026-11-05",
   "items": [
-   "[fix] The What's new page lists every change since the last published release, not only the last entry. Between two publishes the kit goes through many versions; the summary built at publish now collects the changelog lines of all of them (newest first, 12 at most). The lab sync (`sync_lab_from_repo.py`) also copies `Claude/community/` now: before, a lab kept the news of an old release (v1.115.0) whatever its kit version.",
-   "[new] Learning runs in slices, one fresh agent each. `/learn-map` used to be one long agent resumed again and again; every resume re-read its whole history (136k to 425k tokens on a real map, 11 resumes). Now `/learn-map` is a thin orchestrator: `verse_map.py next` (zero tokens) names the next slice (genre, one batch of code, one batch of documents, devices, blueprint) and a new agent runs it from `.claude/commands/learn-slice.md`, marks it in the state files, and answers in three lines. The state is in `Claude/docs/map/`, not in anybody's memory, so an interrupted run continues from the same point. A slice that does not progress is reported as `stuck` instead of looping."
+   "[new] A new agent, `learn-slicer` (now 33). It runs one slice of the learning and shows in the console among the memory agents, so the cost table and the live rail name it instead of a generic agent. `/learn-map` starts it for every slice (with `general-purpose` as fallback until it is installed).",
+   "[fix] `verse_map.py next` printed the usage text instead of the next slice (it was missing from the list of commands); `sync_lab_from_repo.py` now also copies the kit's slash commands (`learn-map`, `learn-slice`) to a lab.",
+   "[other] The manual and the relay README are up to date. Your team (33 agents), the console chapter (Fix queue, Nobody is listening, findings linked to tasks, Roadmap layout, Kind and Source), Skills and lessons (learning in slices) and the relay README (`/relay` starts by itself, `NO-AUTOSTART`)."
   ],
-  "tag": "v1.122.0",
-  "title": "v1.122.0 \u2014 Learning in slices, a fresh agent each"
+  "tag": "v1.122.1",
+  "title": "v1.122.1 \u2014 Learn-slicer agent, next fixed, docs up to date"
  },
  "schema": 1,
  "skills": [],

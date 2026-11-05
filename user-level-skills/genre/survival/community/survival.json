@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "genre": "survival",
-  "pack_version": 88,
+  "pack_version": 125,
   "patterns": [
     {
       "id": "p-a1f601ba2ec5",
@@ -936,6 +936,171 @@
       "tier": "hypothesis",
       "status": "active",
       "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-8de11f78e4ba",
+      "variant": "zombie-waves",
+      "statement": "Scaling fields only affect newly spawned NPCs; a spawner type without those fields still compiles but the scaling silently does nothing.",
+      "condition": "Boss HP or shield must scale per round on a spawned NPC",
+      "action": "Use a spawner type that exposes Max/Initial Health and Shield fields, write them before Enable(), and read live HP from the spawned agent's fort_character",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-109c4d543c6d",
+      "variant": "zombie-waves",
+      "statement": "A device that resets its counter on completion can read back 0 right after; recording the completion yourself keeps progress from regressing.",
+      "condition": "A quest or goal completes through a device event whose own counter may reset at completion",
+      "action": "Cache the target value into your own saved progress when the completion event fires, and display the max of live value and cached value",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-24b6a0cdf761",
+      "variant": "zombie-waves",
+      "statement": "Diffing by signature cuts UI field writes and device reads per player per second without changing what the player sees.",
+      "condition": "A UI refresh loop rewrites many widget fields every second",
+      "action": "Keep a per-slot signature (item, value, claimed) on the widget session and write a slot's fields only when its signature changed; static fields once",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-21efe12df743",
+      "variant": "zombie-waves",
+      "statement": "A bare true/false literal in a decides function always succeeds, so every year counted as leap and countdowns drifted by whole days.",
+      "condition": "A real-world date (event start/end) is converted to unix time in Verse",
+      "action": "Write the leap-year check with query results (true? / false?) and comparisons, never bare logic literals, and verify one known date against a hand-computed value",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-7572c85aea5d",
+      "variant": "zombie-waves",
+      "statement": "Subscribe cannot tell sources apart when one function is bound to many devices; a relay with a fixed index fixes tier-based rewards.",
+      "condition": "One shared kill handler must know which spawner pool fired",
+      "action": "Bind a small relay object per pool carrying the pool index to each spawner event instead of one shared callback",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-dfd5e9324ff7",
+      "variant": "zombie-waves",
+      "statement": "A bare event can lose same-tick signals; a drained queue per consumer cannot, and a cap stops an absent consumer growing it forever.",
+      "condition": "Two awards can fire in the same tick and listeners re-Await only after handling",
+      "action": "Append each award to a per-consumer capped queue and use the event Signal only as a wake-up; consumers drain the queue",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-713fa24c927f",
+      "variant": "zombie-waves",
+      "statement": "Reused triggers inflate lifetime kill stats; and a boss round with no spawn would otherwise softlock the loop unless a timeout branch ends it as a soft win.",
+      "condition": "A boss reward reuses the same trigger as normal kills",
+      "action": "Raise an in-progress flag during the reward fan-out so stats listeners skip it, or offer a separate trigger; also add a max-duration timeout as a third race branch of the boss round",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-fc851bd73960",
+      "variant": "zombie-waves",
+      "statement": "Throttling fan-out writes keeps the last value always shown while cutting widget writes from per-hit to per-interval.",
+      "condition": "Many players change a shared value (boss HP) many times a second and every change writes widgets for all players",
+      "action": "Store only the newest payload plus a dirty flag, and let a pusher loop write widgets at most N times per second",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "performance",
+      "support": 1
+    },
+    {
+      "id": "p-c43d40f1905c",
+      "variant": "zombie-waves",
+      "statement": "The physical item is the single source of truth, so an extra Verse-side balance map is dead weight.",
+      "condition": "Rewards must be exact and survive reconnects",
+      "action": "Keep no Verse balance; grant the real currency as a physical item through an item granter whose count is set just before each grant",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-a604925ace25",
+      "variant": "zombie-waves",
+      "statement": "Retrying until the player UI is ready and racing against leave avoids a missing HUD on late joins without leaking tasks.",
+      "condition": "A per-player HUD widget must be attached to every current and future player",
+      "action": "Spawn one task per player that races a player-removed wait against a loop retrying until the player UI exists, then adds the widget",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-f03059c35e7f",
+      "variant": "zombie-waves",
+      "statement": "Batching deltas bounds persistent writes while keeping the displayed value (persistent plus pending) correct.",
+      "condition": "Frequent events (kills, gold, diamonds) update lifetime persistent stats",
+      "action": "Accumulate per-player pending deltas in memory and flush them in one batched write on a periodic loop and when the player leaves",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "persistence",
+      "support": 1
+    },
+    {
+      "id": "p-1b96d980dc31",
+      "variant": "zombie-waves",
+      "statement": "Plain event() signals can merge or be missed when fired in the same tick; a queue drained on wake-up or timeout never loses an award.",
+      "condition": "A manager must notify other devices of awards but custom event() values cannot be Subscribed",
+      "action": "Use the event only as a wake-up raced against a short Sleep, and have the consumer drain a queue holding every award",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-4eb0d27ea6e3",
+      "variant": "zombie-waves",
+      "statement": "A name built from an agent renders empty after the player leaves, so frozen snapshots keyed by player identity avoid blank and duplicate rows.",
+      "condition": "A leaderboard must list live and departed players in a long session",
+      "action": "Keep a capped array of snapshots of departed players, remove the old snapshot on rejoin, and store a generic name label for them",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-8742350743f5",
+      "variant": "base",
+      "statement": "A relay object carries per-player context into shared events and lets you unsubscribe cleanly when the player leaves.",
+      "condition": "A shared listenable must call back with per-player context and local functions or lambdas are unsupported",
+      "action": "Create a small per-player relay class holding the player and manager, subscribe its method, keep the cancelables per player and cancel them on leave",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-fb5192cb1e5b",
+      "variant": "base",
+      "statement": "Granting returns no result, so confirming through the event catches silent failures such as inventory caps.",
+      "condition": "An item is granted through a device whose grant call returns nothing",
+      "action": "Race the device's granted event against a short timeout and log a critical line when it never fires",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
       "support": 1
     }
   ]

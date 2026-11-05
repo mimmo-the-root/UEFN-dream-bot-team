@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.122.0
-updated: kit-1.122.0
+created: kit-1.122.1
+updated: kit-1.122.1
 sources: [docs/manual/your-team.md]
 type: kit
 status: current
@@ -47,6 +47,7 @@ Cost matters. The kit puts the cheaper model on work that is mostly checking or 
 | release-gate | Sonnet | Go or no-go before a release, from the project's own documents. |
 | codebase-auditor | Sonnet | Independent audit of the whole codebase, on demand. |
 | skill-reflector | Haiku | Proposes lessons for your genre after a real playtest. |
+| learn-slicer | Sonnet | Internal: runs ONE slice of the map learning (a batch of code, a batch of documents, the devices, the blueprint) with a fresh context; started only by `/learn-map`. |
 | growth-manager | Sonnet | Everything about getting the map found and played: titles, thumbnails, trailers, launch plans. |
 | materials-expert | Sonnet | Audits and reuses materials in the project. |
 | template-reader | Sonnet | Reads an Epic template, read only. |
@@ -96,4 +97,4 @@ The audit agents (`qa-regression`, `release-gate`, `codebase-auditor`) end every
 Create an agent with the same name in that project's `.claude/agents/` folder. It wins there and only there.
 
 ## Sources
-- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.122.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.122.1. Rebuilt on every kit release: do not edit this page, edit the manual.

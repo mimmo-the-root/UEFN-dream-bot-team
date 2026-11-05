@@ -605,7 +605,7 @@ if(id&&localStorage.getItem("dbt.project")!==id){["kitTab","docsTab","dbt.view",
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.122.0";
+const KIT_VERSION = "v1.122.1";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -627,6 +627,7 @@ const AGENTS = [
   {id:"template-reader",       name:"template-reader",        icon:"📚", color:"teal",    blurb:"studies Epic templates and docs, feeds the technique skills"},
   {id:"materials-expert",      name:"materials-expert",       icon:"🎨", color:"teal",    blurb:"audits materials, finds reusable ones, feeds the materials skill"},
   {id:"skill-reflector",       name:"skill-reflector",        icon:"🧬", color:"cyan",    blurb:"queues lessons for the Knowledge page"},
+  {id:"learn-slicer",         name:"learn-slicer",          icon:"🧠", color:"cyan",    blurb:"one slice of the map learning, fresh context each time"},
   {id:"coder-prep",            name:"coder-prep",             icon:"🧩", color:"green",   blurb:"coder's helper: writes the Verse of one area in parallel"},
   {id:"second-brain-scout",    name:"second-brain-scout",     icon:"🔭", color:"teal",    blurb:"trainer's helper: reads one area, read-only, cheap model"},
   {id:"mcp-build",            name:"mcp-build",              icon:"🔨", color:"cyan",    blurb:"UEFN MCP: builds and edits assets and Verse, one writer at a time"},
@@ -1430,7 +1431,7 @@ const GROUPS = [
   {id:"build",   name:"BUILD",     color:"#3dff9a", head:"coder",              moons:["coder-prep","intent-gate","project-bootstrap"]},
   {id:"control", name:"CONTROL",   color:"#ffb454", head:"intent-reviewer",    moons:["compliance-reviewer","qa-regression","codebase-auditor"]},
   {id:"release", name:"RELEASE",   color:"#ff5fa8", head:"release-gate",       moons:["planner-docs","growth-manager"]},
-  {id:"memory",  name:"MEMORY",    color:"#b08cff", head:"__obsidian_vault__", moons:["second-brain-librarian","second-brain-trainer","second-brain-scout","skill-reflector","template-reader","materials-expert"]},
+  {id:"memory",  name:"MEMORY",    color:"#b08cff", head:"__obsidian_vault__", moons:["second-brain-librarian","second-brain-trainer","second-brain-scout","skill-reflector","learn-slicer","template-reader","materials-expert"]},
   {id:"mcp",     name:"UEFN MCP",  color:"#4fd8ff", head:"__mcp_server__",     moons:["mcp-build","mcp-session","mcp-level","mcp-ui-assets","mcp-material-vfx"]},
   {id:"areas",   name:"UEFN AREAS", color:"#6fe3c1", head:"__areas__",         moons:["scene-scout","env-builder","asset-builder","device-builder","entity-builder","verse-dev","ui-builder","fx-audio","perf-profiler","cinematics"]},
 ];

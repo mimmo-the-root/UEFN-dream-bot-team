@@ -1,14 +1,14 @@
 ---
 tags: [kit, manual]
-created: kit-1.122.0
-updated: kit-1.122.0
+created: kit-1.122.1
+updated: kit-1.122.1
 sources: [docs/manual/welcome.md]
 type: kit
 status: current
 ---
 # What this kit is
 
-A team of 32 AI agents for your UEFN maps, a console to watch them work, and a kit that learns from every map you build.
+A team of 33 AI agents for your UEFN maps, a console to watch them work, and a kit that learns from every map you build.
 
 Dream Bot Team is a setup for [Claude Code](https://claude.com/claude-code) made for UEFN (Unreal Editor for Fortnite). Instead of one assistant doing everything, you get specialists with one narrow job each: one writes the Verse code, others check it, one keeps your plan and documents honest, one gives a go or no-go before a release. It was built by a creator juggling about 50 islands, to keep them from getting mixed up.
 
@@ -44,4 +44,4 @@ Ready? Go to the [[quick-start|quick start]].
 - [[quick-start|Quick start]]
 
 ## Sources
-- The kit manual, chapter "What this kit is" (docs/manual/welcome.md), kit v1.122.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "What this kit is" (docs/manual/welcome.md), kit v1.122.1. Rebuilt on every kit release: do not edit this page, edit the manual.
