@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.123.4 — Fab listing: Copy buttons
+
+- [new] **A Copy button on each text of the Fab listing.** Title, short description, description and tags of the console's Listing card copy to the clipboard with one click, ready to paste into the portal.
+
 ## v1.123.3 — Fab checks: textures read by the kit, audio and devices only when they exist
 
 - [new] **Textures are checked by the kit.** Station 2 asks the open editor for every texture of the product and its size (read only) and blocks a texture that is not a power of 2 or is larger than 2k, naming it and its size. No texture in the product: the check is skipped. Editor closed: it stays "to do", never a guess.

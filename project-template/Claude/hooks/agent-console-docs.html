@@ -981,7 +981,7 @@ function groupByRelease(rows){
   return keyed.map(o => ({ name: o.name, rows: groups[o.name] }));
 }
 
-// ---- v1.123.3: ONE definition of the numbers, release order, and paged boxes ------------------------------
+// ---- v1.123.4: ONE definition of the numbers, release order, and paged boxes ------------------------------
 // total = tasks planned into a release (not out of scope, not Later/backlog); out of scope and backlog are counted apart and never in the %.
 function relStats(allRows){
   const scope = (allRows || []).filter(t => statusBucket(t.status) !== "outOfScope");
@@ -1600,7 +1600,7 @@ async function jState(){
   const [g, p, c, r, au, dl, tm, gn, gp, ll, osd, pf, bg, lp, dv] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer","genre","genreprop","learnlog","ownersteps","performance","bugs","learnprogress","devices"].map(fetchDoc));
   const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
   const rowsAll = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
-  /* v1.123.3: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
+  /* v1.123.4: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
   const tasks = rowsAll.filter(t => statusBucket(t.status) !== "outOfScope" && !isBacklogRow(t));
   st.rowsAll = rowsAll; st.stats = relStats(rowsAll); st.bugsRaw = bg && bg.exists && !bg.error ? bg.content : ""; st.learnRaw = lp && lp.exists && !lp.error ? lp.content : ""; st.devRaw = dv && dv.exists && !dv.error ? dv.content : "";
   st.roadRaw = r.exists ? r.content : ""; st.osRaw = osd.exists && !osd.error ? osd.content : "";
@@ -1939,7 +1939,7 @@ function jIdea(st){ const hint = '<b>Not started.</b> Two ways in, both with <co
 function jSpec(st){ return jGhost(st.hasSpec, jSpec0(st), 'Waiting for <code>/spec</code>. This page will show the checklist of the spec (loop, story with test, success criteria, assumptions) and the technical risks with a level.'); }
 function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/game-plan</code>.' : 'Waiting for the approved spec. <code>/game-plan</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
 function bucketPill(s){ const b = statusBucket(s); return b==="done" ? '<span class="jpill jgreen">Done</span>' : b==="active" ? '<span class="jpill jlive">In progress</span>' : b==="blocked" ? '<span class="jpill jred">Blocked</span>' : '<span class="jpill">To do</span>'; }
-// ---- v1.123.3: real data from the project documents (no sample text for a project that exists) ----------------
+// ---- v1.123.4: real data from the project documents (no sample text for a project that exists) ----------------
 function auditFromDocs(st){
   const out = []; if (!st.bugsRaw) return out;
   let rows = []; try{ rows = parseBugsBacklog(st.bugsRaw); }catch(e){ rows = []; }
@@ -2284,7 +2284,7 @@ async function refreshDocs(){
 }
 setInterval(refreshDocs, 5000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.123.3";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.123.4";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

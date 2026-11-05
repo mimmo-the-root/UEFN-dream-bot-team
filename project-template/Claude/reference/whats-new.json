@@ -1,6 +1,15 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.4": {
+   "title": "Fab listing: Copy buttons",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "[new] **A Copy button on each text of the Fab listing.** Title, short description, description and tags of the"
+   ]
+  },
   "1.123.3": {
    "title": "Fab checks: textures read by the kit, audio and devices only when they exist",
    "features": 2,
