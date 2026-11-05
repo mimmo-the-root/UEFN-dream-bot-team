@@ -271,6 +271,18 @@ def read_verse_build(lab, checker=None):
     return rec
 
 
+PERF_ROW = re.compile(r"^\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*(within|near|over)\s*\|\s*$", re.I | re.M)
+
+
+def read_performance(lab):
+    """The last /performance measurement of this product: lab/PERFORMANCE.md (same file and table as a map's Claude/docs/PERFORMANCE.md).
+    {exists, at, rows:[{metric,value,budget,area,state}]}; no table rows = not measured."""
+    text = _read(os.path.join(lab, "PERFORMANCE.md"))
+    at = re.search(r"^Last measurement:\s*(.+)$", text, re.M)
+    rows = [{"metric": m[0], "value": m[1], "budget": m[2], "area": m[3], "state": m[4].lower()} for m in PERF_ROW.findall(text)]
+    return {"exists": bool(text), "at": (at.group(1).strip() if at else ""), "rows": rows}
+
+
 TEX_MAX = 2048
 
 
@@ -495,7 +507,7 @@ def stations(root, st, lab):
         _verdict_item("c-names", "No name of another project saved inside the assets", "x", B, W, "All internal names use this project's plugin.", r"internal name of another project",
                       "Rebuild or re-save those assets inside this project."),
         _verdict_item("c-users", "No Windows user name left in the import paths", "x", B, W, "No user name found in the source paths.", r"Windows user",
-                      "Clean the import path in the editor; declare the source of each file in station 4."),
+                      "Clean the import path in the editor; declare the source of each file in station 5."),
         tex_item,
         (_item("c-audio", "Audio: .wav source, no distortion or hitching", "manual", "you", "", "Listen to every sound once.") if st.get("audio")
          else _item("c-audio", "Audio: .wav source, no distortion or hitching", "na", "kit", "No sound in the product: nothing to check.")),
@@ -534,6 +546,19 @@ def stations(root, st, lab):
         verse_item = _item("b-verse", vt, "fail", "ed", "%s: %d errors. %s" % (vbd["at"], vbd["errors"], vbd["message"][:200]), "Fix them in the code, then press Run all checks.")
     else:
         verse_item = _item("b-verse", vt, "todo", "ed", "%s: %s" % (vbd["at"], vbd.get("reason") or "the editor did not answer."), "Open UEFN with this project and press Run all checks.")
+    pf = read_performance(lab)
+    pft = "Performance: measured in a play session, nothing over its budget"
+    over, near = [r for r in pf["rows"] if r["state"] == "over"], [r for r in pf["rows"] if r["state"] == "near"]
+    if not pf["rows"]:
+        perf_item = _item("b-perf", pft, "todo", "ed", "Not measured yet." if not pf["exists"] else "PERFORMANCE.md has no measurement (the play session was missing).",
+                          "Start a play session in UEFN, then run /performance in Claude Code: the profiler compares the product with its budget and the result shows here after Run all checks.")
+    elif over:
+        perf_item = _item("b-perf", pft, "warn", "ed", "%s: %d metric(s) over the budget: %s." % (pf["at"] or "measured", len(over), _short(["%s %s (budget %s)" % (r["metric"], r["value"], r["budget"]) for r in over], 3)),
+                          "Fix the worst area (%s), then measure again with /performance." % (over[0]["area"] or "see PERFORMANCE.md"))
+    elif near:
+        perf_item = _item("b-perf", pft, "warn", "ed", "%s: %d metric(s) near the budget: %s." % (pf["at"] or "measured", len(near), _short([r["metric"] for r in near], 3)), "Watch them; measure again after the next change.")
+    else:
+        perf_item = _item("b-perf", pft, "pass", "ed", "%s: %d metric(s), all within the budget." % (pf["at"] or "measured", len(pf["rows"])))
     dt = "Devices are clean: clear names, no loose nodes, no errors"
     pt = "Map loads with no errors or warnings in a play session"
     if not st["verse"]:   # no Verse code: no device of the product to check, nothing runs in a play session
@@ -547,6 +572,7 @@ def stations(root, st, lab):
         vi,
         dev_item,
         play_item,
+        perf_item,
     ]
     out.append({"id": "build", "n": "3 Build", "d": "Does it compile and validate with no errors?", "items": s3})
 
@@ -566,20 +592,35 @@ def stations(root, st, lab):
                   ("%d tags%s." % (len(lst["tags"]), ("; not in the portal's suggested list: " + ", ".join(x["t"] for x in lst["tag_info"] if not x["known"]) + " (its search may still have them)") if any(not x["known"] for x in lst["tag_info"]) else "")) if lst["tags"] else "No tags yet.",
                   "" if lst["tags"] else "Add tags in listing.md."),
         ]
-    docs_ok = os.path.isfile(os.path.join(fab_pack.product_folder(root), "Documentation", "README.md"))
-    tp = _read(os.path.join(fab_pack.product_folder(root), "FabListing", "third_party.md"))
-    tp_open = tp.count("TODO")
     s4 += [
-        _item("l-doc", "Setup documentation is included", "pass" if docs_ok else "fail", "kit", "Documentation/README.md found." if docs_ok else "No Documentation/README.md.", "" if docs_ok else "Run fab_pack.py docs --apply."),
-        _item("l-third", "Third-party content is declared with author and licence", "warn" if (tp_open or _by(W, r"third-party")) else ("pass" if tp else "todo"), "kit",
-              "%d row(s) still TODO in third_party.md." % tp_open if tp_open else ("Declared." if tp else "third_party.md was missing."), "Write author, source and licence of every file that is not yours." if tp else "Press Run all checks: the kit recreates the file, then fill it in."),
         _item("l-images", "Images show the real product (thumbnail and gallery)", "manual", "you", "", "Prepare the thumbnail and gallery by hand."),
         _item("l-honest", "Texts are accurate; nothing offensive; no content you may not resell", "manual", "you", "", "Read the listing once more before sending."),
     ]
     out.append({"id": "listing", "n": "4 Listing", "d": "Are texts, images and licences ready?", "items": s4})
 
+    # 5 Docs: the documents the customer and the portal get (the files fab_pack.py docs creates)
+    tp = _read(os.path.join(fab_pack.product_folder(root), "FabListing", "third_party.md"))
+    tp_open = tp.count("TODO")
+    s4d = []
+    for f in product_files(root):
+        if f["key"] in ("listing", "third_party"):
+            continue   # the listing has its own station; third_party is the declaration item below
+        n_todo = _read(f["path"]).count("TODO") if f["exists"] else 0
+        req = f["key"] == "readme"
+        if not f["exists"]:
+            s4d.append(_item("d-" + f["key"], "%s is included" % f["label"], "fail" if req else "todo", "kit", "No %s." % f["rel"], "Run fab_pack.py docs --apply: the kit creates it from the product."))
+        elif n_todo:
+            s4d.append(_item("d-" + f["key"], "%s is written" % f["label"], "warn", "kit", "%d TODO line(s) left in %s." % (n_todo, f["rel"]), "Run fab_pack.py listing-fill, then write what is left (the agent can do it)."))
+        else:
+            s4d.append(_item("d-" + f["key"], "%s is written" % f["label"], "pass", "kit", "%s: %d bytes, no TODO." % (f["rel"], f["size"])))
+    if lst["has_file"] and lst["tech_todo"]:
+        s4d.append(_item("d-listing", "listing.md has no TODO left", "warn", "kit", "%d TODO line(s) in the technical details." % lst["tech_todo"], "Run fab_pack.py listing-fill."))
+    s4d.append(_item("l-third", "Third-party content is declared with author and licence", "warn" if (tp_open or _by(W, r"third-party")) else ("pass" if tp else "todo"), "kit",
+                     "%d row(s) still TODO in third_party.md." % tp_open if tp_open else ("Declared." if tp else "third_party.md was missing."), "Write author, source and licence of every file that is not yours." if tp else "Press Run all checks: the kit recreates the file, then fill it in."))
+    out.append({"id": "docs", "n": "5 Docs", "d": "Are the documents for the customer and the portal written?", "items": s4d})
+
     # 5 Extra round (before the zip): memory and a private release, each one an extra validation
-    out.append({"id": "extra", "n": "5 Extra", "d": "One more round of validation before the zip", "ordered": True, "items": [
+    out.append({"id": "extra", "n": "6 Extra", "d": "One more round of validation before the zip", "ordered": True, "items": [
         _item("x-mem", "Memory calculation of the project", "manual", "you", "A project over its memory budget can fail to load or be refused.",
               "Run the memory calculation in UEFN, look at the result and tick this when it is inside the limits."),
         _item("x-priv", "Private release of the project", "manual", "you", "A private release goes through a further round of validation without being public.",
@@ -590,15 +631,15 @@ def stations(root, st, lab):
     zips = st.get("zips") or []
     s5 = [
         _item("z-make", "Make the zip with the kit (whole project, one folder)", "pass" if zips else "todo", "kit",
-              ("Found: %s." % zips[-1]) if zips else "Not made yet.", "" if zips else "Use the Make the zip button when stations 1 to 4 have no block."),
+              ("Found: %s." % zips[-1]) if zips else "Not made yet.", "" if zips else "Use the Make the zip button when stations 1 to 5 have no block."),
         _item("z-reread", "Then re-read the finished zip: names, paths, forbidden files, asset scan", "pass" if zr and zr.get("ok") else ("fail" if zr else "todo"), "kit",
               ("%s: clean." % zr["at"]) if zr and zr.get("ok") else (_short(zr.get("problems", [])) if zr else ("Make the zip first. The kit then unzips it in a temporary folder and runs the same checks on the copy." if not zips else "The kit unzips it in a temporary folder and runs the same checks on the copy.")),
               "" if zr and zr.get("ok") else ("Make the zip first." if not zips else "Use the Re-read the zip button.")),
     ]
-    out.append({"id": "zip", "n": "6 Zip", "d": "The archive the portal wants: first make it, then re-read it", "items": s5, "ordered": True})
+    out.append({"id": "zip", "n": "7 Zip", "d": "The archive the portal wants: first make it, then re-read it", "items": s5, "ordered": True})
 
     # 6 Submit
-    out.append({"id": "submit", "n": "7 Submit", "d": "On the portal", "items": [
+    out.append({"id": "submit", "n": "8 Submit", "d": "On the portal", "items": [
         _item("s-send", "Upload and send for review", "manual", "you", "", "Do it on the Fab portal, then tick it here.")]})
 
     return out, lst, val
@@ -643,8 +684,8 @@ def build(root, lab, state=None):
         msg = "Nothing blocks the upload. %d warning%s to clean up and %d item%s that only you can confirm or finish." % (c["warn"], "" if c["warn"] == 1 else "s", c["manual"] + c["todo"], "" if c["manual"] + c["todo"] == 1 else "s")
     else:
         verdict = "READY"
-        msg = "Ready to publish: every check is green. Upload the zip on the portal, then tick station 7."
-    blocked_before_zip = any(s["counts"]["fail"] for s in sts if s["id"] in ("project", "content", "build", "listing"))
+        msg = "Ready to publish: every check is green. Upload the zip on the portal, then tick station 8."
+    blocked_before_zip = any(s["counts"]["fail"] for s in sts if s["id"] in ("project", "content", "build", "listing", "docs"))
     lst["tech"] = tech_table(root)
     lst["files"] = [{k: v for k, v in f.items() if k != "path"} for f in product_files(root)]
     return {"name": os.path.basename(root.rstrip("/\\")), "root": root, "scanned_at": st.get("at", ""), "stations": sts, "counts": c, "total": total,

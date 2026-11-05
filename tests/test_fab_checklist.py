@@ -26,7 +26,7 @@ try:
     ok(not any("Collections" in w for w in FC.fab_pack.check(root)[1]), "the empty Collections folders the editor creates are not reported")
     d = FC.build(root, lab, FC.scan_state(root, lab))
     ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
-    ok([s["id"] for s in d["stations"]] == ["project", "content", "build", "listing", "extra", "zip", "submit"], "seven stations in order, the extra round (memory, private release) before the zip")
+    ok([s["id"] for s in d["stations"]] == ["project", "content", "build", "listing", "docs", "extra", "zip", "submit"], "eight stations in order: the documents before the extra round and the zip")
     ok(d["verdict"] == "NOT READY" and ids["b-valid"]["s"] == "todo" and "Run all checks" in ids["b-valid"]["fix"], "no validation yet: to do (never a guess), and it says to press Run all checks")
     ok("b-inv" not in ids, "the Custom Inventory item is gone")
     ok(ids["p-complete"]["s"] == "pass", "project, plugin and Content found")
@@ -113,6 +113,24 @@ try:
     r = FC.read_listing(root)
     ok(r["short"] == "Labeled text." and not r["short_unlabeled"], "a labeled short description stays labeled")
     FC.listing_path = real_lp
+    # performance: the last /performance measurement of the product, read from the lab
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(ids["b-perf"]["s"] == "todo" and "/performance" in ids["b-perf"]["fix"], "no measurement: to do, and it says to run /performance in a play session")
+    tbl = "# Performance\n\nLast measurement: 2026-11-05 20:00\n\n| Metric | Value | Budget | Worst area | State |\n|---|---|---|---|---|\n| Memory | 120 MB | 200 MB | Wall | within |\n"
+    open(os.path.join(lab, "PERFORMANCE.md"), "w").write(tbl)
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(ids["b-perf"]["s"] == "pass", "every metric within its budget: passed")
+    open(os.path.join(lab, "PERFORMANCE.md"), "w").write(tbl + "| Entities | 900 | 500 | Hall | over |\n")
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(ids["b-perf"]["s"] == "warn" and "Entities" in ids["b-perf"]["ev"] and "Hall" in ids["b-perf"]["fix"], "a metric over budget: warning with the metric and the worst area")
+    open(os.path.join(lab, "PERFORMANCE.md"), "w").write("# Performance\n\nNot measured: no play session.\n\n| Metric | Value | Budget | Worst area | State |\n|---|---|---|---|---|\n")
+    d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(ids["b-perf"]["s"] == "todo", "a file with no measured row: still to do")
+    os.remove(os.path.join(lab, "PERFORMANCE.md"))
+    # docs station: one item per document, README required
+    ok("d-readme" in ids and ids["d-readme"]["s"] == "fail" and "docs --apply" in ids["d-readme"]["fix"], "docs station: a missing README blocks and says how to create it")
+    ok("l-doc" not in ids and "l-third" in ids and any(i["id"] == "l-third" for s in d["stations"] if s["id"] == "docs" for i in s["items"]), "the third-party declaration moved to the docs station")
+    ok("d-settings" in ids, "a product with Verse code has a SETTINGS.md item")
     ok(FC.ensure_third_party(root) is False, "third_party.md is not recreated without a FabListing folder")
     os.makedirs(os.path.join(fab_pack.product_folder(root), "FabListing"))
     ok(FC.ensure_third_party(root) is True and FC.ensure_third_party(root) is False, "a missing third_party.md is recreated once and never overwritten")

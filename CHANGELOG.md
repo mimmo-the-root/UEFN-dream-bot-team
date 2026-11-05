@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.123.5 — Fab: Docs station and performance check
+
+- [new] **A Docs station in the Fab checklist (now 8 stations).** Between Listing and Extra: one check for each document the kit creates (README, AUTHOR, SETTINGS when there is Verse code), blocking when the README is missing and warning with the number of TODO lines left, plus the third-party declaration (moved from Listing). The fix text names the existing command (`fab_pack.py docs --apply`, `listing-fill`).
+- [new] **Performance in the Build station.** "Performance: measured in a play session, nothing over its budget" reads the last `/performance` measurement of the product (the same table as a map's PERFORMANCE.md, kept in the product's lab). Not measured: to do, with what to run; a metric over its budget or near it: warning with the metric and the worst area. `/performance` writes into the lab when the project is a Fab product, and `/fab-check` runs it when a play session is open. Run all checks re-reads the file; it does not start a play session.
+
 ## v1.123.4 — Fab listing: Copy buttons
 
 - [new] **A Copy button on each text of the Fab listing.** Title, short description, description and tags of the console's Listing card copy to the clipboard with one click, ready to paste into the portal.

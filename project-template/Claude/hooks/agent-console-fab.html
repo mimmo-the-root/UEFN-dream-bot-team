@@ -196,13 +196,13 @@ function side(){var c=D.counts,T=D.total||1,w=function(k){return (100*c[k]/T).to
   '<div class="bar"><i style="width:'+w("pass")+';background:var(--ok)"></i><i style="width:'+w("warn")+';background:var(--warn)"></i><i style="width:'+w("fail")+';background:var(--bad)"></i><i style="width:'+w("manual")+';background:var(--built);opacity:.6"></i><i style="width:'+w("todo")+';background:var(--todo);opacity:.5"></i></div>'+
   '<div class="legendbar"><span><i style="background:var(--ok)"></i>'+c.pass+' passed</span><span><i style="background:var(--warn)"></i>'+c.warn+' warnings</span><span><i style="background:var(--bad)"></i>'+c.fail+' blocks</span><span><i style="background:var(--built);opacity:.6"></i>'+c.manual+' you confirm</span><span><i style="background:var(--todo);opacity:.5"></i>'+c.todo+' to do</span></div>'+
   '<div class="msg '+(bad?'':ok?'good':'mid')+'">'+esc(D.message)+'</div></div>'+listing()}
-function draw(){$("title").textContent="Checklist - "+D.name;$("sub").textContent="Fab product - every check the kit can do before you upload - last scan "+(D.scanned_at||"-");$("bZip").disabled=!D.can_zip;$("bZip").title=D.can_zip?"":"Locked until stations 1 to 4 have no block";steps();detail();side()}
+function draw(){$("title").textContent="Checklist - "+D.name;$("sub").textContent="Fab product - every check the kit can do before you upload - last scan "+(D.scanned_at||"-");$("bZip").disabled=!D.can_zip;$("bZip").title=D.can_zip?"":"Locked until stations 1 to 5 have no block";steps();detail();side()}
 function tick(id,on){post({action:"tick",id:id,on:on}).then(load)}
 function recVal(){var t=$("vtext").value;if(!t.trim()){$("err").textContent="Paste the validation output first.";return}post({action:"validation",text:t,skip_fixup:$("vskip").checked}).then(load)}
 $("bScan").onclick=function(){$("bScan").disabled=true;post({action:"scan"}).then(load).then(function(){$("bScan").disabled=false})};
 $("bZip").onclick=function(){post({action:"zip"}).then(function(j){if(j.ok){$("err").style.color="var(--green)";$("err").textContent="Zip made: "+j.zip}return load()})};
 $("bRe").onclick=function(){post({action:"reread"}).then(load)};
-$("kitVersion").textContent="v1.123.4";  /* shown at once; the server version replaces it */
+$("kitVersion").textContent="v1.123.5";  /* shown at once; the server version replaces it */
 fetch("/whoami").then(function(r){return r.json()}).then(function(w){$("kitVersion").textContent=w.kit_version?"v"+w.kit_version:""}).catch(function(){});
 load();setInterval(load,20000);
 </script>

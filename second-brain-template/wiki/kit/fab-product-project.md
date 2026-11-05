@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.4
-updated: kit-1.123.4
+created: kit-1.123.5
+updated: kit-1.123.5
 sources: [docs/manual/fab-product-project.md]
 type: kit
 status: current
@@ -46,11 +46,11 @@ From Epic's Fab documentation: no Python scripts in the archive; asset and folde
 
 ## The Status page of a Fab product (1.123)
 
-In a Fab product the Docs page does not show the journey of a map. Its arrows are the seven stations of the checklist below, each with how many checks are green; the bar under them is the verdict (percentage, passes, fails, to do, your checks); a click on a station lists its checks with the state, who does it, the evidence and what to do. A failed check turns its station red. To tick a check of yours or paste the UEFN validation, use the Checklist page.
+In a Fab product the Docs page does not show the journey of a map. Its arrows are the eight stations of the checklist below, each with how many checks are green; the bar under them is the verdict (percentage, passes, fails, to do, your checks); a click on a station lists its checks with the state, who does it, the evidence and what to do. A failed check turns its station red. To tick a check of yours or paste the UEFN validation, use the Checklist page.
 
 ## The Checklist page
 
-In the console of a Fab product a tab **Checklist** appears (other projects do not have it). It groups every check in seven stations: Project, Content, Build, Listing, Extra (memory calculation and a private release, one more round of validation), Zip and Submit. Each line says what the kit looked at and what to do; the label tells who checks it: the kit, the editor (a record from UEFN), you, or "extra" (a check added after a rejection). The verdict shows NOT READY while something blocks the upload, with a bar and the percentage of checks passed.
+In the console of a Fab product a tab **Checklist** appears (other projects do not have it). It groups every check in eight stations: Project, Content, Build (Verse build, UEFN validation, and the performance measured with `/performance` in a play session), Listing, Docs (README, AUTHOR, SETTINGS, listing and third-party declaration, each with its TODO count), Extra (memory calculation and a private release, one more round of validation), Zip and Submit. Textures are read from the open editor by the kit; checks that do not apply (audio without sound, devices and play loop without Verse code) skip themselves. Each line says what the kit looked at and what to do; the label tells who checks it: the kit, the editor (a record from UEFN), you, or "extra" (a check added after a rejection). The verdict shows NOT READY while something blocks the upload, with a bar and the percentage of checks passed.
 
 Lines only you can judge have a box: tick it when you have done the check. For the UEFN validation, run it in UEFN with **Skip Fix-up**, copy the output and paste it in the box of station 3; the kit counts errors and warnings and keeps the record. Start the page with `fab_lab.py console <project>`, as for the lessons. Nothing is written in the project.
 
@@ -89,4 +89,4 @@ Take the captures in the editor (the skill uses the proven recipes and the lab g
 Shortening over-long paths and checking third-party licences are done by hand: `check` lists the paths over the limit and the third-party content, and you decide what to rename or declare.
 
 ## Sources
-- The kit manual, chapter "A Fab product project" (docs/manual/fab-product-project.md), kit v1.123.4. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "A Fab product project" (docs/manual/fab-product-project.md), kit v1.123.5. Rebuilt on every kit release: do not edit this page, edit the manual.

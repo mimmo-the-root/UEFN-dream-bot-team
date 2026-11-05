@@ -8,6 +8,7 @@ This is a Fab product (a UEFN project registered as Fab). Find its root: the fol
 1. `fab_pack.py check "<root>"` (Epic's upload rules)
 2. `fab_assets.py "<root>"` (imports and names from other projects, Windows user names in paths)
 3. `fab_checklist.py "<root>"` (listing checklist)
+4. Performance, only when a play session is running in the open editor: `/performance` (its result is read by the Build station; without a session the check stays "to do", do not start one)
 
 **Privacy (GDPR).** A Windows user name, an email or a home path is never written in the report: write `***anonymized***`. The clean touches only the owner's own files, never assets created by Epic.
 

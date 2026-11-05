@@ -792,7 +792,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 fc.refresh(root, lab)
             elif a == "zip":
                 if not fc.build(root, lab)["can_zip"]:
-                    return self._send_json_status(200, {"ok": False, "error": "stations 1 to 4 still have a block: fix them first"})
+                    return self._send_json_status(200, {"ok": False, "error": "stations 1 to 5 still have a block: fix them first"})
                 import fab_pack
                 out, probs = fab_pack.zip_package(root)
                 if probs:
