@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.0
-updated: kit-1.123.0
+created: kit-1.123.1
+updated: kit-1.123.1
 sources: [docs/manual/the-console.md]
 type: kit
 status: current
@@ -167,4 +167,4 @@ When your computer holds a newer kit version than the project you are in, the co
 - [[skills-and-lessons|Skills and lessons]]
 
 ## Sources
-- The kit manual, chapter "The console" (docs/manual/the-console.md), kit v1.123.0. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "The console" (docs/manual/the-console.md), kit v1.123.1. Rebuilt on every kit release: do not edit this page, edit the manual.

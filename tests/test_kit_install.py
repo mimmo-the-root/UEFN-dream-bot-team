@@ -36,7 +36,11 @@ try:
     os.makedirs(os.path.join(tpl, "Claude", "hooks"), exist_ok=True)
     out = run_hook(os.path.join(fab, "Content"))
     assert "map (island) or a Fab product" in out, out
-    assert ki.main(["--kind", fab, "fab"]) == 0 and ki.get_kind(fab) == "fab"
+    import io, contextlib
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        assert ki.main(["--kind", fab, "fab"]) == 0 and ki.get_kind(fab) == "fab"
+    assert "console of this Fab product" in buf.getvalue() and "fab_lab.py" in buf.getvalue(), buf.getvalue()   # answering "Fab" also brings up the product's console (here: the command, tests never start one)
     assert "FAB PRODUCT" in run_hook(os.path.join(fab, "Content"))
     assert ki.main([os.path.join(fab, "Content"), "--apply"]) == 3
     assert not os.path.exists(os.path.join(fab, "Content", "CLAUDE.md")), "project-template must never go into a Fab product"

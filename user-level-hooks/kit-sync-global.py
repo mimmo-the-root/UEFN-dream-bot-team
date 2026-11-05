@@ -62,7 +62,7 @@ def new_map_context(base, fab_only=False):
             "2) If MAP: run `%s \"%s\" --dry-run`, tell the owner in one line how many files will be copied, ask for a yes, "
             "then run it again with --apply (it never overwrites a file), then read Claude/SETUP-INSTRUCTIONS.md and run it "
             "(on Windows use `py -3` if `python` is not found). The kit's hooks start working from the next session; say so. "
-            "3) If FAB PRODUCT: run `%s --kind \"%s\" fab` and install NOTHING: a Fab product is a small UEFN project whose "
+            "3) If FAB PRODUCT: run `%s --kind \"%s\" fab` (it also starts the console of the product and prints its address: tell the owner) and install NOTHING: a Fab product is a small UEFN project whose "
             "components are added to the customer's project, so project-template must never be put in it. "
             "The answer is remembered outside the project, so the question is not asked again."
             % (root, inst, content, inst, root))

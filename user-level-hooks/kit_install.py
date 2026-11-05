@@ -102,13 +102,32 @@ def apply(content, tpl=None):
     return done
 
 
+def _start_fab_console(root):
+    """Start the console of a Fab product (its own lab, port 8766 or the next free one) and say where it is; never fails. The kit's template console is NOT this one."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    lab = os.path.join(here, "fab_lab.py")
+    try:
+        sys.path.insert(0, here)
+        import fab_lab
+        url = fab_lab.autostart(root)
+    except Exception:
+        url = None
+    if url:
+        return "console of this Fab product: running at %s (opened in the browser); do not start another and do not use the kit-template console" % url
+    return ("console of this Fab product: could not start it by itself; run in the background `python \"%s\" console \"%s\"` (use `py -3` if `python` is not found) "
+            "and tell the owner the address it prints. A Fab product has no Claude/hooks console: this one reads the product from the profile lab." % (lab, root))
+
+
 def main(argv):
     if not argv:
         print(__doc__); return 2
     if argv[0] == "--kind":
         if len(argv) < 3:
             print("usage: --kind <UEFN project root> map|fab"); return 2
-        set_kind(argv[1], argv[2]); print("remembered: %s = %s" % (argv[1], argv[2])); return 0
+        set_kind(argv[1], argv[2]); print("remembered: %s = %s" % (argv[1], argv[2]))
+        if argv[2] == "fab":   # the owner answered "Fab product" in this session: its console starts NOW, not only at the next session start
+            print(_start_fab_console(argv[1]))
+        return 0
     if argv[0] == "--status":
         r = find_uefn_root(argv[1]) if len(argv) > 1 else None
         if not r:
@@ -119,7 +138,8 @@ def main(argv):
         print("not a UEFN project folder (no .uefnproject next to Content)"); return 1
     root, content = r
     if get_kind(root) == "fab":
-        print("this is a Fab product: the kit is NOT installed in it (components get added to the customer's project)"); return 3
+        print("this is a Fab product: the kit is NOT installed in it (components get added to the customer's project)")
+        print("its console is not the kit's: start it with `python fab_lab.py console \"%s\"` from the profile hooks folder (the session hook does it by itself)" % root); return 3
     if not os.path.isdir(os.path.join(os.path.expanduser("~"), ".claude")) or not os.path.isdir(template_dir()):
         print("kit template not found: run update-my-profile.cmd from the kit first"); return 4
     os.makedirs(content, exist_ok=True)
