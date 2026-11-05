@@ -10,6 +10,7 @@ Zero AI tokens. Reads the .verse files only; writes ONLY to --out (default <proj
   python verse_map.py learned TOKEN                        mark the batch as learned; refuses any token but the one printed at the END of the batch (--all: every file)
   python verse_map.py docs [--project DIR]                 next project documents not read yet (complete) + names they mention that the code map does not know
   python verse_map.py docpatch list | apply ID... | apply --all | revert STAMP   check/apply/undo the reverse-engineered corrections in map/doc-patches.json (exact text, backup)
+  python verse_map.py next [--project DIR] [--reset]      the next SLICE of the learning, one JSON line: {"slice": genre|code|docs|devices|blueprint|done|stuck, "left": n}; the orchestrator gives each slice to a fresh agent
   python verse_map.py status [--project DIR]               what is learned and what is missing (also written to map/PROGRESS.md)
   python verse_map.py docsdone TOKEN [--project DIR]       mark the documents of the last batch as read (needs the receipt token at the batch end)
 Facts only: role comes from the file's "# Summary:" header, everything else from the code. Anything the code cannot
@@ -712,6 +713,53 @@ def devices_pending(outdir):
     return not all(re.search(k + r":\s*yes", t, re.I) for k in ("WIRING-READ", "SETTINGS-READ", "ISLAND-CONFIG-READ"))
 
 
+SLICE_FILE = "learn-slices.json"
+
+
+def cmd_next(project, outdir, reset=False):
+    """The next slice of learning, from the state files only (zero tokens). One slice = one batch of code, one batch of documents, the devices, or the blueprint:
+    each is given to a FRESH agent, so no agent carries the context of the earlier ones. Guard: the same slice with the same amount left, asked twice in a row,
+    means the last agent could not finish it: answer `stuck` (the orchestrator stops and says which) instead of looping."""
+    sp = os.path.join(outdir, SLICE_FILE)
+    if reset:
+        try: os.remove(sp)
+        except OSError: pass
+        return {"slice": "reset", "left": 0}
+    gp = os.path.join(project, "Claude", "docs", ".genre")
+    lr = learn_pending(outdir)
+    dfirst, dtodo = docs_pending(project, outdir)
+    if not (os.path.isfile(gp) and open(gp, encoding="utf-8", errors="replace").read().strip()):
+        res = {"slice": "genre", "left": 1}
+    elif lr is not None and lr[1]:
+        res = {"slice": "code", "left": len(lr[1])}
+    elif dtodo:
+        res = {"slice": "docs", "left": len(dtodo)}
+    elif devices_pending(outdir) or (lr is not None and _read_state(os.path.join(outdir, SLICE_FILE)).get("code_read")):
+        res = {"slice": "devices", "left": 1}
+    elif profile_pending(outdir, project):
+        res = {"slice": "blueprint", "left": 1}
+    else:
+        res = {"slice": "done", "left": 0}
+    st = _read_state(sp)
+    if res["slice"] == "code":
+        st["code_read"] = True   # code was read in this run: the device map is re-read once afterwards (CLAUDE: step 7 of the old learn-map)
+    if res["slice"] == "devices":
+        st["code_read"] = False
+    if res["slice"] == "done":
+        st = {}
+    else:
+        same = st.get("kind") == res["slice"] and st.get("left") == res["left"]
+        st["same"] = st.get("same", 0) + 1 if same else 0
+        st["kind"], st["left"] = res["slice"], res["left"]
+        if st["same"] >= 2:
+            res = {"slice": "stuck", "left": res["left"], "kind": st["kind"]}
+    try:
+        json.dump(st, open(sp, "w")) if st else (os.path.isfile(sp) and os.remove(sp))
+    except OSError:
+        pass
+    return res
+
+
 def write_progress(project, outdir):
     sync_device_log(outdir)
     try:
@@ -755,7 +803,7 @@ def _utf8_out():
 def main():
     _utf8_out()
     a = sys.argv[1:]
-    if not a or a[0] not in ("build", "check", "symbol", "role", "learn", "learned", "docs", "docsdone", "docpatch", "status", "log", "learning"):
+    if not a or a[0] not in ("build", "check", "symbol", "role", "learn", "learned", "docs", "docsdone", "docpatch", "status", "log", "learning", "next"):
         print(__doc__); return 0
     tok = a[1] if len(a) > 1 and not a[1].startswith("--") else ""
     opt = lambda k, d: a[a.index(k) + 1] if k in a and a.index(k) + 1 < len(a) else d
@@ -768,6 +816,8 @@ def main():
     elif a[0] == "learn":
         n = opt("--cap", str(LEARN_CAP))
         cmd_learn(project, outdir, int(n) if n.isdigit() else LEARN_CAP, "--full" in a, "--cards-only" in a)
+    elif a[0] == "next":
+        print(json.dumps(cmd_next(project, outdir, "--reset" in a)))
     elif a[0] == "status":
         write_progress(project, outdir)
         print("\n".join(progress_lines(project, outdir)))

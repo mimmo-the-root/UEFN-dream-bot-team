@@ -70,6 +70,28 @@ def _release_from_changelog(root, tag):
     return {"title": m.group(1).strip(), "items": [i.replace("**", "") for i in items][:8]}
 
 
+def _vt(v):
+    return tuple(int(x) if x.isdigit() else 0 for x in re.sub(r"^v", "", str(v or "0")).split("."))
+
+
+def _release_since(root, prev_tag, tag):
+    """The page says "Changes in this release": between two published releases the kit goes through many versions, so list what changed in ALL of them
+    (newest first, at most 12 lines), not only in the last entry. Title = the entry of `tag`. Without a usable previous tag only `tag` is listed."""
+    last = _release_from_changelog(root, tag)
+    if not prev_tag or _vt(prev_tag) >= _vt(tag):
+        return last
+    try:
+        with open(os.path.join(root, "CHANGELOG.md"), encoding="utf-8") as f:
+            log = f.read()
+    except OSError:
+        return last
+    items = []
+    for m in re.finditer(r"(?ms)^## (v\d+\.\d+\.\d+)\b[^\r\n]*\r?\n(.*?)(?=^## |\Z)", log):
+        if _vt(prev_tag) < _vt(m.group(1)) <= _vt(tag):
+            items += [re.sub(r"^[-*]\s+", "", ln).strip().replace("**", "") for ln in m.group(2).splitlines() if re.match(r"^[-*]\s+", ln)]
+    return {"title": last["title"], "items": items[:12] or last["items"]}
+
+
 def main():
     root = os.path.abspath(os.path.join(HERE, ".."))
     def rd(p, d):
@@ -90,7 +112,7 @@ def main():
         for x in rd(os.path.join(gbase, g, "community", "community.json"), {}).get("patterns", []):
             statements[x.get("id")] = x.get("statement", "")
     res = build_summary(tag, rd(os.path.join(root, "contributions", "INTAKE.json"), {}), rd(os.path.join(root, "reputation.json"), {}),
-                        prev, _release_from_changelog(root, tag), statements)
+                        prev, _release_since(root, ((prev or {}).get("release") or {}).get("tag"), tag), statements)
     if prev:
         res["previous_for_rebuild"] = {"state": prev.get("state", {}), "release": {"tag": prev.get("release", {}).get("tag")}}
     os.makedirs(os.path.dirname(out_path), exist_ok=True)

@@ -25,3 +25,11 @@ ok(s2["top"][0]["delta"] == 3 and [t["handle"] for t in s2["top"] if t["new"]] =
 e = M.build_summary("v1.99.0", {}, {})
 ok(e["counts"]["received"] == 0 and e["skills"] == [] and e["top"] == [] and e["thanks"] == [], "an empty intake gives a valid empty summary")
 json.dumps(s)
+
+# v1.122.0: the What's new page lists the changes of EVERY version since the previous published release, not only the last entry
+cs = M
+_d = tempfile.mkdtemp()
+open(os.path.join(_d, "CHANGELOG.md"), "w", encoding="utf-8").write("# Changelog\n\n## v1.3.0 - three\n- [fix] c\n\n## v1.2.0 - two\n- [new] b1\n- [fix] b2\n\n## v1.1.0 - one\n- [new] a\n\n## v1.0.0 - zero\n- z\n")
+r = cs._release_since(_d, "v1.1.0", "v1.3.0"); assert r["title"].startswith("v1.3.0") and r["items"] == ["[fix] c", "[new] b1", "[fix] b2"], r
+assert cs._release_since(_d, None, "v1.3.0")["items"] == ["[fix] c"] and cs._release_since(_d, "v1.3.0", "v1.3.0")["items"] == ["[fix] c"]
+print("summary since previous release OK")

@@ -27,7 +27,7 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", "Claude/community/", "Claude/community-revoked.json", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md", ".claude/commands/verse-map.md", ".claude/commands/learn-map.md", ".claude/commands/verse-check.md", ".claude/commands/text-scan.md", ".claude/commands/handoff.md", ".claude/commands/ui-kit-check.md", ".claude/commands/mcp-snapshot.md", ".claude/commands/devlog.md", ".claude/commands/jam-check.md", ".claude/commands/concept-card.md", ".claude/commands/editor-changes.md")
+MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", "Claude/community/", "Claude/community-revoked.json", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md", ".claude/commands/verse-map.md", ".claude/commands/learn-map.md", ".claude/commands/learn-slice.md", ".claude/commands/verse-check.md", ".claude/commands/text-scan.md", ".claude/commands/handoff.md", ".claude/commands/ui-kit-check.md", ".claude/commands/mcp-snapshot.md", ".claude/commands/devlog.md", ".claude/commands/jam-check.md", ".claude/commands/concept-card.md", ".claude/commands/editor-changes.md")
 CREATE_ONLY = ("Claude/docs-template/",)
 SKIP_PARTS = ("__pycache__",)
 FAILED = []
@@ -645,7 +645,7 @@ def _run(project, out):
             code_txt = "no Verse files" if not nverse else "only %d Verse file(s), too few for a map: READ THEM COMPLETELY yourself (Read tool) before the documents" % nverse
             if no_code and (pend_docs or dev_todo or prof_todo):
                 out["notes"].append("LEARN (MANDATORY, before answering the owner's first message whatever it is; never ask, never offer it as optional, never skip it because the message was about something else): this map has no Verse code map (%s). Learn from %d project document(s) not read yet%s and from the devices in the level. "
-                                    "Follow `.claude/commands/learn-map.md` steps 1, 2, 6 and 7 (skip 3-5): documents first (`verse_map.py docs`, compared with the level and the device map; apply corrections with `docpatch`, record a decision for every document), "
+                                    "Follow `.claude/commands/learn-slice.md` steps 1, 2, 6 and 7 (skip 3-5): documents first (`verse_map.py docs`, compared with the level and the device map; apply corrections with `docpatch`, record a decision for every document), "
                                     "then read the wiring and settings of the devices through the MCP and write `Claude/docs/map/DEVICES.md` with the `WIRING-READ:`/`SETTINGS-READ:`/`ISLAND-CONFIG-READ:` lines (the island configuration too: max players, teams, rounds, time limit, spawn mode). Then write the MAP BLUEPRINT (learn-map step 8): what this map is made of, its game loop, devices, rules and build order, so the genre skill knows how to build such a map. Queue generalized patterns with `skills_lib.py propose --section` (devices, architecture, run-loop, ...), "
                                     "never ask. If the session stops early, unmarked work restarts at the next session start (`Claude/docs/map/PROGRESS.md`)." % (code_txt, pend_docs, " (first pass)" if dp[0] else ""))
             if (pend or pend_docs or prof_todo) and not no_code:
@@ -771,7 +771,7 @@ def main():
             ctx += (" ACTION (kit): in your FIRST reply tell the owner, in one short line, what the kit just did above"
                     " (version, the \"Got N features, N fixes and N other changes\" counts if present, and that Claude Code must be closed and reopened once if it says so). Say it once only."
                     " If a LEARN line is present, do not ask permission: after that line, run the learning at once"
-                    " (`.claude/commands/learn-map.md` steps); it only queues proposals, nothing changes without the owner's approval.")
+                    " (`.claude/commands/learn-slice.md` steps); it only queues proposals, nothing changes without the owner's approval.")
         print(json.dumps({"systemMessage": text,
                           "hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": ctx}}))
     return 0

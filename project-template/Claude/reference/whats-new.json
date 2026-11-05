@@ -1,6 +1,16 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.122.0": {
+   "title": "Learning in slices, a fresh agent each",
+   "features": 1,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The What's new page lists every change since the last published release, not only the last entry",
+    "[new] **Learning runs in slices, one fresh agent each.** `/learn-map` used to be one long agent resumed again "
+   ]
+  },
   "1.121.10": {
    "title": "Build step shows the Fix queue",
    "features": 0,

@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.122.0 — Learning in slices, a fresh agent each
+
+- [fix] **The What's new page lists every change since the last published release, not only the last entry.** Between two publishes the kit goes through many versions; the summary built at publish now collects the changelog lines of all of them (newest first, 12 at most). The lab sync (`sync_lab_from_repo.py`) also copies `Claude/community/` now: before, a lab kept the news of an old release (v1.115.0) whatever its kit version.
+- [new] **Learning runs in slices, one fresh agent each.** `/learn-map` used to be one long agent resumed again and again; every resume re-read its whole history (136k to 425k tokens on a real map, 11 resumes). Now `/learn-map` is a thin orchestrator: `verse_map.py next` (zero tokens) names the next slice (genre, one batch of code, one batch of documents, devices, blueprint) and a new agent runs it from `.claude/commands/learn-slice.md`, marks it in the state files, and answers in three lines. The state is in `Claude/docs/map/`, not in anybody's memory, so an interrupted run continues from the same point. A slice that does not progress is reported as `stuck` instead of looping.
+
 ## v1.121.10 — Build step shows the Fix queue
 
 - [fix] **The Build step shows the work of the Fix queue.** Every row of the release shows its kind (bug, audit, perf, feature) and source, a Fix this button, and Scheduled or In progress while a Fix command holds it; the header says how many tasks are in progress or scheduled from the queue and the bar shows "working now".

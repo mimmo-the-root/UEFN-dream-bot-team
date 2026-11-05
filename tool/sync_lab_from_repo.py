@@ -29,7 +29,7 @@ def main(argv):
     dry = "--dry" in argv
     stamp = time.strftime("%Y%m%d-%H%M%S")
     done = []
-    for sub in ("hooks", "reference"):
+    for sub in ("hooks", "reference", "community"):   # community/ holds the data of the What is new page: left out, the lab kept the news of an old release
         for dp, dn, fn in os.walk(os.path.join(ROOT, sub)):
             dn[:] = [d for d in dn if d not in SKIP]
             for f in fn:
@@ -47,6 +47,27 @@ def main(argv):
                     shutil.copy2(dst, bk)
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copy2(src, dst)
+    # the kit's own slash commands (.claude/commands/*.md of the kit_sync MANAGED list) live outside Claude/: the lab needs the new learn-map / learn-slice too
+    sys.path.insert(0, os.path.join(ROOT, "hooks"))
+    try:
+        import kit_sync
+        cmds = [m for m in kit_sync.MANAGED if m.startswith(".claude/commands/")]
+    except Exception:
+        cmds = []
+    proj = argv[0]
+    for rel in cmds:
+        src, dst = os.path.join(ROOT, "..", rel), os.path.join(proj, rel)
+        if not os.path.isfile(src) or same(src, dst):
+            continue
+        done.append(rel)
+        if dry:
+            continue
+        if os.path.isfile(dst):
+            bk = os.path.join(lab, "logs", "kit-backup", stamp, rel)
+            os.makedirs(os.path.dirname(bk), exist_ok=True)
+            shutil.copy2(dst, bk)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy2(src, dst)
     ver = os.path.join(ROOT, "KIT-VERSION")
     if os.path.isfile(ver) and not dry:
         shutil.copy2(ver, os.path.join(lab, "KIT-VERSION"))

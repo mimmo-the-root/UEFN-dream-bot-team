@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "genre": "survival",
-  "pack_version": 82,
+  "pack_version": 88,
   "patterns": [
     {
       "id": "p-a1f601ba2ec5",
@@ -867,6 +867,72 @@
       "statement": "A per-iteration counter drifts slow under load, and the last checkpoint of a cycle is never crossed unless the wrap is counted.",
       "condition": "A timed reward ladder repeats over one continuous play counter",
       "action": "Measure elapsed time against the real clock and count the cycle wrap as the last checkpoint",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-080a0bb632dd",
+      "variant": "zombie-waves",
+      "statement": "A bare logic literal is not decidable: the false branch still succeeds, so a leap-year check said every year was leap and dates drifted by days. Use the query operator or a comparison.",
+      "condition": "A decides function ends its branches in bare true/false logic literals",
+      "action": "End failing branches with the query operator or a real comparison",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-e46722b8f23a",
+      "variant": "zombie-waves",
+      "statement": "Racing boss-defeat against wipe alone softlocks the loop when the pool is empty or a spawn fails; a third timeout branch frees the loop without a separate reward path.",
+      "condition": "A round loop waits on a boss defeat that may never come",
+      "action": "Add a maximum-duration branch to the race that counts as a soft win",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-29dfd944dca3",
+      "variant": "zombie-waves",
+      "statement": "Reusing the kill trigger for a bonus reward inflates persistent kill counts and kill accolades; a read-only in-progress flag or a dedicated trigger keeps counters honest.",
+      "condition": "A special reward such as a boss kill reuses the normal kill trigger",
+      "action": "Raise a reward-in-progress flag or use a separate trigger so kill counters ignore it",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-e7d823257944",
+      "variant": "zombie-waves",
+      "statement": "A file-level editable compiles but never appears in the Details panel of the placed device, so the switch cannot be toggled; declare it as a class member.",
+      "condition": "A configurable switch is declared at file level",
+      "action": "Declare editable switches as members of the placed device class",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-c26a3f99f162",
+      "variant": "zombie-waves",
+      "statement": "Picking the highest threshold not above the level avoids per-level iteration and flicker; skipping the fire when the tier is unchanged also handles multi-level jumps and rejoin.",
+      "condition": "A level-based cosmetic tier must follow the level in both directions",
+      "action": "Compute the target tier directly from the level and only fire a change when it differs from the old one",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-a0e40b7fdf87",
+      "variant": "zombie-waves",
+      "statement": "Firing on the crossing, not on level at or above the threshold at every award, makes the unlock happen once without a separate persisted guard field.",
+      "condition": "A one-time bonus is unlocked by crossing a level threshold",
+      "action": "Compare the level before and after the change and fire only on the crossing edge",
       "tier": "hypothesis",
       "status": "active",
       "section": "progression",

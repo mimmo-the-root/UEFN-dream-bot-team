@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.121.10
-updated: kit-1.121.10
+created: kit-1.122.0
+updated: kit-1.122.0
 sources: [docs/manual/commands.md]
 type: kit
 status: current
@@ -48,7 +48,7 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 | `/verse-map` | Build or refresh the Verse map (index, component cards, symbols, wiring) so nothing has to be re-read |  |
 | `/editor-changes` | What the agents changed in the open editor, session by session, and a plan to undo the newest session |  |
 | `/mcp-snapshot` | Map UEFN's MCP now (the kit also does it by itself) and show what is new |  |
-| `/learn-map` | Learn now from the Verse code, the project documentation and the devices in the level; queue skill proposals; report where documents disagree with code |  |
+| `/learn-map` | Learn now from the Verse code, the project documents and the devices in the level, one slice at a time with a fresh agent per slice; queue skill proposals; report where documents disagree with code |  |
 | `/performance [memory | spatial | trace]` | Measure the open map with the profiler during a play session and write Claude/docs/PERFORMANCE.md (metrics against budget, worst areas, fixes); never changes the map | The map lags or is heavy: measure it in a play session (new, not tried on a real map yet). |
 
 ## Safety and continuity
@@ -69,6 +69,7 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 
 | Command | What it does |
 |---|---|
+| `/learn-slice` | One slice of the learning (genre, one batch of code, one batch of documents, the devices, or the blueprint); run by /learn-map, one fresh agent per slice |
 | `/relay` | Be the worker of the mailbox: poll Claude/relay/inbox, run the commands one by one, answer in outbox (or show the state with `status`) |
 
 ## Two ways to see the flow work
@@ -77,4 +78,4 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 - `/demo --auto`: the same round, no questions: the AI approves for you and writes it down. The Docs page shows the clock.
 
 ## Sources
-- The kit manual, chapter "All the commands" (docs/manual/commands.md), kit v1.121.10. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "All the commands" (docs/manual/commands.md), kit v1.122.0. Rebuilt on every kit release: do not edit this page, edit the manual.
