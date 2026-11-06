@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.123.10 — Fab: folder layout and redirectors are checked by the kit
+
+- [feature] **"Each asset type in its own folder" and "No redirectors left" are now checked by the kit.** No more ticks by hand: leftover redirectors are found in the files and named; a widget among materials or an asset lying in the product folder is a warning with the folder and the name (the kind comes from the Epic prefix). Both wait on a product with no assets yet.
+- [other] **The two rules are fixed for the agent.** One folder per asset type (example layout in the manual) and Fix Up Redirectors after every move or rename: in the session start text of a Fab product, in the fab-product skill (rules 12 and 13) and in the manual.
+
 ## v1.123.9 — Fab: a fresh map no longer starts with green checks
 
 - [fix] **A new Fab product started with checks already green.** On a map with no product folder yet (only the .umap and UEFN's own files) the checks that look for problems (names, paths, empty folders, one pack folder, foreign references, internal names, Windows user name) passed because they had nothing to find. They now stay "to do" with "No product content yet: nothing to check" until Content/<ProductName>/ holds assets or Verse files.

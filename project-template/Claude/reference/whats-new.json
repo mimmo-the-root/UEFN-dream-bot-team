@@ -1,6 +1,16 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.10": {
+   "title": "Fab: folder layout and redirectors are checked by the kit",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "\"Each asset type in its own folder\" and \"No redirectors left\" are now checked by the kit",
+    "The two rules are fixed for the agent"
+   ]
+  },
   "1.123.9": {
    "title": "Fab: a fresh map no longer starts with green checks",
    "features": 0,

@@ -26,6 +26,21 @@ The editor remembers where a file was imported from, so a texture can carry a Wi
 
 From Epic's Fab documentation: no Python scripts in the archive; asset and folder names with letters, digits and underscore only; paths no longer than 140 characters, counting the project's top-level folder; no `Saved` or `Intermediate` folders; test the package in a clean project; third-party software and assets declared in the listing; a title of about 30 characters or fewer. Epic gives no image sizes for the listing, so check the current Fab pages before you make images.
 
+## Folder layout the agent must follow
+
+Inside `Content/<Product>/` every asset type has its own folder, and the kit checks it by itself (station 1, no tick by hand). Example from a finished product:
+
+```
+CurrencySystem/
+  Documentation/  FabListing/
+  Material/  (CustomizableMaterial, Glint, MaterialInstance, UI_C, ui_Font)
+  Texture/  Widget_ui/  Player_ui/  Verse_device/  custom_popups/  Custom_mat/
+```
+
+- **No asset lies loose** in the product folder, and **no folder mixes kinds** (a widget among materials). The kind is read from the Epic prefix: `M_`, `MI_`, `MF_` materials, `WBP_` widgets, `T_` textures, `SM_` meshes, `BP_` blueprints. Names with no known prefix are not judged.
+- **Every move or rename leaves a redirector.** The agent runs *Fix Up Redirectors* on the product folder right after it. The kit finds leftovers in the files and fails "No redirectors left in the folders", naming each one.
+- Both rules are also in the agent's session start text and in the `fab-product` skill (rules 12 and 13).
+
 ## Documents: map and Fab side by side
 
 | | Map project | Fab product |

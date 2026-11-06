@@ -105,6 +105,25 @@ try:
     os.makedirs(os.path.join(fresh, "Content", "Fresh", "Mesh")); open(os.path.join(fresh, "Content", "Fresh", "Mesh", "SM_A.uasset"), "wb").write(b"x")
     d = FC.build(fresh, flab, FC.scan_state(fresh, flab)); fi = {i["id"]: i for s in d["stations"] for i in s["items"]}
     ok(fi["p-names"]["s"] == "pass" and fi["c-foreign"]["s"] == "pass", "once the product folder holds assets the checks run and pass")
+    # folder layout and redirectors are read from the files
+    pf = os.path.join(fresh, "Content", "Fresh")
+    os.makedirs(os.path.join(pf, "Material")); os.makedirs(os.path.join(pf, "Widget_ui"))
+    os.rename(os.path.join(pf, "Mesh", "SM_A.uasset"), os.path.join(pf, "Material", "M_A.uasset")); os.rmdir(os.path.join(pf, "Mesh"))
+    open(os.path.join(pf, "Widget_ui", "WBP_A.uasset"), "wb").write(b"x")
+    d = FC.build(fresh, flab, FC.scan_state(fresh, flab)); fi = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(fi["p-types"]["s"] == "pass" and fi["p-types"]["w"] == "kit" and fi["p-redirectors"]["s"] == "pass", "one kind of asset per folder and no redirector: both checks pass by themselves")
+    open(os.path.join(pf, "Material", "MI_B.uasset"), "wb").write(b"x")
+    ok(FC.scan_layout(fresh)["mixed"] == [], "materials and material instances share a folder without a warning")
+    open(os.path.join(pf, "Material", "WBP_C.uasset"), "wb").write(b"x")
+    open(os.path.join(pf, "Loose.uasset"), "wb").write(b"x")
+    d = FC.build(fresh, flab, FC.scan_state(fresh, flab)); fi = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(fi["p-types"]["s"] == "warn" and "Material mixes" in fi["p-types"]["ev"] and "Loose.uasset" in fi["p-types"]["ev"], "a widget among materials and a loose asset in the product root: warned with the folder and the name")
+    open(os.path.join(pf, "Material", "M_Old.uasset"), "wb").write(b"\x00" * 40 + b"ObjectRedirector" + b"\x00" * 40)
+    d = FC.build(fresh, flab, FC.scan_state(fresh, flab)); fi = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(fi["p-redirectors"]["s"] == "fail" and "Material/M_Old.uasset" in fi["p-redirectors"]["ev"] and "Fix Up Redirectors" in fi["p-redirectors"]["fix"], "a redirector left behind fails the check and names the file")
+    os.remove(os.path.join(pf, "Material", "M_Old.uasset"))
+    d = FC.build(fresh, flab, FC.scan_state(fresh, flab)); fi = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(fi["p-redirectors"]["s"] == "pass", "after the fix-up the redirector check passes by itself")
     # audio only when the product has a sound asset
     ok(ids["c-audio"]["s"] == "na", "no sound asset: the audio check is skipped")
     open(os.path.join(root, "Content", "Prod", "Boom.uasset"), "wb").write(b"\xc1\x83\x2a\x9e" + b"SoundWave" + b"\0" * 40)

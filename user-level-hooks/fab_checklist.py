@@ -386,6 +386,45 @@ def product_asset_count(root):
     return sum(1 for b, ds, fs in os.walk(base) for f in fs if f.endswith((".uasset", ".umap", ".verse")))
 
 
+FAMILY = {"M": "material", "MI": "material", "MF": "material", "MUI": "material", "MPC": "material", "WBP": "widget", "WB": "widget",
+          "T": "texture", "TX": "texture", "SM": "mesh", "SK": "mesh", "SKM": "mesh", "BP": "blueprint", "DT": "data",
+          "S": "sound", "SC": "sound", "MS": "sound", "A": "animation", "AN": "animation", "NS": "effect", "FX": "effect"}
+NOT_TYPE_FOLDERS = ("Documentation", "FabListing")
+
+
+def scan_layout(root):
+    """The folder layout of Content/<Product>/ read from the files, no editor needed.
+    redirectors: tiny assets that only point to another (class ObjectRedirector in the file); loose: assets lying in the product root;
+    mixed: folders that directly hold assets of two or more kinds (the kind comes from the Epic prefix: M_ MI_ MF_ materials, WBP_ widgets, T_ textures, SM_ meshes...)."""
+    base = fab_pack.product_folder(root)
+    out = {"redirectors": [], "loose": [], "mixed": []}
+    if os.path.normpath(base) == os.path.normpath(os.path.join(root, "Content")):
+        return out
+    for b, dirs, files in os.walk(base):
+        dirs[:] = sorted(d for d in dirs if d not in fab_pack.UEFN_INTERNAL and d not in fab_pack.FORBIDDEN_DIRS and not (b == base and d in NOT_TYPE_FOLDERS))
+        fams = {}
+        for f in sorted(files):
+            if not f.endswith(".uasset"):
+                continue
+            full = os.path.join(b, f)
+            try:
+                if os.path.getsize(full) <= 8192:
+                    with open(full, "rb") as fh:
+                        if b"ObjectRedirector" in fh.read(8192):
+                            out["redirectors"].append(os.path.relpath(full, base).replace(os.sep, "/"))
+                            continue
+            except OSError:
+                continue
+            if b == base:
+                out["loose"].append(f)
+            fam = FAMILY.get(os.path.splitext(f)[0].split("_")[0].upper())
+            if fam:
+                fams.setdefault(fam, []).append(f)
+        if len(fams) > 1:
+            out["mixed"].append((os.path.relpath(b, base).replace(os.sep, "/"), sorted(fams)))
+    return out
+
+
 EMPTY_EV = "No product content yet: nothing to check."
 EMPTY_FIX = "Put the product's assets in Content/<ProductName>/, then press Run all checks."
 
@@ -477,6 +516,25 @@ def read_product_file(root, key):
     raise ValueError("unknown file")
 
 
+def _types_item(lay):
+    t = "Each asset type in its own folder (materials, textures, widgets, Verse...)"
+    fix = "Move them in the editor (AssetTools/move through the MCP), then run Fix Up Redirectors on the product folder."
+    probs = (["%d asset(s) lie in the product folder itself: %s" % (len(lay["loose"]), _short(lay["loose"], 3))] if lay["loose"] else []) + \
+            ["%s mixes %s" % (f, " and ".join(k)) for f, k in lay["mixed"]]
+    if probs:
+        return _item("p-types", t, "warn", "kit", _short(probs, 3) + ".", fix)
+    return _item("p-types", t, "pass", "kit", "No asset lies loose in the product folder, and no folder mixes kinds of assets.")
+
+
+def _redirectors_item(lay):
+    t = "No redirectors left in the folders"
+    r = lay["redirectors"]
+    if r:
+        return _item("p-redirectors", t, "fail", "kit", "%d redirector(s): %s." % (len(r), _short(r, 3)),
+                     "Ask the agent: Fix Up Redirectors on the product folder (AssetTools in the editor MCP), or right-click the folder in the Content Browser, then press Run all checks.")
+    return _item("p-redirectors", t, "pass", "kit", "No redirector found in the product folder.")
+
+
 def stations(root, st, lab):
     B, W, N = st["blocks"], st["warns"], st["notes"]
     lst = read_listing(root)
@@ -484,6 +542,7 @@ def stations(root, st, lab):
     out = []
 
     # 1 Project
+    lay = scan_layout(root)
     complete = st["has_uproject"] and st["has_content"] and st["has_plugin"]
     s1 = [
         _item("p-complete", "One project, complete (project file, plugin file, all content)", "pass" if complete else "fail", "kit",
@@ -501,10 +560,10 @@ def stations(root, st, lab):
                       "Delete or fill them in the editor."),
         _item("p-one", "One pack folder named like the product", "warn" if _by(N, r"more than one asset folder") else "pass", "kit",
               _short(_by(N, r"more than one asset folder")) or "Content holds one product folder.", "Move the assets into one folder, or accept the risk."),
-        _item("p-types", "Each asset type in its own folder (materials, textures, sounds...)", "manual", "you", "The kit cannot judge how you grouped them.", "Open the Content Browser and look once."),
-        _item("p-redirectors", "No redirectors left in the folders", "manual", "you", "A redirector is a leftover from moving an asset. Only the editor can remove it: the agents cannot.", "In the Content Browser right-click the product folder and choose Fix Up Redirectors, then tick this."),
+        _types_item(lay),
+        _redirectors_item(lay),
     ]
-    s1 = _vacuous(st, s1, ("p-names", "p-paths", "p-empty", "p-one"))
+    s1 = _vacuous(st, s1, ("p-names", "p-paths", "p-empty", "p-one", "p-types", "p-redirectors"))
     out.append({"id": "project", "n": "1 Project", "d": "Is it one clean, complete project?", "items": s1})
 
     # 2 Content
