@@ -93,6 +93,18 @@ try:
     os.remove(os.path.join(lab, "textures.json"))
     d = FC.build(root, lab, FC.scan_state(root, lab)); ids = {i["id"]: i for s in d["stations"] for i in s["items"]}
     ok(ids["c-tex"]["s"] == "todo" and "Run all checks" in ids["c-tex"]["fix"], "textures never read: to do, never a guess")
+    # a fresh map (only the .umap and UEFN's own files): the "no problem found" checks must not pass on nothing
+    fresh = os.path.join(base, "Fresh_Map"); flab = os.path.join(base, "flab"); os.makedirs(flab)
+    os.makedirs(os.path.join(fresh, "Content", "__ExternalActors__", "Fresh_Map", "0"))
+    open(os.path.join(fresh, "Fresh_Map.uefnproject"), "w").write("{}")
+    open(os.path.join(fresh, "11111111-2222-3333-4444-555555555555.uplugin"), "w").write("{}")
+    for n in ("Fresh_Map.umap", "GameFeatureData.uasset"): open(os.path.join(fresh, "Content", n), "wb").write(b"x")
+    d = FC.build(fresh, flab, FC.scan_state(fresh, flab)); fi = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(all(fi[k]["s"] == "todo" and "No product content yet" in fi[k]["ev"] for k in ("p-names", "p-paths", "p-empty", "p-one", "c-foreign", "c-names", "c-users")), "a fresh map with no product folder: the checks that only look for problems wait (to do), they do not pass on nothing")
+    ok(fi["p-complete"]["s"] == "pass", "the project itself is still found complete")
+    os.makedirs(os.path.join(fresh, "Content", "Fresh", "Mesh")); open(os.path.join(fresh, "Content", "Fresh", "Mesh", "SM_A.uasset"), "wb").write(b"x")
+    d = FC.build(fresh, flab, FC.scan_state(fresh, flab)); fi = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(fi["p-names"]["s"] == "pass" and fi["c-foreign"]["s"] == "pass", "once the product folder holds assets the checks run and pass")
     # audio only when the product has a sound asset
     ok(ids["c-audio"]["s"] == "na", "no sound asset: the audio check is skipped")
     open(os.path.join(root, "Content", "Prod", "Boom.uasset"), "wb").write(b"\xc1\x83\x2a\x9e" + b"SoundWave" + b"\0" * 40)

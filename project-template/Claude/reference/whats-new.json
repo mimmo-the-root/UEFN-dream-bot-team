@@ -1,6 +1,15 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.9": {
+   "title": "Fab: a fresh map no longer starts with green checks",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "A new Fab product started with checks already green"
+   ]
+  },
   "1.123.8": {
    "title": "Old projects get the relay mailbox when the kit updates them",
    "features": 0,

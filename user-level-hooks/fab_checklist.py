@@ -370,11 +370,31 @@ def scan_state(root, lab=None):
     st["has_content"] = os.path.isdir(os.path.join(root, "Content"))
     st["verse"] = len(fab_pack.verse_files(root)) if st["has_content"] else 0
     st["assets"] = sum(1 for _ in _walk_assets(root))
+    st["product_assets"] = product_asset_count(root) if st["has_content"] else 0
     st["audio"] = has_audio(root)
     st["zips"] = [top + ".zip"] if os.path.isfile(os.path.join(os.path.dirname(root.rstrip("/\\")), top + ".zip")) else []
     if lab:
         _jsave(os.path.join(lab, "checklist-cache.json"), st)
     return st
+
+
+def product_asset_count(root):
+    """Assets and Verse files inside the product folder Content/<Product>/ (0 when there is none: a fresh map only holds the .umap and UEFN's own files)."""
+    base = fab_pack.product_folder(root)
+    if os.path.normpath(base) == os.path.normpath(os.path.join(root, "Content")):
+        return 0
+    return sum(1 for b, ds, fs in os.walk(base) for f in fs if f.endswith((".uasset", ".umap", ".verse")))
+
+
+EMPTY_EV = "No product content yet: nothing to check."
+EMPTY_FIX = "Put the product's assets in Content/<ProductName>/, then press Run all checks."
+
+
+def _vacuous(st, items, ids):
+    """A check that only looks for problems must not pass when there is nothing to look at: it waits (todo) until the product holds assets."""
+    if st.get("product_assets", 1):
+        return items
+    return [dict(i, s="todo", ev=EMPTY_EV, fix=EMPTY_FIX) if i["id"] in ids and i["s"] == "pass" else i for i in items]
 
 
 def has_audio(root):
@@ -484,6 +504,7 @@ def stations(root, st, lab):
         _item("p-types", "Each asset type in its own folder (materials, textures, sounds...)", "manual", "you", "The kit cannot judge how you grouped them.", "Open the Content Browser and look once."),
         _item("p-redirectors", "No redirectors left in the folders", "manual", "you", "A redirector is a leftover from moving an asset. Only the editor can remove it: the agents cannot.", "In the Content Browser right-click the product folder and choose Fix Up Redirectors, then tick this."),
     ]
+    s1 = _vacuous(st, s1, ("p-names", "p-paths", "p-empty", "p-one"))
     out.append({"id": "project", "n": "1 Project", "d": "Is it one clean, complete project?", "items": s1})
 
     # 2 Content
@@ -514,6 +535,7 @@ def stations(root, st, lab):
          else _item("c-audio", "Audio: .wav source, no distortion or hitching", "na", "kit", "No sound in the product: nothing to check.")),
         _item("c-work", "Assets complete, work as intended, no visual defects", "manual", "you", "", "Play the map and look at every screen."),
     ]
+    s2 = _vacuous(st, s2, ("c-foreign", "c-names", "c-users"))
     out.append({"id": "content", "n": "2 Content", "d": "Do the assets belong to this project and look right?", "items": s2})
 
     # 3 Build

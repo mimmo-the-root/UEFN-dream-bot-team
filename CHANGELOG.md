@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.123.9 — Fab: a fresh map no longer starts with green checks
+
+- [fix] **A new Fab product started with checks already green.** On a map with no product folder yet (only the .umap and UEFN's own files) the checks that look for problems (names, paths, empty folders, one pack folder, foreign references, internal names, Windows user name) passed because they had nothing to find. They now stay "to do" with "No product content yet: nothing to check" until Content/<ProductName>/ holds assets or Verse files.
+
 ## v1.123.8 — Old projects get the relay mailbox when the kit updates them
 
 - [fix] **A project made before the mailbox never got it from a kit update.** The update copied hooks, commands and docs templates but not `Claude/relay/`, so on an old map `/relay` had no inbox to poll, the session-start autostart (which looks for the inbox) never fired and a Fix button had nowhere to write. The update now installs `RELAY-README.md` (refreshed at every update) and the four folders `inbox`, `running`, `done`, `outbox` (created once, never touched again: a command waiting in the inbox survives).

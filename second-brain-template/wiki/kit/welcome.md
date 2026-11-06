@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.8
-updated: kit-1.123.8
+created: kit-1.123.9
+updated: kit-1.123.9
 sources: [docs/manual/welcome.md]
 type: kit
 status: current
@@ -44,4 +44,4 @@ Ready? Go to the [[quick-start|quick start]].
 - [[quick-start|Quick start]]
 
 ## Sources
-- The kit manual, chapter "What this kit is" (docs/manual/welcome.md), kit v1.123.8. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "What this kit is" (docs/manual/welcome.md), kit v1.123.9. Rebuilt on every kit release: do not edit this page, edit the manual.
