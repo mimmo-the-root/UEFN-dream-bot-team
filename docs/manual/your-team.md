@@ -45,6 +45,7 @@ Cost matters. The kit puts the cheaper model on work that is mostly checking or 
 | template-reader | Sonnet | Reads an Epic template, read only. |
 | second-brain-librarian | Sonnet | Optional: keeps a shared Obsidian vault of reusable mechanics. |
 | second-brain-trainer | Sonnet | Optional: a deliberate sweep of the project to fill that vault. |
+| Explore | Haiku | Read-only search and reading: finds files, reads logs, lists what a folder holds, summarizes long documents. Use it instead of a general-purpose agent (which runs on the session's model and costs about ten times more for the same reading). It never edits or decides. |
 | second-brain-scout | Haiku | Internal helper of the trainer: analyses one area, read only. |
 
 Haiku is the lighter, cheaper model; Sonnet is the stronger one. No agent uses Opus.
@@ -87,3 +88,23 @@ The audit agents (`qa-regression`, `release-gate`, `codebase-auditor`) end every
 ## Overriding an agent for one project
 
 Create an agent with the same name in that project's `.claude/agents/` folder. It wins there and only there.
+
+## Spending fewer tokens
+
+The session that writes stays on one model (Sonnet 5.5 at medium effort is enough for well-scoped coding) and stays the only one that writes in the editor. The savings come from who does the reading, not from a bigger model.
+
+- **Reading goes to `Explore` (Haiku).** Finding files, reading logs, listing a folder or the level, summarizing long documents: ask for `Explore`, not for a general-purpose agent. Reading on Haiku costs about a tenth of reading on Sonnet. `coder`, the reviewers and the auditor keep their own models.
+- **Do not set `CLAUDE_CODE_SUBAGENT_MODEL`.** Depending on the Claude Code version it can force every agent, the coder included, onto the small model without a warning.
+- **Learning runs in slices** (`/learn-map`): one fresh `learn-slicer` per slice. The old single agent, resumed again and again, re-read 136k to 425k tokens at every resume and was the largest single cost in the measured project.
+- **Keep the first message of a task short and exact**, with file names, so no agent has to scan the project.
+
+### Measuring during a real job
+
+Before changing anything else, take measures on real work (a game jam is a good one). For each finished task, add one line to `Claude/logs/token-notes.md`: date, task ID, model and effort of the session, which sub-agents ran (type and model), and the numbers from `/usage` (and `/context` at the start of the session). Compare tasks of the same size only.
+
+What to test afterwards, one change at a time, against those lines:
+1. Tasks with an automatic check (`/verse-check`, the tests, the Fab checklist): run at low effort and repeat at high effort only if the check fails.
+2. `learn-slicer` on Haiku instead of Sonnet: keep it only if the proposals it queues stay as good.
+3. `CLAUDE_CODE_SUBAGENT_EFFORT` (Claude Code 2.1.316 or later) for sub-agents, in a lab project first.
+4. Moving the situational parts of the two `CLAUDE.md` files into references read on demand, after `/context` shows how large the fixed part really is.
+A coordinator that starts writer agents is adopted only if it costs the same or less per finished task than the single writer, with the same final check.

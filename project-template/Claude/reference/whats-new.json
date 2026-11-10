@@ -1,6 +1,17 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.12": {
+   "title": "Cheaper reading: Explore agent on Haiku, and a token plan to measure in a real job",
+   "features": 1,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "[new] **A new agent, `Explore` (now 34), on Haiku.** Read-only search and reading (find files, read logs, list",
+    "Token rule in `token-discipline`:",
+    "Token plan in \"Your team\":"
+   ]
+  },
   "1.123.11": {
    "title": "Fab: the agent runs all checks and records the validation itself",
    "features": 1,

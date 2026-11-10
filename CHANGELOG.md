@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.123.12 — Cheaper reading: Explore agent on Haiku, and a token plan to measure in a real job
+
+- [new] **A new agent, `Explore` (now 34), on Haiku.** Read-only search and reading (find files, read logs, list a folder or the level, summarize long documents). A general-purpose agent runs on the session's model and costs about ten times more for the same reading; in a measured project the unspecific agents were 28% of the sub-agent spend.
+- [other] **Token rule in `token-discipline`:** reading and searching goes to `Explore`; an agent started without a type gets `model: haiku`; `coder`, reviewers and auditor keep their own models; `CLAUDE_CODE_SUBAGENT_MODEL` is not set (on some Claude Code versions it forces every agent onto the small model).
+- [other] **Token plan in "Your team":** what the kit already does (learning in slices, cheap models for the light roles), a one-line-per-task measuring routine for real jobs (`Claude/logs/token-notes.md`) and the order of the next tests (low effort then repeat, learn-slicer on Haiku, sub-agent effort, lighter CLAUDE.md files, a writing coordinator only if it costs less per finished task).
+
 ## v1.123.11 — Fab: the agent runs all checks and records the validation itself
 
 - [feature] **The agent runs "Run all checks" and records the validation itself.** `fab_checklist.py "<root>"` is the whole run (editor reads included); the button on the page is optional and no check waits for the owner to press it. When the kit cannot reach the editor, the agent reads the validation log with its own MCP and keeps it with the new `fab_checklist.py record-validation "<root>"` (log on stdin); recorded errors turn the check red.
