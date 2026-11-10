@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.123.11 — Fab: the agent runs all checks and records the validation itself
+
+- [feature] **The agent runs "Run all checks" and records the validation itself.** `fab_checklist.py "<root>"` is the whole run (editor reads included); the button on the page is optional and no check waits for the owner to press it. When the kit cannot reach the editor, the agent reads the validation log with its own MCP and keeps it with the new `fab_checklist.py record-validation "<root>"` (log on stdin); recorded errors turn the check red.
+- [fix] **"The editor was not reachable" now says where it looked** (the address tried) and what the agent does next. A product with no Verse code still skips the Verse build (nothing to compile).
+
 ## v1.123.10 — Fab: folder layout and redirectors are checked by the kit
 
 - [feature] **"Each asset type in its own folder" and "No redirectors left" are now checked by the kit.** No more ticks by hand: leftover redirectors are found in the files and named; a widget among materials or an asset lying in the product folder is a warning with the folder and the name (the kind comes from the Epic prefix). Both wait on a product with no assets yet.

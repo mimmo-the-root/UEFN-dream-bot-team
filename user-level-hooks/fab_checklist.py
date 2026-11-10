@@ -223,7 +223,7 @@ def read_editor_validation(root, lab, client=None):
         if client is None:
             url = mm.find_url(root)
             if not mm.port_open(url):
-                raise RuntimeError("UEFN is not reachable")
+                raise RuntimeError("UEFN is not reachable at %s" % url)
             client = mm.Client(url)
             client.start()
         text = client.call("call_tool", {"toolset_name": "EditorToolset.LogsToolset", "tool_name": "GetLogEntries",
@@ -306,7 +306,7 @@ def read_texture_sizes(root, lab, client=None, budget=90.0):
         if client is None:
             url = mm.find_url(root)
             if not mm.port_open(url):
-                raise RuntimeError("UEFN is not reachable")
+                raise RuntimeError("UEFN is not reachable at %s" % url)
             client = mm.Client(url)
             client.start()
         mount = fab_assets.own_mount(root)
@@ -426,7 +426,7 @@ def scan_layout(root):
 
 
 EMPTY_EV = "No product content yet: nothing to check."
-EMPTY_FIX = "Put the product's assets in Content/<ProductName>/, then press Run all checks."
+EMPTY_FIX = "Put the product's assets in Content/<ProductName>/, then run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional)."
 
 
 def _vacuous(st, items, ids):
@@ -531,7 +531,7 @@ def _redirectors_item(lay):
     r = lay["redirectors"]
     if r:
         return _item("p-redirectors", t, "fail", "kit", "%d redirector(s): %s." % (len(r), _short(r, 3)),
-                     "Ask the agent: Fix Up Redirectors on the product folder (AssetTools in the editor MCP), or right-click the folder in the Content Browser, then press Run all checks.")
+                     "Ask the agent: Fix Up Redirectors on the product folder (AssetTools in the editor MCP), or right-click the folder in the Content Browser, then run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional).")
     return _item("p-redirectors", t, "pass", "kit", "No redirector found in the product folder.")
 
 
@@ -570,17 +570,17 @@ def stations(root, st, lab):
     tx = _jload(os.path.join(lab, "textures.json"), None)
     tt = "Textures: width and height are powers of 2, 2k at most"
     if not tx:
-        tex_item = _item("c-tex", tt, "todo", "ed", "Not read yet.", "Press Run all checks: the kit reads the sizes from the open editor.")
+        tex_item = _item("c-tex", tt, "todo", "ed", "Not read yet.", "Run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional): the kit reads the sizes from the open editor.")
     elif not tx.get("reachable"):
-        tex_item = _item("c-tex", tt, "todo", "ed", "%s: %s." % (tx["at"], tx.get("error") or "the editor did not answer"), "Open UEFN with this project and press Run all checks.")
+        tex_item = _item("c-tex", tt, "todo", "ed", "%s: %s." % (tx["at"], tx.get("error") or "the editor did not answer"), "Open UEFN with this project and run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional).")
     elif not tx["count"]:
         tex_item = _item("c-tex", tt, "na", "kit", "%s: no texture in the product." % tx["at"])
     elif tx["bad"]:
         tex_item = _item("c-tex", tt, "fail", "ed", "%s: %d of %d textures: %s." % (tx["at"], len(tx["bad"]), tx["count"], _short(["%s %sx%s (%s)" % (b["n"], b["x"], b["y"], b["why"]) for b in tx["bad"]], 3)),
-                         "Resize them in the editor (Texture Editor, or import a smaller file), then press Run all checks.")
+                         "Resize them in the editor (Texture Editor, or import a smaller file), then run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional).")
     else:
         tex_item = _item("c-tex", tt, "warn" if tx.get("partial") else "pass", "ed",
-                         "%s: %d textures read, all powers of 2, none above 2k.%s" % (tx["at"], tx["count"], " The editor was slow: not every texture was read, press Run all checks again." if tx.get("partial") else ""))
+                         "%s: %d textures read, all powers of 2, none above 2k.%s" % (tx["at"], tx["count"], " The editor was slow: not every texture was read, run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional) again." if tx.get("partial") else ""))
     foreign = _verdict_item("c-foreign", "No reference to assets of another project", "x", B, W, "%d assets read, no foreign import." % st["assets"], r"another project|not part of this project",
                             "Clean the references in the editor, then run the check again.")
     s2 = [
@@ -601,16 +601,17 @@ def stations(root, st, lab):
     probe = _jload(os.path.join(lab, "validation-probe.json"), None)
     if val is None:
         if not probe:
-            ev, fx = "Not read yet.", "Press Run all checks: the kit reads the validation from the open editor by itself."
+            ev, fx = "Not read yet.", "Run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional): the kit reads the validation from the open editor by itself."
         elif not probe.get("reachable"):
-            ev, fx = "%s: the editor was not reachable." % probe["at"], "Open UEFN with this project and press Run all checks."
+            ev, fx = "%s: the editor was not reachable (%s)." % (probe["at"], probe.get("error") or "no answer"), ("Agent: open UEFN with this project and run `python fab_checklist.py \"<root>\"`. If it is still not reachable, read the log with your own MCP "
+                                                                                                            "(EditorToolset.LogsToolset / GetLogEntries, pattern %s) and record it: `python fab_checklist.py record-validation \"<root>\"` with the log text on stdin." % VAL_PATTERN)
         else:
-            ev, fx = "%s: the editor log has no validation yet." % probe["at"], "The editor validates when you start a play session or publish: do one of them, then press Run all checks."
+            ev, fx = "%s: the editor log has no validation yet." % probe["at"], "The editor validates when you start a play session or publish: do one of them, then run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional)."
         vi = _item("b-valid", "UEFN validation: no errors or consequential warnings", "todo", "ed", ev, fx)
     elif val.get("errors", 0) > 0:
         vi = _item("b-valid", "UEFN validation: no errors or consequential warnings", "fail", "ed",
                    "%s: %d errors, %d warnings. %s" % (val.get("at", ""), val["errors"], val.get("warnings", 0), _short(val.get("sample", []), 2)),
-                   "Fix the errors in the editor, validate again and press Run all checks.")
+                   "Fix the errors in the editor, validate again and run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional).")
     elif val.get("warnings", 0) > 0:
         vi = _item("b-valid", "UEFN validation: no errors or consequential warnings", "warn", "ed",
                    "%s: 0 errors, %d warnings. %s" % (val.get("at", ""), val["warnings"], _short(val.get("sample", []), 2)), "Read the warnings: clean the ones that mention a reference.")
@@ -621,15 +622,15 @@ def stations(root, st, lab):
     if not st["verse"]:   # no Verse file in the product: nothing to compile, the editor is not asked
         verse_item = _item("b-verse", vt, "na", "kit", "No Verse code in the product: nothing to compile.")
     elif not vbd:
-        verse_item = _item("b-verse", vt, "todo", "ed", "Not built yet.", "Press Run all checks: the kit asks the open editor to build the Verse code.")
+        verse_item = _item("b-verse", vt, "todo", "ed", "Not built yet.", "Run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional): the kit asks the open editor to build the Verse code.")
     elif vbd["state"] == "clean" and not vbd["warnings"]:
         verse_item = _item("b-verse", vt, "pass", "ed", "%s: build finished with 0 errors, 0 warnings (%d Verse file(s))." % (vbd["at"], st["verse"]))
     elif vbd["state"] == "clean":
         verse_item = _item("b-verse", vt, "warn", "ed", "%s: 0 errors, %d warnings. %s" % (vbd["at"], vbd["warnings"], vbd["message"][:160]), "Open the Verse log in the editor and clean the warnings.")
     elif vbd["state"] == "errors":
-        verse_item = _item("b-verse", vt, "fail", "ed", "%s: %d errors. %s" % (vbd["at"], vbd["errors"], vbd["message"][:200]), "Fix them in the code, then press Run all checks.")
+        verse_item = _item("b-verse", vt, "fail", "ed", "%s: %d errors. %s" % (vbd["at"], vbd["errors"], vbd["message"][:200]), "Fix them in the code, then run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional).")
     else:
-        verse_item = _item("b-verse", vt, "todo", "ed", "%s: %s" % (vbd["at"], vbd.get("reason") or "the editor did not answer."), "Open UEFN with this project and press Run all checks.")
+        verse_item = _item("b-verse", vt, "todo", "ed", "%s: %s" % (vbd["at"], vbd.get("reason") or "the editor did not answer."), "Open UEFN with this project and run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional).")
     pf = read_performance(lab)
     pft = "Performance: measured in a play session, nothing over its budget"
     over, near = [r for r in pf["rows"] if r["state"] == "over"], [r for r in pf["rows"] if r["state"] == "near"]
@@ -700,7 +701,7 @@ def stations(root, st, lab):
     if lst["has_file"] and lst["tech_todo"]:
         s4d.append(_item("d-listing", "listing.md has no TODO left", "warn", "kit", "%d TODO line(s) in the technical details." % lst["tech_todo"], "Run fab_pack.py listing-fill."))
     s4d.append(_item("l-third", "Third-party content is declared with author and licence", "warn" if (tp_open or _by(W, r"third-party")) else ("pass" if tp else "todo"), "kit",
-                     "%d row(s) still TODO in third_party.md." % tp_open if tp_open else ("Declared." if tp else "third_party.md was missing."), "Write author, source and licence of every file that is not yours." if tp else "Press Run all checks: the kit recreates the file, then fill it in."))
+                     "%d row(s) still TODO in third_party.md." % tp_open if tp_open else ("Declared." if tp else "third_party.md was missing."), "Write author, source and licence of every file that is not yours." if tp else "Run all checks yourself (`python fab_checklist.py \"<root>\"`; the page button is optional): the kit recreates the file, then fill it in."))
     out.append({"id": "docs", "n": "5 Docs", "d": "Are the documents for the customer and the portal written?", "items": s4d})
 
     # 5 Extra round (before the zip): memory and a private release, each one an extra validation
@@ -819,6 +820,16 @@ def main(argv):
             print("%s: %s" % (k, ", ".join(v)))
         return 0
     import fab_lab
+    if argv and argv[0] == "record-validation":  # the agent read the validation with its own MCP: keep it (log text on stdin)
+        base = argv[1] if len(argv) > 1 and not argv[1].startswith("--") else os.getcwd()
+        root = fab_pack.find_root(base)
+        if not root:
+            print("not a UEFN project folder"); return 1
+        rec = save_validation(fab_lab.ensure_lab(root), sys.stdin.read(), "--skip-fixup" in argv)
+        print("validation recorded: %d error(s), %d warning(s)" % (rec["errors"], rec["warnings"]))
+        return 0
+    if argv and argv[0] == "run":  # same as the bare form: this IS "Run all checks", the agent runs it, the page button is optional
+        argv = argv[1:]
     base = argv[0] if argv else os.getcwd()
     root = fab_pack.find_root(base)
     if not root:

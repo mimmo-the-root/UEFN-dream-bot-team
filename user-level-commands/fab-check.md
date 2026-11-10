@@ -7,7 +7,7 @@ This is a Fab product (a UEFN project registered as Fab). Find its root: the fol
 
 1. `fab_pack.py check "<root>"` (Epic's upload rules)
 2. `fab_assets.py "<root>"` (imports and names from other projects, Windows user names in paths)
-3. `fab_checklist.py "<root>"` (listing checklist)
+3. `fab_checklist.py "<root>"` (listing checklist) = **Run all checks**. You run it yourself: the button on the console page is optional, never ask the owner to press it. It reads the editor (validation, textures, Verse build). If it says the editor was not reachable, read the validation log with your own MCP tools (EditorToolset.LogsToolset / GetLogEntries, pattern `UEFNValidation|LogContentValidation`) and record it: `fab_checklist.py record-validation "<root>"` with the log on stdin. A product with no Verse file has nothing to compile: that check is skipped, not open.
 4. Performance, only when a play session is running in the open editor: `/performance` (its result is read by the Build station; without a session the check stays "to do", do not start one)
 
 **Privacy (GDPR).** A Windows user name, an email or a home path is never written in the report: write `***anonymized***`. The clean touches only the owner's own files, never assets created by Epic.

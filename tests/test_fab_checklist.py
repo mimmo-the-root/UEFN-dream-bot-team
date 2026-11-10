@@ -105,6 +105,11 @@ try:
     os.makedirs(os.path.join(fresh, "Content", "Fresh", "Mesh")); open(os.path.join(fresh, "Content", "Fresh", "Mesh", "SM_A.uasset"), "wb").write(b"x")
     d = FC.build(fresh, flab, FC.scan_state(fresh, flab)); fi = {i["id"]: i for s in d["stations"] for i in s["items"]}
     ok(fi["p-names"]["s"] == "pass" and fi["c-foreign"]["s"] == "pass", "once the product folder holds assets the checks run and pass")
+    # the agent can run everything and record the validation itself (the page button is optional)
+    r = subprocess.run([sys.executable, os.path.join(UL, "fab_checklist.py"), "record-validation", fresh], input="LogContentValidation: Error: bad ref\n2 errors, 0 warnings", capture_output=True, text=True, env=dict(os.environ, UEFN_FAB_LAB_DIR=os.environ["UEFN_FAB_LAB_DIR"]))
+    ok("validation recorded: 2 error(s)" in r.stdout, "the agent records a validation it read with its own MCP: record-validation (log on stdin)")
+    import fab_lab as _FL; d = FC.build(fresh, _FL.ensure_lab(fresh), FC.scan_state(fresh)); fi = {i["id"]: i for s in d["stations"] for i in s["items"]}
+    ok(fi["b-valid"]["s"] == "fail", "recorded errors turn the validation red (blocks)")
     # folder layout and redirectors are read from the files
     pf = os.path.join(fresh, "Content", "Fresh")
     os.makedirs(os.path.join(pf, "Material")); os.makedirs(os.path.join(pf, "Widget_ui"))

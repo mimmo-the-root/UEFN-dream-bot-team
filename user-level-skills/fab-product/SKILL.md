@@ -53,6 +53,7 @@ These come from a real case (assets copied by hand between the owner's projects)
 11. **`Documentation/AUTHOR.md` is always created by `docs`** (Verse or not): it holds the owner's saved signature block. Do not write or change it yourself; if it says there is no signature saved, tell the owner to save one.
 12. **One folder per asset type inside `Content/<Product>/`** (example: `CurrencySystem/` with `Documentation`, `FabListing`, `Material/{MaterialInstance,Glint,UI_C...}`, `Texture`, `Widget_ui`, `Verse_device`). No asset loose in the product folder, no folder mixing kinds, Epic prefixes (`M_` `MI_` `MF_` `WBP_` `T_` `SM_` `BP_`). Create each asset straight in its folder. The kit checks it: no tick by hand.
 13. **Every move or rename leaves a redirector: run Fix Up Redirectors on the product folder right after** (`mcp_map.py --find redirector`). The kit finds leftovers by itself and names them: never ask the owner to tick it.
+14. **You run the checks yourself, the console button is optional.** `fab_checklist.py "<root>"` = Run all checks. If the kit cannot reach the editor, read the validation log with your own MCP and record it (`fab_checklist.py record-validation "<root>"`, log on stdin). Never leave a check open waiting for the owner to press a button.
 
 ## Verse files of a Fab product (this style only here, never in maps)
 Every `.verse` file the customer receives is written as a small manual. Header, in this order, all `#` lines between dashed rules:
