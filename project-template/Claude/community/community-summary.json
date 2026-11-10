@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.123.5"
+   "tag": "v1.123.8"
   },
   "state": {
    "genres": [],
@@ -22,15 +22,14 @@
   }
  },
  "release": {
-  "date": "2026-11-06",
+  "date": "2026-11-10",
   "items": [
-   "[fix] A project made before the mailbox never got it from a kit update. The update copied hooks, commands and docs templates but not `Claude/relay/`, so on an old map `/relay` had no inbox to poll, the session-start autostart (which looks for the inbox) never fired and a Fix button had nowhere to write. The update now installs `RELAY-README.md` (refreshed at every update) and the four folders `inbox`, `running`, `done`, `outbox` (created once, never touched again: a command waiting in the inbox survives).",
-   "[fix] The numbers on the Tasks, Bugs and Audit tabs did not match the chips. The chips (All, feature, bug, audit, perf) count the open tasks of the whole roadmap, while the tab numbers and the Bugs/Audit tables counted only the current release: a map with its audit tasks in the next release showed \"Tasks 3\", \"All 10\" and no number on Audit. The tab numbers now count the whole roadmap, and the Bugs, Audit and Performance tables list the tasks of every release (the current one first, the release name beside each).",
-   "[fix] A product with no Verse code waited for a Verse build that cannot exist. \"Verse compiles\" now skips itself (and the kit no longer asks the editor to build) when the product has no Verse file; it stayed open with \"unexpected reply from UEFN\".",
-   "[fix] The editor's MCP server added to one project was not found. The kit looked only at the project's `.mcp.json` and the global servers of `~/.claude.json`, not at the ones `claude mcp add` stores under the project's own entry, so \"the editor was not reachable\" could appear with UEFN open. It now reads those too."
+   "[feature] \"Each asset type in its own folder\" and \"No redirectors left\" are now checked by the kit. No more ticks by hand: leftover redirectors are found in the files and named; a widget among materials or an asset lying in the product folder is a warning with the folder and the name (the kind comes from the Epic prefix). Both wait on a product with no assets yet.",
+   "[other] The two rules are fixed for the agent. One folder per asset type (example layout in the manual) and Fix Up Redirectors after every move or rename: in the session start text of a Fab product, in the fab-product skill (rules 12 and 13) and in the manual.",
+   "[fix] A new Fab product started with checks already green. On a map with no product folder yet (only the .umap and UEFN's own files) the checks that look for problems (names, paths, empty folders, one pack folder, foreign references, internal names, Windows user name) passed because they had nothing to find. They now stay \"to do\" with \"No product content yet: nothing to check\" until Content/<ProductName>/ holds assets or Verse files."
   ],
-  "tag": "v1.123.8",
-  "title": "v1.123.8 \u2014 Old projects get the relay mailbox when the kit updates them"
+  "tag": "v1.123.10",
+  "title": "v1.123.10 \u2014 Fab: folder layout and redirectors are checked by the kit"
  },
  "schema": 1,
  "skills": [],

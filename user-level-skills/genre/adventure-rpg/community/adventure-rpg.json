@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "genre": "adventure-rpg",
+  "pack_version": 13,
+  "patterns": [
+    {
+      "id": "p-c2897e0ac14d",
+      "variant": "tmnt-rpg",
+      "statement": "Persistent shop-economy island: huge totalRounds, ForceKeep items on death, fast respawn, regen off.",
+      "condition": "Persistent-progression RPG island with no round structure",
+      "action": "Set Experience Settings to a very high round count, keep items on death, 1 s respawn and no health recharge so the shop economy is the only progression",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "run-loop",
+      "support": 1
+    },
+    {
+      "id": "p-05ba2823989d",
+      "variant": "tmnt-rpg",
+      "statement": "Verse devices that wire through @editable references show no event bindings; read their settings instead of bindings to map the level.",
+      "condition": "A Verse device needs other devices (buttons, triggers, spawners)",
+      "action": "Expose them as @editable references and read their wiring via GetDeviceProperties, since ListEventBindings stays empty",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-02884bdd0bbe",
+      "variant": "tmnt-power-shop-arena",
+      "statement": "Mark bonus damage to avoid loops",
+      "condition": "Bonus damage applied from a damage event",
+      "action": "Apply extra damage with a custom causer and ignore that causer in the handler; guard against health and shield events both firing for one hit.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-ff8ca737e569",
+      "variant": "tmnt-power-shop-arena",
+      "statement": "A conditional button is the gold check",
+      "condition": "Paying for a shop item with a currency item",
+      "action": "Use a conditional button as the currency check: set required count to the price, activate for the player, then reset to 1.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-ccce408e473a",
+      "variant": "tmnt-power-shop-arena",
+      "statement": "Save the shop on every purchase",
+      "condition": "Selling permanent upgrades for in-match currency",
+      "action": "Keep upgrades per player in a persistable record saved on every purchase, restored on spawn, with field defaults covering older saves.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-fcf70ec127a0",
+      "variant": "tmnt-power-shop-arena",
+      "statement": "Cooldown and spread on group teleport",
+      "condition": "Teleporting the group to one player",
+      "action": "Add a cooldown and a spread cap, alternating sides, so repeated triggers and crowds do not stack players.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-3df536b5639a",
+      "variant": "tmnt-power-shop-arena",
+      "statement": "Verse cannot reference third-party blueprint devices",
+      "condition": "Verse logic must react to third-party blueprint devices (spawned enemies, collection characters)",
+      "action": "Check first that Verse can reference the device class; if it cannot, hook the effect on the player side (damage events) or drop the feature instead of planning around the device.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-33bdb236a995",
+      "variant": "tmnt-power-shop-arena",
+      "statement": "Register late joiners and re-attach handlers per respawn",
+      "condition": "Per-player systems on a map where players join late and respawn",
+      "action": "Register every joining player in the same routine used at start, and re-subscribe damage and shield handlers on each new character after a respawn.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "architecture",
+      "support": 1
+    },
+    {
+      "id": "p-aebbc0b304ba",
+      "variant": "tmnt-power-shop-arena",
+      "statement": "Escalating upgrade price, saved at once",
+      "condition": "Permanent per-player upgrades bought with gold",
+      "action": "Price each purchase as base plus base times purchase count times a scaler, save the player's data immediately after every purchase, and recompute final stats from base plus upgrades.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "progression",
+      "support": 1
+    },
+    {
+      "id": "p-0b55f6ab0a88",
+      "variant": "tmnt-power-shop-arena",
+      "statement": "Organise devices in folders, remove template leftovers",
+      "condition": "A map with many placed devices",
+      "action": "Group devices into Outliner folders by function and delete unused template maps before publishing, so the level stays readable and small.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "launch-checklist",
+      "support": 1
+    },
+    {
+      "id": "p-1e98d64b949d",
+      "variant": "tmnt-power-shop-arena",
+      "statement": "Group teleporter with cooldown and spread cap",
+      "condition": "Keeping a group together in an arena",
+      "action": "Use a trigger-driven group teleporter with a cooldown (about 10 s) and a spread distance cap (about 500 cm), placing others alternately beside the trigger player.",
+      "tier": "hypothesis",
+      "status": "active",
+      "section": "devices",
+      "support": 1
+    }
+  ]
+}
