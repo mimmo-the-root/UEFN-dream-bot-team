@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.123.19 — Cod resumes in the same session after a usage limit
+
+- [fix] **No new window, no daily cap.** The usage-limit resume of 1.123.18 opened a new Claude Code window and stopped after 4 resumes a day. Now the watcher types a short "continue" message into the SAME Cod session once the limit resets (Windows console input, no focus needed), checks that the session really moved, and if not tries again every 5 minutes with no limit on the tries. So Cod keeps working while you sleep. It stops when the session is closed, when you already continued, or when `Claude/relay/NO-RESUME` exists. Keep the computer awake for the night and Cod on a permission mode that does not stop at questions. Tested offline with a fake clock; typing into the real console is NOT yet seen on a real limit.
+
 ## v1.123.18 — Cod resumes by itself after a usage limit
 
 - [feature] **Cod resumes by itself after a usage limit.** A new `StopFailure` hook (matcher `rate_limit`) records the limit in `Claude/relay/outbox/LIMIT.json` and starts one background watcher. After the reset the watcher opens a NEW Claude Code window in the project with a fixed resume prompt (read STATUS, ROADMAP and the newest dev log entries, finish what was in progress, continue with the next open task, start `/relay`). It never types into an open window, does nothing when the owner already continued or when `Claude/relay/NO-RESUME` exists, resumes at most 4 times a day, and logs to `Claude/logs/limit-resume.log`. Existing projects get the hook at the next kit sync. Tested offline with a fake clock; NOT yet seen on a real limit.

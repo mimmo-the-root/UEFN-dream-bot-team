@@ -275,7 +275,7 @@
     ],
     "StopFailure": [
       {
-        "_comment": "Usage limit reached (5-hour or weekly): records it in Claude/relay/outbox/LIMIT.json and starts a watcher that, after the reset, opens a NEW Cod window with a fixed resume prompt (v1.123.18). Never types into an existing window. Off switch: create Claude/relay/NO-RESUME. Needs Python 3; silent no-op without it.",
+        "_comment": "Usage limit reached (5-hour or weekly): records it in Claude/relay/outbox/LIMIT.json and starts a watcher that, after the reset, types a short continue message into this SAME Cod session (no new window, no daily cap; retries until the session moves) (v1.123.19). Off switch: create Claude/relay/NO-RESUME. Needs Python 3 and Windows; silent no-op without them.",
         "matcher": "rate_limit",
         "hooks": [
           {

@@ -1,24 +1,21 @@
 #!/usr/bin/env python3
-"""Cod resumes by itself after a usage limit (v1.123.18).
+"""Cod continues by itself, in the SAME session, after a usage limit (v1.123.19).
 
-Claude Code stops when the 5-hour or weekly limit is reached and waits for a person. The StopFailure hook (matcher rate_limit) runs
-`limit_resume.py hook`: it records the limit in Claude/relay/outbox/LIMIT.json and starts ONE detached watcher (`watch`). The watcher
-waits for the reset time and then opens a NEW Claude Code window in the project with a fixed resume prompt (the work state lives in
-ROADMAP.md, STATUS.md and the relay mailbox, so a new session continues from the next task; the SessionStart hook starts /relay).
-It never types into an existing window, never touches the editor, and never resumes twice for one limit.
+Claude Code stops at the 5-hour or the weekly limit and waits for a person. The StopFailure hook (matcher rate_limit) runs
+`limit_resume.py hook --pid <claude process>`: it records the limit in Claude/relay/outbox/LIMIT.json and starts ONE detached watcher.
+The watcher waits for the reset and then types a short "continue" message into the console of that same Claude Code process
+(limit-wake.ps1: the Windows console input of the process, so it needs no focus and works in any tab or window). It then checks that the
+session really moved (its transcript changed) and, if not, tries again every few minutes, with no limit on the number of tries, until it works,
+the session is closed, or the owner switches it off. It opens no other window.
 
-Usage: limit_resume.py hook < payload.json   |   limit_resume.py watch <project dir>   |   limit_resume.py status <project dir>
+Usage: limit_resume.py hook [--pid N] < payload.json   |   limit_resume.py watch <project dir>   |   limit_resume.py status <project dir>
 Off switch: create the file Claude/relay/NO-RESUME. Settings (optional) in Claude/relay/RESUME.json:
-  {"prompt": "...", "claude_args": ["--permission-mode", "acceptEdits"], "extra_wait_seconds": 90, "max_per_day": 4}"""
+  {"prompt": "...", "extra_wait_seconds": 90, "retry_seconds": 300, "unknown_reset_seconds": 600}"""
 import json, os, re, subprocess, sys, time, datetime
 
-DEFAULT_PROMPT = ("You are Cod, resuming after a usage limit. Read Claude/docs/STATUS.md, Claude/docs/ROADMAP.md and the newest entries of "
-                  "Claude/docs/DEVLOG.md. Check what was in progress (a task In progress, a file in Claude/relay/running/) and finish it safely, "
-                  "then continue with the next open task in the same order and rules as before. Start the relay worker (/relay). "
-                  "Do not redo work that is already Done; read the editor state before repeating anything that changes it. "
-                  "One line first: say you resumed after the limit and which task you continue with.")
-FALLBACK_WAIT = 30 * 60      # reset time unknown: look again every 30 minutes
-MAX_UNKNOWN_TRIES = 4
+DEFAULT_PROMPT = ("The usage limit has reset. Continue exactly where you stopped: finish the task in progress, then go on with the next open task "
+                  "of Claude/docs/ROADMAP.md. Keep working without waiting for me: I am away. Do not redo work that is Done.")
+VERIFY_SECONDS = 150
 
 
 def _dirs(project):
@@ -27,8 +24,8 @@ def _dirs(project):
 
 
 def _log(project, msg):
-    _, _, lg = _dirs(project)
     try:
+        lg = _dirs(project)[2]
         os.makedirs(os.path.dirname(lg), exist_ok=True)
         with open(lg, "a", encoding="utf-8") as f:
             f.write(time.strftime("%Y-%m-%d %H:%M:%S ") + msg + "\n")
@@ -53,6 +50,31 @@ def _write_json(p, d):
     os.replace(tmp, p)
 
 
+def pid_alive(pid):
+    """Is this process running? (os.kill(pid, 0) must NOT be used: on Windows it ends the process.)"""
+    try:
+        pid = int(pid)
+    except (TypeError, ValueError):
+        return False
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        import ctypes
+        k = ctypes.windll.kernel32
+        h = k.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return False
+        code = ctypes.c_ulong()
+        ok = k.GetExitCodeProcess(h, ctypes.byref(code))
+        k.CloseHandle(h)
+        return bool(ok) and code.value == 259  # STILL_ACTIVE
+    try:
+        os.kill(pid, 0)
+        return True
+    except (OSError, ValueError, SystemError):
+        return False
+
+
 def parse_reset_text(text, now=None):
     """'resets 9pm', 'resets at 11:30 PM', 'resets 21:00' -> epoch seconds of the next such local time, else None."""
     now = now or time.time()
@@ -66,8 +88,7 @@ def parse_reset_text(text, now=None):
         h = 0
     if h > 23 or mi > 59:
         return None
-    base = datetime.datetime.fromtimestamp(now)
-    t = base.replace(hour=h, minute=mi, second=0, microsecond=0)
+    t = datetime.datetime.fromtimestamp(now).replace(hour=h, minute=mi, second=0, microsecond=0)
     if t.timestamp() <= now:
         t += datetime.timedelta(days=1)
     return t.timestamp()
@@ -110,19 +131,11 @@ def _settings(project):
 
 
 def _watcher_alive(project):
-    lock = os.path.join(_dirs(project)[0], "limit-watch.lock")
-    d = _read_json(lock, {})
-    pid, ts = d.get("pid"), d.get("ts", 0)
-    if not pid or time.time() - ts > 8 * 3600:
-        return False
-    try:
-        os.kill(int(pid), 0)
-        return True
-    except (OSError, ValueError, SystemError):
-        return False
+    d = _read_json(os.path.join(_dirs(project)[0], "limit-watch.lock"), {})
+    return bool(d.get("pid")) and time.time() - d.get("ts", 0) < 900 and pid_alive(d.get("pid"))
 
 
-def hook(stdin_text, now=None, spawn=True):
+def hook(stdin_text, claude_pid=None, now=None, spawn=True):
     """StopFailure: record the limit and start the watcher. Never raises, never blocks."""
     now = now or time.time()
     try:
@@ -132,74 +145,66 @@ def hook(stdin_text, now=None, spawn=True):
     if str(payload.get("error_type") or payload.get("error") or "") not in ("rate_limit", "429"):
         return {"ok": False, "why": "not a rate limit"}
     project = os.environ.get("CLAUDE_PROJECT_DIR") or payload.get("cwd") or os.getcwd()
-    if not os.path.isdir(os.path.join(project, "Claude")):
-        project = os.path.dirname(project) if os.path.isdir(os.path.join(os.path.dirname(project), "Claude")) else project
     rd, lim, _ = _dirs(project)
     if os.path.isfile(os.path.join(rd, "NO-RESUME")):
         return {"ok": False, "why": "NO-RESUME"}
     prev = _read_json(lim, {})
-    # one StopFailure per sub-agent can fire many times for one limit: keep the first record while it is still waiting
-    if prev.get("state") == "waiting" and prev.get("resets_at", 0) > now - 600 and _watcher_alive(project):
+    # sub-agents can fire many StopFailure for one limit: one record, one watcher
+    if prev.get("state") == "waiting" and _watcher_alive(project):
         return {"ok": True, "why": "already waiting"}
     reset = find_reset(payload, now)
     rec = {"state": "waiting", "hit_at": now, "hit_at_text": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now)),
-           "resets_at": reset, "resets_at_text": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(reset)) if reset else "unknown (checking every 30 minutes)",
-           "session_id": payload.get("session_id"), "transcript_path": payload.get("transcript_path"), "tries": 0}
+           "resets_at": reset, "resets_at_text": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(reset)) if reset else "unknown (trying every 10 minutes)",
+           "session_id": payload.get("session_id"), "transcript_path": payload.get("transcript_path"),
+           "claude_pid": int(claude_pid) if claude_pid else prev.get("claude_pid"), "wakes": 0}
     _write_json(lim, rec)
-    _log(project, "limit hit; resets %s" % rec["resets_at_text"])
+    _log(project, "limit hit; resets %s; session process %s" % (rec["resets_at_text"], rec["claude_pid"]))
     if spawn:
         _spawn_watcher(project)
     return {"ok": True, "record": rec}
 
 
 def _spawn_watcher(project):
-    script = os.path.abspath(__file__)
     kw = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "close_fds": True}
     if os.name == "nt":
-        kw["creationflags"] = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+        kw["creationflags"] = 0x00000008 | 0x00000200 | 0x08000000  # DETACHED_PROCESS | NEW_PROCESS_GROUP | NO_WINDOW
     else:
         kw["start_new_session"] = True
-    exe = sys.executable or "python"
     try:
-        p = subprocess.Popen([exe, script, "watch", project], **kw)
+        p = subprocess.Popen([sys.executable or "python", os.path.abspath(__file__), "watch", project], **kw)
         _write_json(os.path.join(_dirs(project)[0], "limit-watch.lock"), {"pid": p.pid, "ts": time.time()})
     except OSError as e:
         _log(project, "could not start the watcher: %s" % e)
 
 
-def _resumed_by_someone(rec):
-    """True when the session that hit the limit has written to its transcript after the reset: a person already continued."""
-    tp, reset = rec.get("transcript_path"), rec.get("resets_at") or rec.get("hit_at", 0)
+def _transcript_mtime(rec):
     try:
-        return bool(tp) and os.path.getmtime(tp) > max(reset, rec.get("hit_at", 0)) + 30
-    except OSError:
-        return False
-
-
-def launch_command(project, st):
-    prompt = st.get("prompt") or DEFAULT_PROMPT
-    args = [a for a in (st.get("claude_args") or []) if isinstance(a, str)]
-    content = project  # the project folder that holds Claude/ is the Content folder, where Cod works
-    if os.name == "nt":
-        q = lambda s: "'" + s.replace("'", "''") + "'"
-        ps = "Set-Location -LiteralPath %s; claude %s %s" % (q(content), " ".join(q(a) for a in args), q(prompt))
-        return ["cmd.exe", "/c", "start", "Cod - resumed", "powershell.exe", "-NoExit", "-NoProfile", "-Command", ps]
-    return ["claude"] + args + [prompt]
-
-
-def _launches_today(project):
-    try:
-        txt = open(_dirs(project)[2], encoding="utf-8").read()
+        return os.path.getmtime(rec["transcript_path"]) if rec.get("transcript_path") else 0
     except OSError:
         return 0
-    return len(re.findall(r"^%s .*resume window opened" % re.escape(time.strftime("%Y-%m-%d")), txt, re.M))
 
 
-def watch(project, sleep=time.sleep, now_fn=time.time, run=None):
-    """Wait for the reset and open ONE new Cod window. Returns the final state string."""
+def wake_command(pid, text):
+    script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "limit-wake.ps1")
+    return ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script, "-TargetPid", str(int(pid)), "-Text", text]
+
+
+def _run_wake(cmd):
+    try:
+        r = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        return r.returncode == 0, (r.stdout + r.stderr).strip()[-300:]
+    except (OSError, subprocess.SubprocessError) as e:
+        return False, str(e)
+
+
+def watch(project, sleep=time.sleep, now_fn=time.time, wake=None, alive=None):
+    """Wait for the reset, type the continue message into the session, check it moved, retry forever. Returns the final state."""
     rd, lim, _ = _dirs(project)
-    run = run or (lambda cmd: subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
-    _write_json(os.path.join(rd, "limit-watch.lock"), {"pid": os.getpid(), "ts": now_fn()})
+    wake = wake or (lambda pid, text: _run_wake(wake_command(pid, text)))
+    alive = alive or pid_alive
+    beat = lambda: _write_json(os.path.join(rd, "limit-watch.lock"), {"pid": os.getpid(), "ts": now_fn()})
+    beat()
+    next_try = None
     while True:
         rec = _read_json(lim, {})
         if rec.get("state") != "waiting":
@@ -207,45 +212,50 @@ def watch(project, sleep=time.sleep, now_fn=time.time, run=None):
         if os.path.isfile(os.path.join(rd, "NO-RESUME")) or os.path.isfile(os.path.join(rd, "STOP")):
             rec["state"] = "cancelled"; _write_json(lim, rec); _log(project, "cancelled (NO-RESUME or STOP)")
             return "cancelled"
+        if not rec.get("claude_pid") or not alive(rec["claude_pid"]):
+            rec["state"] = "session-closed"; _write_json(lim, rec)
+            _log(project, "the Claude Code session is closed (process %s): nothing to continue; the next session starts /relay by itself" % rec.get("claude_pid"))
+            return "session-closed"
         st = _settings(project)
         reset = rec.get("resets_at")
-        target = (reset + int(st.get("extra_wait_seconds", 90))) if reset else rec.get("hit_at", now_fn()) + FALLBACK_WAIT * (rec.get("tries", 0) + 1)
-        left = target - now_fn()
+        if next_try is None:
+            next_try = (reset + int(st.get("extra_wait_seconds", 90))) if reset else rec["hit_at"] + int(st.get("unknown_reset_seconds", 600))
+        left = next_try - now_fn()
         if left > 0:
-            sleep(min(left, 30))
-            _write_json(os.path.join(rd, "limit-watch.lock"), {"pid": os.getpid(), "ts": now_fn()})
+            sleep(min(left, 30)); beat()
             continue
-        if _resumed_by_someone(rec):
-            rec["state"] = "resumed-by-owner"; _write_json(lim, rec); _log(project, "the owner already continued: nothing to do")
+        if _transcript_mtime(rec) > max(rec["hit_at"], reset or 0) + 30:
+            rec["state"] = "resumed-by-owner"; _write_json(lim, rec); _log(project, "the session already moved after the limit: nothing to do")
             return rec["state"]
-        if _launches_today(project) >= int(st.get("max_per_day", 4)):
-            rec["state"] = "gave-up"; rec["why"] = "max_per_day reached"; _write_json(lim, rec); _log(project, "gave up: too many resumes today")
-            return rec["state"]
-        try:
-            run(launch_command(project, st))
-        except OSError as e:
-            rec["state"] = "failed"; rec["why"] = str(e); _write_json(lim, rec); _log(project, "could not open the window: %s" % e)
-            return "failed"
-        _log(project, "resume window opened")
-        if not reset:  # unknown reset time: the new session may hit the limit again; its own StopFailure will record a new wait
-            rec["tries"] = rec.get("tries", 0) + 1
-        rec["state"] = "resumed"; rec["resumed_at"] = now_fn(); _write_json(lim, rec)
-        return "resumed"
+        t0 = now_fn()
+        ok, out = wake(rec["claude_pid"], st.get("prompt") or DEFAULT_PROMPT)
+        rec["wakes"] = rec.get("wakes", 0) + 1; rec["last_wake_text"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t0))
+        _log(project, "wake %d: %s %s" % (rec["wakes"], "typed" if ok else "FAILED", out))
+        _write_json(lim, rec)
+        waited = 0
+        while ok and waited < VERIFY_SECONDS and _transcript_mtime(rec) <= t0:
+            sleep(10); waited += 10; beat()
+        if ok and _transcript_mtime(rec) > t0:
+            rec["state"] = "resumed"; rec["resumed_at"] = now_fn(); _write_json(lim, rec)
+            _log(project, "the session moved: resumed")
+            return "resumed"
+        # no sign of life: still limited, or the text did not reach the session. Try again later, with no cap on the tries.
+        next_try = now_fn() + int(st.get("retry_seconds", 300))
 
 
 def status(project):
-    rd, lim, lg = _dirs(project)
+    rd, lim, _ = _dirs(project)
     rec = _read_json(lim, {})
-    out = ["limit record: %s" % (json.dumps(rec) if rec else "none"), "watcher alive: %s" % _watcher_alive(project),
-           "off switch (NO-RESUME): %s" % os.path.isfile(os.path.join(rd, "NO-RESUME"))]
-    return "\n".join(out)
+    return "\n".join(["limit record: %s" % (json.dumps(rec) if rec else "none"), "watcher alive: %s" % _watcher_alive(project),
+                      "off switch (NO-RESUME): %s" % os.path.isfile(os.path.join(rd, "NO-RESUME"))])
 
 
 if __name__ == "__main__":
     a = sys.argv[1:]
     try:
         if a and a[0] == "hook":
-            print(json.dumps(hook(sys.stdin.read())))
+            pid = a[a.index("--pid") + 1] if "--pid" in a and a.index("--pid") + 1 < len(a) else None
+            print(json.dumps(hook(sys.stdin.read(), claude_pid=pid)))
         elif len(a) > 1 and a[0] == "watch":
             watch(a[1])
         elif len(a) > 1 and a[0] == "status":
