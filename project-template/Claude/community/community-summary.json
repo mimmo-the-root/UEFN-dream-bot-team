@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.123.13"
+   "tag": "v1.123.14"
   },
   "state": {
    "genres": [],
@@ -24,11 +24,13 @@
  "release": {
   "date": "2026-11-12",
   "items": [
-   "[fix] The Tasks tab no longer counts the backlog. The hero and the tab badge said 53 tasks, the \"All\" chip said 55: the chip also counted the 2 rows in the backlog (Later). The Tasks tab now uses the same denominator as the rest of the console; the backlog stays in its own box.",
+   "[feature] You can hide the \"Next action\" and \"Live demo\" row. A small button above it reads \"Hide next action and demo\" (and \"Show\" when hidden). The choice is remembered in the browser, so the roadmap, release status and tabs get the space back when you do not need the row.",
+   "[other] Notes to write. Replace this line.",
+   "[fix] The coder no longer concludes \"there is no DemoDisplay\". In a real project the coder searched the device catalog (`ListDeviceAssets`), found nothing and built a cube-and-billboard substitute, while the owner's own DemoDisplay stood in the level. The DemoDisplay is a content-hall Blueprint (`/ContentHall/Blueprints/BP_DemoDisplay`), not a Creative device. `uefn-device-gotchas` (`demodisplay-sizing.md`) now says how to find one in the level, read and set its fields, and place a new one; the coder's rule 7 line points to it.",
    "[other] Notes to write. Replace this line."
   ],
-  "tag": "v1.123.14",
-  "title": "v1.123.14 \u2014 Tasks tab counts the same tasks as the hero"
+  "tag": "v1.123.16",
+  "title": "v1.123.16 \u2014 Hide the Next action and Live demo row on the console"
  },
  "schema": 1,
  "skills": [],
