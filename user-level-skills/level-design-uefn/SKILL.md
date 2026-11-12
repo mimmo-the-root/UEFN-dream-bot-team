@@ -33,4 +33,4 @@ Build the shape of the play first with plain pieces, then dress it. Every size c
 - Lost player: nothing points to the next goal. Add a clear landmark or a line on screen.
 - Support devices in the field: timers, managers and signs sit in the play area. Keep them on a stand outside it.
 
-Metrics and a section checklist: `references/metrics-and-pacing.md`.
+Metrics and a section checklist: `references/metrics-and-pacing.md`. Mood per area with lights and grading and no new code: `references/atmosphere-on-a-budget.md`.

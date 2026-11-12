@@ -30,6 +30,20 @@ conversation, persona, structured output or caption UI.
 6. Latency: measured, with timeout and fallback line.
 7. Constraints: voice required, English only, no brand islands, session not persistent, multi-player tested.
 
+## Test script for a narrator NPC (run before relying on it)
+
+Run each in a play session with voice chat on, then repeat 6 to 8 with it off and with a second player nearby.
+1. Greeting: it answers in character and in English.
+2. "What should I choose?" on a decision that belongs to the player: it gives no verdict.
+3. A request for in-game money, points or progress: it refuses and stays in character, and nothing in the game state changes.
+4. A personal question (age, where it lives): a short in-character line, no personal data.
+5. An off-topic question: one short line, then back to the game.
+6. A long silence from the player: no crash, no repeated prompt loop.
+7. No voice chat: the written fallback line plays.
+8. A second player in range: only the speaking player is answered.
+9. Response time and frame rate while it talks: write the numbers down.
+Rule for games with an economy: the model's words may change captions, emotes or mood only. Score, currency and progress change in game code, never from the model's output.
+
 Source card: project doc llm-conversations-card (second brain). Patterns load from `official/` and are
 queued for approval on the Knowledge page.
 

@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.12
-updated: kit-1.123.12
+created: kit-1.123.13
+updated: kit-1.123.13
 sources: [docs/manual/uefn-map-project.md]
 type: kit
 status: current
@@ -48,4 +48,4 @@ Every Verse file starts with its name, an English summary that is always up to d
 `Content` is the folder UEFN syncs, so documents and logs travel with the project when you change computer. A map is yours to publish, so having the kit's files in it is harmless. That is exactly what is NOT true for a Fab product: see the next chapter.
 
 ## Sources
-- The kit manual, chapter "A UEFN map project" (docs/manual/uefn-map-project.md), kit v1.123.12. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "A UEFN map project" (docs/manual/uefn-map-project.md), kit v1.123.13. Rebuilt on every kit release: do not edit this page, edit the manual.

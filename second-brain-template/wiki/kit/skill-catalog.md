@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.12
-updated: kit-1.123.12
+created: kit-1.123.13
+updated: kit-1.123.13
 sources: [docs/manual/skill-catalog.md]
 type: kit
 status: current
@@ -32,6 +32,7 @@ Skills are small folders of knowledge that Claude reads only when the task needs
 | `game-feel-uefn` | Layered feedback with sound, effects and screen text, in proportion to how important each event is. |
 | `uefn-pcg` | Scatter props, trees and rocks over an area with a PCG graph made through the MCP: the order, the placement trap, what to ask the owner. |
 | `uefn-profiling` | Measure performance through the MCP: Spatial Profiler metrics and hotspots, Insights traces and memory snapshots, and what to report. |
+| `uefn-asset-budget` | The gate for a generated or imported prop: triangle band, one material, simple collision, texture size, scale in centimeters, a test in the editor and a record. |
 | `uefn-quests` | Custom quests with the Verse Progression API that UEFN 43.00 lets you publish: pieces, workflow, compile errors and their fixes, a minimal example. |
 | `uefn-version-upgrade` | The routine for each new UEFN release (about every 15 days): diff the Verse API and the tools, update the few kit places that hold version facts, and check a project before a publish. Per-release notes, 43.00 first. |
 | `uefn-epic-skills` | When to read Epic's own editor skills served by the MCP (PCG, Sequencer, MetaSound, lighting, generated media) and which skill wins when Epic's and the kit's both apply. |
@@ -94,4 +95,4 @@ User-level skills are installed in `~/.claude/skills/<name>/`. The kit does not 
 - [[skills-and-lessons|Skills and lessons]]
 
 ## Sources
-- The kit manual, chapter "Skills catalog" (docs/manual/skill-catalog.md), kit v1.123.12. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Skills catalog" (docs/manual/skill-catalog.md), kit v1.123.13. Rebuilt on every kit release: do not edit this page, edit the manual.

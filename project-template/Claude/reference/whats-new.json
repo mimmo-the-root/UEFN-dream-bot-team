@@ -1,6 +1,18 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.13": {
+   "title": "Asset budget skill, atmosphere reference and a narrator test script (from the UEFN 43.10 pages)",
+   "features": 2,
+   "fixes": 0,
+   "other": 2,
+   "headlines": [
+    "[new] **A new skill, `uefn-asset-budget`.** The gate for a prop made by an AI tool or taken from outside: scal",
+    "[new] **A reference for the mood of an area, `level-design-uefn/references/atmosphere-on-a-budget.md`.** Gradi",
+    "A test script for a narrator NPC in `llm-npc-conversations`",
+    "Index rows in `uefn-disciplines`"
+   ]
+  },
   "1.123.12": {
    "title": "Cheaper reading: Explore agent on Haiku, and a token plan to measure in a real job",
    "features": 1,

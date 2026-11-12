@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.123.13 — Asset budget skill, atmosphere reference and a narrator test script (from the UEFN 43.10 pages)
+
+- [new] **A new skill, `uefn-asset-budget`.** The gate for a prop made by an AI tool or taken from outside: scale in centimeters, a triangle and vertex band by prop size, one material, simple convex collision, texture size, a test in the editor and a record (source, counts, license, origin asset or not). Numbers come from Epic's Fortnite-ready asset guide (read 2026-11-12); applying them to generated models is a kit rule, and the skill says so.
+- [new] **A reference for the mood of an area, `level-design-uefn/references/atmosphere-on-a-budget.md`.** Grading per zone, local lights, flicker without code, fog, zone devices and a lighting quality manager, learned from Epic's "Shadows of the Abbey" example island (look and optimization only: it has no NPCs or progression).
+- [other] **A test script for a narrator NPC in `llm-npc-conversations`.** Nine checks (greeting, no verdict on the player's choices, no change to money or progress, personal and off-topic questions, silence, no voice chat, a second player, timing), and the rule that a model's words never change score, currency or progress.
+- [other] **Index rows in `uefn-disciplines`** for asset budgets and for the mood of an area; skill catalog updated. UEFN 43.10 was checked: no change to Conversations, persistence or audio in its notes.
+
 ## v1.123.12 — Cheaper reading: Explore agent on Haiku, and a token plan to measure in a real job
 
 - [new] **A new agent, `Explore` (now 34), on Haiku.** Read-only search and reading (find files, read logs, list a folder or the level, summarize long documents). A general-purpose agent runs on the session's model and costs about ten times more for the same reading; in a measured project the unspecific agents were 28% of the sub-agent spend.

@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.12
-updated: kit-1.123.12
+created: kit-1.123.13
+updated: kit-1.123.13
 sources: [docs/manual/troubleshooting.md]
 type: kit
 status: current
@@ -117,4 +117,4 @@ Open an issue on the [GitHub repo](https://github.com/mimmo-the-root/UEFN-dream-
 - [[community|Community]]
 
 ## Sources
-- The kit manual, chapter "Troubleshooting" (docs/manual/troubleshooting.md), kit v1.123.12. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Troubleshooting" (docs/manual/troubleshooting.md), kit v1.123.13. Rebuilt on every kit release: do not edit this page, edit the manual.

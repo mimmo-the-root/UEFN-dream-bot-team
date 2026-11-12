@@ -28,6 +28,8 @@ Load only the row that matches, read its entry point, and open its references on
 | HUD, menus, widgets | `uefn-ui-widgets`, `game-ui-designer` |
 | particles, effects, materials | `uefn-vfx-niagara`, `uefn-materials` |
 | memory, many actors, lag | `performance-uefn-checklist`; to measure with the profiler: `uefn-profiling` |
+| triangles, poly count, LOD, collision, texture size, a generated or imported model, Rodin, Tripo | `uefn-asset-budget` |
+| mood of an area, lighting, color grading, fog, flicker, atmosphere | `level-design-uefn`, reference `atmosphere-on-a-budget` |
 | placing devices and folders | `uefn-level-devices` |
 | a new UEFN version, 43.00, update, upgrade, build broke after updating, experimental, before publishing from an older project | `uefn-version-upgrade` |
 | a forest, a rock field, many props, scatter, procedural placement | `uefn-pcg` |
