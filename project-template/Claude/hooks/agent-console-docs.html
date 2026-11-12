@@ -65,7 +65,7 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
 .tnode:hover .tip{display:block;}
 .tip{display:none;position:absolute;bottom:36px;left:50%;transform:translateX(-50%);background:#111a2c;
   border:1px solid var(--line-soft);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--text);
-  white-space:nowrap;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.5);}
+  white-space:normal;width:max-content;max-width:320px;text-align:left;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.5);}
 
 /* bug backlog */
 .bugrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;}
@@ -1000,7 +1000,7 @@ function groupByRelease(rows){
   return keyed.map(o => ({ name: o.name, rows: groups[o.name] }));
 }
 
-// ---- v1.123.16: ONE definition of the numbers, release order, and paged boxes ------------------------------
+// ---- v1.123.17: ONE definition of the numbers, release order, and paged boxes ------------------------------
 // total = tasks planned into a release (not out of scope, not Later/backlog); out of scope and backlog are counted apart and never in the %.
 function relStats(allRows){
   const scope = (allRows || []).filter(t => statusBucket(t.status) !== "outOfScope");
@@ -1202,32 +1202,30 @@ async function renderTimeline(){
   // ones — not the raw first N (or all) rows in file order. TASKS_BEFORE/TASKS_AFTER below pick
   // that window; the strip itself still scrolls horizontally (.timeline-wrap{overflow-x:auto})
   // so this is about relevance, not just fitting the width.
-  const TASKS_BEFORE = 6, TASKS_AFTER = 5; // ~12 nodes total when a current task is found
-  // A real, long-running roadmap can have more than one row still marked In corso/In progress
-  // (an older task whose Status cell was never flipped, alongside the one actively being worked
-  // now). Rows are roughly chronological in file order, so the LAST such row is the best guess
-  // at "the current task" — not the first one encountered.
-  let currentIdx = -1;
-  tasks.forEach((t, idx) => { if (statusBucket(t.status) === 'active') currentIdx = idx; });
-  let windowed, windowNote;
-  if (currentIdx === -1){
-    // No task is In corso/In progress right now — fall back to the most recent tail of the
-    // list (file order tracks task-open order), which is the closest available "recent context".
-    const count = Math.min(tasks.length, TASKS_BEFORE + TASKS_AFTER + 1);
-    windowed = tasks.slice(tasks.length - count);
-    windowNote = tasks.length > windowed.length
-      ? ("showing last " + windowed.length + " of " + tasks.length + " tasks — none currently In corso/In progress")
-      : "";
-  } else {
-    const start = Math.max(0, currentIdx - TASKS_BEFORE);
-    const end = Math.min(tasks.length, currentIdx + TASKS_AFTER + 1);
-    windowed = tasks.slice(start, end);
-    windowNote = tasks.length > windowed.length
-      ? ("showing " + windowed.length + " of " + tasks.length + " tasks, centered on the current task")
-      : "";
+  // v1.123.17: the strip shows ONLY the tasks of the release being worked on (the release of the task In progress,
+  // else the first release with open tasks), in id order. Before, it was a window over every release, so the same
+  // finished tasks came back next to each new release. The long status text (the evidence Cod writes) stays in the
+  // tooltip; the label shows only the id and a short status word.
+  const TASKS_BEFORE = 6, TASKS_AFTER = 5, MAX_NODES = 24;
+  const groups = groupByRelease(tasks);
+  let cur = null;
+  tasks.forEach(t => { if (statusBucket(t.status) === 'active') cur = t; });
+  let grp = cur ? groups.find(g => g.rows.indexOf(cur) !== -1) : relOrder(groups)[0];
+  if (!grp) grp = groups[0];
+  const relRows = grp.rows.slice().sort((x, y) => idNum(x.id) - idNum(y.id));
+  const currentIdx = cur ? relRows.indexOf(cur) : -1;
+  let windowed = relRows, windowNote = "release " + grp.name + ": " + relRows.length + " task" + (relRows.length === 1 ? "" : "s");
+  if (relRows.length > MAX_NODES){
+    const c = currentIdx === -1 ? Math.max(0, relRows.findIndex(t => statusBucket(t.status) !== 'done')) : currentIdx;
+    const start = Math.max(0, Math.min(c - TASKS_BEFORE, relRows.length - MAX_NODES));
+    windowed = relRows.slice(start, start + MAX_NODES);
+    windowNote += ", showing " + windowed.length + " around the " + (currentIdx === -1 ? "next" : "current") + " task";
   }
   const noteEl = document.getElementById('timelineNote');
   if (noteEl) noteEl.textContent = windowNote;
+  // draw from scratch every time: the page refresh and the first load can both run this function
+  Array.prototype.slice.call(el.querySelectorAll('.tnode')).forEach(n => n.remove());
+  el.style.minWidth = Math.max(780, windowed.length * 92) + "px";
 
   const frag = document.createDocumentFragment();
   windowed.forEach(t => {
@@ -1235,19 +1233,19 @@ async function renderTimeline(){
     const statusRaw = (t.status || "To do").trim();
     const bucket = statusBucket(statusRaw);
     const dotClass = bucket === "active" ? "active" : (bucket === "done" ? "done" : (bucket === "blocked" ? "blocked" : "todo"));
+    const word = bucket === "active" ? "In progress" : (bucket === "done" ? "Done" : (bucket === "blocked" ? "Blocked" : "To do"));
     const node = document.createElement('div');
     node.className = 'tnode';
     node.innerHTML =
       '<div class="dot ' + dotClass + '"></div>' +
-      '<div class="lbl' + (dotClass==='active' ? ' active' : (dotClass==='blocked' ? ' blocked' : '')) + '">' + escHtml(id) + '<br>' + escHtml(statusRaw) + '</div>' +
+      '<div class="lbl' + (dotClass==='active' ? ' active' : (dotClass==='blocked' ? ' blocked' : '')) + '">' + escHtml(id) + '<br>' + word + '</div>' +
       ('<span class="tkind ' + taskKind(t) + '">' + KINDS[taskKind(t)] + '</span>') +
-      '<div class="tip">' + escHtml(t.feature || "") + '</div>';
+      '<div class="tip"><b>' + escHtml(id) + '</b> ' + escHtml((t.feature || "").replace(/~~/g, "")) + (statusRaw.length > 12 ? '<br><span style="color:var(--dim);">' + escHtml(statusRaw.slice(0, 220)) + '</span>' : '') + '</div>';
     frag.appendChild(node);
   });
   el.appendChild(frag);
   const banner = document.getElementById('currentBanner');
   if (banner){
-    const cur = currentIdx === -1 ? null : tasks[currentIdx];
     banner.innerHTML = cur
       ? '<div class="current-banner">▶ In progress now: <b>' + escHtml(cur.id || "?") + '</b> — ' +
         escHtml((cur.feature || "").replace(/~~/g, "")) + ' <span class="tkind ' + taskKind(cur) + '">' +
@@ -1620,7 +1618,7 @@ async function jState(){
   const [g, p, c, r, au, dl, tm, gn, gp, ll, osd, pf, bg, lp, dv] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer","genre","genreprop","learnlog","ownersteps","performance","bugs","learnprogress","devices"].map(fetchDoc));
   const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
   const rowsAll = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
-  /* v1.123.16: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
+  /* v1.123.17: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
   const tasks = rowsAll.filter(t => statusBucket(t.status) !== "outOfScope" && !isBacklogRow(t));
   st.rowsAll = rowsAll; st.stats = relStats(rowsAll); st.bugsRaw = bg && bg.exists && !bg.error ? bg.content : ""; st.learnRaw = lp && lp.exists && !lp.error ? lp.content : ""; st.devRaw = dv && dv.exists && !dv.error ? dv.content : "";
   st.roadRaw = r.exists ? r.content : ""; st.osRaw = osd.exists && !osd.error ? osd.content : "";
@@ -1959,7 +1957,7 @@ function jIdea(st){ const hint = '<b>Not started.</b> Two ways in, both with <co
 function jSpec(st){ return jGhost(st.hasSpec, jSpec0(st), 'Waiting for <code>/spec</code>. This page will show the checklist of the spec (loop, story with test, success criteria, assumptions) and the technical risks with a level.'); }
 function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/game-plan</code>.' : 'Waiting for the approved spec. <code>/game-plan</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
 function bucketPill(s){ const b = statusBucket(s); return b==="done" ? '<span class="jpill jgreen">Done</span>' : b==="active" ? '<span class="jpill jlive">In progress</span>' : b==="blocked" ? '<span class="jpill jred">Blocked</span>' : '<span class="jpill">To do</span>'; }
-// ---- v1.123.16: real data from the project documents (no sample text for a project that exists) ----------------
+// ---- v1.123.17: real data from the project documents (no sample text for a project that exists) ----------------
 function auditFromDocs(st){
   const out = []; if (!st.bugsRaw) return out;
   let rows = []; try{ rows = parseBugsBacklog(st.bugsRaw); }catch(e){ rows = []; }
@@ -2143,7 +2141,7 @@ function paintLoopBar(st, ss){
 }
 // v1.120: every piece of work is a task; the Bugs, Audit and Performance tabs show the current release's tasks of their kind first.
 function kindTable(st, k){
-  const rows = (st.tasks || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "outOfScope");   // v1.123.16: every release, so the number on the tab is the number of rows below
+  const rows = (st.tasks || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "outOfScope");   // v1.123.17: every release, so the number on the tab is the number of rows below
   if (!rows.length) return "";
   const open = rows.filter(t => statusBucket(t.status) !== "done").length, rn = st.rel0 ? st.rel0.cur.name : "";
   const isCur = t => (t.release || "").trim() === rn;
@@ -2305,7 +2303,7 @@ async function refreshDocs(){
 }
 setInterval(refreshDocs, 5000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.123.16";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.123.17";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

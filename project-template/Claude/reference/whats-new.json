@@ -1,6 +1,17 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.17": {
+   "title": "Task strip shows only the current release; material graph tidy-up",
+   "features": 1,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "The roadmap task strip shows only the release being worked on",
+    "Tidy a messy material graph",
+    "Notes to write"
+   ]
+  },
   "1.123.16": {
    "title": "Hide the Next action and Live demo row on the console",
    "features": 1,

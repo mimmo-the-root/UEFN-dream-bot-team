@@ -1,13 +1,16 @@
 ---
 name: uefn-materials
-description: Create or edit a Material, Material Instance or parameter in the lab and apply it to an actor via the UEFN MCP (39/39 tools ok). Use for materials work; only `verified` recipes, rest listed as not verified.
-last_reviewed: 2026-10-16
+description: Create or edit a Material, Material Instance or parameter in the lab and apply it to an actor via the UEFN MCP (39/39 tools ok), and tidy a messy material graph (layout pass, no change in behavior). Use for materials work; only `verified` recipes, rest listed as not verified.
+last_reviewed: 2026-11-12
 sources: [original]
 ---
 
 # uefn-materials (MVP experimental, B8)
 
 Source: `Claude/docs/mcp/materials.md`, `recipes.json`, `SKILLS-PROPOSAL.md` B8. Read first: skills `uefn-mcp-lab-guard` (guard rules, lab mount) and `uefn-create-use-remove-one-script` (create, use and remove in ONE script).
+
+## Tidy a graph
+Crossed wires, unlabeled nodes, odd names: `references/graph-cleanup.md` has the layout-only prompt (from Epic), the checks before and after, and what is not verified yet. It never changes what the material does.
 
 ## Rules
 - Paths in GUID form: lab mount `/09e4e8d3-83f9-4ee0-9777-072ed3984380/root_ai_lab` (never `/root_ai_lab`). Run from PowerShell (Git Bash path-converts the value).

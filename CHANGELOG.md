@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.123.17 — Task strip shows only the current release; material graph tidy-up
+
+- [fix] **The roadmap task strip shows only the release being worked on.** It used to show a window over every release, so finished tasks of earlier releases kept coming back next to the new one, and the whole strip could be drawn twice when the page refreshed. Now it lists the tasks of the current release (the one with the task In progress, else the first with open tasks) in id order. Under each dot only the id and a short word (Done, In progress, To do, Blocked) are shown; the long evidence text moved into the hover note.
+- [feature] **Tidy a messy material graph.** `uefn-materials` has a new reference, `graph-cleanup.md`: the layout-only prompt (adapted from Epic's note on cleaning material graphs with an agent), the baseline to read before and the comparison after (instruction count, pin connections, parameter names), and an honest list of what is not verified yet (comment boxes, named reroutes, node positions through the MCP). `materials-expert` hands the pass to the coder and never edits.
+
+- [other] **Notes to write.** Replace this line.
+
 ## v1.123.16 — Hide the Next action and Live demo row on the console
 
 - [feature] **You can hide the "Next action" and "Live demo" row.** A small button above it reads "Hide next action and demo" (and "Show" when hidden). The choice is remembered in the browser, so the roadmap, release status and tabs get the space back when you do not need the row.
