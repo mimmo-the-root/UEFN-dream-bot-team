@@ -305,6 +305,8 @@ tr.flash td{position:relative;}tr.flash td::before{content:"";position:absolute;
 .t0card .btn{font:inherit;font-size:11px;border:1px solid var(--blue);color:#fff;background:var(--blue);border-radius:5px;padding:4px 10px;cursor:pointer;}
 #nextAction.t0{display:block;padding:0;border:0;background:transparent;animation:none;box-shadow:none;margin:0;}
 .nxrow{display:grid;grid-template-columns:minmax(0,3fr) minmax(250px,1fr);gap:14px;margin:0 0 14px;align-items:stretch;}
+.nxtoggle{display:flex;justify-content:flex-end;margin:0 0 6px;}.nxtoggle button{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:999px;padding:3px 12px;font-size:11px;cursor:pointer;}.nxtoggle button:hover{color:var(--text);}
+.nxrow.nxhide{display:none !important;}
 .nxrow>.nx{margin:0;}.nxrow>#nextAction.t0 .t0box{height:100%;}
 .demobox2{grid-column:2;border:1px solid rgb(var(--acc,75,216,255));border-radius:10px;padding:14px 16px;background:var(--panel);box-shadow:0 0 0 1px rgba(var(--acc,75,216,255),.22),0 0 16px rgba(var(--acc,75,216,255),.1);display:flex;flex-direction:column;gap:8px;}
 .demobox2.run{border-color:rgba(57,255,136,.6);box-shadow:0 0 0 1px rgba(57,255,136,.3),0 0 22px rgba(57,255,136,.18);}
@@ -434,6 +436,7 @@ tr.flash td{position:relative;}tr.flash td::before{content:"";position:absolute;
     </div>
 
     <!-- v1.114: next action + one row of tabs. The blocks below keep their ids and their renderers; they are only grouped into panels. -->
+    <div class="nxtoggle"><button type="button" id="nxToggle" aria-controls="nxRow" aria-expanded="true">Hide next action and demo</button></div>
     <div class="nxrow" id="nxRow"><div class="card nx" id="nextAction" style="display:none;"></div>
     <div class="demobox2" id="demoBox"><div class="mhrow"><div><div class="dl2">Live demo · real time</div><h3>Put the kit's speed to the test</h3></div>
         <div class="mh" title="Chief of staff: it runs the demo"><i class="mh-r"></i><i class="mh-r"></i><i class="mh-r"></i><div class="mh-core"><span class="mh-g">🤖</span><span class="mh-l">chief of staff</span><span class="mh-led"></span></div></div></div>
@@ -443,6 +446,22 @@ tr.flash td{position:relative;}tr.flash td::before{content:"";position:absolute;
       <div class="dcmds" id="demoCmds"><div class="act"><span class="cmd">/demo</span><button class="btn" type="button" data-cmd="/demo">Copy text</button><small>with you</small></div><div class="act"><span class="cmd">/demo --auto</span><button class="btn" type="button" data-cmd="/demo --auto">Copy text</button><small>on its own</small></div></div></div></div>
     <div class="flowrow" id="flowRow"><div class="stp" id="pageSteps" role="tablist" aria-label="Workflow"></div></div>
     <div id="loopBar"></div>
+<script>
+/* Hide or show the "Next action" and "Live demo" row. The choice is kept in this browser (localStorage "nxHidden"). */
+(function(){
+  var row = document.getElementById("nxRow"), btn = document.getElementById("nxToggle");
+  if (!row || !btn) return;
+  function apply(hidden){
+    row.classList.toggle("nxhide", hidden);
+    btn.textContent = hidden ? "Show next action and demo" : "Hide next action and demo";
+    btn.setAttribute("aria-expanded", hidden ? "false" : "true");
+  }
+  var hidden = false; try { hidden = localStorage.getItem("nxHidden") === "1"; } catch(e){}
+  apply(hidden);
+  btn.onclick = function(){ hidden = !hidden; try { localStorage.setItem("nxHidden", hidden ? "1" : "0"); } catch(e){} apply(hidden); };
+})();
+</script>
+
     <div class="pt" id="pageTabs" role="tablist"></div>
     <div id="fixBar"></div>
     <div id="fixBox"></div>
@@ -981,7 +1000,7 @@ function groupByRelease(rows){
   return keyed.map(o => ({ name: o.name, rows: groups[o.name] }));
 }
 
-// ---- v1.123.15: ONE definition of the numbers, release order, and paged boxes ------------------------------
+// ---- v1.123.16: ONE definition of the numbers, release order, and paged boxes ------------------------------
 // total = tasks planned into a release (not out of scope, not Later/backlog); out of scope and backlog are counted apart and never in the %.
 function relStats(allRows){
   const scope = (allRows || []).filter(t => statusBucket(t.status) !== "outOfScope");
@@ -1601,7 +1620,7 @@ async function jState(){
   const [g, p, c, r, au, dl, tm, gn, gp, ll, osd, pf, bg, lp, dv] = await Promise.all(["gamespec","plan","constitution","roadmap","audit","delivery","demotimer","genre","genreprop","learnlog","ownersteps","performance","bugs","learnprogress","devices"].map(fetchDoc));
   const st = {hasSpec: !!(g.exists && /##\s+Loop \(MVP\)/i.test(g.content)), g: g.content, p: p.exists ? p.content : "", c: c.exists ? c.content : ""};
   const rowsAll = r.exists ? parseRoadmapTasks(r.content).filter(t => /^T-\d+/i.test(t.id||"") && !/example/i.test(t.feature||"")) : [];
-  /* v1.123.15: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
+  /* v1.123.16: the tasks of the journey are the ones planned into a release: out of scope and Later (backlog) are counted apart, so every page shows the same numbers */
   const tasks = rowsAll.filter(t => statusBucket(t.status) !== "outOfScope" && !isBacklogRow(t));
   st.rowsAll = rowsAll; st.stats = relStats(rowsAll); st.bugsRaw = bg && bg.exists && !bg.error ? bg.content : ""; st.learnRaw = lp && lp.exists && !lp.error ? lp.content : ""; st.devRaw = dv && dv.exists && !dv.error ? dv.content : "";
   st.roadRaw = r.exists ? r.content : ""; st.osRaw = osd.exists && !osd.error ? osd.content : "";
@@ -1940,7 +1959,7 @@ function jIdea(st){ const hint = '<b>Not started.</b> Two ways in, both with <co
 function jSpec(st){ return jGhost(st.hasSpec, jSpec0(st), 'Waiting for <code>/spec</code>. This page will show the checklist of the spec (loop, story with test, success criteria, assumptions) and the technical risks with a level.'); }
 function jPlan(st){ return jGhost(st.planExists, jPlan0(st), st.hasSpec && st.specApproved ? 'No plan yet. Run <code>/game-plan</code>.' : 'Waiting for the approved spec. <code>/game-plan</code> will fill it: devices and assets per story, Island settings, the environment and the build order.'); }
 function bucketPill(s){ const b = statusBucket(s); return b==="done" ? '<span class="jpill jgreen">Done</span>' : b==="active" ? '<span class="jpill jlive">In progress</span>' : b==="blocked" ? '<span class="jpill jred">Blocked</span>' : '<span class="jpill">To do</span>'; }
-// ---- v1.123.15: real data from the project documents (no sample text for a project that exists) ----------------
+// ---- v1.123.16: real data from the project documents (no sample text for a project that exists) ----------------
 function auditFromDocs(st){
   const out = []; if (!st.bugsRaw) return out;
   let rows = []; try{ rows = parseBugsBacklog(st.bugsRaw); }catch(e){ rows = []; }
@@ -2124,7 +2143,7 @@ function paintLoopBar(st, ss){
 }
 // v1.120: every piece of work is a task; the Bugs, Audit and Performance tabs show the current release's tasks of their kind first.
 function kindTable(st, k){
-  const rows = (st.tasks || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "outOfScope");   // v1.123.15: every release, so the number on the tab is the number of rows below
+  const rows = (st.tasks || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "outOfScope");   // v1.123.16: every release, so the number on the tab is the number of rows below
   if (!rows.length) return "";
   const open = rows.filter(t => statusBucket(t.status) !== "done").length, rn = st.rel0 ? st.rel0.cur.name : "";
   const isCur = t => (t.release || "").trim() === rn;
@@ -2286,7 +2305,7 @@ async function refreshDocs(){
 }
 setInterval(refreshDocs, 5000);
 </script>
-<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.123.15";})();</script>
+<script>(function(){var e=document.getElementById("kitVersion");if(e)e.textContent="v1.123.16";})();</script>
 <script>
 /* Update notice — same snippet in all 4 consoles. Reads the latest PUBLISHED GitHub Release and shows a dismissible bar
    if it is newer than the version shown in this page's header. Checked at most every 6h; silent on any failure. */

@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.123.16 — Hide the Next action and Live demo row on the console
+
+- [feature] **You can hide the "Next action" and "Live demo" row.** A small button above it reads "Hide next action and demo" (and "Show" when hidden). The choice is remembered in the browser, so the roadmap, release status and tabs get the space back when you do not need the row.
+
+- [other] **Notes to write.** Replace this line.
+
 ## v1.123.15 — DemoDisplay is a content-hall Blueprint: how to find and place it
 
 - [fix] **The coder no longer concludes "there is no DemoDisplay".** In a real project the coder searched the device catalog (`ListDeviceAssets`), found nothing and built a cube-and-billboard substitute, while the owner's own DemoDisplay stood in the level. The DemoDisplay is a content-hall Blueprint (`/ContentHall/Blueprints/BP_DemoDisplay`), not a Creative device. `uefn-device-gotchas` (`demodisplay-sizing.md`) now says how to find one in the level, read and set its fields, and place a new one; the coder's rule 7 line points to it.
