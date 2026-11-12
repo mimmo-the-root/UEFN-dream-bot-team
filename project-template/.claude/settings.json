@@ -272,6 +272,19 @@
           }
         ]
       }
+    ],
+    "StopFailure": [
+      {
+        "_comment": "Usage limit reached (5-hour or weekly): records it in Claude/relay/outbox/LIMIT.json and starts a watcher that, after the reset, opens a NEW Cod window with a fixed resume prompt (v1.123.18). Never types into an existing window. Off switch: create Claude/relay/NO-RESUME. Needs Python 3; silent no-op without it.",
+        "matcher": "rate_limit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/limit-resume.ps1\"",
+            "timeout": 15
+          }
+        ]
+      }
     ]
   }
 }

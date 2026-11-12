@@ -78,5 +78,16 @@ Parallel commands that use the editor: a sub-agent started with the Agent tool m
 - Does not queue more than a few commands ahead: each must be chosen after reading the previous result.
 - The owner can always answer in chat; `STOP` is the brake.
 
+## When the usage limit is reached (1.123.18)
+Claude Code stops at the 5-hour or the weekly limit and waits for a person. The `StopFailure` hook (matcher `rate_limit`, `Claude/hooks/limit-resume.ps1` -> `limit_resume.py`) handles it:
+1. It records the limit in `outbox/LIMIT.json` (`state: waiting`, when it was hit, when it resets if Claude Code says so, else "unknown") and starts ONE watcher in the background.
+2. The watcher waits for the reset (plus 90 seconds), then opens a NEW Claude Code window in this project with a fixed resume prompt: read STATUS.md, ROADMAP.md and the newest DEVLOG entries, finish what was in progress (a task In progress, a file in `running/`), continue with the next open task, start `/relay`. The work state lives in those files, so a new session continues from the right place.
+3. It never types into a window that is already open. When the reset time is not known it looks again every 30 minutes (the new session records the limit again if it is still on).
+4. It does nothing when the session that hit the limit was already continued by the owner, when `NO-RESUME` or `STOP` exists, or after `max_per_day` resumes (default 4). Everything is written to `Claude/logs/limit-resume.log`.
+- Off switch: create `Claude/relay/NO-RESUME`.
+- Settings (optional) in `Claude/relay/RESUME.json`: `prompt`, `claude_args` (for example `["--permission-mode","acceptEdits"]` when the new window should not stop at permission questions; leave it out to keep your usual rules), `extra_wait_seconds`, `max_per_day`.
+- Check: `python Claude/hooks/limit_resume.py status <project folder>`.
+- The old window that hit the limit stays open and idle; close it when the new one has started. A computer that was asleep or off at the reset time resumes nothing: the next session you start picks the mailbox up by itself (`/relay` starts at session start).
+
 ## Start the worker (once per session)
 `/relay` in Claude Code, in the project. It reads this file and starts the polling loop. `/relay status` shows HEARTBEAT and the folders.

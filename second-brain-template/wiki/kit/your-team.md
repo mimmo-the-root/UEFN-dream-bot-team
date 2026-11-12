@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.17
-updated: kit-1.123.17
+created: kit-1.123.18
+updated: kit-1.123.18
 sources: [docs/manual/your-team.md]
 type: kit
 status: current
@@ -118,4 +118,4 @@ What to test afterwards, one change at a time, against those lines:
 A coordinator that starts writer agents is adopted only if it costs the same or less per finished task than the single writer, with the same final check.
 
 ## Sources
-- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.123.17. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.123.18. Rebuilt on every kit release: do not edit this page, edit the manual.

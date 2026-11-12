@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.123.18 — Cod resumes by itself after a usage limit
+
+- [feature] **Cod resumes by itself after a usage limit.** A new `StopFailure` hook (matcher `rate_limit`) records the limit in `Claude/relay/outbox/LIMIT.json` and starts one background watcher. After the reset the watcher opens a NEW Claude Code window in the project with a fixed resume prompt (read STATUS, ROADMAP and the newest dev log entries, finish what was in progress, continue with the next open task, start `/relay`). It never types into an open window, does nothing when the owner already continued or when `Claude/relay/NO-RESUME` exists, resumes at most 4 times a day, and logs to `Claude/logs/limit-resume.log`. Existing projects get the hook at the next kit sync. Tested offline with a fake clock; NOT yet seen on a real limit.
+
+- [other] **Notes to write.** Replace this line.
+
 ## v1.123.17 — Task strip shows only the current release; material graph tidy-up
 
 - [fix] **The roadmap task strip shows only the release being worked on.** It used to show a window over every release, so finished tasks of earlier releases kept coming back next to the new one, and the whole strip could be drawn twice when the page refreshed. Now it lists the tasks of the current release (the one with the task In progress, else the first with open tasks) in id order. Under each dot only the id and a short word (Done, In progress, To do, Blocked) are shown; the long evidence text moved into the hover note.
