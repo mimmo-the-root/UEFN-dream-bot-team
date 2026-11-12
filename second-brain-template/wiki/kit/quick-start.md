@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.13
-updated: kit-1.123.13
+created: kit-1.123.14
+updated: kit-1.123.14
 sources: [docs/manual/quick-start.md]
 type: kit
 status: current
@@ -65,4 +65,4 @@ Work as usual. Ask the coder agent for a feature, let the checks run, and ask th
 - [[your-team|Your team]]
 
 ## Sources
-- The kit manual, chapter "Quick start" (docs/manual/quick-start.md), kit v1.123.13. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Quick start" (docs/manual/quick-start.md), kit v1.123.14. Rebuilt on every kit release: do not edit this page, edit the manual.

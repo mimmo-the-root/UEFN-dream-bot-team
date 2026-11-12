@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.13
-updated: kit-1.123.13
+created: kit-1.123.14
+updated: kit-1.123.14
 sources: [docs/manual/install.md]
 type: kit
 status: current
@@ -112,4 +112,4 @@ Claude Code reads both and layers the project's on top of yours.
 - [[troubleshooting|Troubleshooting]]
 
 ## Sources
-- The kit manual, chapter "Full installation" (docs/manual/install.md), kit v1.123.13. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Full installation" (docs/manual/install.md), kit v1.123.14. Rebuilt on every kit release: do not edit this page, edit the manual.

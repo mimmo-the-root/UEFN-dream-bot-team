@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.123.14 — Tasks tab counts the same tasks as the hero
+
+- [fix] **The Tasks tab no longer counts the backlog.** The hero and the tab badge said 53 tasks, the "All" chip said 55: the chip also counted the 2 rows in the backlog (Later). The Tasks tab now uses the same denominator as the rest of the console; the backlog stays in its own box.
+
+- [other] **Notes to write.** Replace this line.
+
 ## v1.123.13 — Asset budget skill, atmosphere reference and a narrator test script (from the UEFN 43.10 pages)
 
 - [new] **A new skill, `uefn-asset-budget`.** The gate for a prop made by an AI tool or taken from outside: scale in centimeters, a triangle and vertex band by prop size, one material, simple convex collision, texture size, a test in the editor and a record (source, counts, license, origin asset or not). Numbers come from Epic's Fortnite-ready asset guide (read 2026-11-12); applying them to generated models is a kit rule, and the skill says so.
