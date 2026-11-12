@@ -1,7 +1,7 @@
 ---
 name: uefn-device-gotchas
 description: High-frequency UEFN device quirks and edge cases (Elimination Manager, Item Granter timing, Storm Controller, Player Spawner multiplayer behavior, DemoDisplay sizing/placement rules) at high density. Read before configuring one of these devices to avoid rediscovering a known trap.
-last_reviewed: 2026-10-16
+last_reviewed: 2026-11-12
 sources: [original]
 ---
 
@@ -25,7 +25,7 @@ symptom + how to recognize/avoid it, not a paragraph.
   other devices whose WORLD POSITION is itself gameplay-functional (never move these onto a
   DemoDisplay stand — see `~/.claude/CLAUDE.md` rule 7's gameplay-critical-position exception).
 - `references/demodisplay-sizing.md` — the full DemoDisplay sizing/orientation/placement math
-  (width/depth/height via `ObjectTools`, yaw-based relative positioning, the `get_actor_bounds`
+  (how to find and place it: it is a content-hall Blueprint, not in `ListDeviceAssets`; width/depth/height via `ObjectTools`, yaw-based relative positioning, the `get_actor_bounds`
   asymmetry gotcha). `~/.claude/CLAUDE.md` rule 7 keeps only the summary; read this file when
   you're actually about to size or place a stand, not for the general rule.
 

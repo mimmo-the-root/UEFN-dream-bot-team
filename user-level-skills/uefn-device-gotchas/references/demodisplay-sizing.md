@@ -34,3 +34,11 @@ footprint, at the same Z as the `DemoDisplay`'s base** (its minimum Z / resting 
 stacked with a Z offset, NOT lined up in an evenly-spaced row in front of the display: group or
 scatter them freely within its footprint. In practice: size the `DemoDisplay` large enough first,
 then move the devices into its X/Y coordinates at Z = the `DemoDisplay`'s base.
+
+## Finding and placing the DemoDisplay (it is not in the device catalog)
+`DemoDisplay` is a content-hall Blueprint, not a Creative device: class `/ContentHall/Blueprints/BP_DemoDisplay.BP_DemoDisplay_C` (the `_C` is the Blueprint class suffix; "DemoDisplay C" is only a label).
+- `DeviceToolset/ListDeviceAssets` with `nameFilter` "Demo" or "Display" finds NOTHING: it lists only the Creative device catalog. Do not conclude "the project has no DemoDisplay" from it, and do not build a cube-and-billboard substitute.
+- Find one already in the level: `LevelToolset/FindActors` returns the whole level (its class argument does not filter by substring; heavy, use it once), pick the actor whose `nativeClass.refPath` ends `BP_DemoDisplay.BP_DemoDisplay_C` or whose label is `DemoDisplay C`, then address it by its actor path.
+- Read and set the fields with `ObjectToolset/ListProperties`, `GetProperties`, `SetProperties` (instance = the actor path): `width`, `depth`, `height`, title and description Text, text alignment and scale, colours, floor, spotlight, cast shadows.
+- Place a new one: `LevelToolset/AddToSceneFromAsset` with asset `/ContentHall/Blueprints/BP_DemoDisplay`.
+- If the owner has placed one in the level, use it before placing another.

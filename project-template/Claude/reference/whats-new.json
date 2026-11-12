@@ -1,6 +1,16 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.123.15": {
+   "title": "DemoDisplay is a content-hall Blueprint: how to find and place it",
+   "features": 0,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "The coder no longer concludes \"there is no DemoDisplay\"",
+    "Notes to write"
+   ]
+  },
   "1.123.14": {
    "title": "Tasks tab counts the same tasks as the hero",
    "features": 0,

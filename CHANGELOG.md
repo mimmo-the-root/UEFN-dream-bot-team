@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.123.15 — DemoDisplay is a content-hall Blueprint: how to find and place it
+
+- [fix] **The coder no longer concludes "there is no DemoDisplay".** In a real project the coder searched the device catalog (`ListDeviceAssets`), found nothing and built a cube-and-billboard substitute, while the owner's own DemoDisplay stood in the level. The DemoDisplay is a content-hall Blueprint (`/ContentHall/Blueprints/BP_DemoDisplay`), not a Creative device. `uefn-device-gotchas` (`demodisplay-sizing.md`) now says how to find one in the level, read and set its fields, and place a new one; the coder's rule 7 line points to it.
+
+- [other] **Notes to write.** Replace this line.
+
 ## v1.123.14 — Tasks tab counts the same tasks as the hero
 
 - [fix] **The Tasks tab no longer counts the backlog.** The hero and the tab badge said 53 tasks, the "All" chip said 55: the chip also counted the 2 rows in the backlog (Later). The Tasks tab now uses the same denominator as the rest of the console; the backlog stays in its own box.
