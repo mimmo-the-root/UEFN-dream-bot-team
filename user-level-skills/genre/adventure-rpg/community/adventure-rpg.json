@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "genre": "adventure-rpg",
-  "pack_version": 13,
+  "pack_version": 15,
   "patterns": [
     {
       "id": "p-c2897e0ac14d",
@@ -122,6 +122,26 @@
       "tier": "hypothesis",
       "status": "active",
       "section": "devices",
+      "support": 1
+    },
+    {
+      "id": "p-e8eee778a25f",
+      "variant": "*",
+      "statement": "Clear the per-hit busy flag one tick later",
+      "condition": "A damage-on-hit handler applies extra damage to the target",
+      "action": "Set a per-attacker busy flag when the hit is handled, clear it with Sleep(0.0) in a spawned task, so the bonus hit is not processed again as a new hit and the next real hit is not dropped.",
+      "tier": "hypothesis",
+      "status": "active",
+      "support": 1
+    },
+    {
+      "id": "p-3c64b730e99b",
+      "variant": "*",
+      "statement": "Empty UI slots are hidden, not given a stand-in icon",
+      "condition": "A paged shop or list UI has slots that can be empty",
+      "action": "Hide the slot's widgets and skip setting its image when the slot is empty; do not map the empty case to a real item icon, or a visibility change later shows the wrong picture.",
+      "tier": "hypothesis",
+      "status": "active",
       "support": 1
     }
   ]
