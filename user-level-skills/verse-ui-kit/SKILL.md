@@ -23,5 +23,8 @@ This skill covers how an in-game screen is built and wired, whether or not Epic'
 ## Editing widgets from here
 With the UEFN MCP connected, widget editing may be possible. Use the `uefn-ui-widgets` skill: it points to the proven recipes in `mcp-tool-contracts` (widget blueprints, bindings, animations). Tool coverage changes between UEFN versions: check `mcp_map.py --find <word>` and read the tool's description before saying something cannot be done, and run `/mcp-snapshot` now and then so new tools are noticed. If the server is unreachable, say so and give the owner numbered manual steps instead.
 
+## Fields of a new widget
+Verse sees the fields of a Widget Blueprint only after Verse is built: compile the widget, save, then `/verse-check` (BuildAll). After that the new widget and its fields are visible in the code. No editor restart is needed; if a field is missing, the build did not run or failed, so run it again and read the result.
+
 ## Always report
 Compile and save each changed widget, then build Verse with `/verse-check`; only `clean` counts. List every step the owner must do by hand (values only the editor panels can set) and the manual gamepad, keyboard and mouse test.

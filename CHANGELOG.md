@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.123.20 — Widget fields are visible to Verse after a build, no editor restart
+
+- [fix] **Wrong rule corrected: new widget fields need a Verse build, not an editor restart.** A coder reported that a new Widget Blueprint's fields were invisible to Verse until the editor restarted, and moved two screens into an older widget. The real rule: compile the widget, save, then run BuildAll; the fields become visible. Written into `uefn-ui-widgets`, `verse-ui-kit`, the `ui-builder` agent and `uefn-lessons` (UI pitfalls).
+
 ## v1.123.19 — Cod resumes in the same session after a usage limit
 
 - [fix] **No new window, no daily cap.** The usage-limit resume of 1.123.18 opened a new Claude Code window and stopped after 4 resumes a day. Now the watcher types a short "continue" message into the SAME Cod session once the limit resets (Windows console input, no focus needed), checks that the session really moved, and if not tries again every 5 minutes with no limit on the tries. So Cod keeps working while you sleep. It stops when the session is closed, when you already continued, or when `Claude/relay/NO-RESUME` exists. Keep the computer awake for the night and Cod on a permission mode that does not stop at questions. Tested offline with a fake clock; typing into the real console is NOT yet seen on a real limit.

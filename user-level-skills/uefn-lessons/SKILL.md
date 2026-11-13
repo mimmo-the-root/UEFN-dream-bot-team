@@ -72,6 +72,9 @@ don't fit a single device type.
   assets genuinely exist in the currently-open project, not `AssetTools.find_assets`. Confirmed by
   the owner directly testing both against the same open project.
 
+## UI pitfalls
+- **A new Widget Blueprint's Verse fields are not visible until Verse is built.** Symptom: widget compiles, fields exist in the blueprint, but the Verse code cannot see them (wrongly read as "needs an editor restart"; a project even moved two screens into an older widget and kept canvas as fallback). Fix: `CompileWidgetBlueprint`, save, then `BuildAll`; the fields appear. Confirmed by the owner on the jam project (Nov 2026). Rule: always build Verse after creating or changing a widget's fields.
+
 ## Performance pitfalls
 - (example — replace) ...
 
