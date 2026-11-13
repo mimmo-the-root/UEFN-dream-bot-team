@@ -255,8 +255,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/island-code.ps1\"",
-            "timeout": 60
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/island_code_capture.py\"",
+            "timeout": 30
           }
         ]
       }
