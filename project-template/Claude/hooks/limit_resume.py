@@ -16,6 +16,10 @@ import json, os, re, subprocess, sys, time, datetime
 DEFAULT_PROMPT = ("The usage limit has reset. Continue exactly where you stopped: finish the task in progress, then go on with the next open task "
                   "of Claude/docs/ROADMAP.md. Keep working without waiting for me: I am away. Do not redo work that is Done.")
 VERIFY_SECONDS = 150
+BUSY_SECONDS = 180
+BUSY_RE = re.compile(r"free (models?|providers?)[^\"]{0,40}(busy|failed|paused)|overloaded_error|Every free model was busy", re.I)
+BUSY_PROMPT = ("The free models were all busy for a while. Continue exactly where you stopped: finish the task in progress, then go on "
+               "with the next open task. Keep working without waiting for me: I am away.")
 
 
 def _dirs(project):
@@ -142,7 +146,11 @@ def hook(stdin_text, claude_pid=None, now=None, spawn=True):
         payload = json.loads(stdin_text or "{}")
     except ValueError:
         return {"ok": False, "why": "bad payload"}
-    if str(payload.get("error_type") or payload.get("error") or "") not in ("rate_limit", "429"):
+    et = str(payload.get("error_type") or payload.get("error") or "")
+    # 1.124.57: the free models all busy (the Dream Router answered "overloaded" after its own retries) is a wait too,
+    # a short one: the session is woken every 3 minutes until a model answers, never left waiting for the owner.
+    busy = et in ("server_error", "overloaded", "529", "unknown") or bool(BUSY_RE.search(json.dumps(payload)))
+    if et not in ("rate_limit", "429") and not busy:
         return {"ok": False, "why": "not a rate limit"}
     project = os.environ.get("CLAUDE_PROJECT_DIR") or payload.get("cwd") or os.getcwd()
     rd, lim, _ = _dirs(project)
@@ -152,9 +160,10 @@ def hook(stdin_text, claude_pid=None, now=None, spawn=True):
     # sub-agents can fire many StopFailure for one limit: one record, one watcher
     if prev.get("state") == "waiting" and _watcher_alive(project):
         return {"ok": True, "why": "already waiting"}
-    reset = find_reset(payload, now)
+    reset = None if busy else find_reset(payload, now)
     rec = {"state": "waiting", "hit_at": now, "hit_at_text": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now)),
-           "resets_at": reset, "resets_at_text": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(reset)) if reset else "unknown (trying every 10 minutes)",
+           "resets_at": reset, "resets_at_text": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(reset)) if reset else ("free models busy (trying every 3 minutes)" if busy else "unknown (trying every 10 minutes)"),
+           "kind": "busy" if busy else "limit",
            "session_id": payload.get("session_id"), "transcript_path": payload.get("transcript_path"),
            "claude_pid": int(claude_pid) if claude_pid else prev.get("claude_pid"), "wakes": 0}
     _write_json(lim, rec)
@@ -220,7 +229,8 @@ def watch(project, sleep=time.sleep, now_fn=time.time, wake=None, alive=None):
         st = _settings(project)
         reset = rec.get("resets_at")
         if next_try is None:
-            next_try = (reset + int(st.get("extra_wait_seconds", 90))) if reset else rec["hit_at"] + int(st.get("unknown_reset_seconds", 600))
+            busy = rec.get("kind") == "busy"
+            next_try = (reset + int(st.get("extra_wait_seconds", 90))) if reset else rec["hit_at"] + (BUSY_SECONDS if busy else int(st.get("unknown_reset_seconds", 600)))
         left = next_try - now_fn()
         if left > 0:
             sleep(min(left, 30)); beat()
@@ -229,7 +239,7 @@ def watch(project, sleep=time.sleep, now_fn=time.time, wake=None, alive=None):
             rec["state"] = "resumed-by-owner"; _write_json(lim, rec); _log(project, "the session already moved after the limit: nothing to do")
             return rec["state"]
         t0 = now_fn()
-        ok, out = wake(rec["claude_pid"], st.get("prompt") or DEFAULT_PROMPT)
+        ok, out = wake(rec["claude_pid"], BUSY_PROMPT if rec.get("kind") == "busy" else (st.get("prompt") or DEFAULT_PROMPT))
         rec["wakes"] = rec.get("wakes", 0) + 1; rec["last_wake_text"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t0))
         _log(project, "wake %d: %s %s" % (rec["wakes"], "typed" if ok else "FAILED", out))
         _write_json(lim, rec)
@@ -241,7 +251,7 @@ def watch(project, sleep=time.sleep, now_fn=time.time, wake=None, alive=None):
             _log(project, "the session moved: resumed")
             return "resumed"
         # no sign of life: still limited, or the text did not reach the session. Try again later, with no cap on the tries.
-        next_try = now_fn() + int(st.get("retry_seconds", 300))
+        next_try = now_fn() + (BUSY_SECONDS if rec.get("kind") == "busy" else int(st.get("retry_seconds", 300)))
 
 
 def status(project):

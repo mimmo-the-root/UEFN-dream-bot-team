@@ -36,7 +36,7 @@ p, tr = project(); reset = time.time() + 120
 out = L.hook(json.dumps({"error_type": "rate_limit", "resets_at": reset, "transcript_path": tr, "session_id": "s1"}), claude_pid=4242, spawn=False)
 rec = json.load(open(LIM(p)))
 assert out["ok"] and rec["state"] == "waiting" and rec["claude_pid"] == 4242 and abs(rec["resets_at"] - reset) < 1
-assert not L.hook(json.dumps({"error_type": "overloaded"}), spawn=False)["ok"], "only rate limits"
+assert not L.hook(json.dumps({"error_type": "invalid_request"}), spawn=False)["ok"], "only waits that end by themselves"
 
 # 4. watcher: types into the same session once the reset passes, verifies, no new window
 clock = [time.time()]
@@ -94,4 +94,18 @@ assert "-claude_pid" not in L.wake_command(1, "x") and L.wake_command(12, "hi")[
 assert "claude_args" not in open(os.path.join(hd, "limit_resume.py"), encoding="utf-8").read()
 
 assert "start_free_session" not in open(os.path.join(hd, "limit_resume.py"), encoding="utf-8").read(), "1.124.2: no new window, the router keeps the session going"
+# 1.124.57: the free models all busy: the session is woken every 3 minutes, with its own short message
+p, tr = project()
+out = L.hook(json.dumps({"error_type": "server_error", "transcript_path": tr}), claude_pid=99, spawn=False)
+rec = json.load(open(LIM(p)))
+assert out["ok"] and rec["kind"] == "busy" and rec["resets_at"] is None and "3 minutes" in rec["resets_at_text"], rec
+clock = [rec["hit_at"]]; calls = []
+def wake_late(pid, text):
+    calls.append((clock[0], text))
+    if len(calls) == 2:
+        os.utime(tr, (clock[0] + 1, clock[0] + 1))
+    return True, "typed"
+assert L.watch(p, sleep=lambda s: clock.__setitem__(0, clock[0] + s), now_fn=lambda: clock[0], wake=wake_late, alive=lambda pid: True) == "resumed"
+assert calls[0][0] - rec["hit_at"] >= 180 and calls[0][0] - rec["hit_at"] < 220 and "free models were all busy" in calls[0][1], calls
+assert calls[1][0] - calls[0][0] < 400, "tried again 3 minutes after the check"
 print("limit resume OK")

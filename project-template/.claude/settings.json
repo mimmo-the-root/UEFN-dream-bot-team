@@ -331,6 +331,17 @@
             "timeout": 15
           }
         ]
+      },
+      {
+        "_comment": "The free models were all busy (the Dream Router held each request 3 minutes, then Claude Code gave up): the same watcher types a short continue message into this session every 3 minutes until a model answers, so Cod never waits for the owner (v1.124.57). Off switch: Claude/relay/NO-RESUME.",
+        "matcher": "server_error|unknown",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/busy-resume.ps1\"",
+            "timeout": 15
+          }
+        ]
       }
     ]
   }

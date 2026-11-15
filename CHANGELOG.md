@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.124.57 — Free models busy: Cod waits and tries again by itself; Cohere, Cloudflare, ZenMux
+
+- [fix] **Cod stopped when every free model was busy at once** (all the quotas used for a while) and waited for the owner. Now:
+  - the router (1.124.57) keeps the request and tries every provider again after 3 minutes (sooner when a pause ends); only then it answers "busy", and Claude Code asks again, so the cycle goes on by itself;
+  - if Claude Code gives up after its own retries, a new hook (`busy-resume.ps1`, StopFailure server_error/unknown) types a short "continue" into the same session every 3 minutes until a model answers. Off switch: `Claude/relay/NO-RESUME`.
+- [feature] **Three more providers**: Cohere (trial key, Command models), Cloudflare Workers AI (back: the token alone now works, the account is found by itself) and ZenMux (pay-as-you-go: paid, after the free ones like DeepSeek). Keys stay only in `%USERPROFILE%\.dream-router\keys.env`.
+
 ## v1.124.56 — Release notes without the placeholder
 
 - [fix] **The empty-notes placeholder no longer reaches a release.** The placeholder line `bump_version.py` writes was left under the real notes in v1.123.14 to v1.123.19 and GitHub showed it. Removed from the changelog, and a new test (`test_changelog_notes.py`) fails while the line is anywhere: `publish.ps1` runs the tests, so such a release cannot be published.

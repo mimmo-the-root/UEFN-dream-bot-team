@@ -200,7 +200,10 @@ assert r["content"][0]["text"] == "<block>no" and r["stop_reason"] == "stop_sequ
 r = dr.to_anthropic({"choices": [{"message": {"content": "<block>yes"}, "finish_reason": "stop"}]}, {"stop_sequences": ["</block>"]}, "x")
 assert r["stop_reason"] == "stop_sequence" and r["stop_sequence"] == "</block>"
 P = dr.PROVIDERS
-assert len(dr.DEFAULT_SETTINGS["chain"]) == 9 and set(dr.DEFAULT_SETTINGS["chain"]) == set(P) and "mistral" not in P and "longcat" not in P and "cloudflare" not in P, "eight free providers + DeepSeek (paid, last)"
+assert len(dr.DEFAULT_SETTINGS["chain"]) == 12 and set(dr.DEFAULT_SETTINGS["chain"]) == set(P) and "mistral" not in P and "longcat" not in P, "ten free providers + DeepSeek and ZenMux (paid, last)"
+assert dr.DEFAULT_SETTINGS["chain"][-2:] == ["deepseek", "zenmux"] and P["zenmux"]["paid"] and P["deepseek"]["paid"]
+dr.STATE.setdefault("cf_acct", {})["cfut_tok"] = "acct9"   # 1.124.57: a Cloudflare token alone; the account is looked up once
+assert dr.endpoint(P["cloudflare"], "cfut_tok") == ("https://api.cloudflare.com/client/v4/accounts/acct9/ai/v1", "cfut_tok")
 assert dr.endpoint({"base": "https://x/{account}/v1"}, "acc123:tok456") == ("https://x/acc123/v1", "tok456")  # ACCOUNT:TOKEN keys still work for custom providers
 assert dr.provider_key(P["kilo"], {}) == "" and dr.endpoint(P["kilo"], "")[1] == "anonymous" and dr.provider_key(P["zai"], {}) is None
 # 13. the guardian starts the router when it does not answer, replaces an old version, and stops at STOP
@@ -299,7 +302,7 @@ dr.note_size({"system": "x" * 4000, "tools": [{"name": "Read"}], "messages": [{"
 dr.note_size({"system": "You are a security monitor " + "z" * 40000, "messages": [{"role": "user", "content": "w" * 4000}]})
 z = dr.size_summary(); assert z["requests"] == 1 and z["system"] < 1100 and z["side"]["requests"] == 1 and z["side"]["system"] > 9000, z
 assert z["side"]["sample"]["system_start"].startswith("You are a security monitor")
-assert dr.DEFAULT_SETTINGS["chain"][-1] == "deepseek" and dr.PROVIDERS["deepseek"]["paid"]
+assert dr.DEFAULT_SETTINGS["chain"][-1] == "zenmux" and dr.PROVIDERS["deepseek"]["paid"] and dr.PROVIDERS["zenmux"]["paid"]
 # 23. the auto-mode safety check is sent short to the free models: owner messages + the recent part of the session
 tr = "User: build the score counter in ScoreManager.verse\n" + "".join("Bash: step %d\n  output %s\n" % (i, "x" * 300) for i in range(400)) + "User: now run the tests\nBash: python test_calc.py\n"
 sc = {"model": "claude-sonnet", "max_tokens": 64, "system": "You are a security monitor. Respond with <block>yes</block> or <block>no</block>.",
@@ -464,5 +467,30 @@ shutil.copy(dr.__file__, lone)
 r = subprocess.run([sys.executable, "-c", "import dream_router as d; print(d.model_history)"], cwd=lone, capture_output=True, text=True,
                    env=dict(os.environ, PYTHONPATH="", DREAM_ROUTER_HOME=home))
 assert r.returncode == 0 and "None" in r.stdout, r.stderr
+# 34. every free model busy: the router holds the request and tries again (every 3 minutes), it does not hand the error to Cod at once
+calls = []; real_route = dr.route
+def busy_then_ok(req):
+    calls.append(1)
+    if len(calls) < 3:
+        raise dr.ProviderError("all_failed", 529, "All free providers failed or are paused: x")
+    return ({"content": []}, "ok/m", None)
+dr.route = busy_then_ok
+clock = [0.0]
+msg, routed, _ = dr.route_patiently({"messages": []}, sleep=lambda x: clock.__setitem__(0, clock[0] + x), clock=lambda: clock[0], hold=180)
+assert routed == "ok/m" and len(calls) == 3 and clock[0] <= 180, (calls, clock)
+calls.clear(); dr.route = lambda req: (calls.append(1), (_ for _ in ()).throw(dr.ProviderError("all_failed", 529, "busy")))[1]
+clock = [0.0]
+try:
+    dr.route_patiently({"messages": []}, sleep=lambda x: clock.__setitem__(0, clock[0] + x), clock=lambda: clock[0], hold=180)
+    assert False, "still busy: the error goes back"
+except dr.ProviderError as e:
+    assert "Every free model was busy for 180 s" in e.detail and clock[0] >= 180, (e.detail, clock)
+dr.route = lambda req: (_ for _ in ()).throw(dr.ProviderError("no_keys", 503, "no keys"))
+try:
+    dr.route_patiently({"messages": []}, sleep=lambda x: None, clock=time.time, hold=180)
+    assert False
+except dr.ProviderError as e:
+    assert e.kind == "no_keys", "a missing key is not waited for"
+dr.route = real_route
 router.shutdown(); fake.shutdown()
 print("ok dream_router")

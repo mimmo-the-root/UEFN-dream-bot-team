@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.124.56
-updated: kit-1.124.56
+created: kit-1.124.57
+updated: kit-1.124.57
 sources: [docs/manual/free-models.md]
 type: kit
 status: current
@@ -39,6 +39,9 @@ Plan, then free sends your plan's login through a program on your PC. Claude's p
 | DeepSeek (paid, cheap) | https://platform.deepseek.com/api_keys | not free: about 0.30 USD per million input tokens; last in the order, used only when every free provider fails |
 | Groq | https://console.groq.com/keys | only small requests fit its free limit |
 | Ollama Cloud | https://ollama.com/settings/keys | last in the order: its free plan answered "add credits" for every model in our test |
+| Cohere | https://dashboard.cohere.com/api-keys | trial key: about 20 requests a minute and 1,000 a month; Command models only |
+| Cloudflare Workers AI | https://dash.cloudflare.com/profile/api-tokens | the token alone is enough (the account is found by itself); `ACCOUNT_ID:TOKEN` works too |
+| ZenMux (paid) | https://zenmux.ai | pay-as-you-go: per token, after the free ones, like DeepSeek |
 
 2. Run `update-my-profile.cmd` once (and after every kit update), so the router is in your profile.
 
@@ -58,6 +61,7 @@ Open the console, page **Models**, paste each key in its box and press **Save** 
 
 ## How the router saves tokens and keeps Cod working
 
+- **When every free model is busy at once** (all quotas used for a while), the router does not give up: it keeps the request and tries every provider again every 3 minutes (sooner when one's pause ends). If Claude Code gives up anyway after its own retries, a hook types a short "continue" into the session every 3 minutes until a model answers: Cod never stops to wait for you.
 - When a provider is at its limit, slow or refuses a request, the router moves to the next one by itself. A model that is not free for your account is set aside for 6 hours, even across restarts.
 - Tool outputs going to a free model are shrunk the same way every time: colours and repeated lines out, very long outputs kept as their beginning and end with a note. Requests on your plan are passed through untouched, so Claude's prompt cache keeps working.
 - **Clear old tool results** (on by default): in a long conversation the router replaces tool results older than the last 5 with a one-line note (the tool name and how much was cut), and keeps only the last copy of a long text that appears twice. What you wrote is never touched, and the recent work stays whole. The Models page shows how much was saved.
@@ -126,4 +130,4 @@ A small link **"history"** next to the **learned** chip on the Models page opens
 | In Plan, then free, a red line says your plan login does not reach the router | Your plan cannot pass through the router on this PC: choose Plan only or Free only |
 
 ## Sources
-- The kit manual, chapter "Free models and 24/7" (docs/manual/free-models.md), kit v1.124.56. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Free models and 24/7" (docs/manual/free-models.md), kit v1.124.57. Rebuilt on every kit release: do not edit this page, edit the manual.

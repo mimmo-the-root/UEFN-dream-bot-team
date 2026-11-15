@@ -35,7 +35,7 @@ try:  # the model history (v1.124.52): optional, a router without it still start
 except Exception:
     model_history = None
 
-VERSION = "1.124.51"
+VERSION = "1.124.57"
 PORT = int(os.environ.get("DREAM_ROUTER_PORT", "8787"))
 HOME = os.environ.get("DREAM_ROUTER_HOME") or os.path.join(os.path.expanduser("~"), ".dream-router")
 
@@ -65,6 +65,17 @@ PROVIDERS = {
                  "timeout": 240},  # not free: about 0.3 USD per million input tokens; last in the chain, used when the free ones fail
     "llm7": {"label": "LLM7.io", "signup": "https://dash.llm7.io", "base": "https://api.llm7.io/v1", "key": "LLM7_API_KEY",  # free token required since 2026
              "prefer": [r"qwen.*coder", r"deepseek-v", r"gpt-oss-120b", r"kimi", r"llama-3\.3-70b"], "models": ["deepseek-v3.1"], "max_tokens": 8192},
+    "cohere": {"label": "Cohere (trial key)", "signup": "https://dashboard.cohere.com/api-keys", "base": "https://api.cohere.ai/compatibility/v1", "key": "COHERE_API_KEY",
+               "models_url": "https://api.cohere.ai/v1/models?endpoint=chat&page_size=100",   # 1.124.57: the compatibility API has no /models
+               "prefer": [r"^command-a(?!.*(vision|translate|reasoning|embed|rerank))", r"^command-r-plus", r"^command-r"], "only_prefer": True,
+               "models": ["command-a-03-2025"], "max_tokens": 8000},   # trial: about 20 requests a minute and 1,000 a month
+    "cloudflare": {"label": "Cloudflare Workers AI", "signup": "https://dash.cloudflare.com/profile/api-tokens",
+                   "base": "https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1", "key": "CLOUDFLARE_API_KEY",   # a token, or ACCOUNT_ID:TOKEN
+                   "models_url": "https://api.cloudflare.com/client/v4/accounts/{account}/ai/models/search?task=Text%20Generation&per_page=200",
+                   "prefer": [r"qwen.*coder", r"llama-4", r"gpt-oss-120b", r"llama-3\.3-70b", r"deepseek"], "models": ["@cf/openai/gpt-oss-120b"], "max_tokens": 8192},
+    "zenmux": {"label": "ZenMux (paid, per token)", "signup": "https://zenmux.ai", "base": "https://zenmux.ai/api/v1", "key": "ZENMUX_API_KEY",
+               "prefer": [r"free", r"qwen3-coder", r"glm-[0-9.]+", r"kimi-k[0-9]", r"deepseek-v[0-9]", r"minimax"], "models": ["z-ai/glm-4.6"], "max_tokens": 8192,
+               "paid": True, "timeout": 240},   # pay-as-you-go key: after the free ones, like DeepSeek
     "groq": {"label": "Groq", "signup": "https://console.groq.com/keys", "base": "https://api.groq.com/openai/v1", "key": "GROQ_API_KEY",
              "prefer": [r"kimi-k2", r"gpt-oss-120b", r"qwen3", r"llama-3\.3-70b"],
              "models": ["openai/gpt-oss-120b"], "max_tokens": 8192, "max_input_tokens": 7500},
@@ -73,7 +84,7 @@ UPSTREAM = os.environ.get("DREAM_ROUTER_UPSTREAM", "https://api.anthropic.com")
 FREE_TOKEN = "dream-router-local"
 MODES = ("auto", "plan", "free")  # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only
 DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True,
-                    "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "deepseek"]}
+                    "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "cloudflare", "deepseek", "zenmux"]}
 LOCK = threading.Lock()
 STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time()}
 
@@ -191,12 +202,29 @@ def providers():
     return p
 
 
+def cf_account(key):
+    """Cloudflare: (account id, token). The key is ACCOUNT_ID:TOKEN, or (1.124.57) the token alone: then the account is the
+    first one the token can see (asked once, then kept)."""
+    acct, sep, tok = (key or "").partition(":")
+    if sep:
+        return acct.strip(), tok.strip()
+    tok = (key or "").strip()
+    cache = STATE.setdefault("cf_acct", {})
+    if tok and tok not in cache:
+        try:
+            r = _http("https://api.cloudflare.com/client/v4/accounts?per_page=5", tok, timeout=20).get("result") or []
+            cache[tok] = str(r[0].get("id", "")) if r else ""
+        except Exception:
+            return "", tok
+    return cache.get(tok, ""), tok
+
+
 def endpoint(prov, key):
     """(base URL, bearer token) for a provider: Cloudflare keys are ACCOUNT_ID:TOKEN; keyless providers work without a key."""
     base = prov["base"].rstrip("/")
     if "{account}" in base:
-        acct, _, tok = (key or "").partition(":")
-        return base.replace("{account}", acct.strip()), tok.strip()
+        acct, tok = cf_account(key)
+        return base.replace("{account}", acct), tok
     return base, key or ("anonymous" if prov.get("keyless") else "")
 
 
@@ -204,9 +232,9 @@ def list_models(prov, key):
     """The provider's model ids: its OpenAI-style /models, or its own list API when it has no /models (Cloudflare)."""
     b, t = endpoint(prov, key)
     if prov.get("models_url"):
-        acct = (key or "").partition(":")[0].strip()
-        d = _http(prov["models_url"].replace("{account}", acct), t, timeout=20)
-        return [m.get("name", "") for m in d.get("result", []) if isinstance(m, dict)]
+        acct = cf_account(key)[0] if "{account}" in prov["models_url"] else ""
+        d = _http(prov["models_url"].replace("{account}", acct), t or key, timeout=20)
+        return [m.get("name", "") for m in (d.get("result") or d.get("models") or []) if isinstance(m, dict)]
     return [m.get("id", "") for m in _http(b + "/models", t, timeout=20).get("data", [])]
 
 
@@ -762,6 +790,51 @@ def available(name):
     return STATE["cooldown"].get(name, 0) <= now and br.get("open_until", 0) <= now
 
 
+PATIENCE = 180   # 1.124.57: when every free model is busy the router keeps the request and tries again every 3 minutes
+
+
+def reopen():
+    """Every provider and model that is only resting (quota, rate limit, a slow minute) gets one more try now.
+    Models set aside as broken (lockout) stay aside."""
+    STATE["cooldown"].clear()
+    for br in STATE["breaker"].values():
+        br["open_until"], br["fails"] = 0, 0
+    STATE["mcool"] = {}
+    save_pauses()
+
+
+def route_patiently(req, sleep=time.sleep, clock=time.time, hold=None):
+    """route(), but when every free provider failed or is resting it does not give up: it holds the request and, after
+    PATIENCE seconds (sooner when a provider's pause ends), tries every provider again. It answers the error only after
+    `hold` seconds, with retry-after, so Claude Code asks again and the cycle goes on until a model answers: the session
+    never stops to wait for the owner because the free quotas are used up for a while."""
+    hold = PATIENCE if hold is None else hold
+    try:
+        return route(req)
+    except ProviderError as e:
+        if e.kind != "all_failed" or pinned(req) or not settings().get("patience", True) or hold <= 0:
+            raise
+        first = e
+    end = clock() + hold
+    STATE["waiting"] = STATE.get("waiting", 0) + 1
+    try:
+        while clock() < end:
+            sleep(min(15.0, max(0.0, end - clock())))
+            ks, pv = keys(), providers()
+            if any(available(n) for n in pv if provider_key(pv[n], ks) is not None) and clock() < end - 5:
+                try:
+                    return route(req)
+                except ProviderError as e:
+                    first = e
+        reopen()
+        return route(req)
+    except ProviderError as e:
+        e.detail = "Every free model was busy for %d s; tried again and still busy. Claude Code will ask again: nothing to do. (%s)" % (hold, (e.detail or first.detail)[:300])
+        raise
+    finally:
+        STATE["waiting"] = max(0, STATE.get("waiting", 1) - 1)
+
+
 def log_error(provider, model, e, req):
     """One line per provider failure in errors.log (redacted, never the request text): what failed and how big the request was."""
     try:
@@ -816,7 +889,7 @@ def pinned(req):
     return None
 
 
-PER_MODEL_LIMITS = {"openrouter", "kilo", "nvidia", "llm7", "ollama", "groq"}  # gateways where a 429 belongs to ONE model, not the account
+PER_MODEL_LIMITS = {"openrouter", "kilo", "nvidia", "llm7", "ollama", "groq", "zenmux", "cloudflare"}  # gateways where a 429 belongs to ONE model, not the account
 MODEL_TRIES = 20  # models of the same provider tried in one request before moving to the next provider (a 429 answers in a second)
 
 
@@ -1617,10 +1690,11 @@ class Handler(BaseHTTPRequestHandler):
         if p != "/v1/messages":
             return self._other(raw)
         try:
-            msg, routed, _ = route(req)
+            msg, routed, _ = route_patiently(req)
         except ProviderError as e:
             kind = {"limit": "rate_limit_error", "off": "api_error", "no_keys": "authentication_error", "all_failed": "overloaded_error"}.get(e.kind, "api_error")
-            return self._json(e.status if e.status >= 400 else 529, {"type": "error", "error": {"type": kind, "message": e.detail}})
+            extra = {"retry-after": "5"} if e.kind == "all_failed" else None
+            return self._json(e.status if e.status >= 400 else 529, {"type": "error", "error": {"type": kind, "message": e.detail}}, extra)
         if req.get("stream"):
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
