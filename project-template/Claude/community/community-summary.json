@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.124.52"
+   "tag": "v1.124.53"
   },
   "state": {
    "genres": [],
@@ -24,13 +24,10 @@
  "release": {
   "date": "2026-11-15",
   "items": [
-   "[fix] Tasks: one filter for the release, one for the kind. \"All\" and \"feature\" always showed the same number (every release), while \"Fix all\" counted only the current release. Now two rows of chips: the current release (default) or all releases, then the kinds; the numbers on the chips, on the tab and on \"Fix all\" are counted the same way.",
-   "[fix] \"13/46 done \u00b7 33 open \u00b7 part 1/4\" read as a contradiction: now \"13 of 46 done \u00b7 33 open \u00b7 page 1/4\".",
-   "[fix] The Bugs tab showed no number with 3 open bugs: it counted only bug tasks (one, done). It now adds the open bugs in BUGS.md that no open task covers yet.",
-   "[feature] The tasks waiting for you are named next to \"Nothing in progress\" (for example \"Waiting for you: T-016, T-082\"): they are the number on the Docs tab."
+   "[fix] Cod waited 3 hours for the owner after UEFN's MCP server dropped (night of 15 Nov). Claude Code connects to the server once; when it drops, the unreal-mcp tools fail or disappear until someone types `/mcp`. Now:"
   ],
-  "tag": "v1.124.53",
-  "title": "v1.124.53 \u2014 Docs page: the numbers agree"
+  "tag": "v1.124.54",
+  "title": "v1.124.54 \u2014 Cod gets UEFN's MCP back by itself"
  },
  "schema": 1,
  "skills": [],
