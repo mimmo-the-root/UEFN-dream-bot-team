@@ -2,14 +2,25 @@
 import json, os, shutil, subprocess, sys, tempfile
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 B = os.path.join(root, "project-template", "Claude", "hooks", "brain_brief.py")
+U = os.path.join(root, "project-template", "Claude", "hooks", "brain_upkeep.py")
 SK = os.path.join(root, "user-level-skills", "second-brain-query")
 ok = lambda c, m: (print(("PASS " if c else "FAIL ") + m), c or sys.exit(1))
 home, vault = tempfile.mkdtemp(), tempfile.mkdtemp()
 try:
     shutil.copytree(SK, os.path.join(home, "skills", "second-brain-query"))
+    # Also copy brain_upkeep.py to the skills location it expects
+    hooks_dir = os.path.join(home, "project-template", "Claude", "hooks")
+    os.makedirs(hooks_dir, exist_ok=True)
+    shutil.copy2(U, os.path.join(hooks_dir, "brain_upkeep.py"))
+
     def run(mode, stdin="", **env):
         e = dict(os.environ, UEFN_HOME=home); e.pop("SECOND_BRAIN", None); e.update(env)
         return subprocess.run([sys.executable, B, mode], input=stdin, capture_output=True, text=True, env=e)
+
+    def run_upkeep(mode, **env):
+        e = dict(os.environ, UEFN_HOME=home); e.pop("SECOND_BRAIN", None); e.update(env)
+        return subprocess.run([sys.executable, U, mode], capture_output=True, text=True, env=e)
+
     def w(rel, txt):
         p = os.path.join(vault, *rel.split("/")); os.makedirs(os.path.dirname(p), exist_ok=True); open(p, "w", encoding="utf-8").write(txt)
     open(os.path.join(home, "CLAUDE.md"), "w").write("**Second brain path**: `<SECOND_BRAIN_PATH>`\n")
@@ -28,6 +39,22 @@ try:
     r = run("after-edit", json.dumps({"tool_input": {"file_path": os.path.join(home, "other.md")}})); ok(r.returncode == 0, "an edit outside the vault wiki is ignored")
     r = run("after-edit", "not json"); ok(r.returncode == 0, "bad input never blocks")
     r = run("start", SECOND_BRAIN=os.path.join(home, "nowhere")); ok(r.returncode == 0 and r.stdout == "", "a path that is not a folder is treated as off")
+
+    # Test brain_upkeep.py free mode
+    r = run_upkeep("free", SECOND_BRAIN=vault)
+    ok(r.returncode == 0, "brain_upkeep free mode returns 0")
+    upkeep_dir = os.path.join(vault, "output", "upkeep")
+    today = os.path.join(upkeep_dir, __import__("datetime").date.today().isoformat() + ".md")
+    ok(os.path.isfile(today), "free check creates YYYY-MM-DD.md in output/upkeep")
+
+    # Test brain_upkeep.py check-due mode
+    r = run_upkeep("check-due", SECOND_BRAIN=vault)
+    ok(r.returncode == 0 and "due=" in r.stdout, "check-due prints due status")
+
+    # Test brain_upkeep.py maybe-start mode (should not start when inbox doesn't exist)
+    r = run_upkeep("maybe-start", SECOND_BRAIN=vault)
+    ok(r.returncode == 0, "maybe-start returns 0")
+
 finally:
     shutil.rmtree(home, ignore_errors=True); shutil.rmtree(vault, ignore_errors=True)
 print("brain brief tests OK")

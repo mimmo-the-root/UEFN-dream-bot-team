@@ -1,5 +1,284 @@
 # Changelog
 
+## v1.124.52 — Free models 24/7: the router keeps its history and never dies on a missing file
+
+- [fix] **The router died at start after an update** (Models page empty: no numbers, no settings). The new router imported `model_history.py`, which `update-my-profile.cmd` did not copy, so every start failed and the guardian kept retrying. The history is now optional (the router starts without it) and `update-my-profile.cmd` copies it.
+- [fix] **The Models page stayed empty** ("Looking for the free router…", no settings, no models): a wrong quote in the new history link stopped the page's whole script. Fixed, and a new test checks that every console page's script parses.
+- [fix] **The 72-hour usage history is never overwritten with an empty file** (router 1.124.51): a file locked by Windows was read as empty and saved back empty; now an unreadable file is left as it is and the write retries.
+- [feature] **Model history**: one line per model per day in `~/.dream-router/history/YYYY-MM.jsonl` (requests, failures, tokens, median time), a weekly page in the second brain, `model_history.py summary` and a **history** link on the Models page.
+- [fix] **Exploration found nothing new**: the 1-in-20 try only looked at the models already preferred, so "models tried" stayed at 29. It now picks a model outside the preferred ones; the tile says it counts free-provider models only.
+- [other] Work files for Cod (prompts, queues) are no longer part of the kit.
+
+## v1.124.49 — Brain upkeep
+
+- [feature] **Second brain upkeep (runs by itself)**: brain_upkeep.py runs free daily checks at session start (links/dups/stats/status + Clippings count), writes YYYY-MM-DD.md; due rules (last run >7 days or release closed by learn_gate); real pass runs as /pieces --mode free; mailbox worker writes inbox command with parallel: yes; daily-vault-compile.ps1 scheduler documented. Tests: test_brain_upkeep.py (15), test_brain_brief.py (12), test_brain_state.py (5).
+
+## v1.124.48 — Router trim history + 7 task fixes
+
+- [feature] **Router: clear old tool results and dedupe on free models** (trim_history default on). Conversations over ~60k chars replace tool results older than the last 5 with a one-line note, keep only the last copy of long text blocks ≥2k chars. User text never touched. State shown in /router/state and Models page "Where the tokens go".
+- [feature] **Verse compile hints**: verse-error-hints.json (20 codes), verse_check.py appends "Hint: ..." to recognized errors, prints "N errors, M with a hint" summary.
+- [feature] **Guards enforced by code**: repeat_guard.py (PostToolUseFailure) stops 3rd identical failure; claim_guard.py (Stop) blocks false "file written" claims. Both off with UEFN_KIT_GUARDS=0.
+- [feature] **verse_static.py: 6 new static checks**: function effects in failure contexts, field initializer calls, integer division, missing using imports, array:/ToString, shadowed module functions (Distance/Lerp/Clamp/etc.).
+- [feature] **Verse in-game test device + verse_tests.py + /verse-test**: ExpectEqual/ExpectTrue/ExpectNear helpers printing [KIT-TEST], scaffold copies template, read parses UEFN log, qa-regression uses it.
+- [feature] **Offline device wiring simulator**: device-signals.json (20 devices), device_sim.py (sim/check), test_device_sim.py (17 tests).
+- [feature] **wire-after-build MCP contract**: retry Verse device wiring after build (verse_check.py, poll GetDeviceProperties 60s, retry once). Pointers in device-builder.md and coder.md.
+
+## v1.124.47 — The mailbox worker parallelizes by itself (relay_plan.py)
+
+- [fix] **Cod did not parallelize unless asked.** The worker's poll steps in RELAY-README still said "a file in running/ with no result: do not start anything new" and "take the lowest NNN" (one at a time), and `/relay` said "run commands one at a time": with agents running, nothing new could start, and 7 finished agents waited to be closed. Now every poll runs `Claude/hooks/relay_plan.py`, which computes the plan with a fixed rule: close the finished agents first, start ALL the parallel commands that fit (up to 5 running) in one message, run one serial command alongside, hold the ones whose `after:` commands are not done. The worker no longer decides it by itself.
+
+## v1.124.46 — Safety check really shrunk; shorter token box with models tried
+
+- [fix] **The short safety check still saved nothing** (owner's page: 144 checks, 5.0M → 5.0M). `last-safety-check.json` showed why: Claude Code sends the session transcript split over many text blocks, with `<transcript>` and `</transcript>` in different blocks, so shrinking block by block never matched. The router now joins the text blocks of that message and shrinks once (the classifier's own 35k-token rules stay as they are).
+- [feature] **"Where the tokens go": a tile with the models tried out of all the models offered** (for example 7 / 1176) and shorter texts: one line for the safety checks and one for the cleared tool results, only what matters.
+
+## v1.124.45 — Every provider takes its turn; the page shows every model at work
+
+- [fix] **"Spread the load" kept one fast provider for everything.** Only the providers that had answered in the last 30 minutes took turns, so once NVIDIA's `nemotron-3-ultra` answered (216 calls in one hour, the owner's log) the other providers never got a request and could never join. Now every provider with a key that is not resting takes its turn; the free quotas of all of them are used.
+- [feature] **Models page: every model answering right now has its green dot**, not only the last one, so parallel work (several agents, several pieces) is visible.
+
+## v1.124.44 — Tests can no longer break the live router
+
+- [fix] **"503 No free provider key found" on the owner's PC: a test had written into the live router's files.** `routing.json` held the test chain (`busy`, `ok`) and `keys.env` a `BUSY_KEY`, so no real provider was left; the guardian tests also sent `/router/quit` to the live router on port 8787 every time the test suite ran (guardian.log: "router not answering: starting it" every few minutes while Cod's agents ran tests). Fixed three ways: the router ignores chain names that are not providers (falls back to the default chain), writes only key names of real providers, and the tests never talk to port 8787. The owner's files were repaired by hand (test entries removed, real keys untouched).
+
+## v1.124.43 — The router keeps exploring untried free models
+
+- [feature] **The ranking of the free models keeps improving by itself.** About 1 request in 20 starts with a model of that provider never tried (setting `explore`, 0.05), so a quicker model is found even when the known ones keep answering; a model with old bad results gets a new chance after 24 hours (free quotas change). Never for the auto-mode safety check or for requests pinned to a model.
+- [feature] Models page: a chip "learned: N answering of M tried" next to the models offered by the providers.
+
+## v1.124.42 — The router tries up to 20 free models per provider, quickest first; 5 in parallel
+
+- [feature] **Up to 20 free models of the same provider before the next provider, quickest first.** The router now learns what every model does (answers, failures, usual answer time; kept in `perf.json` across restarts): models that answered before go first, the fastest at the top; models never tried come next, in the order of preference; models that mostly failed go last. With "Spread the load" the three quickest take turns. A rate-limited model answers in about a second, so trying many costs little; a model that hangs still sends the request to the next provider.
+- [other] Parallel work: up to **5** agents or pieces at a time (was 3), for the mailbox worker and the project rules.
+
+## v1.124.41 — Many free models per provider; parallel by default
+
+- [feature] **The router uses many free models, not one per provider.** On gateways (OpenRouter, Kilo, NVIDIA, LLM7, Ollama, Groq) a rate limit belongs to one model: the router now rests only that model and tries the next free models of the same provider (up to 3 per request) before moving on; with "Spread the load" the starting model rotates too. The providers offer about 1,200 models: Cod no longer waits on the same four.
+- [feature] **Parallel by default.** The mailbox worker looks at every waiting command and starts the independent ones (no editor, different files) together as background agents, at most 3, without being asked; version, CHANGELOG and commit stay with the worker, one after the other. The project rules say the same for agents and pieces.
+- [other] `Claude/hooks/console-restart.cmd`: double-click to restart this project's console server after a kit update in the middle of a session (new routes such as the music one need it).
+
+## v1.124.40 — Background music in the console header
+
+- [feature] **Background music in the console**: a **♪ Music** switch and a volume slider in the header of every page play the audio files of `Claude/music` (mp3, m4a, mp4, ogg, wav) one after the other, in a loop; the track and the position continue when you change page. Both console servers list and serve the folder (with byte ranges, so a position can be resumed).
+- [feature] **`Claude/music` folder with a README**, created once in every project with the kit's first track, `Nocturnal Focus.mp3` (made by the kit's owner with an AI music tool). After that the folder is yours: tracks you add stay, a track you delete does not come back.
+
+## v1.124.39 — cod.cmd --plan really skips the router; one-shot runs do only their prompt
+
+- [fix] **`cod.cmd --plan` still reached the free router** (owner's manual test: the debug log says "API-key auth precedence active" and the router counted the request). The router's values in your Claude Code settings outrank the per-session `--settings` file, so blanking or omitting them there could not work (Cod's 061 change, kept, was not enough). Plan only now starts Claude Code with `--setting-sources project,local` for that one session: your user settings (and the router's values in them) are skipped; the project's hooks and permissions stay.
+- [fix] **A one-shot run did the session-start chores instead of its prompt** (manual test: asked to call a UEFN tool, it started the mailbox worker and reported the kit version). Runs started with `claude -p` (pieces, tests, scripts) now get one line, "do only what the prompt asks": no /relay, no console, no learning or update notes. `pieces.py` marks its sessions so (`UEFN_KIT_HEADLESS=1`).
+
+## v1.124.38 — Models page: switches first, shorter texts
+
+- [other] Models page: the three switches (free models, spread the load, accept edits) come first and the two selectors (how Cod works, safety check) below; every description is one short line, to save space.
+
+## v1.124.37 — Spread the load across the free providers
+
+- [feature] **Spread the load** (Models page switch, on by default): the free providers that answered in the last 30 minutes take turns, request after request, so no single free quota runs out first and more models do the work. The others stay behind as fallbacks; pinned requests (`dream:<provider>/<model>`) are not moved. Off: the provider that answered last goes first, as before.
+
+## v1.124.36 — Paid models set aside at once; green dot on the model in use
+
+- [fix] **A model that needs credit is set aside at once** (HTTP 402, "insufficient balance", "top up"): LLM7 picked `deepseek-v4-pro`, a paid model, and the router read the answer as a quota limit and paused all of LLM7 for 10 minutes every time; now that model is set aside and LLM7 tries its next free one. The same for DeepSeek with no credit on the key.
+- [fix] Models page: the dot of the model in use is green inside too, like the providers (it stayed grey with only the ring green).
+
+## v1.124.35 — Models page: the page counter is always shown
+
+- [other] Models page: the page counter of the models and of the errors is always shown ("1 / 1" with the buttons greyed out when everything fits in one page), with the same Previous / Next buttons as the errors, so it is clear the list is paged.
+
+## v1.124.34 — An updated router waits until Cod is idle before replacing the running one
+
+- [fix] **"Connection refused" while Cod was working, right after an update.** The guardian replaced the running router as soon as a newer `dream_router.py` was installed (guardian.log: "replacing router 1.124.29 with 1.124.33" at 01:31:42), so the request Cod was waiting for was cut and Claude Code had to retry. Now the router counts the requests in flight, and the guardian replaces it only after 20 seconds with nothing running (at most 15 minutes of waiting).
+
+## v1.124.33 — Models page: total tokens of the last 72 hours; safety check shrunk where the session really is
+
+- [feature] **"Where the tokens go" starts with the total**: the tokens used by all models in the last 72 hours, and the number of calls.
+- [fix] **The short safety check saved nothing on the owner's PC** (page: 181 checks, "588 → 588 tokens, −0%"): the session text of the check travels mostly in the instructions (35k of 42k tokens), not in the message the router was shrinking. The router now shrinks the session wherever it is, and keeps the shape of the last check on this PC (`%USERPROFILE%\.dream-router\last-safety-check.json`: sizes, tags, first and last 1500 characters of each part) so the next fix can target it exactly if Claude Code changes the format.
+
+## v1.124.32 — Models page: a status dot on every model
+
+- [feature] **Models page: every model has a status dot**, like the providers: green and pulsing for the model answering right now, grey for the others.
+
+## v1.124.31 — Auto mode stays the default on free models
+
+- [fix] **"Accept edits on free models" is now OFF by default** (owner's choice): in accept-edits mode Cod asks before every command that is not already allowed, which stops the work. Cod stays in auto mode, and its safety check goes to the free models in the short form (1.124.28). Switch it on in the Models page only for runs where you want no safety check at all.
+
+## v1.124.30 — Models page: 8 models per page
+
+- [other] Models page: the models used in the last 72 hours are listed **8 per page** (the right column now has the room, with the providers folded away).
+
+## v1.124.29 — Free only starts Cod in accept-edits mode (switch on the Models page)
+
+- [feature] **"Accept edits on free models" switch on the Models page** (on by default). With **Free only**, Cod starts in accept-edits permission mode instead of auto, so the auto-mode safety check (a second request with the whole session for every action) never runs: the biggest token saving on free models. The router writes `permissions.defaultMode` in your Claude Code settings only in Free only, remembers your own mode and puts it back when you leave Free only or switch it off. `cod.cmd --free` uses it too. Edits are accepted; commands outside the project's allow list still ask, UEFN read-only tools run without asking (1.124.21).
+
+## v1.124.28 — Safety check of auto mode sent short to free models
+
+- [feature] **The safety check of auto permission mode costs a fraction on free models.** For every action Cod takes in auto mode, Claude Code asks a second model whether to allow it, and re-sends the whole session to do it (about 45k tokens each time; the owner's log showed one every 1-2 minutes, as big as the work itself). The router now recognises these checks (no tools, a `<transcript>`: detection taken from free-claude-code, MIT) and sends the free model the owner's messages (what was asked) and the last part of the session (the action being judged and what led to it), leaving out the older tool calls and outputs, with a note that it did so. In the test, a 400-step session went to under a fifth. The other repos only make the check work (no reasoning, stop sequence); none shrinks it.
+- [feature] **Models page: "Safety check on free models" Short / Full** (Short by default) and, in "Where the tokens go", how many checks were sent short and the tokens saved. Requests to your Claude plan are never changed.
+
+## v1.124.27 — Models page: providers fold away, 5 models per page
+
+- [feature] **Models page: "Providers and keys" folds away** (click the title): folded, it shows one chip per provider with its status dot; the page remembers the choice.
+- [other] The models used in the last 72 hours are listed **5 per page**, to keep the page compact.
+
+## v1.124.26 — DeepSeek provider; side requests measured apart
+
+- [fix] **"Where the tokens go" mixed two kinds of requests.** The owner's page said instructions = 54% (24.5k tokens) on 1.124.24. The router's error log shows why: many requests had NO tools and about 170,000 characters (~42k tokens) each. Those are Claude Code's own side requests (above all the safety check of auto permission mode, which the router receives because `CLAUDE_CODE_AUTO_MODE_SERVER=0`; also titles and summaries), and they were averaged with the real work. Now the tiles count only work requests (with tools), and a line below says how many side requests there were, their size, the model and how their instructions start, so the cause is visible on the page.
+- [feature] **DeepSeek added as a provider** (`DEEPSEEK_API_KEY`, key box on the Models page). It is NOT free (about 0.30 USD per million input tokens for `deepseek-flash`), so it is last in the chain: it answers only when every free provider failed or is paused.
+- [other] Token sizes are measured without escaping non-English characters (they were counted up to 6 times).
+
+## v1.124.25 — Models page: tokens on top, models of the last 72 hours in pages of 20
+
+- [fix] **The LLM7 token was refused when saved** (the provider stayed on "no key"): the key box accepted only letters, digits and `_ - . :` up to 300 characters, and LLM7 tokens are long base64 strings with `+`, `/` and `=`. Those characters and keys up to 1000 characters are accepted now; spaces and quotes still are not.
+
+- [fix] **The model list in pages of 20 and the models-offered counter were not really in 1.124.22**: the page file written back to the kit was an older copy. Now they are, checked on the file itself.
+- [feature] **Models page: "Where the tokens go" is at the top**, above the two columns; the last errors stay at the bottom.
+- [feature] **The model list shows only the last 72 hours** (the router keeps the use of each model by hour in `usage-72h.json`, so a new month does not empty it), 20 per page; rows are more compact. The monthly totals stay in `usage.json`.
+
+## v1.124.24 — Pieces never stop: failures are cut again, then tried on 10+ models
+
+- [feature] **A failed piece goes back to the orchestrator instead of the owner.** A failure means the piece was too big: it is cut again into 2-6 smaller pieces (up to 3 levels). A piece that still fails at the smallest size is tried on at least 10 other free models, one after the other, and only then skipped; the next pieces are told what was skipped and work around it. The run never stops on a failure and completes as many pieces as it can; every try (model, result) is kept in the piece.
+- [feature] **New agent `piece-orchestrator`** (35 agents): cuts the task, runs `pieces.py`, reports done / skipped. `/pieces` starts it; it is on the console next to the coder.
+- [feature] **Router: a session can be pinned to one free model** (`claude --model dream:<provider>/<model>`), never sent to the plan, and `GET /router/candidates` lists the free models worth a try, one provider after the other.
+- [other] From Cod's probe (058): NVIDIA prefers `minimax-m*-flash` and OpenRouter also tries `ling-*:free` and any `:free` model, the only ones that answered with tool calls in seconds.
+
+## v1.124.23 — Learning runs once at the end of a release
+
+- [feature] **The map is learned once per release, not after every change.** Before, every session start and every 30 minutes of a long session re-read the Verse files, documents and devices that changed, so the same files were read again and again while a release was still being built. Now a map that was already learned waits until a release is closed (its last task Done in ROADMAP.md) and is learned once (`Claude/hooks/learn_gate.py`). The first learning of a map and the Learn button on the console still run at once. Old behaviour: `learn: every-change` in `Claude/LAB-PROJECT.txt`.
+
+## v1.124.22 — Models page: models in pages of 20, models offered by each provider
+
+- [feature] **Models used this month: 20 per page** with arrows and the page count; the bars stay scaled to the biggest model of the month, so pages compare.
+- [feature] **How many models each provider offers**: a counter above the list (total, then one chip per provider, biggest first). It is what the provider lists for your key at the last key test or model choice; the router still uses only the free ones.
+
+## v1.124.21 — Orchestrator, UEFN read tools without prompts, cod.cmd modes, errors in pages
+
+- [feature] **Orchestrator for big tasks: `/pieces`.** A long session re-reads its whole conversation on every call (measured: 67% of each request, about 58k tokens, minutes per answer on free models). `/pieces` cuts a task into 2-6 small pieces (goal, files, check) and `Claude/hooks/pieces.py run <task>` runs each one in a fresh, short session that reads only its brief and the notes of the pieces before it; the run stops at the first piece that is not done, and a piece that failed twice goes to the owner. The project rules now send size L tasks, jobs over about 15 tool calls and all work on free models through it.
+- [feature] **UEFN editor tools that only look (get, list, find, search...) run without a permission prompt** (`mcp_readonly_allow.py`), so an unattended session (the mailbox, free models, `claude -p`) no longer stops at the first read of the level. Tools that change the map still ask, and the other editor guards can still refuse. Switch off with `UEFN_KIT_MCP_READ_ALLOW=0`.
+- [fix] **`cod.cmd --plan` / `--free` really win for that session.** The mode the router writes in your Claude Code settings outranked them; now cod.cmd passes a per-session settings file (`claude --settings`), which comes first, and the Models page is not changed.
+- [feature] **Models page: errors in a box of small cards**, two or three per row, six per page with Newer/Older, and only the last 6 hours. "Where the tokens go" is four tiles. Providers, models, tiles and errors are small boxes that breathe and light up when their data changes, like the panels of the other pages.
+- [fix] A model that times out twice in a row is set aside for **30 minutes** (was 6 hours, 1.124.20). **LLM7 now needs a free token** (dash.llm7.io): the router no longer sends a placeholder key that LLM7 refuses; without a token LLM7 shows "no key". Nothing is saved for you: keys exist only when you paste them.
+
+## v1.124.20 — Free models: UEFN tools work, dead providers no longer cost minutes
+
+- [fix] **UEFN tools on free models** (found by Cod, test 057): free providers accept tool names of at most 64 characters, and many UEFN tools are longer (`...GetProjectContext` is 71, some over 100). The router sent them unchanged, so the model called them rarely or never. Now a name that does not fit is shortened the same way every time and turned back into the real name when the answer comes back. Cod's free run loaded and called the UEFN tool through tool search.
+- [fix] **A provider that hangs or has used its daily quota no longer costs minutes on every request** (Cod): it is paused 10 minutes (was 60 seconds), and the pauses survive a router restart (`pauses.json`).
+- [fix] **The provider that answered last is tried first**, so a working free provider (on the owner's PC: Kilo) answers at once instead of after the ones that keep failing.
+- [fix] A model that times out twice in a row is set aside for 6 hours and the provider picks another model; a provider whose only model is set aside (for example OpenRouter's old free Qwen Coder name) is skipped instead of being called again and again; HTTP 410 (model retired, Ollama) counts as "model not free".
+
+## v1.124.19 — Lean profile: the rules loaded in every session are 60% shorter
+
+- [feature] **Lean profile: every session starts with about 7,000 fewer tokens of rules.** Measured on the owner's runs, the two CLAUDE.md files were about 15,000 tokens read again on every request. Now each rule is one short paragraph that says what to do, with the full text (examples, edge cases, why) in a file read only when the task is about it. Your profile file (`~/.claude/CLAUDE.md`): 30,700 → 8,300 characters, full texts in `~/.claude/kit-rules/`. The project file (`CLAUDE.md`): 29,200 → 16,400 characters, full texts in `Claude/reference/rules/`.
+- [other] `update-my-profile.cmd` installs the short base rules with `tool/install-lean-profile.py`: it keeps a backup (`CLAUDE.md.before-lean-<time>`), your second brain path and any section you wrote yourself. Old projects are aligned at the next session start: the long plain-text rules (UI reference harvest, console fallback, plan-first and the team) become kit blocks; a copy edited by the owner is left as it is. The token budget baseline is lowered to the new sizes, so growth is caught again.
+
+## v1.124.18 — Cloudflare removed from the free providers
+
+- [other] **Cloudflare Workers AI removed** from the free providers: on the owner's PC it never answered Claude Code's requests. The router now has eight providers; an old `routing.json` that still lists Cloudflare is ignored for that name (no row on the Models page). Keys in the `ACCOUNT_ID:TOKEN` form still work for custom providers in `providers.json`.
+
+## v1.124.17 — UEFN tools reach the free models; tool outputs are shrunk
+
+- [other] **Manual chapter "Free models and 24/7" rewritten** for 1.124.17: the three modes, the guardian, the nine providers, the Models page sections, how the router saves tokens, and what to do when something goes wrong.
+- [fix] **Cod on free models did not see the UEFN MCP tools.** Claude Code keeps most MCP tools "deferred" and loads them through tool search; on Claude the API hides a deferred tool until a tool_reference names it. The free providers do not know this, so the router now does it: a deferred tool is sent only once tool search has loaded it, and the tool search answer says which tools are now available. `ENABLE_TOOL_SEARCH=true` keeps tool search on behind the router. The Models page shows, for the last request, how many tools were sent, how many are MCP and which ones tool search loaded.
+- [feature] **Tool outputs are shrunk before they go to a free model**, the same way every time: colour codes and trailing spaces out, blank lines folded, a line repeated many times written once with its count, and an output over about 22,000 characters kept as its beginning and end with a note of what was cut. (The conversation was 67% of each request.) Requests on your plan pass through untouched for now, so Claude's prompt cache is never broken.
+- [fix] From the third real run (Last errors): every Ollama Cloud model answered "add usage credits or subscribe" (HTTP 402), so Ollama goes to the end of the order; NVIDIA timed out on every 57k-token request at 120 seconds and now has 240; Z.ai GLM-4.7-Flash was the only provider that answered. New order: Gemini, Z.ai, NVIDIA, OpenRouter, Kilo, Cloudflare, LLM7, Groq, Ollama.
+
+## v1.124.16 — A guardian keeps the router alive
+
+- [feature] **A guardian keeps the router alive** (`dream_router.py supervise`, hidden). Every 5 seconds it checks that the router answers: if it crashed, was closed or never started, the guardian starts it again; after an update it replaces the older version by itself; after 5 failed starts in a row it waits a minute and tries again, writing what happened in `%USERPROFILE%\.dream-router\guardian.log`. It is started at every session start, by the console and by the Models page, and it stops only when the last Claude Code session ends. `dream-router.cmd` now restarts the router through the guardian.
+
+## v1.124.15 — The router always starts with the session and is stopped only after the last one
+
+- [fix] **"Connection refused": Cod stopped because the router was not running.** Two faults, both from 1.124.4. (1) The session-start hook that also starts the router has 10 seconds, and it could wait up to 25 seconds for the kit sync whenever the project and profile versions differed: the hook was stopped, so neither the console nor the router came back. Now the router is started first, as a hidden process that does not wait, and the hook waits at most 6 seconds and only when the project kit is older than the profile. (2) Typing exit in one Cod session stopped the router even when another Claude Code session still needed it: now it stops only when the last session ends.
+- [other] A Claude Code connection closed early no longer writes a long error into `router.log`.
+
+## v1.124.14 — Models that are not free for the account are set aside and remembered
+
+- [fix] **From the second real run** (Where the tokens go: 58.8k tokens per request on average, of which 39.3k, 67%, is the conversation): a model that answers "unavailable for free" (OpenRouter), "add usage credits / subscribe" or HTTP 402 (Ollama Cloud's paid models) is now set aside for 6 hours like a missing model, and the set-aside list is kept in `lockout.json`, so a router restart does not try them again. Gemini "resource exhausted" and Z.ai "overloaded" stay short pauses.
+
+## v1.124.13 — LongCat removed, Cloudflare key test fixed
+
+- [fix] **Cloudflare has two boxes on the Models page**, Account ID and API token: the page joins them as the router needs, nothing to type by hand. Text you are typing in any key box is no longer cleared by the page refresh.
+- [fix] **LongCat removed**: it did not work on the owner's PC. Nine free providers remain.
+- [fix] **Cloudflare showed "could not reach it (HTTP 405)"** with a good key: its OpenAI-compatible path has no model list, so the key test asked a page that does not exist. The router now reads Cloudflare's own model list (`ai/models/search`) to test the key and choose the model.
+
+## v1.124.12 — Ten free providers, and the Models page shows where the tokens go
+
+- [feature] **Ten free providers.** Mistral is removed (its free API is gone, owner's check). Added, each with a recurring free API checked on 2026-11-14: **Z.ai** (GLM-4.7-Flash and GLM-4.5-Flash, listed as free; the router never falls back to Z.ai's paid models), **LongCat** (Meituan; daily free quota, email signup), **Kilo Gateway** (no key needed; free `:free` models, 200 requests an hour; prompts may be logged), **Cloudflare Workers AI** (10,000 neurons a day, about 375,000 input tokens; the key is `ACCOUNT_ID:API_TOKEN`) and **LLM7.io** (no key needed for basic models). Order: Gemini, Ollama Cloud, NVIDIA, Z.ai, LongCat, OpenRouter, Kilo, Cloudflare, LLM7, Groq. Not added: Cerebras (only a one-time $5 credit after adding a card), GitHub Models (8,000-token input cap, too small for Claude Code), SambaNova (free tier ended).
+- [feature] **Where the tokens go**, on the Models page: for every Claude Code request the router measures instructions, tools and conversation, and shows the average and the biggest request, so the savings work starts from numbers.
+
+## v1.124.11 — Auto mode on free models, two new free providers
+
+- [fix] **Auto mode works on free models too.** As freellmapi and free-claude-code do, the router now sets `CLAUDE_CODE_AUTO_MODE_SERVER=0` for Cod in Free only and Plan then free: auto mode then sends its safety check as an ordinary request, which the router routes like any other (to the plan or to free models), instead of Anthropic's server check that only Claude can answer. The router also handles the stop sequence the check ends with. Claude Code's stream watchdogs are off and its timeout is 15 minutes in these modes, because the router waits for a whole free answer and may try several providers.
+- [feature] **Two more free providers**, ready on the Models page (add a key to use them): **Ollama Cloud** (free plan: Qwen3 Coder 480B, Kimi K2, DeepSeek, GLM; https://ollama.com/settings/keys) and **Mistral** (free Experiment tier: Devstral and Mistral Large; https://console.mistral.ai/api-keys). New order: Gemini, Ollama, Mistral, NVIDIA, OpenRouter, Groq.
+- [fix] The router now remembers exactly which settings it wrote for Claude Code and removes only those when you change mode.
+
+## v1.124.10 — Free models fixes from the first real errors (Gemini signatures, Groq limit, unavailable models)
+
+- [fix] **The first real errors, all fixed** (from the Last errors box, a Claude Code request of about 60k tokens with 18 tools):
+  - Gemini 3 refused the tool calls ("missing a thought_signature"): the router now keeps the signature Gemini sends with each tool call and gives it back on the next turn (unknown ones get Google's documented placeholder).
+  - Gemini 2.5 Flash is closed to new users: among the matching models the router now takes the newest version first (Gemini 3.8 Flash).
+  - Groq's free tier allows 8,000 tokens per minute and a Claude Code request is far bigger: Groq is skipped for requests over its limit instead of failing.
+  - Cod in auto permission mode could not act on free models ("auto mode's check had no usable answer"): auto mode asks Claude itself to check each action, and the router answered "unknown path". Now any other Claude Code call is passed to Claude untouched when your plan login is there (Plan then free, Plan only); in Free only it cannot be answered without your plan, so the router says so clearly and logs it: in Free only, run Cod in a permission mode other than auto.
+  - A model the provider does not serve to your account (OpenRouter "unavailable for free", NVIDIA "not found for account") is now set aside for 6 hours instead of 10 minutes, and the next model is tried.
+
+## v1.124.9 — The mode works however Cod is started; page no longer says the router is down when it runs
+
+- [fix] **"The free router is not running" while it was running.** A part of the Models page (Last errors) was inside the list of models and disappeared when the list refreshed; the error made the page say the router was down. Fixed, and a page error can no longer look like a stopped router.
+- [fix] **Cod did not use the free models when started the normal way** (test 053: the work ran on the plan). The mode chosen on the Models page is now written in the "env" of your Claude Code settings (`%USERPROFILE%\.claude\settings.json`), so every new Cod session follows it however it is started: Free only = router and placeholder token, Plan then free = router with Claude Code's own login, Plan only = nothing. Only those three keys are touched, values you set yourself for something else are kept, and a copy is kept as `settings.json.dream-router.bak`.
+- [feature] In Plan then free, if your plan login does not reach the router, the Models page says so in red ("the work is going to free models").
+
+## v1.124.8 — Models page with the same visual effects as the other pages
+
+- [other] **The Models page looks like the others**: glass panels with the neon edge of the chosen Aura colour, the models card breathes like the main card of the other pages, and the token bars use the accent gradient with the moving sheen (all still stop with Motion off or reduced motion).
+
+## v1.124.7 — The router is checked at every session start and when the Models page opens
+
+- [fix] **The router did not come back by itself.** It was started only when the console itself restarted, so after an exit (which stops the router) and a new session with the console still running, the Models page said "not running". Now `ensure-router.ps1` checks it at every session start, when the console starts and every time the Models page is opened: it starts the router when it is down and replaces it when an older version runs, and writes what it did in `Claude/logs/console-start.log`.
+- [other] The router, which runs hidden, now writes its start lines and any crash to `%USERPROFILE%\.dream-router\router.log`.
+
+## v1.124.6 — Keys checked at start, a refused key is red, old routers are replaced
+
+- [fix] **The page said 4 providers ready when only 3 worked.** The router now tests every key by itself when it starts, every 30 minutes and right after a key is saved; until then a provider shows "checking the key…" (grey), a refused key is red with the reason, and the summary counts only working providers ("3 providers ready, 1 not working").
+- [fix] **An old router stayed alive next to the new one** and answered the page with old results (Groq "error code 1010" was already fixed in 1.124.3). `dream-router.cmd` and the console now stop every running copy and start the current version when the version differs.
+
+## v1.124.5 — First real test: better model choice, error log on the Models page
+
+- [other] **First real test on the owner's PC (Cod, 2026-11-14):** all 4 keys work (Gemini 64 models, NVIDIA 83, OpenRouter 436, Groq 11); a plain call and a tool call work through the router. Claude Code itself on the router did not finish in 5 minutes: the providers refused or timed out on its large requests, and the router kept no reason.
+- [fix] **The router chose a tiny model** (a 1.7-billion-parameter OpenRouter model) for Claude Code: small models (up to 29B, mini, nano, tiny, micro) are now skipped, and the OpenRouter choices are coder and large models only.
+- [feature] **Last errors on the Models page**, kept in `%USERPROFILE%\.dream-router\errors.log` (last 200, keys hidden, never the request text): which provider and model, the kind of error, the provider's message and how big the request was.
+- [fix] A provider now has 120 seconds (was 180) before the router moves on; on Windows a second router can no longer open the same port next to the old one (seen in the test: the old one kept answering).
+
+## v1.124.4 — Router starts and stops with the session, a failed key is red
+
+- [fix] **A key that fails is red.** After a failed key test, or when a provider refuses the key while working, the provider shows a red dot and "not working" with the reason, never a green "ready"; a good test, a good answer or a new key turns it back to ready.
+- [feature] **The router lives with the session.** It starts with the console when Cod starts and stops when you type exit (SessionEnd), together with the console.
+- [fix] **The console restarted with the old files after a kit update.** The session-start hook that restarts the console ran at the same time as the kit sync and started 4 seconds too early; it now waits (at most 25 seconds) until the new kit is in the project.
+
+## v1.124.3 — Key test fix: the router identifies itself to the providers
+
+- [fix] **A good key was reported as wrong.** Some providers (Groq) sit behind a firewall that refuses the default identity of Python's web client with "403 error code 1010": the router now sends its own name with every call. The key test also says when a refusal comes from the provider's firewall and not from the key, and the Models page shows the provider's own error text.
+- [fix] **The Models page has the same header as the other pages**: logo, Aura colours, Drift and Motion, the tab bar with its counters, the island strip and the footer.
+- [fix] `dream-router.cmd` now restarts the router, so a newer version always takes over after `update-my-profile.cmd`; `cod.cmd` starts the router only when it is not running.
+
+## v1.124.2 — Plan, then free models in the same session: three modes
+
+- [feature] **Three modes on the Models page.** *Plan, then free* (default): Cod uses your Claude plan through the router, which passes Claude Code's own request and login to Claude untouched (it never reads or stores the login); when Claude answers that the plan is at its limit, the SAME request goes to the free models, so the session never stops and no new window opens; after the reset the router goes back to Claude. *Plan only*: Cod starts without the router, as before 1.124. *Free only*: your plan is never used. `cod.cmd --auto | --plan | --free` forces one. The page says when the plan is paused and when Claude is tried again; plan tokens show as `claude-plan` among the models.
+- [fix] No more new Cod window at the limit (1.124.1): the watcher only resumes the same session, as in 1.123.19, and in mode *Plan, then free* the session does not stop at all.
+- [other] Routing the plan's login through a local router is the approach of OmniRoute's subscription ladder (MIT); the owner chose it knowing that the Claude plan terms limit the use of its credentials outside Anthropic's apps. Not yet tested with the real plan: if Claude Code does not send its login to a local address, the Models page shows "login not accepted through the router" and free models answer.
+
+## v1.124.1 — Free models when the plan is at its limit, key test from the Models page
+
+- [feature] **Free models when the plan is at its limit.** When Claude Code stops at the 5-hour or weekly limit, the watcher of 1.123.19 now also opens a new Cod window on free models (Dream Router) in the project, with the job to work the relay inbox or the next open roadmap task in small, safe steps. When the plan resets, that window is closed and the main session is woken as before, so Cod never stops. Off with "Continue free at the limit" (or "Free models") on the Models page.
+- [feature] **Test keys** button on the Models page: asks every provider with a key for its model list (no tokens spent) and shows next to each one "Key works: N models, using <model>" or why it failed (wrong key, at its limit, cannot reach it).
+- [feature] The console starts the Dream Router by itself when it is installed and not running, so the Models page always finds it.
+- [other] Tested offline (`tests/test_limit_resume.py`, `tests/test_dream_router.py`); the providers could not be reached from the test machine, so the real keys are tested from the Models page.
+
+## v1.124.0 — Free models for Cod: the Dream Router and the Models page
+
+- [feature] **Cod can work on free AI models.** New local router (`dream_router.py`, Python standard library only): Claude Code talks to it as it talks to Claude, the router turns each request into the format of free providers (Google Gemini, NVIDIA, OpenRouter, Groq), tools and streaming included, and moves to the next provider when one is at its limit or fails (pause per key that honours "retry after", circuit breaker per provider, lockout per model). A tool call that a weak model writes as text is turned back into a real call. Your Claude plan never goes through the router. Ideas and logic adapted from freellmapi, claude-code-router and OmniRoute (MIT, see THIRD-PARTY-NOTICES.md).
+- [feature] **Models page of the console.** Switch the free router on or off, choose the default (My plan or Free only) and "continue free at the limit"; each model appears as it works with a bar of its tokens, the most used first, reordering live; providers ready or paused (and when they come back); a box per provider to add, change or remove its key (saved only on this PC, in `%USERPROFILE%\.dream-router\keys.env`, shown masked).
+- [feature] **`cod.cmd`** starts Cod on the mode chosen on the Models page (`--free` / `--plan` to force it); **`dream-router.cmd`** starts the router. Both are installed by `update-my-profile.cmd`. New manual chapter "Free models and 24/7".
+- [other] Tested offline with fake providers (`tests/test_dream_router.py`); not yet run against the real providers. "Continue free at the limit" is a setting only in this version: the automatic switch comes in 1.124.1.
+
+
 ## v1.123.20 — Widget fields are visible to Verse after a build, no editor restart
 
 - [fix] **Wrong rule corrected: new widget fields need a Verse build, not an editor restart.** A coder reported that a new Widget Blueprint's fields were invisible to Verse until the editor restarted, and moved two screens into an older widget. The real rule: compile the widget, save, then run BuildAll; the fields become visible. Written into `uefn-ui-widgets`, `verse-ui-kit`, the `ui-builder` agent and `uefn-lessons` (UI pitfalls).

@@ -26,6 +26,8 @@ if exist "%SRC%_private\epic\AGENTS.md" (
   if not exist "%DST%\skills\verse-ui-kit\references\epic" mkdir "%DST%\skills\verse-ui-kit\references\epic"
   copy /Y "%SRC%_private\epic\AGENTS.md" "%DST%\skills\verse-ui-kit\references\epic\AGENTS.md" >nul
 )
+echo Short base rules (v1.124.19: full texts in kit-rules, read only when needed; backup kept)...
+py -3 "%SRC%tool\install-lean-profile.py" "%SRC%user-level-memory" "%DST%" || python "%SRC%tool\install-lean-profile.py" "%SRC%user-level-memory" "%DST%"
 echo User-level rule 14 (old kits update themselves)...
 py -3 "%SRC%tool\install-rule14.py" "%SRC%user-level-memory\section-14-kit-self-update.md" "%DST%\CLAUDE.md" || python "%SRC%tool\install-rule14.py" "%SRC%user-level-memory\section-14-kit-self-update.md" "%DST%\CLAUDE.md"
 echo User-level rule 15 (second brain in a session)...
@@ -42,6 +44,11 @@ copy /Y "%SRC%user-level-hooks\fab_assets.py" "%DST%\hooks\fab_assets.py" >nul
 copy /Y "%SRC%user-level-hooks\fab_clean_cycle.py" "%DST%\hooks\fab_clean_cycle.py" >nul
 copy /Y "%SRC%user-level-hooks\fab_checklist.py" "%DST%\hooks\fab_checklist.py" >nul
 copy /Y "%SRC%user-level-hooks\map_trace.py" "%DST%\hooks\map_trace.py" >nul
+rem v1.124.0: Dream Router (free models for Cod) and the cod.cmd launcher
+copy /Y "%SRC%user-level-hooks\dream_router.py" "%DST%\hooks\dream_router.py" >nul
+copy /Y "%SRC%user-level-hooks\model_history.py" "%DST%\hooks\model_history.py" >nul
+copy /Y "%SRC%user-level-hooks\dream-router.cmd" "%DST%\hooks\dream-router.cmd" >nul
+copy /Y "%SRC%user-level-hooks\cod.cmd" "%DST%\hooks\cod.cmd" >nul
 py -3 "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py" || python "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py"
 echo.
 echo Done. Now open a project session: the kit updates the project by itself and the

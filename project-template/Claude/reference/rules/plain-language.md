@@ -1,0 +1,5 @@
+<!-- Full text of the project rule "Plain language for the owner". The short version is in this project's CLAUDE.md (KIT block plain-language); kit_sync keeps this file current. -->
+
+# Plain language for the owner
+
+- **Everything the owner reads is written for a business user, not for a developer.** Task titles, audit findings, checklist items, next actions and reports say WHAT the player or the owner gets or must do, in short everyday words ("The chicken follows the player and gives one point in the pen"), never how: no device, class, field, tool or command names (`BuildAll`, `Outliner`, `DemoDisplay`, `savedActor`, agent names), no codes such as `[S1] [R3] (after T-001)`, no file names unless the owner must open that file. Technical detail is allowed only after the words `Technical:` on its own line, which the console hides. A step that needs the owner gives numbered actions, each one line, with a visible result ("you should see 6 chickens"). When you must use a term the owner may not know, explain it once in the same sentence.

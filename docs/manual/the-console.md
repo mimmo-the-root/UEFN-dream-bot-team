@@ -140,7 +140,11 @@ Nothing is typed by hand. The page reads ROADMAP, BUGS and the release-readiness
 
 ## The header, on every page
 
-Logo, title and version, the menu, then a row under the title: **Aura** (six small cubes that change the accent colour), **Drift** (the colour fades by itself from one to the next) and **Motion** (always show the movement, even when your system has animation effects off). Under the menu, the island strip: the project, the island code (`0000-0000-0000` until the map is published, so the strip does not move) and the genre chip.
+Logo, title and version, the menu, then a row under the title: **Aura** (six small cubes that change the accent colour), **Drift** (the colour fades by itself from one to the next) and **Motion** (always show the movement, even when your system has animation effects off). Then **♪ Music** and a small volume slider: background music while you work (see below). Under the menu, the island strip: the project, the island code (`0000-0000-0000` until the map is published, so the strip does not move) and the genre chip.
+
+## Background music
+
+**♪ Music** in the header plays the audio files of `Claude/music` in your project one after the other, in a loop (mp3, m4a, mp4, ogg, wav; alphabetical order, so start names with `01 `, `02 `... to choose it). The slider next to it sets the volume. The switch, the volume, the track and the position are kept by your browser, so another console page continues the music; after a page change a browser may want one click: the button then says **Resume**. The kit ships one track, `Nocturnal Focus.mp3`, once: delete it or add your own, a kit update never touches that folder again. Instructions are also in `Claude/music/README.md`.
 
 ## Update banner
 

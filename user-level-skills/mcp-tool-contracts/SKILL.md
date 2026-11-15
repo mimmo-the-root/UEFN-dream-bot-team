@@ -20,29 +20,10 @@ the wording in all three files at once worked, but it relied on remembering to t
 every time this file's contents change. A single referenced file can't diverge from itself.
 
 ## Contract: use the whole MCP (map first)
-
-**Why:** the MCP is the engine and it grows fast, often without announcement. The kit maps it by itself (`Claude/hooks/mcp_map.py`, run at session start when UEFN is open) into one private catalog shared by all projects: `~/.claude/skills/mcp-tool-contracts/references/map/` (`MAP.md` overview, `NEWS.md` what is new, `tests.json` which safe tools were called and worked).
-**Use:** before any MCP work, `py -3 Claude/hooks/mcp_map.py --find <keywords>` (a few words about what you want to do; in a Fab product, which has no `Claude/hooks`, run `~/.claude/kit-template/Claude/hooks/mcp_map.py`). To rename or move an asset the tool is `AssetTools/move`, found this way. Prefer a purpose-built tool from the map over scripting around it. A read-only tool the contracts below do not cover is fine to use after `describe_toolset`; a writing tool follows the rules of the contract it belongs to and asks first.
-**Don't use:** a tool name from memory or guesswork; a map older than a UEFN update (run `py -3 Claude/hooks/mcp_map.py --now`, UEFN open). If the map is missing or says `not_reachable`, work from `describe_toolset` and say so.
-**Procedure:** when the session start brings "MCP news", tell the owner in two lines what is new and what it could do, and propose; when a new tool proves itself in real work, add a contract here and its name to `Claude/reference/mcp-known-tools.json`.
+**Use:** `py -3 Claude/hooks/mcp_map.py --find <keywords>` before any MCP work. See `references/use-whole-mcp.md` for full details.
 
 ## Contract: verifying which project UEFN has open
-
-**Use:** `ValkyrieToolset.VerseToolset.ListFiles`, called through `mcp__unreal-mcp__call_tool` (`toolset_name` = `ValkyrieToolset.VerseToolset`, `tool_name` = `ListFiles`): the dotted names in this file are values of those arguments, never separate tools to look for in the tool list
-
-**Don't use:** `AssetTools.find_assets` on `/Game` — it silently returns nothing useful for this
-kit's custom project content even when the correct project is open in UEFN. This is a
-configuration-specific quirk of this MCP/UEFN setup, not documented anywhere in Epic's own docs as
-of this writing — see the entry in `~/.claude/skills/uefn-lessons/SKILL.md`'s "MCP / tooling
-quirks" for the original discovery.
-
-**Procedure:** list the project's real Verse/asset content with `ValkyrieToolset.VerseToolset.ListFiles`
-and check the path/name against the value already written at the top of the project's `CLAUDE.md`,
-in the "Project identity" section — never the current folder's name (`Content`, identical across
-every project). If the listing doesn't match, or is ambiguous, STOP and warn the owner: UEFN
-probably has a different project open. Every agent that touches MCP before writing/modifying
-anything runs this check first (`coder`, `qa-regression` before a play-session, `project-bootstrap`
-during initial analysis).
+**Use:** `ValkyrieToolset.VerseToolset.ListFiles` via `call_tool`. See `references/verifying-project-open.md`.
 
 ## Contract: detecting MCP mode (before reading or changing anything in the level)
 
@@ -77,6 +58,23 @@ during initial analysis).
 **Use:** the property-set tools of the MCP, when the property is an object reference (a device pointing to another device, a widget, an asset) or an array of references.
 **Don't use:** as a "quick fix" to rewire a level. A reference set through the MCP can silently replace the one the editor had, and a wrong or empty one breaks the owner's graph without any error from the tool.
 **Procedure:** (1) read the property first and keep the old value in the reply; (2) set it only when the owner asked for exactly that change; (3) read it back and compare: if it differs from what was asked, or any other reference of the same object changed, STOP, tell the owner, and do not try again by guessing; (4) never change several references in one go without reading each back. Real case: after reference assignments the manager device kept its settings but the round started with 0 participants.
+
+## Contract: wire-after-build (retry wiring after Verse build)
+
+**When:** Setting a Verse `@editable` property or wiring an event binding fails with an error indicating the Verse code is not yet compiled/available — e.g. "class not found", "no hash", "stale reflection", "not compiled", "no editable properties", "reflection not ready".
+
+**Use:** Run `verse_check.py` to trigger a Verse build once. Poll the device's editable properties via `GetDeviceProperties` until the expected field appears, up to 60s total. Then retry the original wiring/set-property operation ONCE.
+
+**Don't use:** A tight loop that retries without building, or retries more than once after the build. Never guess which field will appear — wait for the device's actual property list to include it.
+
+**Procedure:**
+1. On failure, check the error text against the known "not built yet" signatures (see references/wire-after-build-errors.md).
+2. Run `verse_check.py` — returns `{"state": "clean"}` when build succeeds with 0 errors.
+3. Poll `GetDeviceProperties` for the target device every 2-3s (max 60s total) until the expected `@editable` field name appears.
+4. Retry the original operation (SetDeviceProperty or AddEventBinding) exactly once.
+5. If it still fails, report expected/seen/tried and stop. Do not loop.
+
+**Known "not built yet" error texts** — see `references/wire-after-build-errors.md` for the full list (exact strings from kit logs, MCP responses, uefn-lessons).
 
 ## Adding a new contract
 

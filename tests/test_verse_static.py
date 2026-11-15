@@ -40,3 +40,185 @@ finally:
 dev = "using { /Fortnite.com/Devices }\nusing { /Verse.org/Simulation }\nd := class(creative_device):\n    OnBegin<override>()<suspends> : void =\n        Print(\"x\")\n"
 ok(v.check_text(dev) == [], "Print in a device class is not flagged")
 ok(any("Print(" in m for _, _, m in v.check_text("f():void=\n    Print(\"x\")\n")), "Print outside a device class without the import is still a warning")
+
+# --- NEW CHECKS TESTS ---
+
+# 1. Function without <transacts>/<computes>/<decides> called inside if(...) or []
+fn_no_effects = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+MyFunc(): int = 42
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        if (MyFunc()) then Print("x")
+        else Print("y")
+'''
+ok(any("without <transacts>/<computes>/<decides> called inside if" in m for _, _, m in v.check_text(fn_no_effects)), "function without effects in if(...) is a warning")
+
+fn_no_effects_bracket = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+MyFunc(): int = 42
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        x := [MyFunc()]
+'''
+ok(any("without <transacts>/<computes>/<decides> called inside" in m for _, _, m in v.check_text(fn_no_effects_bracket)), "function without effects in [] is a warning")
+
+fn_with_transacts = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+MyFunc()<transacts> : int = 42
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        if (MyFunc()) then Print("x")
+'''
+ok(v.check_text(fn_with_transacts) == [], "function with <transacts> in if(...) is ok")
+
+# 2. Field initializer that calls a function
+field_init_call = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    Value : int = SomeFunc()
+    OnBegin<override>()<suspends> : void = Print("x")
+'''
+ok(any("initializes with function call" in m for _, _, m in v.check_text(field_init_call)), "field initializer calling function is a warning")
+
+field_init_literal = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    Value : int = 42
+    Arr : []int = array{1, 2, 3}
+    OnBegin<override>()<suspends> : void = Print("x")
+'''
+ok(v.check_text(field_init_literal) == [], "field initializer with literals/array{} is ok")
+
+# 3. Integer / outside failure context
+int_div = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        x := 5 / 2
+'''
+ok(any("integer division" in m for _, _, m in v.check_text(int_div)), "integer division outside failure context is a warning")
+
+int_div_in_if = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        if (5 / 2 > 0) then Print("x")
+'''
+ok(v.check_text(int_div_in_if) == [], "integer division in if(...) is ok")
+
+int_div_in_bracket = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        x := [5 / 2]
+'''
+ok(v.check_text(int_div_in_bracket) == [], "integer division in [] is ok")
+
+float_div = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        x := 5.0 / 2.0
+'''
+ok(v.check_text(float_div) == [], "float division is ok")
+
+# 4. Use of name from module without using import
+missing_using = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        Distance(vector3{0,0,0}, vector3{1,1,1})
+'''
+ok(any("Distance" in m and "not imported" in m for _, _, m in v.check_text(missing_using)), "missing using import for SpatialMath is a warning")
+
+with_using = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+using { /UnrealEngine.com/Temporary/SpatialMath }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        Distance(vector3{0,0,0}, vector3{1,1,1})
+'''
+ok(v.check_text(with_using) == [], "with using import is ok")
+
+# 5. array: instead of array{}; ToString on logic
+array_colon = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        x := array: 1, 2, 3
+'''
+ok(any("array:" in m for _, _, m in v.check_text(array_colon)), "array: literal is a warning")
+
+array_braces = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        x := array{1, 2, 3}
+'''
+ok(v.check_text(array_braces) == [], "array{} literal is ok")
+
+tostring_logic = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        x := ToString(true)
+'''
+ok(any("ToString" in m and "logic" in m for _, _, m in v.check_text(tostring_logic)), "ToString on logic is a warning")
+
+# 6. Local/field shadows module function
+shadow_field = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+using { /UnrealEngine.com/Temporary/SpatialMath }
+a_device := class(creative_device):
+    @editable
+    Distance : float = 0.0
+    OnBegin<override>()<suspends> : void = Print("x")
+'''
+ok(any("shadows a module function" in m and "Distance" in m for _, _, m in v.check_text(shadow_field)), "field shadowing Distance is a warning")
+
+shadow_local = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+using { /UnrealEngine.com/Temporary/SpatialMath }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        var Distance : float = 0.0
+        Print("x")
+'''
+ok(any("shadows a module function" in m and "Distance" in m for _, _, m in v.check_text(shadow_local)), "local variable shadowing Distance is a warning")
+
+shadow_param = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+using { /UnrealEngine.com/Temporary/SpatialMath }
+a_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        MyFunc(Distance: float) : void = Print("x")
+'''
+ok(any("shadows a module function" in m and "Distance" in m for _, _, m in v.check_text(shadow_param)), "parameter shadowing Distance is a warning")
+
+no_shadow_without_import = '''using { /Fortnite.com/Devices }
+using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+a_device := class(creative_device):
+    @editable
+    Distance : float = 0.0
+    OnBegin<override>()<suspends> : void = Print("x")
+'''
+ok(v.check_text(no_shadow_without_import) == [], "shadow check only when module is imported")

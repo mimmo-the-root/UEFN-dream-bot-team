@@ -16,6 +16,11 @@
 set -uo pipefail
 
 project_dir="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+# v1.124.39: a one-shot run (claude -p) does only its prompt: no console, no /relay, no learning notes.
+if [ "${UEFN_KIT_HEADLESS:-}" = "1" ] || [[ "${CLAUDE_CODE_ENTRYPOINT:-}" == sdk* ]]; then
+  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"One-shot run: do only what the prompt asks. Do not start /relay, the console or any learning."}}'
+  exit 0
+fi
 console_path="$project_dir/Claude/hooks/agent-console.html"
 server_script="$project_dir/Claude/hooks/agent-console-server.py"
 port=8765

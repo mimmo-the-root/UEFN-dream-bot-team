@@ -21,6 +21,17 @@ Usage: verse_check.py [--port 1962] [--host 127.0.0.1] [--timeout 120] [--no-log
 """
 import argparse, hashlib, json, os, re, socket, sys, time
 
+HINTS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "reference", "verse-error-hints.json")
+
+def load_hints():
+    try:
+        with open(HINTS_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except OSError:
+        return {}
+
+HINTS = load_hints()
+
 def frame(obj):
     b = json.dumps(obj).encode("utf-8")
     return b"Content-Length: %d\r\n\r\n" % len(b) + b
@@ -57,6 +68,23 @@ def read_messages(sock, deadline):
             return
         buf += d
 
+def add_hints(message):
+    """Append Hint: ... to each error line that has a known code."""
+    if not message:
+        return message, 0
+    lines = str(message).splitlines()
+    hinted = 0
+    out = []
+    for line in lines:
+        out.append(line)
+        m = CODE_RE.search(line)
+        if m and "warning" not in m.group(0).lower():
+            code = m.group(1)
+            if code in HINTS:
+                out.append("  Hint: " + HINTS[code])
+                hinted += 1
+    return "\n".join(out), hinted
+
 def check(host="127.0.0.1", port=1962, timeout=120.0):
     try:
         sock = socket.create_connection((host, port), timeout=3)
@@ -71,8 +99,10 @@ def check(host="127.0.0.1", port=1962, timeout=120.0):
                 r = m.get("result")
                 if not isinstance(r, dict) or not isinstance(r.get("numErrors"), int):
                     return {"state": "not_analyzed", "reason": "unexpected reply from UEFN"}
+                msg = str(r.get("message", ""))
+                msg, hinted = add_hints(msg)
                 return {"state": "errors" if r["numErrors"] else "clean", "errors": r["numErrors"],
-                        "warnings": int(r.get("numWarnings") or 0), "message": str(r.get("message", ""))}
+                        "warnings": int(r.get("numWarnings") or 0), "message": msg, "hinted": hinted}
     return {"state": "not_analyzed", "reason": "no answer from UEFN within %ds" % int(timeout)}
 
 CODE_RE = re.compile(r"\b(?:error|warning)\s+(\d{4})\b", re.I)
@@ -145,6 +175,10 @@ def main(argv=None):
     if res["state"] == "errors" and not a.no_log:
         record(res)
     sys.stdout.write(json.dumps(res, ensure_ascii=False) + "\n")
+    if res["state"] == "errors":
+        errs = res.get("errors", 0)
+        hinted = res.get("hinted", 0)
+        sys.stderr.write("%d errors, %d with a hint\n" % (errs, hinted))
     return {"clean": 0, "errors": 1}.get(res["state"], 2)
 
 if __name__ == "__main__":

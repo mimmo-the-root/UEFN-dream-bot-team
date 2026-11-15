@@ -13,6 +13,7 @@ ok(re.search(r"https://github\.com/'\+REPO\+'/issues/new/choose", news) is not N
 ok("Only lessons learned from a <b>published</b> map" in news, "the page carries the published-map note")
 news = re.sub(r"<!-- tab-counts:begin -->.*?<!-- tab-counts:end -->", "", news, flags=re.S)  # the shared tab counters (console-ui) are not the page logic
 news = re.sub(r"<!-- micro-life:begin -->.*?<!-- micro-life:end -->", "", news, flags=re.S)  # the shared micro-animation helper (console-ui) is not the page logic
+news = re.sub(r"<!-- kit-music:begin -->.*?<!-- kit-music:end -->", "", news, flags=re.S)  # the shared background music switch (v1.124.40)
 news_core = re.sub(r"<!-- kit-head:begin -->.*?<!-- kit-head:end -->", "", re.sub(r"<!-- fab-tab:begin -->.*?<!-- fab-tab:end -->", "", news, flags=re.S), flags=re.S)  # the Fab-only Checklist tab snippet (v1.110) is shared by all pages
 ok(len(re.findall(r"\bfunction render\(", news_core)) == 1 and news_core.count("<script>") == 2, "one render function, no external script")
 ok("agent-console-news.html" in rd("agent-console-server.py") and "/news" in rd("agent-console-server.py"), "the Python server serves the page")

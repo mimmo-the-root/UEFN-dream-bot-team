@@ -1,0 +1,131 @@
+# verse-test-device.verse.txt
+# Summary: In-game test device for Verse code — runs assertions and prints [KIT-TEST] results
+# Last modified: 2026-11-15 — v1
+
+using { /Verse.org/Simulation }
+using { /Fortnite.com/Devices }
+using { /Fortnite.com/Playspaces }
+using { /Fortnite.com/Characters }
+using { /Fortnite.com/FortPlayer }
+using { /Verse.org/Random }
+
+# Centralized logger — rule 2
+@editable DebugLoggingEnabled : logic = true
+Log(LogMessage : string):void=
+    if (DebugLoggingEnabled?):
+        Print(LogMessage)
+
+# Test assertions
+ExpectEqual<T>(Expected : T, Actual : T, TestName : string):void=
+    if (Expected = Actual):
+        Log("[KIT-TEST] PASS {TestName}: expected {Expected}, got {Actual}")
+    else:
+        Log("[KIT-TEST] FAIL {TestName}: expected {Expected}, got {Actual}")
+
+ExpectTrue(Condition : logic, TestName : string):void=
+    if (Condition):
+        Log("[KIT-TEST] PASS {TestName}: condition is true")
+    else:
+        Log("[KIT-TEST] FAIL {TestName}: condition is false")
+
+ExpectNear(Expected : float, Actual : float, Tolerance : float, TestName : string):void=
+    Diff : float = Abs(Expected - Actual)
+    if (Diff <= Tolerance):
+        Log("[KIT-TEST] PASS {TestName}: expected ~{Expected}, got {Actual} (diff {Diff} <= tol {Tolerance})")
+    else:
+        Log("[KIT-TEST] FAIL {TestName}: expected ~{Expected}, got {Actual} (diff {Diff} > tol {Tolerance})")
+
+# Test runner device
+test_runner_device := class(creative_device):
+    @editable TestDeviceName : string = "TestRunner"
+    @editable DebugLoggingEnabled : logic = true
+
+    # Test results
+    var PassCount : int = 0
+    var FailCount : int = 0
+
+    OnBegin<override>() : void =
+        Log("[KIT-TEST] Starting test run: {TestDeviceName}")
+        RunAllTests()
+        Log("[KIT-TEST] DONE pass={PassCount} fail={FailCount}")
+
+    RunAllTests() : void =
+        # Override this in subclasses or call individual test methods
+        Log("[KIT-TEST] No tests defined — override RunAllTests()")
+        # Example tests (comment out when adding real tests):
+        # ExpectEqual(1, 1, "IntEquality")
+        # ExpectTrue(true, "TrueCondition")
+        # ExpectNear(1.0, 1.01, 0.05, "FloatNear")
+
+# Example test device for a specific mechanic
+example_mechanic_test_device := class(creative_device):
+    @editable TestDeviceName : string = "ExampleMechanicTest"
+    @editable DebugLoggingEnabled : logic = true
+
+    var PassCount : int = 0
+    var FailCount : int = 0
+
+    OnBegin<override>() : void =
+        Log("[KIT-TEST] Starting test run: {TestDeviceName}")
+        RunAllTests()
+        Log("[KIT-TEST] DONE pass={PassCount} fail={FailCount}")
+
+    RunAllTests() : void =
+        # Test integer equality
+        TestIntEquality()
+        # Test boolean condition
+        TestBooleanCondition()
+        # Test float near equality
+        TestFloatNear()
+        # Test player count logic
+        TestPlayerCountLogic()
+
+    TestIntEquality() : void =
+        # Replace with actual mechanic values
+        ExpectedScore : int = 100
+        ActualScore : int = CalculateScore()
+        if (ExpectedScore = ActualScore):
+            PassCount += 1
+            Log("[KIT-TEST] PASS IntEquality: expected {ExpectedScore}, got {ActualScore}")
+        else:
+            FailCount += 1
+            Log("[KIT-TEST] FAIL IntEquality: expected {ExpectedScore}, got {ActualScore}")
+
+    TestBooleanCondition() : void =
+        # Replace with actual mechanic condition
+        IsMechanicActive : logic = IsMechanicEnabled()
+        if (IsMechanicActive):
+            PassCount += 1
+            Log("[KIT-TEST] PASS BooleanCondition: mechanic is active")
+        else:
+            FailCount += 1
+            Log("[KIT-TEST] FAIL BooleanCondition: mechanic is not active")
+
+    TestFloatNear() : void =
+        # Replace with actual float comparison
+        ExpectedValue : float = 50.0
+        ActualValue : float = GetMechanicValue()
+        Tolerance : float = 0.1
+        Diff : float = Abs(ExpectedValue - ActualValue)
+        if (Diff <= Tolerance):
+            PassCount += 1
+            Log("[KIT-TEST] PASS FloatNear: expected ~{ExpectedValue}, got {ActualValue} (diff {Diff} <= tol {Tolerance})")
+        else:
+            FailCount += 1
+            Log("[KIT-TEST] FAIL FloatNear: expected ~{ExpectedValue}, got {ActualValue} (diff {Diff} > tol {Tolerance})")
+
+    TestPlayerCountLogic() : void =
+        # Example multiplayer test
+        PlayerCount : int = GetPlayerCount()
+        if (PlayerCount >= 1):
+            PassCount += 1
+            Log("[KIT-TEST] PASS PlayerCount: {PlayerCount} players in session")
+        else:
+            FailCount += 1
+            Log("[KIT-TEST] FAIL PlayerCount: {PlayerCount} players in session (expected >= 1)")
+
+    # Stubs — replace with actual implementations
+    CalculateScore() : int = 100
+    IsMechanicEnabled() : logic = true
+    GetMechanicValue() : float = 50.0
+    GetPlayerCount() : int = 1

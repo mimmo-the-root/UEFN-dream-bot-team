@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """brain_brief.py - the second brain, wired into Claude Code. No AI tokens. Silent and harmless when the second brain is off.
 
-  python brain_brief.py start        SessionStart hook: prints wiki/hot.md and how many raw sources wait to be ingested.
+  python brain_brief.py start        SessionStart hook: prints wiki/hot.md and how many raw sources wait to be ingested,
+                                     runs daily free checks (links, dups, stats, status, clippings count).
   python brain_brief.py after-edit   PostToolUse hook (Edit|Write): when a page under <vault>/wiki was just written, runs the free checks
                                      (broken links, quotes that are not in their raw file). Exit code 2 sends the problems back to Claude
                                      in the same turn, so the page is fixed before the work moves on.
@@ -13,6 +14,7 @@ import json, os, re, subprocess, sys
 
 HOME = os.environ.get("UEFN_HOME") or os.path.join(os.path.expanduser("~"), ".claude")
 CHECK = os.path.join(HOME, "skills", "second-brain-query", "scripts", "vault_check.py")
+UPKEEP = os.path.join(os.path.dirname(__file__), "brain_upkeep.py")
 
 
 def vault():
@@ -33,6 +35,17 @@ def run(*args):
     return r.returncode, (r.stdout or "").strip()
 
 
+def free_checks():
+    """Run daily free checks via brain_upkeep.py"""
+    if not os.path.isfile(UPKEEP):
+        return None
+    try:
+        r = subprocess.run([sys.executable, UPKEEP, "free", "--vault", V], capture_output=True, text=True, timeout=30, errors="replace")
+        return r.stdout.strip() if r.stdout.strip() else None
+    except Exception:
+        return None
+
+
 def start():
     hot = run("hot")[1]
     status = run("status")[1].splitlines()
@@ -44,6 +57,12 @@ def start():
         out.append("(no wiki/hot.md yet: second-brain-librarian writes it, a dozen lines, after the next compile or handoff)")
     if status:
         out.append("Ingest: " + status[-1])
+
+    # Run daily free checks
+    fc = free_checks()
+    if fc:
+        out.append("Free checks: " + fc)
+
     print("\n".join(out))
     return 0
 

@@ -1,0 +1,7 @@
+# Contract: verifying which project UEFN has open
+
+**Use:** `ValkyrieToolset.VerseToolset.ListFiles`, called through `mcp__unreal-mcp__call_tool` (`toolset_name` = `ValkyrieToolset.VerseToolset`, `tool_name` = `ListFiles`): the dotted names in this file are values of those arguments, never separate tools to look for in the tool list.
+
+**Don't use:** `AssetTools.find_assets` on `/Game` — it silently returns nothing useful for this kit's custom project content even when the correct project is open in UEFN. This is a configuration-specific quirk of this MCP/UEFN setup, not documented anywhere in Epic's own docs as of this writing — see the entry in `~/.claude/skills/uefn-lessons/SKILL.md`'s "MCP / tooling quirks" for the original discovery.
+
+**Procedure:** list the project's real Verse/asset content with `ValkyrieToolset.VerseToolset.ListFiles` and check the path/name against the value already written at the top of the project's `CLAUDE.md`, in the "Project identity" section — never the current folder's name (`Content`, identical across every project). If the listing doesn't match, or is ambiguous, STOP and warn the owner: UEFN probably has a different project open. Every agent that touches MCP before writing/modifying anything runs this check first (`coder`, `qa-regression` before a play-session, `project-bootstrap` during initial analysis).

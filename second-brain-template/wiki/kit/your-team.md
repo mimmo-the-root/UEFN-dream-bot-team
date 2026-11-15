@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.20
-updated: kit-1.123.20
+created: kit-1.124.52
+updated: kit-1.124.52
 sources: [docs/manual/your-team.md]
 type: kit
 status: current
@@ -47,6 +47,7 @@ Cost matters. The kit puts the cheaper model on work that is mostly checking or 
 | release-gate | Sonnet | Go or no-go before a release, from the project's own documents. |
 | codebase-auditor | Sonnet | Independent audit of the whole codebase, on demand. |
 | skill-reflector | Haiku | Proposes lessons for your genre after a real playtest. |
+| piece-orchestrator | Sonnet | Cuts a big task into small pieces and runs each in a fresh short session (`/pieces`); a failed piece is cut again (up to 3 levels), then tried on at least 10 other free models, then skipped: the run never stops on a failure. |
 | learn-slicer | Sonnet | Internal: runs ONE slice of the map learning (a batch of code, a batch of documents, the devices, the blueprint) with a fresh context; started only by `/learn-map`. |
 | growth-manager | Sonnet | Everything about getting the map found and played: titles, thumbnails, trailers, launch plans. |
 | materials-expert | Sonnet | Audits and reuses materials in the project. |
@@ -118,4 +119,4 @@ What to test afterwards, one change at a time, against those lines:
 A coordinator that starts writer agents is adopted only if it costs the same or less per finished task than the single writer, with the same final check.
 
 ## Sources
-- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.123.20. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Your team" (docs/manual/your-team.md), kit v1.124.52. Rebuilt on every kit release: do not edit this page, edit the manual.

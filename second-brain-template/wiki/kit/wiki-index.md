@@ -1,6 +1,6 @@
 # Kit knowledge
 
-How the Dream Bot Team kit works, in the kit's own words. Rebuilt from the manual on every release (kit v1.123.20). Read `how-the-kit-thinks` first.
+How the Dream Bot Team kit works, in the kit's own words. Rebuilt from the manual on every release (kit v1.124.52). Read `how-the-kit-thinks` first.
 
 - [[about|About]]
 - [[commands|All the commands]]
@@ -9,6 +9,7 @@ How the Dream Bot Team kit works, in the kit's own words. Rebuilt from the manua
 - [[epic-ai-megajam|2026 Epic AI MegaJam]]
 - [[fab-product-project|A Fab product project]]
 - [[faq|Questions and answers]]
+- [[free-models|Free models and 24/7]]
 - [[from-idea-to-game|From an idea to a playable game]]
 - [[glossary|Glossary]]
 - [[how-the-kit-thinks|How the kit thinks]]

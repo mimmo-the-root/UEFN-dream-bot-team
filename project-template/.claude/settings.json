@@ -60,7 +60,10 @@
       "Bash(git diff *)",
       "Bash(git log *)",
       "Bash(python Claude/hooks/brain_brief.py *)",
-      "Bash(py -3 Claude/hooks/brain_brief.py *)"
+      "Bash(py -3 Claude/hooks/brain_brief.py *)",
+      "Bash(py -3 Claude/hooks/pieces.py *)",
+      "Bash(python Claude/hooks/pieces.py *)",
+      "Bash(python3 Claude/hooks/pieces.py *)"
     ],
     "deny": []
   },
@@ -102,6 +105,16 @@
     ],
     "Stop": [
       {
+        "_comment": "claim_guard: if the last assistant message claims a file was written but no write succeeded, blocks once. Switch off with UEFN_KIT_GUARDS=0.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/claim_guard.py\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
         "hooks": [
           {
             "type": "command",
@@ -133,7 +146,7 @@
         ]
       },
       {
-        "_comment": "Feeds the optional real-time Agent Console's 'MCP Server' node — logs the moment a call to the UEFN MCP server starts, and who made it (a bot's agent_type, or the main/chief-of-staff session). Same matcher as the PostToolUse after-playtest.ps1 block below, but a separate independent hook — MCP calls are synchronous, so PreToolUse/PostToolUse (not SubagentStop) is the right pair here. Safe to remove if you don't use the console.",
+        "_comment": "Feeds the optional real-time Agent Console's 'MCP Server' node — logs the moment a call to the UEFN MCP server starts, and who made it (a bot's agent_type, or the main/chief-of-staff session). Same matcher as the PostToolUse after-playtest.ps1 block below, but a separate independent hook — MCP calls are synchronous, so PreToolUse/PostToolUse (not SubagentStop) is the right pair here. Safe to remove if you don't use the console. mcp_readonly_allow.py (v1.124.21) lets read-only UEFN tools (get, list, find...) run without a permission prompt, so an unattended session does not stop at the first read; tools that change the map still ask, and a refusal by the other guards still wins.",
         "matcher": "mcp__unreal-mcp__.*",
         "hooks": [
           {
@@ -149,6 +162,11 @@
           {
             "type": "command",
             "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/Claude/hooks/agent-console-mcp.ps1\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/mcp_readonly_allow.py\"",
             "timeout": 10
           }
         ]
@@ -183,6 +201,16 @@
       }
     ],
     "PostToolUseFailure": [
+      {
+        "_comment": "repeat_guard: after the same tool+args+error fails 3 times in a row, stops the session with STOP message. Switch off with UEFN_KIT_GUARDS=0.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/repeat_guard.py\"",
+            "timeout": 10
+          }
+        ]
+      },
       {
         "_comment": "Failed calls to the UEFN MCP dispatcher arrive as this event, not as PostToolUse. mcp_work_log.py notes them in the local ledger so a recipe that fails is counted as failed. Never blocks.",
         "matcher": "mcp__unreal-mcp__.*",

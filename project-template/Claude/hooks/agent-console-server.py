@@ -56,6 +56,7 @@ import re
 import sys
 import time
 import urllib.request
+from urllib.parse import quote, unquote
 import urllib.error
 from datetime import datetime, timezone, timedelta
 
@@ -68,9 +69,20 @@ FLOW_HTML_PATH = os.path.join(ROOT, "agent-console-flow.html")
 SKILLS_HTML_PATH = os.path.join(ROOT, "agent-console-skills.html")
 NEWS_HTML_PATH = os.path.join(ROOT, "agent-console-news.html")
 SCORE_HTML_PATH = os.path.join(ROOT, "agent-console-score.html")
+MODELS_HTML_PATH = os.path.join(ROOT, "agent-console-models.html")  # v1.124.0: free routing (Dream Router)
 FAB_HTML_PATH = os.path.join(ROOT, "agent-console-fab.html")  # v1.110: the Checklist page, served only for a Fab product (UEFN_FAB_LAB set)
 MANUAL_DIR = os.path.join(ROOT, "manual")  # the HTML manual (v1.100): /manual/ and /manual/<chapter>.html
+MUSIC_DIR = os.path.join(os.path.dirname(ROOT), "music")  # v1.124.40: background music for the console (Claude/music)
+MUSIC_EXT = {".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".mp4": "video/mp4", ".ogg": "audio/ogg", ".wav": "audio/wav"}
 MANUAL_FILE_RE = re.compile(r"/manual/([a-z0-9-]+\.(?:html|css|png))")
+def music_files():
+    """Audio files of Claude/music, alphabetical (the play order)."""
+    try:
+        return sorted(n for n in os.listdir(MUSIC_DIR) if os.path.splitext(n)[1].lower() in MUSIC_EXT and os.path.isfile(os.path.join(MUSIC_DIR, n)))
+    except OSError:
+        return []
+
+
 # Skill Harness (v1.81+): the Knowledge page reads/writes the genre skills under ~/.claude/skills/genre
 # through skills_lib.py (same folder). If the module is missing the rest of the console still works.
 try:
@@ -437,6 +449,37 @@ def _kit_status():
     return {"project": proj_v, "template": tpl_v, "outdated": bool(tpl_v) and t(tpl_v) > t(proj_v)}
 
 
+def ensure_router():
+    """v1.124.7: start the Dream Router (free models) when it is not running or an older version is running."""
+    try:
+        dr = os.path.join(os.path.expanduser("~"), ".claude", "hooks", "dream_router.py")
+        if not os.path.isfile(dr):
+            return
+        want = ""
+        with open(dr, encoding="utf-8") as f:
+            m = re.search(r'^VERSION = "([0-9.]+)"', f.read(), re.M)
+            want = m.group(1) if m else ""
+        have = ""
+        try:
+            with urllib.request.urlopen("http://127.0.0.1:8787/health", timeout=2) as r:
+                have = json.loads(r.read().decode("utf-8")).get("version", "")
+        except (OSError, ValueError):
+            pass
+        if have and have == want:
+            return
+        import subprocess
+        if have:
+            try:
+                urllib.request.urlopen(urllib.request.Request("http://127.0.0.1:8787/router/quit", data=b"{}", method="POST", headers={"X-Router-Action": "1"}), timeout=3).close()
+                time.sleep(0.8)
+            except OSError:
+                pass
+        kw = {"creationflags": 0x08000000} if os.name == "nt" else {"start_new_session": True}
+        subprocess.Popen([sys.executable, dr, "supervise"], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kw)
+    except Exception:
+        pass
+
+
 class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass  # keep the terminal quiet — the browser polls this every second
@@ -606,12 +649,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     self._send_json_bytes(json.dumps(d).encode("utf-8"))
                 except Exception as e:
                     self._send_json_bytes(json.dumps({"error": "could not read skills: %s" % e}).encode("utf-8"))
+        elif self.path == "/music" or self.path.startswith("/music?"):
+            self._send_json_bytes(json.dumps({"tracks": [{"name": n, "url": "/music/" + quote(n)} for n in music_files()]}).encode("utf-8"))
+        elif self.path.startswith("/music/"):
+            self._serve_music()
         elif self.path == "/manual" or self.path.startswith("/manual/") or self.path.startswith("/manual?"):
             self._serve_manual()
         elif self.path.startswith("/news") or self.path.startswith("/agent-console-news.html"):
             self._serve_html_file(NEWS_HTML_PATH)
         elif self.path.startswith("/score") or self.path.startswith("/agent-console-score.html"):
             self._serve_html_file(SCORE_HTML_PATH)
+        elif self.path.startswith("/models") or self.path.startswith("/agent-console-models.html"):
+            ensure_router()
+            self._serve_html_file(MODELS_HTML_PATH)
         elif self.path.startswith("/skills") or self.path.startswith("/agent-console-skills.html"):
             self._serve_html_file(SKILLS_HTML_PATH)
         elif self.path.startswith("/stats") or self.path.startswith("/agent-console-stats.html"):
@@ -807,6 +857,45 @@ class Handler(http.server.BaseHTTPRequestHandler):
         except (ValueError, KeyError, TypeError, RuntimeError, OSError) as e:
             self._send_json_status(400, {"ok": False, "error": str(e)})
 
+    def _serve_music(self):
+        # The file name comes from the folder listing, never from the request string; Range requests let the browser resume a position.
+        want = unquote(self.path.split("?", 1)[0][len("/music/"):])
+        name = next((n for n in music_files() if n == want), "")
+        if not name:
+            self.send_response(404)
+            self.end_headers()
+            return
+        target = os.path.join(MUSIC_DIR, name)
+        size = os.path.getsize(target)
+        start, end = 0, size - 1
+        m = re.match(r"bytes=(\d*)-(\d*)", self.headers.get("Range") or "")
+        if m and (m.group(1) or m.group(2)):
+            if m.group(1):
+                start = int(m.group(1))
+                end = int(m.group(2)) if m.group(2) else size - 1
+            else:
+                start = max(0, size - int(m.group(2)))
+            end = min(end, size - 1)
+            if start > end:
+                self.send_response(416)
+                self.send_header("Content-Range", "bytes */%d" % size)
+                self.end_headers()
+                return
+        with open(target, "rb") as f:
+            f.seek(start)
+            body = f.read(end - start + 1)
+        self.send_response(206 if m and (m.group(1) or m.group(2)) else 200)
+        self.send_header("Content-Type", MUSIC_EXT.get(os.path.splitext(name)[1].lower(), "application/octet-stream"))
+        self.send_header("Accept-Ranges", "bytes")
+        if m and (m.group(1) or m.group(2)):
+            self.send_header("Content-Range", "bytes %d-%d/%d" % (start, end, size))
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        try:
+            self.wfile.write(body)
+        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+            pass
+
     def _serve_manual(self):
         # Only plain chapter names (a-z, 0-9, dash) with .html, .css or .png, read from the manual folder: no path can climb out of it.
         path = self.path.split("?", 1)[0].split("#", 1)[0]
@@ -873,6 +962,7 @@ if __name__ == "__main__":
     class ThreadingHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
         daemon_threads = True
 
+    ensure_router()
     server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print(f"Agent Console running at http://127.0.0.1:{PORT}/  (Ctrl+C to stop)")
     try:

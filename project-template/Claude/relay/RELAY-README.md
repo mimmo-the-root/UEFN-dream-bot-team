@@ -39,16 +39,20 @@ next_poll_in: <seconds>
 ```
 
 ## The worker, at every poll
+The plan of the poll is computed, not guessed (1.124.47): run `python Claude/hooks/relay_plan.py` and do what it prints.
 1. `Claude/relay/STOP` exists -> HEARTBEAT `paused`, stop polling.
-2. A file already in `running/` with no result (a session died in the middle): do not start anything new. Read the command and the state of the project, finish it if it is safe, otherwise write the result `partial` or `blocked` with what is done and what is not, and move it to `done/`.
-3. `inbox/` empty and nothing parallel still running -> HEARTBEAT `idle`, sleep.
-4. Take the lowest NNN. If it says `needs_mcp: yes` (the default), check the MCP with one cheap read. MCP not connected: leave the command IN `inbox/` (not in `running/`), write HEARTBEAT `blocked (mcp not connected)` and a result `NNN ... BLOCKED mcp` once, poll slowly (300 s), do not retry the command in a loop. An MCP that connects only at session start needs the owner to reconnect it (`/mcp`) or restart the worker session: say it in the result.
-5. Move the file to `running/`, run it exactly as written, one step at a time, with the MCP and the kit rules (replace-not-stack, device folders and labels, read back everything, no StartGame without a player, no silent change of mechanic).
-6. Write `outbox/NNN-name.result.md`: Status (ok / partial / blocked / failed), time, what was done with the read-back evidence, what changed, warnings, what the owner must do. Move the command to `done/`. Update HEARTBEAT. Poll again after 30 s (more commands may wait), otherwise after the normal interval (120 s).
+2. `close`: commands whose agent already wrote its result. For each, in number order: the shared steps the command asks for (tests, version, CHANGELOG, commit), move it to `done/`, update HEARTBEAT. Do this FIRST: a finished agent frees a slot.
+3. `start`: start ALL of them NOW, in ONE message, as background agents (Agent tool, run_in_background; type = the `agent:` field; prompt = the command text plus "write outbox/NNN-name.result.md, never touch the other files of the mailbox"). Never start them one per poll: the plan already keeps at most 5 running.
+4. `run_now`: a command without `parallel: yes`; run it yourself, one step at a time, while the agents go on. Before it, if it says `needs_mcp: yes` (the default), check the MCP with one cheap read: not connected -> leave it in `inbox/`, HEARTBEAT `blocked (mcp not connected)`, one result `NNN ... BLOCKED mcp`, poll slowly (300 s). Run it exactly as written, with the MCP and the kit rules (replace-not-stack, device folders and labels, read back everything, no StartGame without a player, no silent change of mechanic), then write its result and move it to `done/`.
+5. `waiting`: nothing to do; the reasons go to HEARTBEAT (`after: 062`, slots full, one serial at a time).
+6. HEARTBEAT lists the `active` commands. Poll again after 30 s while anything is running or waiting, otherwise after 120 s. When an agent finishes you get a notification: poll at once (step 2 frees its slot, step 3 fills it).
+A command that must wait for others writes it in its header: `after: 062, 070`.
 
 ## Parallel commands
 A command with `parallel: yes` is not run by the worker itself. The worker moves it to `running/`, starts it in the BACKGROUND with the Agent tool (type = the `agent:` field; the prompt is the command text plus "write outbox/NNN-name.result.md, never touch the other files of the mailbox") and goes on with the next command at once. Several Agent calls that are independent are made in the same message so they really run side by side. When an agent finishes, the worker checks that its result file exists, moves the command to `done/` and updates HEARTBEAT (`state: running 023, 024`).
-- At most 3 parallel commands at a time.
+- At most 5 parallel commands at a time.
+- **The worker decides it by itself (1.124.41)**: before taking the next command it looks at ALL commands waiting in `inbox/`. Commands that do not need the editor and write different files (read their `do:` and the task files they point to) are started together as background agents (at most 5) even without `parallel: yes`; the owner never has to ask. Steps that every command shares (the kit version, `CHANGELOG.md`, the commit, `tests/run_all.py`) are NOT done by the agents: the worker does them itself, one command after the other, when the agents are done. Commands that touch the same file, the editor or a build stay one at a time.
+- On free models more agents do not block each other: the router spreads them over the providers and over several models of each provider (1.124.41).
 - Parallel only when the commands write different files and none of them uses the editor: documentation, the second brain, reviews. (A sub-agent may not have the direct MCP tools, even for read-only calls.) Anything that writes to the open editor, or compiles (`BuildAll`), is never parallel: the editor lock allows one writer.
 - The console shows them: each agent lights up on the Console page while it works. If nothing lights up, no agent was started.
 - A parallel command that fails does not stop the others; the worker reports it in HEARTBEAT.

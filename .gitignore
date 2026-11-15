@@ -42,3 +42,9 @@ _spike/
 
 # temporary file written while the version is updated
 project-template/Claude/KIT-VERSION.tmp
+
+# owner work files: prompts and queues for Cod stay on this computer
+Claude outputs/PROMPT-*
+Claude outputs/queue-*/
+Claude outputs/*.cmd
+Claude outputs/*.py

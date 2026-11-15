@@ -1,0 +1,308 @@
+{
+  "version": "1.0",
+  "note": "Events emitted and functions received for the 20 most common UEFN creative devices. Sourced from Epic device docs and kit mechanics catalog.",
+  "devices": {
+    "Button": {
+      "events_emitted": [
+        "InteractedWith",
+        "PlayerInteractedWith",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "Trigger": {
+      "events_emitted": [
+        "Triggered",
+        "PlayerEntered",
+        "PlayerExited",
+        "ActivatorEntered",
+        "ActivatorExited",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "ItemGranter": {
+      "events_emitted": [
+        "ItemGranted",
+        "ItemRemoved",
+        "AllItemsGranted",
+        "Disabled"
+      ],
+      "functions_received": [
+        "GrantItem",
+        "RemoveItem",
+        "GrantAllItems",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "ConditionalButton": {
+      "events_emitted": [
+        "InteractedWith",
+        "PlayerInteractedWith",
+        "ConditionMet",
+        "ConditionNotMet",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Enable",
+        "Disable",
+        "Reset",
+        "CheckCondition"
+      ]
+    },
+    "Teleporter": {
+      "events_emitted": [
+        "Teleported",
+        "PlayerTeleported",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Teleport",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "PlayerSpawner": {
+      "events_emitted": [
+        "PlayerSpawned",
+        "PlayerDespawned",
+        "Disabled"
+      ],
+      "functions_received": [
+        "SpawnPlayer",
+        "DespawnPlayer",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "ScoreManager": {
+      "events_emitted": [
+        "ScoreChanged",
+        "TeamScoreChanged",
+        "PlayerScoreChanged",
+        "Disabled"
+      ],
+      "functions_received": [
+        "AddScore",
+        "RemoveScore",
+        "SetScore",
+        "AddTeamScore",
+        "SetTeamScore",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "HUDMessage": {
+      "events_emitted": [
+        "MessageShown",
+        "MessageHidden",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Show",
+        "Hide",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "Timer": {
+      "events_emitted": [
+        "TimerStarted",
+        "TimerPaused",
+        "TimerResumed",
+        "TimerCompleted",
+        "TimerCancelled",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Start",
+        "Pause",
+        "Resume",
+        "Cancel",
+        "SetTime",
+        "AddTime",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "MovementModulator": {
+      "events_emitted": [
+        "Activated",
+        "Deactivated",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Enable",
+        "Disable",
+        "Activate",
+        "Deactivate",
+        "Reset"
+      ]
+    },
+    "MutatorZone": {
+      "events_emitted": [
+        "PlayerEntered",
+        "PlayerExited",
+        "Activated",
+        "Deactivated",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Enable",
+        "Disable",
+        "Activate",
+        "Deactivate",
+        "Reset"
+      ]
+    },
+    "EliminationManager": {
+      "events_emitted": [
+        "PlayerEliminated",
+        "PlayerDowned",
+        "PlayerRevived",
+        "TeamEliminated",
+        "Disabled"
+      ],
+      "functions_received": [
+        "EliminatePlayer",
+        "RevivePlayer",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "RoundSettings": {
+      "events_emitted": [
+        "RoundStarted",
+        "RoundEnded",
+        "RoundTimerExpired",
+        "PreRoundStarted",
+        "PostRoundStarted",
+        "Disabled"
+      ],
+      "functions_received": [
+        "StartRound",
+        "EndRound",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "Barrier": {
+      "events_emitted": [
+        "Enabled",
+        "Disabled",
+        "PlayerTouched"
+      ],
+      "functions_received": [
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "PropMover": {
+      "events_emitted": [
+        "MoveStarted",
+        "MoveCompleted",
+        "MoveReversed",
+        "MovePaused",
+        "MoveResumed",
+        "Disabled"
+      ],
+      "functions_received": [
+        "MoveToTarget",
+        "MoveToStart",
+        "Pause",
+        "Resume",
+        "Reverse",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "EndGame": {
+      "events_emitted": [
+        "GameEnded",
+        "WinnerDetermined",
+        "Disabled"
+      ],
+      "functions_received": [
+        "EndGame",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "Tracker": {
+      "events_emitted": [
+        "Tracked",
+        "TargetReached",
+        "ProgressChanged",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Track",
+        "Increment",
+        "SetProgress",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "ClassSelector": {
+      "events_emitted": [
+        "ClassSelected",
+        "ClassChanged",
+        "Disabled"
+      ],
+      "functions_received": [
+        "SelectClass",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "DamageVolume": {
+      "events_emitted": [
+        "PlayerDamaged",
+        "PlayerEntered",
+        "PlayerExited",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    },
+    "MapIndicator": {
+      "events_emitted": [
+        "Shown",
+        "Hidden",
+        "Disabled"
+      ],
+      "functions_received": [
+        "Show",
+        "Hide",
+        "Enable",
+        "Disable",
+        "Reset"
+      ]
+    }
+  }
+}

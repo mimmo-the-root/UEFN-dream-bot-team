@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.123.20
-updated: kit-1.123.20
+created: kit-1.124.52
+updated: kit-1.124.52
 sources: [docs/manual/commands.md]
 type: kit
 status: current
@@ -70,7 +70,9 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 | Command | What it does |
 |---|---|
 | `/learn-slice` | One slice of the learning (genre, one batch of code, one batch of documents, the devices, or the blueprint); run by /learn-map, one fresh agent per slice |
-| `/relay` | Be the worker of the mailbox: poll Claude/relay/inbox, run the commands one by one, answer in outbox (or show the state with `status`) |
+| `/pieces` | Cut a big task into small pieces, each run in a fresh short session; failures are cut again or retried on other models, never a stop |
+| `/relay` | Be the worker of the mailbox: poll Claude/relay/inbox, run up to 5 commands in parallel (relay_plan.py), answer in outbox (or show the state with `status`) |
+| `/verse-test` | Verse in-game test workflow — write tests, run them in a session, read results |
 
 ## Two ways to see the flow work
 
@@ -78,4 +80,4 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 - `/demo --auto`: the same round, no questions: the AI approves for you and writes it down. The Docs page shows the clock.
 
 ## Sources
-- The kit manual, chapter "All the commands" (docs/manual/commands.md), kit v1.123.20. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "All the commands" (docs/manual/commands.md), kit v1.124.52. Rebuilt on every kit release: do not edit this page, edit the manual.

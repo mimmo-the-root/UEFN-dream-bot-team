@@ -1,0 +1,5 @@
+<!-- Full text of the project rule "Docs format". The short version is in this project's CLAUDE.md (KIT block docs-format); kit_sync keeps this file current. -->
+
+# Docs format
+
+- **Docs format**: ROADMAP.md and BUGS.md are read by the Agent Console in ONE fixed format (see the FORMAT CONTRACT comment at the top of each table). Every agent that edits them keeps that format, adds rows (never new sections or tables), never leaves a task's Release cell empty, starts every bug Title with its `B-NNN:` id, and runs `python Claude/hooks/docs_lint.py` after the edit. A hook re-checks automatically after each edit and tells you what to fix. The release shown in the console comes only from the Release column. **Alignment rule**: when the format changes in a kit update, existing data is aligned automatically at session start (`docs_migrate.py`: adds missing columns, `B-NNN:` ids, keeps every row, backs up first). If `docs_lint.py` still reports a problem on an old file, align it to the contract by hand without losing any row or id and say what you changed.

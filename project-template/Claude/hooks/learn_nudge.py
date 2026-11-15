@@ -19,7 +19,7 @@ def main():
         payload = json.load(sys.stdin)
     except Exception:
         payload = {}
-    if payload.get("stop_hook_active") or os.environ.get("UEFN_KIT_NO_NUDGE"):
+    if payload.get("stop_hook_active") or os.environ.get("UEFN_KIT_NO_NUDGE") or os.environ.get("UEFN_KIT_HEADLESS") == "1":
         return
     project = os.environ.get("CLAUDE_PROJECT_DIR") or payload.get("cwd") or os.path.dirname(os.path.dirname(HERE))
     mdir = os.path.join(project, "Claude", "docs", "map")
@@ -71,6 +71,15 @@ def main():
     dp = verse_map.docs_pending(project, mdir) if (lr or no_code) else (True, [])
     pend_docs = len(dp[1])
     prof = verse_map.profile_pending(mdir, project)
+    try:   # v1.124.23: learning of an already learned map runs once at the end of a release (learn_gate.py)
+        import learn_gate
+        if not (pend or pend_docs or prof):
+            learn_gate.mark_learned(project)
+            return
+        if not learn_gate.due(project, (bool(lr[0]) if lr else False) or bool(dp[0]) or not os.path.isfile(os.path.join(mdir, "profile.json")))[0]:
+            return
+    except ImportError:
+        pass
     if not (pend or pend_docs or prof):
         return
     fp = verse_map.profile_fingerprint(project, mdir)
@@ -87,7 +96,7 @@ def main():
         what.append("%d project document(s) changed or not read" % pend_docs)
     if prof:
         what.append("the map blueprint is out of date")
-    reason = ("LEARN (automatic, the owner has been developing in this long session): " + "; ".join(what) + ". "
+    reason = ("LEARN (automatic, a release was just closed): " + "; ".join(what) + ". "
               "Do it now without asking and without a long preamble, then go back to the owner's work: follow `.claude/commands/learn-map.md` "
               "(code with `verse_map.py learn`, documents with `verse_map.py docs`, devices only if they changed, then the map blueprint, step 8). "
               "Only what changed is read. Finish with ONE line saying what was updated.")

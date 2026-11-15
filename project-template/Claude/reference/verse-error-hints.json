@@ -1,0 +1,22 @@
+{
+  "3500": "Missing semicolon or incorrect syntax — check line endings and punctuation",
+  "3501": "Unexpected token — verify syntax around the reported position",
+  "3502": "Type mismatch — ensure variable types match expected types in expressions",
+  "3503": "Unknown identifier — check spelling, imports, and scope of the name",
+  "3504": "Duplicate definition — remove or rename the conflicting declaration",
+  "3505": "Invalid assignment — left side must be a mutable variable or property",
+  "3506": "Function not found — verify name, parameters, and module imports",
+  "3507": "Incorrect number of arguments — match the function's parameter count",
+  "3508": "Missing return value — add return statement or change return type to void",
+  "3509": "Cannot infer type — add explicit type annotation to the variable",
+  "3510": "Cyclic dependency — restructure modules to break the import cycle",
+  "3511": "Access to private member — use public API or move code to same module",
+  "3512": "Immutable value modified — declare as mutable or use a different approach",
+  "3513": "Pattern match incomplete — add missing cases or use wildcard pattern",
+  "3514": "Async function called without await — add await or handle the future",
+  "3515": "Array index out of bounds — check bounds before accessing elements",
+  "3516": "Division by zero — add zero-check before division operation",
+  "3517": "Invalid escape sequence — use correct escape syntax in string literals",
+  "3518": "Module not found — verify module name and project dependencies",
+  "3519": "Feature not supported — check Verse version and use alternative approach"
+}

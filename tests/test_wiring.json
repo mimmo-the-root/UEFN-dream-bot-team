@@ -1,0 +1,11 @@
+{
+  "Button_1": [
+    {"event": "InteractedWith", "target_device": "Trigger_1", "target_function": "Enable"}
+  ],
+  "Trigger_1": [
+    {"event": "Triggered", "target_device": "ItemGranter_1", "target_function": "GrantItem"}
+  ],
+  "ItemGranter_1": [
+    {"event": "ItemGranted", "target_device": "Trigger_1", "target_function": "Enable"}
+  ]
+}

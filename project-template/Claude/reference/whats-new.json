@@ -1,6 +1,527 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.124.52": {
+   "title": "Free models 24/7: the router keeps its history and never dies on a missing file",
+   "features": 1,
+   "fixes": 4,
+   "other": 1,
+   "headlines": [
+    "The router died at start after an update",
+    "The Models page stayed empty",
+    "The 72-hour usage history is never overwritten with an empty file",
+    "Model history"
+   ]
+  },
+  "1.124.49": {
+   "title": "Brain upkeep",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Second brain upkeep (runs by itself)"
+   ]
+  },
+  "1.124.48": {
+   "title": "Router trim history + 7 task fixes",
+   "features": 7,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Router: clear old tool results and dedupe on free models",
+    "Verse compile hints",
+    "Guards enforced by code",
+    "verse_static.py: 6 new static checks"
+   ]
+  },
+  "1.124.47": {
+   "title": "The mailbox worker parallelizes by itself (relay_plan.py)",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "Cod did not parallelize unless asked"
+   ]
+  },
+  "1.124.46": {
+   "title": "Safety check really shrunk; shorter token box with models tried",
+   "features": 1,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The short safety check still saved nothing",
+    "\"Where the tokens go\": a tile with the models tried out of all the models offered"
+   ]
+  },
+  "1.124.45": {
+   "title": "Every provider takes its turn; the page shows every model at work",
+   "features": 1,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "\"Spread the load\" kept one fast provider for everything",
+    "Models page: every model answering right now has its green dot"
+   ]
+  },
+  "1.124.44": {
+   "title": "Tests can no longer break the live router",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "\"503 No free provider key found\" on the owner's PC: a test had written into the live router's files"
+   ]
+  },
+  "1.124.43": {
+   "title": "The router keeps exploring untried free models",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "The ranking of the free models keeps improving by itself",
+    "Models page: a chip \"learned: N answering of M tried\" next to the models offered by the providers"
+   ]
+  },
+  "1.124.42": {
+   "title": "The router tries up to 20 free models per provider, quickest first; 5 in parallel",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Up to 20 free models of the same provider before the next provider, quickest first",
+    "Parallel work: up to **5** agents or pieces at a time (was 3), for the mailbox worker and the project rules"
+   ]
+  },
+  "1.124.41": {
+   "title": "Many free models per provider; parallel by default",
+   "features": 2,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "The router uses many free models, not one per provider",
+    "Parallel by default",
+    "`Claude/hooks/console-restart.cmd`: double-click to restart this project's console server after a kit update i"
+   ]
+  },
+  "1.124.40": {
+   "title": "Background music in the console header",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Background music in the console",
+    "`Claude/music` folder with a README"
+   ]
+  },
+  "1.124.39": {
+   "title": "cod.cmd --plan really skips the router; one-shot runs do only their prompt",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "`cod.cmd --plan` still reached the free router",
+    "A one-shot run did the session-start chores instead of its prompt"
+   ]
+  },
+  "1.124.38": {
+   "title": "Models page: switches first, shorter texts",
+   "features": 0,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Models page: the three switches (free models, spread the load, accept edits) come first and the two selectors "
+   ]
+  },
+  "1.124.37": {
+   "title": "Spread the load across the free providers",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Spread the load"
+   ]
+  },
+  "1.124.36": {
+   "title": "Paid models set aside at once; green dot on the model in use",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "A model that needs credit is set aside at once",
+    "Models page: the dot of the model in use is green inside too, like the providers (it stayed grey with only the"
+   ]
+  },
+  "1.124.35": {
+   "title": "Models page: the page counter is always shown",
+   "features": 0,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Models page: the page counter of the models and of the errors is always shown (\"1 / 1\" with the buttons greyed"
+   ]
+  },
+  "1.124.34": {
+   "title": "An updated router waits until Cod is idle before replacing the running one",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "\"Connection refused\" while Cod was working, right after an update"
+   ]
+  },
+  "1.124.33": {
+   "title": "Models page: total tokens of the last 72 hours; safety check shrunk where the session really is",
+   "features": 1,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "\"Where the tokens go\" starts with the total",
+    "The short safety check saved nothing on the owner's PC"
+   ]
+  },
+  "1.124.32": {
+   "title": "Models page: a status dot on every model",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Models page: every model has a status dot"
+   ]
+  },
+  "1.124.31": {
+   "title": "Auto mode stays the default on free models",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "\"Accept edits on free models\" is now OFF by default"
+   ]
+  },
+  "1.124.30": {
+   "title": "Models page: 8 models per page",
+   "features": 0,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Models page: the models used in the last 72 hours are listed **8 per page** (the right column now has the room"
+   ]
+  },
+  "1.124.29": {
+   "title": "Free only starts Cod in accept-edits mode (switch on the Models page)",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "\"Accept edits on free models\" switch on the Models page"
+   ]
+  },
+  "1.124.28": {
+   "title": "Safety check of auto mode sent short to free models",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "The safety check of auto permission mode costs a fraction on free models",
+    "Models page: \"Safety check on free models\" Short / Full"
+   ]
+  },
+  "1.124.27": {
+   "title": "Models page: providers fold away, 5 models per page",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Models page: \"Providers and keys\" folds away",
+    "The models used in the last 72 hours are listed **5 per page**, to keep the page compact"
+   ]
+  },
+  "1.124.26": {
+   "title": "DeepSeek provider; side requests measured apart",
+   "features": 1,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "\"Where the tokens go\" mixed two kinds of requests",
+    "DeepSeek added as a provider",
+    "Token sizes are measured without escaping non-English characters (they were counted up to 6 times)"
+   ]
+  },
+  "1.124.25": {
+   "title": "Models page: tokens on top, models of the last 72 hours in pages of 20",
+   "features": 2,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "The LLM7 token was refused when saved",
+    "The model list in pages of 20 and the models-offered counter were not really in 1.124.22",
+    "Models page: \"Where the tokens go\" is at the top",
+    "The model list shows only the last 72 hours"
+   ]
+  },
+  "1.124.24": {
+   "title": "Pieces never stop: failures are cut again, then tried on 10+ models",
+   "features": 3,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "A failed piece goes back to the orchestrator instead of the owner",
+    "New agent `piece-orchestrator`",
+    "Router: a session can be pinned to one free model",
+    "From Cod's probe (058): NVIDIA prefers `minimax-m*-flash` and OpenRouter also tries `ling-*:free` and any `:fr"
+   ]
+  },
+  "1.124.23": {
+   "title": "Learning runs once at the end of a release",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "The map is learned once per release, not after every change"
+   ]
+  },
+  "1.124.22": {
+   "title": "Models page: models in pages of 20, models offered by each provider",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Models used this month: 20 per page",
+    "How many models each provider offers"
+   ]
+  },
+  "1.124.21": {
+   "title": "Orchestrator, UEFN read tools without prompts, cod.cmd modes, errors in pages",
+   "features": 3,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "Orchestrator for big tasks: `/pieces`",
+    "UEFN editor tools that only look (get, list, find, search...) run without a permission prompt",
+    "`cod.cmd --plan` / `--free` really win for that session",
+    "Models page: errors in a box of small cards"
+   ]
+  },
+  "1.124.20": {
+   "title": "Free models: UEFN tools work, dead providers no longer cost minutes",
+   "features": 0,
+   "fixes": 4,
+   "other": 0,
+   "headlines": [
+    "UEFN tools on free models",
+    "A provider that hangs or has used its daily quota no longer costs minutes on every request",
+    "The provider that answered last is tried first",
+    "A model that times out twice in a row is set aside for 6 hours and the provider picks another model; a provide"
+   ]
+  },
+  "1.124.19": {
+   "title": "Lean profile: the rules loaded in every session are 60% shorter",
+   "features": 1,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Lean profile: every session starts with about 7,000 fewer tokens of rules",
+    "`update-my-profile.cmd` installs the short base rules with `tool/install-lean-profile.py`: it keeps a backup ("
+   ]
+  },
+  "1.124.18": {
+   "title": "Cloudflare removed from the free providers",
+   "features": 0,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Cloudflare Workers AI removed"
+   ]
+  },
+  "1.124.17": {
+   "title": "UEFN tools reach the free models; tool outputs are shrunk",
+   "features": 1,
+   "fixes": 2,
+   "other": 1,
+   "headlines": [
+    "Manual chapter \"Free models and 24/7\" rewritten",
+    "Cod on free models did not see the UEFN MCP tools",
+    "Tool outputs are shrunk before they go to a free model",
+    "From the third real run (Last errors): every Ollama Cloud model answered \"add usage credits or subscribe\" (HTT"
+   ]
+  },
+  "1.124.16": {
+   "title": "A guardian keeps the router alive",
+   "features": 1,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "A guardian keeps the router alive"
+   ]
+  },
+  "1.124.15": {
+   "title": "The router always starts with the session and is stopped only after the last one",
+   "features": 0,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "\"Connection refused\": Cod stopped because the router was not running",
+    "A Claude Code connection closed early no longer writes a long error into `router.log`"
+   ]
+  },
+  "1.124.14": {
+   "title": "Models that are not free for the account are set aside and remembered",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "From the second real run"
+   ]
+  },
+  "1.124.13": {
+   "title": "LongCat removed, Cloudflare key test fixed",
+   "features": 0,
+   "fixes": 3,
+   "other": 0,
+   "headlines": [
+    "Cloudflare has two boxes on the Models page",
+    "LongCat removed",
+    "Cloudflare showed \"could not reach it (HTTP 405)\""
+   ]
+  },
+  "1.124.12": {
+   "title": "Ten free providers, and the Models page shows where the tokens go",
+   "features": 2,
+   "fixes": 0,
+   "other": 0,
+   "headlines": [
+    "Ten free providers",
+    "Where the tokens go"
+   ]
+  },
+  "1.124.11": {
+   "title": "Auto mode on free models, two new free providers",
+   "features": 1,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "Auto mode works on free models too",
+    "Two more free providers",
+    "The router now remembers exactly which settings it wrote for Claude Code and removes only those when you chang"
+   ]
+  },
+  "1.124.10": {
+   "title": "Free models fixes from the first real errors (Gemini signatures, Groq limit, unavailable models)",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The first real errors, all fixed"
+   ]
+  },
+  "1.124.9": {
+   "title": "The mode works however Cod is started; page no longer says the router is down when it runs",
+   "features": 1,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "\"The free router is not running\" while it was running",
+    "Cod did not use the free models when started the normal way",
+    "In Plan then free, if your plan login does not reach the router, the Models page says so in red (\"the work is "
+   ]
+  },
+  "1.124.8": {
+   "title": "Models page with the same visual effects as the other pages",
+   "features": 0,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "The Models page looks like the others"
+   ]
+  },
+  "1.124.7": {
+   "title": "The router is checked at every session start and when the Models page opens",
+   "features": 0,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "The router did not come back by itself",
+    "The router, which runs hidden, now writes its start lines and any crash to `%USERPROFILE%\\.dream-router\\router"
+   ]
+  },
+  "1.124.6": {
+   "title": "Keys checked at start, a refused key is red, old routers are replaced",
+   "features": 0,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "The page said 4 providers ready when only 3 worked",
+    "An old router stayed alive next to the new one"
+   ]
+  },
+  "1.124.5": {
+   "title": "First real test: better model choice, error log on the Models page",
+   "features": 1,
+   "fixes": 2,
+   "other": 1,
+   "headlines": [
+    "First real test on the owner's PC (Cod, 2026-11-14):",
+    "The router chose a tiny model",
+    "Last errors on the Models page",
+    "A provider now has 120 seconds (was 180) before the router moves on; on Windows a second router can no longer "
+   ]
+  },
+  "1.124.4": {
+   "title": "Router starts and stops with the session, a failed key is red",
+   "features": 1,
+   "fixes": 2,
+   "other": 0,
+   "headlines": [
+    "A key that fails is red",
+    "The router lives with the session",
+    "The console restarted with the old files after a kit update"
+   ]
+  },
+  "1.124.3": {
+   "title": "Key test fix: the router identifies itself to the providers",
+   "features": 0,
+   "fixes": 3,
+   "other": 0,
+   "headlines": [
+    "A good key was reported as wrong",
+    "The Models page has the same header as the other pages",
+    "`dream-router.cmd` now restarts the router, so a newer version always takes over after `update-my-profile.cmd`"
+   ]
+  },
+  "1.124.2": {
+   "title": "Plan, then free models in the same session: three modes",
+   "features": 1,
+   "fixes": 1,
+   "other": 1,
+   "headlines": [
+    "Three modes on the Models page",
+    "No more new Cod window at the limit (1.124.1): the watcher only resumes the same session, as in 1.123.19, and ",
+    "Routing the plan's login through a local router is the approach of OmniRoute's subscription ladder (MIT); the "
+   ]
+  },
+  "1.124.1": {
+   "title": "Free models when the plan is at its limit, key test from the Models page",
+   "features": 3,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Free models when the plan is at its limit",
+    "Test keys",
+    "The console starts the Dream Router by itself when it is installed and not running, so the Models page always ",
+    "Tested offline (`tests/test_limit_resume.py`, `tests/test_dream_router.py`); the providers could not be reache"
+   ]
+  },
+  "1.124.0": {
+   "title": "Free models for Cod: the Dream Router and the Models page",
+   "features": 3,
+   "fixes": 0,
+   "other": 1,
+   "headlines": [
+    "Cod can work on free AI models",
+    "Models page of the console",
+    "`cod.cmd`",
+    "Tested offline with fake providers (`tests/test_dream_router.py`); not yet run against the real providers"
+   ]
+  },
   "1.123.20": {
    "title": "Widget fields are visible to Verse after a build, no editor restart",
    "features": 0,

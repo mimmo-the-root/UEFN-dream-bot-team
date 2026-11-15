@@ -15,6 +15,17 @@ try {
     $reason = if ($payload -and $payload.reason) { [string]$payload.reason } else { "other" }
     if ($reason -in @("clear", "resume", "compact")) { exit 0 }
 
+    # v1.124.15: stop the Dream Router only when this is the LAST Claude Code session on the PC. Another Cod session
+    # (or a second window) may still be talking to it: stopping it left that session with "Connection refused".
+    try {
+        $claudes = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+            $_.Name -match '^claude(\.exe)?$' -or ($_.Name -match '^node(\.exe)?$' -and $_.CommandLine -match 'claude-code|@anthropic-ai')
+        })
+        if ($claudes.Count -le 1) {
+            Invoke-WebRequest -Uri "http://127.0.0.1:8787/router/quit" -Method Post -Headers @{ "X-Router-Action" = "1" } -Body '{"stop_all": true}' -ContentType "application/json" -TimeoutSec 2 -UseBasicParsing | Out-Null
+        }
+    } catch {}
+
     $port = 8765
     $thisProject = $projectDir.TrimEnd('\', '/')
     $mine = $false

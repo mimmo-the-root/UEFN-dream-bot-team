@@ -149,6 +149,20 @@ page from scratch every time.
 9. Report concisely: how many entries were already present, how many new ones you added (or that
    it's the full backfill on a first run), and anything flagged in step 7.
 
+## Upkeep (runs by itself, never triggered by you)
+
+`Claude/hooks/brain_upkeep.py` (installed with the kit) runs the daily free checks at every
+session start (no AI tokens: `vault_check.py links dups stats status` plus the count of
+`Clippings/` files not yet compiled, reported in `<vault>/output/upkeep/YYYY-MM-DD.md` and in one
+line of session context only when something needs work), and when the last real pass is more than
+7 days old OR a release just closed, it writes one command into `Claude/relay/inbox/` with
+`parallel: yes` so the mailbox worker starts the real pass (one `/pieces` batch per ~10 files to
+compile, then audit, then `hot.md` and the indexes; state in `<vault>/output/upkeep/state.json`,
+one line per pass in `wiki/log.md`). You never invoke it yourself: your job is only the vault's
+content, not the schedule. If the owner asks why the upkeep did not run, point them at
+`<vault>/output/upkeep/scheduler.log` (if `daily-vault-compile.ps1` is registered) and
+`<vault>/output/upkeep/state.json` (last run, files done) before guessing.
+
 ## Isolation rules (different from every other agent in this kit)
 
 - Every other agent in this kit works only inside the current UEFN project's folder. You do the

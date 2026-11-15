@@ -113,7 +113,9 @@ $flowHtmlPath = Join-Path $root "agent-console-flow.html"
 $skillsHtmlPath = Join-Path $root "agent-console-skills.html"
 $newsHtmlPath = Join-Path $root "agent-console-news.html"
 $scoreHtmlPath = Join-Path $root "agent-console-score.html"
+$modelsHtmlPath = Join-Path $root "agent-console-models.html"
 $manualDir = Join-Path $root "manual"
+$musicDir = Join-Path (Split-Path $root -Parent) "music"   # v1.124.40: background music (Claude/music)
 $skillsLibPath = Join-Path $root "skills_lib.py"
 $metricsCacheFile = Join-Path $logsDir "fortnite-metrics-cache.json"
 $infoCacheFile = Join-Path $logsDir "fortnite-island-info-cache.json"
@@ -157,7 +159,9 @@ $State = [hashtable]::Synchronized(@{
     SkillsHtmlPath      = $skillsHtmlPath
     NewsHtmlPath        = $newsHtmlPath
     ScoreHtmlPath       = $scoreHtmlPath
+    ModelsHtmlPath      = $modelsHtmlPath
     ManualDir           = $manualDir
+    MusicDir            = $musicDir
     SkillsLibPath       = $skillsLibPath
     MetricsCacheFile    = $metricsCacheFile
     InfoCacheFile       = $infoCacheFile
@@ -568,6 +572,54 @@ $RequestHandler = {
             $response.ContentType = "application/json; charset=utf-8"
             $response.ContentLength64 = $bytes.Length
             $response.OutputStream.Write($bytes, 0, $bytes.Length)
+        } elseif ($request.Url.AbsolutePath -eq "/music") {
+            # v1.124.40: the audio files of Claude/music, alphabetical (the play order)
+            $ext = @{ ".mp3" = "audio/mpeg"; ".m4a" = "audio/mp4"; ".mp4" = "video/mp4"; ".ogg" = "audio/ogg"; ".wav" = "audio/wav" }
+            $tracks = @()
+            if (Test-Path $State.MusicDir) {
+                Get-ChildItem -LiteralPath $State.MusicDir -File | Where-Object { $ext.ContainsKey($_.Extension.ToLower()) } | Sort-Object Name | ForEach-Object {
+                    $tracks += @{ name = $_.Name; url = "/music/" + [System.Uri]::EscapeDataString($_.Name) }
+                }
+            }
+            $json = @{ tracks = @($tracks) } | ConvertTo-Json -Depth 4 -Compress
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+        } elseif ($request.Url.AbsolutePath.StartsWith("/music/")) {
+            # the file name must be one of the listed files: the request string never builds the path; Range lets the browser resume
+            $ext = @{ ".mp3" = "audio/mpeg"; ".m4a" = "audio/mp4"; ".mp4" = "video/mp4"; ".ogg" = "audio/ogg"; ".wav" = "audio/wav" }
+            $want = [System.Uri]::UnescapeDataString($request.Url.AbsolutePath.Substring(7))
+            $file = $null
+            if (Test-Path $State.MusicDir) {
+                $file = Get-ChildItem -LiteralPath $State.MusicDir -File | Where-Object { $_.Name -ceq $want -and $ext.ContainsKey($_.Extension.ToLower()) } | Select-Object -First 1
+            }
+            if (-not $file) {
+                $response.StatusCode = 404
+            } else {
+                $size = $file.Length; $start = 0; $end = $size - 1; $partial = $false
+                $rg = $request.Headers["Range"]
+                if ($rg -and $rg -match '^bytes=(\d*)-(\d*)$' -and ($Matches[1] -or $Matches[2])) {
+                    $partial = $true
+                    if ($Matches[1]) { $start = [int64]$Matches[1]; if ($Matches[2]) { $end = [int64]$Matches[2] } } else { $start = [Math]::Max(0, $size - [int64]$Matches[2]) }
+                    if ($end -gt $size - 1) { $end = $size - 1 }
+                }
+                if ($start -gt $end) {
+                    $response.StatusCode = 416
+                } else {
+                    $len = $end - $start + 1
+                    $response.ContentType = $ext[$file.Extension.ToLower()]
+                    $response.Headers.Add("Accept-Ranges", "bytes")
+                    if ($partial) { $response.StatusCode = 206; $response.Headers.Add("Content-Range", "bytes $start-$end/$size") }
+                    $response.ContentLength64 = $len
+                    $fs = [System.IO.File]::OpenRead($file.FullName)
+                    try {
+                        [void]$fs.Seek($start, [System.IO.SeekOrigin]::Begin)
+                        $buf = New-Object byte[] 65536; $left = $len
+                        while ($left -gt 0) { $n = $fs.Read($buf, 0, [int][Math]::Min($buf.Length, $left)); if ($n -le 0) { break }; $response.OutputStream.Write($buf, 0, $n); $left -= $n }
+                    } catch {} finally { $fs.Close() }
+                }
+            }
         } elseif ($request.Url.AbsolutePath -eq "/manual") {
             # the manual (v1.100): its pages use relative links, so the folder URL needs the trailing slash
             $response.StatusCode = 302
@@ -598,6 +650,16 @@ $RequestHandler = {
                 $response.StatusCode = 404
             } else {
                 $bytes = [System.IO.File]::ReadAllBytes($State.ScoreHtmlPath)
+                $response.ContentType = "text/html; charset=utf-8"
+                $response.ContentLength64 = $bytes.Length
+                $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            }
+        } elseif ($request.Url.AbsolutePath -eq "/models" -or $request.Url.AbsolutePath -eq "/agent-console-models.html") {
+            try { & (Join-Path (Split-Path $State.ModelsHtmlPath -Parent) "ensure-router.ps1") } catch { }
+            if (-not (Test-Path $State.ModelsHtmlPath)) {
+                $response.StatusCode = 404
+            } else {
+                $bytes = [System.IO.File]::ReadAllBytes($State.ModelsHtmlPath)
                 $response.ContentType = "text/html; charset=utf-8"
                 $response.ContentLength64 = $bytes.Length
                 $response.OutputStream.Write($bytes, 0, $bytes.Length)
@@ -661,6 +723,8 @@ function Complete-FinishedDispatches {
     }
 }
 
+# v1.124.7: the Dream Router (free models) runs with the console; ensure-router.ps1 starts or replaces it
+try { & (Join-Path $root "ensure-router.ps1") -ProjectDir (Split-Path (Split-Path $root -Parent) -Parent) } catch { }
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://127.0.0.1:$Port/")
 try {

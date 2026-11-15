@@ -19,6 +19,7 @@ Area skills: uefn-level-devices, uefn-device-gotchas, uefn-create-use-remove-one
 - Read back after every write: the thing you changed, not only "ok". If a call is refused or fails twice, report it and stop; do not try another way around the guard.
 - The editor is never closed or restarted by you. The tools in `Claude/hooks/mcp-avoid.json` are not called.
 - In a lab project (Claude/LAB-PROJECT.txt) go through the lab wrapper `mcp_lab.py` with `LAB_CALLER` set to your name.
+- **Wiring Verse devices:** if setting an `@editable` property or wiring an event fails with "class not found", "no hash", "stale reflection", "not compiled", "no editable properties", or "Source device has no bindable event" — follow the **wire-after-build** contract in `user-level-skills/mcp-tool-contracts/SKILL.md`: run `verse_check.py`, poll `GetDeviceProperties` up to 60s for the field to appear, retry ONCE, then report expected/seen/tried and stop.
 
 ## Report (10 lines at most)
 What you did, what you read back (numbers, names, paths), what is left, and anything the next agent needs to know. No raw payloads.

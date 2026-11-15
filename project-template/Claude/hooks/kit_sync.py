@@ -27,10 +27,18 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", "Claude/community/", "Claude/community-revoked.json", "Claude/relay/RELAY-README.md", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md", ".claude/commands/verse-map.md", ".claude/commands/learn-map.md", ".claude/commands/learn-slice.md", ".claude/commands/verse-check.md", ".claude/commands/text-scan.md", ".claude/commands/handoff.md", ".claude/commands/ui-kit-check.md", ".claude/commands/mcp-snapshot.md", ".claude/commands/devlog.md", ".claude/commands/jam-check.md", ".claude/commands/concept-card.md", ".claude/commands/editor-changes.md")
+MANAGED = ("Claude/hooks/", "Claude/reference/", "Claude/SETUP-INSTRUCTIONS.md", "Claude/KIT-VERSION", "Claude/community/", "Claude/community-revoked.json", "Claude/relay/RELAY-README.md", ".claude/commands/kit-update.md", ".claude/commands/kit-doctor.md", ".claude/commands/restore-point.md", ".claude/commands/verse-map.md", ".claude/commands/learn-map.md", ".claude/commands/learn-slice.md", ".claude/commands/verse-check.md", ".claude/commands/verse-test.md", ".claude/commands/text-scan.md", ".claude/commands/handoff.md", ".claude/commands/ui-kit-check.md", ".claude/commands/mcp-snapshot.md", ".claude/commands/devlog.md", ".claude/commands/jam-check.md", ".claude/commands/concept-card.md", ".claude/commands/editor-changes.md", ".claude/commands/pieces.md")
 CREATE_ONLY = ("Claude/docs-template/", "Claude/relay/")   # v1.123.8: the mailbox folders (inbox, running, done, outbox) exist in every updated project, so /relay can start and the Fix button has somewhere to write
 SKIP_PARTS = ("__pycache__",)
 FAILED = []
+# v1.124.19 lean profile: rules that were plain text in older CLAUDE.md files and are now KIT blocks. The old copy is
+# replaced only when it is found intact; an edited copy (marker still present) is left alone instead of adding a duplicate.
+MIGRATE = {
+    "skill-harness": (r"^- \*\*Skill Harness — the genre skill learns.*?(?=^- \*\*|^<!-- KIT|\Z)", None),
+    "ui-harvest": (r"^- \*\*UI reference harvest \(automatic, every session, independent.*?explicit \"analyze this\" request required\.\n", "UI reference harvest"),
+    "console-fallback": (r"^- \*\*Agent Console \(if `Claude/hooks/agent-console\.html` exists.*?Never ask permission first — just do it and say so\.\n", "agent-console-server"),
+    "team-roles": (r"^- \*\*Plan-first \(rule 13 in `~/\.claude/CLAUDE\.md`\): no code without a tracked task\.\*\*.*?that level\.\n", "intent-reviewer"),
+}
 BLOCK_RE = re.compile(r"<!-- KIT:BEGIN ([\w-]+) -->.*?<!-- KIT:END \1 -->", re.S)
 
 
@@ -68,9 +76,14 @@ def _newer(a, b):
 
 def sync_files(project, tpl):
     changed, added, backup = [], [], None
+    music_new = not os.path.isdir(os.path.join(project, "Claude", "music"))
     for rel, src in _walk(tpl):
         managed = rel.startswith(MANAGED)
         create_only = not managed and rel.startswith(CREATE_ONLY)
+        if rel.startswith("Claude/music/"):
+            # v1.124.40: the console's background music folder is created once with the kit's track and README; after that it
+            # is the owner's (files added stay, a track deleted does not come back).
+            create_only = rel == "Claude/music/README.md" or music_new
         if not (managed or create_only):
             continue
         dst = os.path.join(project, *rel.split("/"))
@@ -204,9 +217,12 @@ def merge_claude_md(project, tpl):
             pt = pt[:cur.start()] + block + pt[cur.end():]
         else:
             # first time: replace the old unmarked copy of this rule (added by an earlier kit version), else append
-            old = re.search(r"^- \*\*Skill Harness — the genre skill learns.*?(?=^- \*\*|\Z)", pt, re.S | re.M) if name == "skill-harness" else None
+            pat, marker = MIGRATE.get(name, (None, None))
+            old = re.search(pat, pt, re.S | re.M) if pat else None
             if old:
                 pt = pt[:old.start()] + block + "\n" + pt[old.end():]
+            elif marker and marker in pt:
+                continue  # the project has its own edited copy of this rule: keep it, never add a second one
             else:
                 pt = pt.rstrip("\n") + "\n" + block + "\n"
         done.append(name)
@@ -593,6 +609,20 @@ def _run(project, out):
         pend_docs = len(dp[1])
         dev_todo = no_code and verse_map.devices_pending(mdir)
         prof_todo = bool(genre) and genre != "epic-template" and (has_map or no_code) and verse_map.profile_pending(mdir, project)
+        try:   # v1.124.23: an already learned map learns again ONCE at the end of a release, not after every change
+            import learn_gate as _lg
+            if not (pend or pend_docs or dev_todo or prof_todo):
+                if genre and genre != "epic-template":
+                    _lg.mark_learned(project)
+            else:
+                _first = (bool(lr[0]) if lr else False) or bool(dp[0]) or not os.path.isfile(os.path.join(mdir, "profile.json"))
+                _due, _why = _lg.due(project, _first)
+                if not _due:
+                    out["notes"].append("Learning waits for the end of the release (%d Verse file(s), %d document(s) changed; they are learned once when the release's last task is Done). Do not run the learning now." % (pend, pend_docs))
+                    pend = pend_docs = 0
+                    dev_todo = prof_todo = False
+        except Exception:
+            pass
         if os.path.isfile(os.path.join(mdir, "meta.json")) or no_code:
             os.makedirs(mdir, exist_ok=True)
             verse_map.write_progress(project, mdir)
@@ -710,6 +740,12 @@ def auto_update_check():
     return True
 
 
+def headless():
+    """A one-shot run (claude -p: pieces, tests, scripts) must do only its prompt: no session-start chores.
+    UEFN_KIT_HEADLESS=1 is set by pieces.py and the kit's test scripts; Claude Code marks -p runs as sdk-*."""
+    return os.environ.get("UEFN_KIT_HEADLESS") == "1" or os.environ.get("CLAUDE_CODE_ENTRYPOINT", "").startswith("sdk")
+
+
 def main():
     project = os.environ.get("CLAUDE_PROJECT_DIR") or (sys.argv[1] if len(sys.argv) > 1 else os.getcwd())
     try:
@@ -719,6 +755,8 @@ def main():
             r = run(project)
     except Exception:
         r = {"updated": [], "added": [], "settings": [], "claude_md": [], "notes": [], "version": ""}
+    if headless():
+        return  # files are synced; a one-shot run (claude -p, a piece, a test) gets no LEARN/GENRE/update notes to act on
     try:  # the MCP map keeps itself current: a cheap check, the mapping runs in the background
         import mcp_map
         news = mcp_map.session_check(project)

@@ -198,7 +198,8 @@ def _run_wake(cmd):
 
 
 def watch(project, sleep=time.sleep, now_fn=time.time, wake=None, alive=None):
-    """Wait for the reset, type the continue message into the session, check it moved, retry forever. Returns the final state."""
+    """Wait for the reset, type the continue message into the session, check it moved, retry forever. Returns the final state.
+    (With the Dream Router in mode auto, v1.124.2, the session does not stop at the limit at all: free models take over in it.)"""
     rd, lim, _ = _dirs(project)
     wake = wake or (lambda pid, text: _run_wake(wake_command(pid, text)))
     alive = alive or pid_alive

@@ -44,6 +44,13 @@
 
 $ErrorActionPreference = "SilentlyContinue"
 $projectDir = if ($env:CLAUDE_PROJECT_DIR) { $env:CLAUDE_PROJECT_DIR } else { (Get-Location).Path }
+# v1.124.39: a one-shot run (claude -p: a piece, a test) does only its prompt. No console, no /relay, no learning notes:
+# they made a `claude -p` test answer about the mailbox instead of calling the tool it was asked to call.
+if ($env:UEFN_KIT_HEADLESS -eq "1" -or ("$env:CLAUDE_CODE_ENTRYPOINT" -like "sdk*")) {
+    try { Start-Process powershell -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$(Join-Path $PSScriptRoot 'ensure-router.ps1')`"", "-ProjectDir", "`"$projectDir`"") -WindowStyle Hidden } catch {}
+    @{ hookSpecificOutput = @{ hookEventName = "SessionStart"; additionalContext = "One-shot run: do only what the prompt asks. Do not start /relay, the console or any learning." } } | ConvertTo-Json -Depth 5 -Compress
+    exit 0
+}
 $consolePath = Join-Path $projectDir "Claude\hooks\agent-console.html"
 $serverScript = Join-Path $projectDir "Claude\hooks\agent-console-server.ps1"
 $port = 8765
@@ -94,6 +101,29 @@ if (Test-Path $consolePath) {
             Add-Content -LiteralPath $startLog -Value ("{0} {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $msg)
         } catch {}
     }
+
+    # v1.124.15: the Dream Router (free models) is started first and WITHOUT waiting (a hidden process), so the 10-second
+    # limit of this hook can never stop it: a Cod session in free mode needs it before its first request.
+    try { Start-Process powershell -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$(Join-Path $PSScriptRoot 'ensure-router.ps1')`"", "-ProjectDir", "`"$projectDir`"") -WindowStyle Hidden } catch {}
+
+    # v1.124.15: kit-sync runs at the same time as this hook. Wait (max 6 s, the hook has 10) only while the project kit is
+    # OLDER than the reference copy, so the console does not restart with old files. A newer or equal project never waits
+    # (in 1.124.4-1.124.14 a 25-second wait got this hook stopped: no console restart, no router).
+    try {
+        $refVer = Join-Path $env:USERPROFILE ".claude\kit-template\Claude\KIT-VERSION"
+        $projVer = Join-Path $projectDir "Claude\KIT-VERSION"
+        if (Test-Path $refVer) {
+            $want = (Get-Content -LiteralPath $refVer -Raw).Trim()
+            $deadline = (Get-Date).AddSeconds(6)
+            while ((Get-Date) -lt $deadline) {
+                $have = ""; try { $have = (Get-Content -LiteralPath $projVer -Raw).Trim() } catch {}
+                $older = $false
+                try { $older = ([version]$have) -lt ([version]$want) } catch { $older = $false }
+                if (-not $older) { break }
+                Start-Sleep -Milliseconds 400
+            }
+        }
+    } catch {}
 
     $alreadyCorrect = $false
     try {

@@ -13,7 +13,7 @@ def ok(c, m):
 
 
 pages = sorted(glob.glob(os.path.join(H, "agent-console*.html")))
-ok(len(pages) == 8, "eight console pages")
+ok(len(pages) == 9, "nine console pages (v1.124.0: Models)")
 for p in pages:
     t = open(p, encoding="utf-8").read(); n = os.path.basename(p)
     ok(t.count("<!-- kit-head:begin -->") == 1 and "kh-strip" in t, n + ": one shared header block with the island strip")

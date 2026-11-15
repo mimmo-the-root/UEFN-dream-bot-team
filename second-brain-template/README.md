@@ -58,6 +58,42 @@ Once the vault path is set, two hooks of the project (`Claude/hooks/brain_brief.
 - **After every page written under `wiki/`**: runs `links` and `quotes`; a broken link or a quote that is not word for word in its raw file comes back to Claude in the same turn.
 - **By hand or by the librarian**: `status` (which raw files are new, changed or deleted since the last ingest, by content hash, with the pages that went stale), `done raw/<file> wiki/<page>...` (records an ingest), `hot`, and the older `names`, `links`, `stats`, `dups`.
 
+### Daily free checks (no AI tokens)
+
+`Claude/hooks/brain_upkeep.py` (called by `brain_brief.py` at session start) runs the daily free
+checks at most once per day:
+
+- Runs `vault_check.py links dups stats status`
+- Counts the number of files in `Clippings/` that are not yet compiled
+- Writes the result to `<vault>/output/upkeep/YYYY-MM-DD.md`
+- Prints one line in the session context only when something needs work, e.g. `vault: 163 to compile, 4 broken links`
+
+### Real pass (with AI tokens)
+
+The real pass is due when the last one is more than 7 days ago OR a release just closed
+(`learn_gate.py`). It runs as `/pieces` with `--mode free` (never the plan), one piece per batch
+of about 10 files to compile, then audit, then `hot.md` and the indexes. State is kept in
+`<vault>/output/upkeep/state.json` so an interrupted pass continues where it left off, and one
+line per pass is logged in `wiki/log.md` (e.g. `upkeep | compile 10, fixed 4 links`).
+
+The mailbox worker starts the due pass by itself when the inbox is empty: `brain_upkeep.py`
+writes one command to `Claude/relay/inbox/` with `parallel: yes`. A session never runs the real
+pass in the foreground.
+
+### Optional: daily-vault-compile.ps1 (Windows Task Scheduler)
+
+If you prefer OS-level scheduling over the session-start hook, you can register
+`daily-vault-compile.ps1` (in this folder) with Windows Task Scheduler. It writes to
+`<vault>/output/upkeep/scheduler.log` each run:
+
+```
+schtasks /create /tn "SecondBrainDailyCompile" /tr "powershell -ExecutionPolicy Bypass -File <your-vault>\daily-vault-compile.ps1" /sc daily /st 06:00 /rl highest
+```
+
+With the mailbox worker (point 3 above) this scheduled task is no longer needed, because the
+worker starts the due pass by itself when the inbox is empty. The daily free checks still run at
+session start via `brain_brief.py`.
+
 Habits that make it work: one file, one topic, named for what it holds; hard claims carry a quote line `> "exact text" - raw/<file>`; `raw/` is never edited; run the audit now and then, because a wiki that only grows ends up contradicting itself.
 
 ## How it connects to the kit

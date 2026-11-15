@@ -92,4 +92,6 @@ w = open(os.path.join(hd, "limit-wake.ps1"), encoding="utf-8").read()
 assert "AttachConsole" in w and "WriteConsoleInputW" in w and "CONIN$" in w
 assert "-claude_pid" not in L.wake_command(1, "x") and L.wake_command(12, "hi")[-4:] == ["-TargetPid", "12", "-Text", "hi"]
 assert "claude_args" not in open(os.path.join(hd, "limit_resume.py"), encoding="utf-8").read()
+
+assert "start_free_session" not in open(os.path.join(hd, "limit_resume.py"), encoding="utf-8").read(), "1.124.2: no new window, the router keeps the session going"
 print("limit resume OK")

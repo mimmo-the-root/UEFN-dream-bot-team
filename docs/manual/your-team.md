@@ -39,6 +39,7 @@ Cost matters. The kit puts the cheaper model on work that is mostly checking or 
 | release-gate | Sonnet | Go or no-go before a release, from the project's own documents. |
 | codebase-auditor | Sonnet | Independent audit of the whole codebase, on demand. |
 | skill-reflector | Haiku | Proposes lessons for your genre after a real playtest. |
+| piece-orchestrator | Sonnet | Cuts a big task into small pieces and runs each in a fresh short session (`/pieces`); a failed piece is cut again (up to 3 levels), then tried on at least 10 other free models, then skipped: the run never stops on a failure. |
 | learn-slicer | Sonnet | Internal: runs ONE slice of the map learning (a batch of code, a batch of documents, the devices, the blueprint) with a fresh context; started only by `/learn-map`. |
 | growth-manager | Sonnet | Everything about getting the map found and played: titles, thumbnails, trailers, launch plans. |
 | materials-expert | Sonnet | Audits and reuses materials in the project. |
