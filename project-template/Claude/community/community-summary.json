@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.123.19"
+   "tag": "v1.124.52"
   },
   "state": {
    "genres": [],
@@ -24,21 +24,13 @@
  "release": {
   "date": "2026-11-15",
   "items": [
-   "[fix] The router died at start after an update (Models page empty: no numbers, no settings). The new router imported `model_history.py`, which `update-my-profile.cmd` did not copy, so every start failed and the guardian kept retrying. The history is now optional (the router starts without it) and `update-my-profile.cmd` copies it.",
-   "[fix] The Models page stayed empty (\"Looking for the free router\u2026\", no settings, no models): a wrong quote in the new history link stopped the page's whole script. Fixed, and a new test checks that every console page's script parses.",
-   "[fix] The 72-hour usage history is never overwritten with an empty file (router 1.124.51): a file locked by Windows was read as empty and saved back empty; now an unreadable file is left as it is and the write retries.",
-   "[feature] Model history: one line per model per day in `~/.dream-router/history/YYYY-MM.jsonl` (requests, failures, tokens, median time), a weekly page in the second brain, `model_history.py summary` and a history link on the Models page.",
-   "[fix] Exploration found nothing new: the 1-in-20 try only looked at the models already preferred, so \"models tried\" stayed at 29. It now picks a model outside the preferred ones; the tile says it counts free-provider models only.",
-   "[other] Work files for Cod (prompts, queues) are no longer part of the kit.",
-   "[feature] Second brain upkeep (runs by itself): brain_upkeep.py runs free daily checks at session start (links/dups/stats/status + Clippings count), writes YYYY-MM-DD.md; due rules (last run >7 days or release closed by learn_gate); real pass runs as /pieces --mode free; mailbox worker writes inbox command with parallel: yes; daily-vault-compile.ps1 scheduler documented. Tests: test_brain_upkeep.py (15), test_brain_brief.py (12), test_brain_state.py (5).",
-   "[feature] Router: clear old tool results and dedupe on free models (trim_history default on). Conversations over ~60k chars replace tool results older than the last 5 with a one-line note, keep only the last copy of long text blocks \u22652k chars. User text never touched. State shown in /router/state and Models page \"Where the tokens go\".",
-   "[feature] Verse compile hints: verse-error-hints.json (20 codes), verse_check.py appends \"Hint: ...\" to recognized errors, prints \"N errors, M with a hint\" summary.",
-   "[feature] Guards enforced by code: repeat_guard.py (PostToolUseFailure) stops 3rd identical failure; claim_guard.py (Stop) blocks false \"file written\" claims. Both off with UEFN_KIT_GUARDS=0.",
-   "[feature] verse_static.py: 6 new static checks: function effects in failure contexts, field initializer calls, integer division, missing using imports, array:/ToString, shadowed module functions (Distance/Lerp/Clamp/etc.).",
-   "[feature] Verse in-game test device + verse_tests.py + /verse-test: ExpectEqual/ExpectTrue/ExpectNear helpers printing [KIT-TEST], scaffold copies template, read parses UEFN log, qa-regression uses it."
+   "[fix] Tasks: one filter for the release, one for the kind. \"All\" and \"feature\" always showed the same number (every release), while \"Fix all\" counted only the current release. Now two rows of chips: the current release (default) or all releases, then the kinds; the numbers on the chips, on the tab and on \"Fix all\" are counted the same way.",
+   "[fix] \"13/46 done \u00b7 33 open \u00b7 part 1/4\" read as a contradiction: now \"13 of 46 done \u00b7 33 open \u00b7 page 1/4\".",
+   "[fix] The Bugs tab showed no number with 3 open bugs: it counted only bug tasks (one, done). It now adds the open bugs in BUGS.md that no open task covers yet.",
+   "[feature] The tasks waiting for you are named next to \"Nothing in progress\" (for example \"Waiting for you: T-016, T-082\"): they are the number on the Docs tab."
   ],
-  "tag": "v1.124.52",
-  "title": "v1.124.52 \u2014 Free models 24/7: the router keeps its history and never dies on a missing file"
+  "tag": "v1.124.53",
+  "title": "v1.124.53 \u2014 Docs page: the numbers agree"
  },
  "schema": 1,
  "skills": [],
