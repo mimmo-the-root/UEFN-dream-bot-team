@@ -37,6 +37,7 @@ MIGRATE = {
     "skill-harness": (r"^- \*\*Skill Harness — the genre skill learns.*?(?=^- \*\*|^<!-- KIT|\Z)", None),
     "ui-harvest": (r"^- \*\*UI reference harvest \(automatic, every session, independent.*?explicit \"analyze this\" request required\.\n", "UI reference harvest"),
     "console-fallback": (r"^- \*\*Agent Console \(if `Claude/hooks/agent-console\.html` exists.*?Never ask permission first — just do it and say so\.\n", "agent-console-server"),
+    "mcp-reconnect": (r"^If the MCP connection drops \(refused, closed, the unreal-mcp tools fail or disappear\).*?'<json>'`\.\n", "uefn_mcp.py wait"),   # v1.124.54: the plain copy added by hand on 15 Nov
     "team-roles": (r"^- \*\*Plan-first \(rule 13 in `~/\.claude/CLAUDE\.md`\): no code without a tracked task\.\*\*.*?that level\.\n", "intent-reviewer"),
 }
 BLOCK_RE = re.compile(r"<!-- KIT:BEGIN ([\w-]+) -->.*?<!-- KIT:END \1 -->", re.S)

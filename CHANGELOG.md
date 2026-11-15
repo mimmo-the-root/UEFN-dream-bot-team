@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.124.55 — The MCP rule reaches every project's CLAUDE.md
+
+- [fix] **The MCP reconnect rule reached only new projects**: it was plain text in CLAUDE.md, and the update changes an existing CLAUDE.md only inside the kit blocks. It is now the `mcp-reconnect` block, so `update-my-profile` + a session start writes it into every project (a copy added by hand is replaced, never doubled).
+
 ## v1.124.54 — Cod gets UEFN's MCP back by itself
 
 - [fix] **Cod waited 3 hours for the owner after UEFN's MCP server dropped** (night of 15 Nov). Claude Code connects to the server once; when it drops, the unreal-mcp tools fail or disappear until someone types `/mcp`. Now:

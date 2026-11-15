@@ -605,7 +605,7 @@ if(id&&localStorage.getItem("dbt.project")!==id){["kitTab","docsTab","dbt.view",
 // heading exactly. This is the single source of truth for the "v1.56" badge next to the title —
 // its whole point is letting a glance at the page settle "is this tab actually running the file
 // I just replaced," so it's only useful if it's never allowed to fall out of sync.
-const KIT_VERSION = "v1.124.54";
+const KIT_VERSION = "v1.124.55";
 {
   const el = document.getElementById("kitVersion"); // already in the DOM — this script runs after it, at the end of <body>
   if (el) el.textContent = KIT_VERSION;
@@ -2424,7 +2424,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 })();
 </script><!-- micro-life:end -->
 <!-- kit-music:begin --><script>
-/* console-ui: background music (v1.124.54). A "Music" switch next to the Aura buttons plays the files of Claude/music
+/* console-ui: background music (v1.124.55). A "Music" switch next to the Aura buttons plays the files of Claude/music
    (mp3, m4a, mp4, ogg, wav) one after the other, in a loop. On/off, track and position are remembered, so moving to another
    page continues where it was (a browser may ask for one click first: the button then says "Resume"). */
 (function(){

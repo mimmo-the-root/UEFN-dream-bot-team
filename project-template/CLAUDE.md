@@ -32,9 +32,11 @@ the name above, following the "verifying which project UEFN has open" contract i
 `~/.claude/skills/mcp-tool-contracts/SKILL.md` (don't guess which listing tool to use). If it
 doesn't match, stop and warn the owner.
 
+<!-- KIT:BEGIN mcp-reconnect -->
 If the MCP connection drops (refused, closed, the unreal-mcp tools fail or disappear), never stop to
 wait for the owner: run `python Claude/hooks/uefn_mcp.py wait --max 3600`, then go on; if Claude
 Code's own tools stay disconnected, call the tools with `python Claude/hooks/uefn_mcp.py call <tool> '<json>'`.
+<!-- KIT:END mcp-reconnect -->
 
 ## Conventions
 - Code style / naming to follow:

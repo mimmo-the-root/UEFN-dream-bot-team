@@ -1,6 +1,15 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.124.55": {
+   "title": "The MCP rule reaches every project's CLAUDE.md",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The MCP reconnect rule reached only new projects"
+   ]
+  },
   "1.124.54": {
    "title": "Cod gets UEFN's MCP back by itself",
    "features": 0,
