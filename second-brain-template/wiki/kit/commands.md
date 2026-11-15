@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.124.52
-updated: kit-1.124.52
+created: kit-1.124.53
+updated: kit-1.124.53
 sources: [docs/manual/commands.md]
 type: kit
 status: current
@@ -80,4 +80,4 @@ Type a command in Claude Code's chat. A command never runs by itself: you type i
 - `/demo --auto`: the same round, no questions: the AI approves for you and writes it down. The Docs page shows the clock.
 
 ## Sources
-- The kit manual, chapter "All the commands" (docs/manual/commands.md), kit v1.124.52. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "All the commands" (docs/manual/commands.md), kit v1.124.53. Rebuilt on every kit release: do not edit this page, edit the manual.

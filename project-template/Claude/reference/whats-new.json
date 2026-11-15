@@ -1,6 +1,18 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.124.53": {
+   "title": "Docs page: the numbers agree",
+   "features": 1,
+   "fixes": 3,
+   "other": 0,
+   "headlines": [
+    "Tasks: one filter for the release, one for the kind",
+    "\"13/46 done · 33 open · part 1/4\" read as a contradiction",
+    "The Bugs tab showed no number with 3 open bugs",
+    "The tasks waiting for you are named"
+   ]
+  },
   "1.124.52": {
    "title": "Free models 24/7: the router keeps its history and never dies on a missing file",
    "features": 1,

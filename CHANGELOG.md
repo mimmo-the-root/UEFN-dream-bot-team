@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.124.53 — Docs page: the numbers agree
+
+- [fix] **Tasks: one filter for the release, one for the kind.** "All" and "feature" always showed the same number (every release), while "Fix all" counted only the current release. Now two rows of chips: the current release (default) or all releases, then the kinds; the numbers on the chips, on the tab and on "Fix all" are counted the same way.
+- [fix] **"13/46 done · 33 open · part 1/4" read as a contradiction**: now "13 of 46 done · 33 open · page 1/4".
+- [fix] **The Bugs tab showed no number with 3 open bugs**: it counted only bug tasks (one, done). It now adds the open bugs in BUGS.md that no open task covers yet.
+- [feature] **The tasks waiting for you are named** next to "Nothing in progress" (for example "Waiting for you: T-016, T-082"): they are the number on the Docs tab.
+
 ## v1.124.52 — Free models 24/7: the router keeps its history and never dies on a missing file
 
 - [fix] **The router died at start after an update** (Models page empty: no numbers, no settings). The new router imported `model_history.py`, which `update-my-profile.cmd` did not copy, so every start failed and the guardian kept retrying. The history is now optional (the router starts without it) and `update-my-profile.cmd` copies it.
