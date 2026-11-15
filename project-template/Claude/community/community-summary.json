@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.124.55"
+   "tag": "v1.124.56"
   },
   "state": {
    "genres": [],
@@ -24,10 +24,11 @@
  "release": {
   "date": "2026-11-15",
   "items": [
-   "[fix] The empty-notes placeholder no longer reaches a release. The placeholder line `bump_version.py` writes was left under the real notes in v1.123.14 to v1.123.19 and GitHub showed it. Removed from the changelog, and a new test (`test_changelog_notes.py`) fails while the line is anywhere: `publish.ps1` runs the tests, so such a release cannot be published."
+   "[fix] Cod stopped when every free model was busy at once (all the quotas used for a while) and waited for the owner. Now:",
+   "[feature] Three more providers: Cohere (trial key, Command models), Cloudflare Workers AI (back: the token alone now works, the account is found by itself) and ZenMux (pay-as-you-go: paid, after the free ones like DeepSeek). Keys stay only in `%USERPROFILE%\\.dream-router\\keys.env`."
   ],
-  "tag": "v1.124.56",
-  "title": "v1.124.56 \u2014 Release notes without the placeholder"
+  "tag": "v1.124.57",
+  "title": "v1.124.57 \u2014 Free models busy: Cod waits and tries again by itself; Cohere, Cloudflare, ZenMux"
  },
  "schema": 1,
  "skills": [],
