@@ -13,7 +13,7 @@
  "helpful": [],
  "previous_for_rebuild": {
   "release": {
-   "tag": "v1.124.54"
+   "tag": "v1.124.55"
   },
   "state": {
    "genres": [],
@@ -24,10 +24,10 @@
  "release": {
   "date": "2026-11-15",
   "items": [
-   "[fix] The MCP reconnect rule reached only new projects: it was plain text in CLAUDE.md, and the update changes an existing CLAUDE.md only inside the kit blocks. It is now the `mcp-reconnect` block, so `update-my-profile` + a session start writes it into every project (a copy added by hand is replaced, never doubled)."
+   "[fix] The empty-notes placeholder no longer reaches a release. The placeholder line `bump_version.py` writes was left under the real notes in v1.123.14 to v1.123.19 and GitHub showed it. Removed from the changelog, and a new test (`test_changelog_notes.py`) fails while the line is anywhere: `publish.ps1` runs the tests, so such a release cannot be published."
   ],
-  "tag": "v1.124.55",
-  "title": "v1.124.55 \u2014 The MCP rule reaches every project's CLAUDE.md"
+  "tag": "v1.124.56",
+  "title": "v1.124.56 \u2014 Release notes without the placeholder"
  },
  "schema": 1,
  "skills": [],
