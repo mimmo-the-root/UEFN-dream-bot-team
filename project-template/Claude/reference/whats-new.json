@@ -1,6 +1,15 @@
 {
  "note": "Built by tool/build_whats_new.py from CHANGELOG.md; do not edit by hand.",
  "versions": {
+  "1.124.56": {
+   "title": "Release notes without the placeholder",
+   "features": 0,
+   "fixes": 1,
+   "other": 0,
+   "headlines": [
+    "The empty-notes placeholder no longer reaches a release"
+   ]
+  },
   "1.124.55": {
    "title": "The MCP rule reaches every project's CLAUDE.md",
    "features": 0,
@@ -574,51 +583,46 @@
    "title": "Cod resumes by itself after a usage limit",
    "features": 1,
    "fixes": 0,
-   "other": 1,
+   "other": 0,
    "headlines": [
-    "Cod resumes by itself after a usage limit",
-    "Notes to write"
+    "Cod resumes by itself after a usage limit"
    ]
   },
   "1.123.17": {
    "title": "Task strip shows only the current release; material graph tidy-up",
    "features": 1,
    "fixes": 1,
-   "other": 1,
+   "other": 0,
    "headlines": [
     "The roadmap task strip shows only the release being worked on",
-    "Tidy a messy material graph",
-    "Notes to write"
+    "Tidy a messy material graph"
    ]
   },
   "1.123.16": {
    "title": "Hide the Next action and Live demo row on the console",
    "features": 1,
    "fixes": 0,
-   "other": 1,
+   "other": 0,
    "headlines": [
-    "You can hide the \"Next action\" and \"Live demo\" row",
-    "Notes to write"
+    "You can hide the \"Next action\" and \"Live demo\" row"
    ]
   },
   "1.123.15": {
    "title": "DemoDisplay is a content-hall Blueprint: how to find and place it",
    "features": 0,
    "fixes": 1,
-   "other": 1,
+   "other": 0,
    "headlines": [
-    "The coder no longer concludes \"there is no DemoDisplay\"",
-    "Notes to write"
+    "The coder no longer concludes \"there is no DemoDisplay\""
    ]
   },
   "1.123.14": {
    "title": "Tasks tab counts the same tasks as the hero",
    "features": 0,
    "fixes": 1,
-   "other": 1,
+   "other": 0,
    "headlines": [
-    "The Tasks tab no longer counts the backlog",
-    "Notes to write"
+    "The Tasks tab no longer counts the backlog"
    ]
   },
   "1.123.13": {

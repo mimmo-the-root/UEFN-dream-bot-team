@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.124.56 — Release notes without the placeholder
+
+- [fix] **The empty-notes placeholder no longer reaches a release.** The placeholder line `bump_version.py` writes was left under the real notes in v1.123.14 to v1.123.19 and GitHub showed it. Removed from the changelog, and a new test (`test_changelog_notes.py`) fails while the line is anywhere: `publish.ps1` runs the tests, so such a release cannot be published.
+
 ## v1.124.55 — The MCP rule reaches every project's CLAUDE.md
 
 - [fix] **The MCP reconnect rule reached only new projects**: it was plain text in CLAUDE.md, and the update changes an existing CLAUDE.md only inside the kit blocks. It is now the `mcp-reconnect` block, so `update-my-profile` + a session start writes it into every project (a copy added by hand is replaced, never doubled).
@@ -310,32 +314,22 @@
 
 - [feature] **Cod resumes by itself after a usage limit.** A new `StopFailure` hook (matcher `rate_limit`) records the limit in `Claude/relay/outbox/LIMIT.json` and starts one background watcher. After the reset the watcher opens a NEW Claude Code window in the project with a fixed resume prompt (read STATUS, ROADMAP and the newest dev log entries, finish what was in progress, continue with the next open task, start `/relay`). It never types into an open window, does nothing when the owner already continued or when `Claude/relay/NO-RESUME` exists, resumes at most 4 times a day, and logs to `Claude/logs/limit-resume.log`. Existing projects get the hook at the next kit sync. Tested offline with a fake clock; NOT yet seen on a real limit.
 
-- [other] **Notes to write.** Replace this line.
-
 ## v1.123.17 — Task strip shows only the current release; material graph tidy-up
 
 - [fix] **The roadmap task strip shows only the release being worked on.** It used to show a window over every release, so finished tasks of earlier releases kept coming back next to the new one, and the whole strip could be drawn twice when the page refreshed. Now it lists the tasks of the current release (the one with the task In progress, else the first with open tasks) in id order. Under each dot only the id and a short word (Done, In progress, To do, Blocked) are shown; the long evidence text moved into the hover note.
 - [feature] **Tidy a messy material graph.** `uefn-materials` has a new reference, `graph-cleanup.md`: the layout-only prompt (adapted from Epic's note on cleaning material graphs with an agent), the baseline to read before and the comparison after (instruction count, pin connections, parameter names), and an honest list of what is not verified yet (comment boxes, named reroutes, node positions through the MCP). `materials-expert` hands the pass to the coder and never edits.
 
-- [other] **Notes to write.** Replace this line.
-
 ## v1.123.16 — Hide the Next action and Live demo row on the console
 
 - [feature] **You can hide the "Next action" and "Live demo" row.** A small button above it reads "Hide next action and demo" (and "Show" when hidden). The choice is remembered in the browser, so the roadmap, release status and tabs get the space back when you do not need the row.
-
-- [other] **Notes to write.** Replace this line.
 
 ## v1.123.15 — DemoDisplay is a content-hall Blueprint: how to find and place it
 
 - [fix] **The coder no longer concludes "there is no DemoDisplay".** In a real project the coder searched the device catalog (`ListDeviceAssets`), found nothing and built a cube-and-billboard substitute, while the owner's own DemoDisplay stood in the level. The DemoDisplay is a content-hall Blueprint (`/ContentHall/Blueprints/BP_DemoDisplay`), not a Creative device. `uefn-device-gotchas` (`demodisplay-sizing.md`) now says how to find one in the level, read and set its fields, and place a new one; the coder's rule 7 line points to it.
 
-- [other] **Notes to write.** Replace this line.
-
 ## v1.123.14 — Tasks tab counts the same tasks as the hero
 
 - [fix] **The Tasks tab no longer counts the backlog.** The hero and the tab badge said 53 tasks, the "All" chip said 55: the chip also counted the 2 rows in the backlog (Later). The Tasks tab now uses the same denominator as the rest of the console; the backlog stays in its own box.
-
-- [other] **Notes to write.** Replace this line.
 
 ## v1.123.13 — Asset budget skill, atmosphere reference and a narrator test script (from the UEFN 43.10 pages)
 

@@ -6,6 +6,7 @@
 Changes: project-template/Claude/KIT-VERSION, every agent-console*.html, README.md (the "What's new (v1.108 - vX.Y.Z)" heading), then rebuilds
 the manual, the kit wiki, the kit stats and whats-new.json. Adds a "## vX.Y.Z - title" entry at the top of CHANGELOG.md when there is none
 (with a title); write its notes by hand, one bullet per change, starting with [feature], [fix] or [other].
+The placeholder line it writes must be replaced: tests/test_changelog_notes.py fails (and publish.ps1 stops) while it is there.
 Run it whenever the kit changes in a way the owner can see. publish.ps1 refuses to publish when the versions disagree."""
 import glob, os, re, subprocess, sys
 

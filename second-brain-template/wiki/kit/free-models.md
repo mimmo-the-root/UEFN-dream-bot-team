@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.124.55
-updated: kit-1.124.55
+created: kit-1.124.56
+updated: kit-1.124.56
 sources: [docs/manual/free-models.md]
 type: kit
 status: current
@@ -126,4 +126,4 @@ A small link **"history"** next to the **learned** chip on the Models page opens
 | In Plan, then free, a red line says your plan login does not reach the router | Your plan cannot pass through the router on this PC: choose Plan only or Free only |
 
 ## Sources
-- The kit manual, chapter "Free models and 24/7" (docs/manual/free-models.md), kit v1.124.55. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Free models and 24/7" (docs/manual/free-models.md), kit v1.124.56. Rebuilt on every kit release: do not edit this page, edit the manual.

@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.124.55
-updated: kit-1.124.55
+created: kit-1.124.56
+updated: kit-1.124.56
 sources: [docs/manual/faq.md]
 type: kit
 status: current
@@ -66,4 +66,4 @@ No. The kit is not affiliated with Epic Games. Fortnite and UEFN are trademarks 
 - [[troubleshooting|Troubleshooting]]
 
 ## Sources
-- The kit manual, chapter "Questions and answers" (docs/manual/faq.md), kit v1.124.55. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Questions and answers" (docs/manual/faq.md), kit v1.124.56. Rebuilt on every kit release: do not edit this page, edit the manual.
