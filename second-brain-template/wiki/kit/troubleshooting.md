@@ -1,7 +1,7 @@
 ---
 tags: [kit, manual]
-created: kit-1.124.53
-updated: kit-1.124.53
+created: kit-1.124.54
+updated: kit-1.124.54
 sources: [docs/manual/troubleshooting.md]
 type: kit
 status: current
@@ -82,7 +82,11 @@ A reference (device to device, widget, asset) or a list of references was set th
 
 ## Claude loses UEFN
 
-The UEFN server listens on `http://127.0.0.1:8000/mcp` by default. Go in this order:
+The UEFN server listens on `http://127.0.0.1:8000/mcp` by default.
+
+**The kit gets it back by itself (v1.124.54).** When an MCP call fails because the server is gone, the session waits up to 8 minutes for UEFN to answer again, then goes on; if Claude Code's own connection stays closed, it calls the tools through `python Claude/hooks/uefn_mcp.py call`, a new connection every time. A session that tries to end its turn waiting for you because of the MCP is sent back to work (`uefn_mcp.py wait`, then the tasks that do not need the editor). What happened is in `Claude/logs/mcp-reconnect.log`. `python Claude/hooks/uefn_mcp.py status` tells you at once whether the server answers.
+
+If it stays down, go in this order:
 
 1. **Is anything listening on port 8000?** In PowerShell: `Get-NetTCPConnection -LocalPort 8000 -State Listen`. No result means the server is off.
 2. **Read the editor Output Log** for the server start-up lines. A port conflict shows up there.
@@ -117,4 +121,4 @@ Open an issue on the [GitHub repo](https://github.com/mimmo-the-root/UEFN-dream-
 - [[community|Community]]
 
 ## Sources
-- The kit manual, chapter "Troubleshooting" (docs/manual/troubleshooting.md), kit v1.124.53. Rebuilt on every kit release: do not edit this page, edit the manual.
+- The kit manual, chapter "Troubleshooting" (docs/manual/troubleshooting.md), kit v1.124.54. Rebuilt on every kit release: do not edit this page, edit the manual.

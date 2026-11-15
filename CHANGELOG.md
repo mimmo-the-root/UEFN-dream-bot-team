@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.124.54 — Cod gets UEFN's MCP back by itself
+
+- [fix] **Cod waited 3 hours for the owner after UEFN's MCP server dropped** (night of 15 Nov). Claude Code connects to the server once; when it drops, the unreal-mcp tools fail or disappear until someone types `/mcp`. Now:
+  - **`uefn_mcp.py`**: `status`, `wait --max 3600` (returns as soon as the server answers) and `call <tool> '<json>'`, which opens a new connection every call, with the same guards (heavy reads, one writer at a time) and the same work log as the unreal-mcp tools.
+  - **A failed MCP call that says the server is gone** (refused, closed, not connected, timed out): a hook waits up to 8 minutes for the server, then tells the session to retry once and go on with `uefn_mcp.py call` if its own connection stayed closed.
+  - **A turn that ends waiting for the owner because of the MCP** is sent back to work once (`uefn_mcp.py wait`, then the work that does not need the editor); at most 6 times in 12 hours, so it cannot loop. Log: `Claude/logs/mcp-reconnect.log`.
+  - The rule is in every project's CLAUDE.md, and `status`, `wait` and `tools` run without asking.
+
 ## v1.124.53 — Docs page: the numbers agree
 
 - [fix] **Tasks: one filter for the release, one for the kind.** "All" and "feature" always showed the same number (every release), while "Fix all" counted only the current release. Now two rows of chips: the current release (default) or all releases, then the kinds; the numbers on the chips, on the tab and on "Fix all" are counted the same way.

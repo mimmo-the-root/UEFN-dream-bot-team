@@ -2,6 +2,15 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
+      "Bash(python Claude/hooks/uefn_mcp.py status*)",
+      "Bash(python Claude/hooks/uefn_mcp.py wait*)",
+      "Bash(python Claude/hooks/uefn_mcp.py tools*)",
+      "Bash(py -3 Claude/hooks/uefn_mcp.py status*)",
+      "Bash(py -3 Claude/hooks/uefn_mcp.py wait*)",
+      "Bash(py -3 Claude/hooks/uefn_mcp.py tools*)",
+      "Bash(python3 Claude/hooks/uefn_mcp.py status*)",
+      "Bash(python3 Claude/hooks/uefn_mcp.py wait*)",
+      "Bash(python3 Claude/hooks/uefn_mcp.py tools*)",
       "Bash(py -3 Claude/hooks/verse_changes.py *)",
       "Bash(python Claude/hooks/verse_changes.py *)",
       "Bash(python3 Claude/hooks/verse_changes.py *)",
@@ -111,6 +120,11 @@
             "type": "command",
             "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/claim_guard.py\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/mcp_reconnect.py\" stop",
+            "timeout": 10
           }
         ]
       },
@@ -212,13 +226,18 @@
         ]
       },
       {
-        "_comment": "Failed calls to the UEFN MCP dispatcher arrive as this event, not as PostToolUse. mcp_work_log.py notes them in the local ledger so a recipe that fails is counted as failed. Never blocks.",
+        "_comment": "Failed calls to the UEFN MCP dispatcher arrive as this event, not as PostToolUse. mcp_work_log.py notes them in the local ledger so a recipe that fails is counted as failed. mcp_reconnect.py (v1.124.54): when the error says the server is gone, it waits up to 8 minutes for UEFN to answer again and tells the session how to go on (uefn_mcp.py), so nobody waits for the owner. Never blocks.",
         "matcher": "mcp__unreal-mcp__.*",
         "hooks": [
           {
             "type": "command",
             "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/mcp_work_log.py\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/Claude/hooks/mcp_reconnect.py\"",
+            "timeout": 600
           }
         ]
       }
