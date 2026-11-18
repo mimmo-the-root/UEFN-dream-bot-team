@@ -1307,7 +1307,7 @@ async function renderRoadmapTaskList(){
   // Most-incomplete-work-first is less useful than release order as written in the file (file
   // order tracks chronology), so keep first-seen order; within a release: active/blocked, then
   // MVP before other priorities, then by id.
-  const rank = r => { const b = statusBucket(r.status); return (b === "active" || b === "blocked") ? 0 : 1; };
+  const rank = r => { const b = statusBucket(r.status); return b === "active" ? 0 : b === "blocked" ? 1 : b === "todo" ? 2 : 3; };  /* owner 2026-11-18: in progress, blocked, to do, closed */
   const priRank = r => priorityPill(r.priority).label === "MVP" ? 0 : 1;
   let shown = 0;
   el.innerHTML = groups.map(g => {
@@ -1351,7 +1351,7 @@ async function renderStatusTasks(){
   const isOpenT = r => { const b = statusBucket(r.status); return b === "todo" || b === "active" || b === "blocked"; };
   const PER = 12, slides = [];
   relOrder(groupByRelease(rows)).forEach(g => {
-    const rs = g.rows.slice().sort((x, y) => (isOpenT(y) - isOpenT(x)) || idNum(x.id) - idNum(y.id));
+    const stRank = r => { const k = statusBucket(r.status); return k === "active" ? 0 : k === "blocked" ? 1 : k === "todo" ? 2 : 3; }; const rs = g.rows.slice().sort((x, y) => (stRank(x) - stRank(y)) || idNum(x.id) - idNum(y.id));
     const d = rs.filter(r => statusBucket(r.status) === "done").length, open = rs.filter(isOpenT).length, pages = Math.max(1, Math.ceil(rs.length / PER));
     for (let k = 0; k < pages; k++){
       const ttl = '<b>' + escH(g.name) + '</b> · ' + d + ' of ' + rs.length + ' done' + (open ? ' · ' + open + ' open' : ' · finished') + (pages > 1 ? ' · page ' + (k + 1) + '/' + pages : '');
