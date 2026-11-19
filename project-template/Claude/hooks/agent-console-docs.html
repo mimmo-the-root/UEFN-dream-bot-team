@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- kit-console-rev: 6 -->
+<!-- kit-console-rev: 7 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1039,11 +1039,14 @@ function groupByRelease(rows){
 
 // ---- v1.124.57: ONE definition of the numbers, release order, and paged boxes ------------------------------
 // total = tasks planned into a release (not out of scope, not Later/backlog); out of scope and backlog are counted apart and never in the %.
+// T-106: ONE weighting for every release/hero percent: Done = 100, In progress = its own % (a parent with package rows uses the average of its children), anything else = 0.
+function taskWeight(r){ const b = statusBucket(r.status); if (b === "done") return 100; if (b === "outOfScope") return 0; if (b === "active" || rmKids(r.id).length) return taskPct(r) || 0; return 0; }
+function weightedPct(rows){ rows = rows || []; if (!rows.length) return 0; let sum = 0; rows.forEach(r => { sum += taskWeight(r); }); return Math.round(sum / rows.length); }
 function relStats(allRows){
   const scope = (allRows || []).filter(t => statusBucket(t.status) !== "outOfScope");
   const planned = scope.filter(t => !isBacklogRow(t));
   const done = planned.filter(t => statusBucket(t.status) === "done").length;
-  return {all: (allRows || []).length, out: (allRows || []).length - scope.length, backlog: scope.length - planned.length, total: planned.length, done: done, pct: planned.length ? Math.round(100 * done / planned.length) : 0};
+  return {all: (allRows || []).length, out: (allRows || []).length - scope.length, backlog: scope.length - planned.length, total: planned.length, done: done, pct: weightedPct(planned)};
 }
 // the release being worked on first, finished releases after it, Later at the very end (natural order inside each group)
 function relOrder(groups){
@@ -1111,7 +1114,7 @@ function renderHeroInner(roadmap, bugs, status){
       const b = statusBucket(t.status);
       return b === "todo" || b === "active" || b === "blocked";
     }).length;
-    const pct = total ? Math.round((done / total) * 100) : 0;
+    const pct = weightedPct(tasks);
     document.getElementById('progressPct').textContent = total ? (pct + "%") : "–";
     const circumference = 226;
     document.getElementById('progressRing').setAttribute('stroke-dashoffset',
@@ -1163,9 +1166,9 @@ function renderHeroInner(roadmap, bugs, status){
     const isOpenG = g => g.rows.some(t => { const b = statusBucket(t.status); return b === "todo" || b === "active" || b === "blocked"; });
     const nOpen = groups.filter(isOpenG).length;
     ov.textContent = all.length
-      ? (groups.length + " release" + (groups.length === 1 ? "" : "s") + " · " + done + "/" + all.length + " task Done" + (nOpen ? " · " + nOpen + " in progress" : ""))
+      ? (weightedPct(all) + "% · " + groups.length + " release" + (groups.length === 1 ? "" : "s") + " · " + done + "/" + all.length + " task Done" + (nOpen ? " · " + nOpen + " in progress" : ""))
       : "No tasks yet.";
-    const line = g => { const d = g.rows.filter(t => statusBucket(t.status) === "done").length, pct = g.rows.length ? Math.round(d / g.rows.length * 100) : 0;
+    const line = g => { const pct = weightedPct(g.rows);
       return '<div class="relrow"><span class="name" title="' + inlineEsc(g.name) + '">' + inlineEsc(g.name) + (g === groups.find(isOpenG) ? ' <span class="jpill jlive" style="font-size:9px;">now</span>' : '') +
         '</span><span class="bar"><i style="width:' + pct + '%"></i></span><span class="pct">' + pct + '%</span></div>'; };
     const slides = [];
@@ -1364,7 +1367,7 @@ async function renderRoadmapTaskList(){
   let shown = 0;
   el.innerHTML = groups.map(g => {
     const done = g.rows.filter(r => statusBucket(r.status) === "done").length;
-    const pct = g.rows.length ? Math.round(done / g.rows.length * 100) : 0;
+    const pct = weightedPct(g.rows);
     const open = g.rows.slice().sort((a, b) => rmRank(a) - rmRank(b) || priRank(a) - priRank(b) || idNum(a.id) - idNum(b.id));
     shown += open.length;
     const RTL_PER = 8, rpages = Math.max(1, Math.ceil(open.length / RTL_PER));
@@ -2193,7 +2196,7 @@ function jRelease(tasks, ownerDone){
   const rows = (tasks || []).filter(t => statusBucket(t.status) !== "outOfScope");
   const gs = groupByRelease(rows).filter(g => !/^(later|backlog)$/i.test(g.name) && g.name !== "(no release set)");
   if (!gs.length) return null;
-  const S = gs.map(g => ({name: g.name, total: g.rows.length, done: g.rows.filter(t => statusBucket(t.status) === "done").length}));
+  const S = gs.map(g => ({name: g.name, total: g.rows.length, done: g.rows.filter(t => statusBucket(t.status) === "done").length, pct: weightedPct(g.rows)}));
   let i = S.findIndex(x => x.done < x.total), wait = false;
   if (i === -1){ i = S.length - 1; wait = !ownerDone; }
   else if (i > 0 && S[i].done === 0 && !ownerDone){ i = i - 1; wait = true; }
@@ -2204,7 +2207,7 @@ function paintLoopBar(st, ss){
   const rl = st.rel;
   const steps = Array.prototype.filter.call(document.querySelectorAll("#pageSteps .stw"), e => e.classList.contains("loop"));
   if (!steps.length){ box.innerHTML = ""; return; }
-  const pct = rl && rl.cur.total ? Math.round(100 * rl.cur.done / rl.cur.total) : 0;
+  const pct = rl && rl.cur.total ? rl.cur.pct : 0;
   const label = rl ? (rl.cur.name + ": " + rl.cur.done + "/" + rl.cur.total + " tasks") : "no release planned yet";
   const note = !rl ? "Tasks come from the Release column of ROADMAP.md." : rl.wait ? "Release done: confirm it in Play and confirm. Next" + (rl.next ? ": " + rl.next.name + ", " + rl.next.total + " tasks." : ": none planned.") : (rl.all ? "All planned releases are done." : "Then " + (rl.next ? rl.next.name + " (" + rl.next.total + " tasks)" : "no further release planned") + ".");
   box.innerHTML = '<div class="lp" id="lpIn"><span class="lp-tag" title="Tasks to Play and confirm repeat for every release">&#8635; LOOP &middot; repeats for each release</span><div class="lp-bar' + (rl && rl.wait ? " full" : "") + '"><i style="width:' + pct + '%"></i></div><span class="lp-n"><b>' + esc2(label) + '</b></span><span class="lp-note">' + esc2(note) + '</span></div>';
@@ -2267,7 +2270,7 @@ function jRoadmap(st){
   RM_ROWS.length = 0;
   const cards = gs.map((g, k) => {
     const later = /^(later|backlog)$/i.test(g.name), fin = !later && !isOpen(g), cur = g.name === curName && !later;
-    const done = g.rows.filter(t => statusBucket(t.status) === "done").length, pct = g.rows.length ? Math.round(100 * done / g.rows.length) : 0;
+    const done = g.rows.filter(t => statusBucket(t.status) === "done").length, pct = weightedPct(g.rows);
     const open = g.rows.length - done, tag = cur ? " &middot; now" : later ? " &middot; backlog" : fin ? " &middot; finished" : " &middot; queued";
     RM_ROWS[k] = g.rows.slice().sort((a, b) => rmRank(a) - rmRank(b) || idNum(a.id) - idNum(b.id));
     return '<div class="rmcard' + (cur ? " cur" : "") + (fin ? " fin" : "") + '"><h4>' + escH(g.name) + tag + '</h4><div class="rmk">' + done + '/' + g.rows.length + ' done &middot; ' + open + ' open</div>' +
