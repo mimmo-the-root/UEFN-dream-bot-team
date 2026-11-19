@@ -1,0 +1,26 @@
+{
+  "debug": {
+    "description": "Which debug files the agent writes (see docs/DEBUG-EXCHANGE.md). true = write, false = skip.",
+    "exchange_log": true,
+    "problems_log": true,
+    "pending_tests": true,
+    "task_status_log": true,
+    "router_error_log": true,
+    "safety_samples": false
+  },
+  "routing": {
+    "description": "Placeholder: model routing settings."
+  },
+  "budget": {
+    "description": "Placeholder: token and cost budget settings."
+  },
+  "agents": {
+    "description": "Placeholder: agent limits and behaviour."
+  },
+  "console": {
+    "description": "Placeholder: Agent Console settings."
+  },
+  "skills": {
+    "description": "Placeholder: skill loading settings."
+  }
+}
