@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- kit-console-rev: 5 -->
+<!-- kit-console-rev: 6 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -928,6 +928,7 @@ setInterval(tick, 1000);
 .khm.free{color:var(--green,#38e08a);border-color:var(--green,#38e08a);}
 .khm.mixed{color:var(--amber,#f0b429);border-color:var(--amber,#f0b429);}
 .khm.paid{color:var(--red,#ff4d5e);border-color:var(--red,#ff4d5e);}
+.khr .khs{display:inline-flex;gap:2px}.khr .khs button.on{background:rgba(139,124,246,.25);color:var(--text,#e8e2ff);border-color:var(--text,#e8e2ff)}
 .khr button{background:transparent;border:1px solid var(--line,#2b2468);color:var(--blue,#7aa7ff);border-radius:6px;padding:1px 8px;cursor:pointer;font-size:11px;}
 @keyframes khbreathe{0%,100%{opacity:1;}50%{opacity:.25;}}
 </style>
@@ -936,6 +937,13 @@ setInterval(tick, 1000);
    green + breathing when the last call went that way, grey when idle; plus the router mode so a forgotten "free" is visible.
    Numbers come from the router (GET /router/state, models of the last 72 h); per-task numbers are the change of those totals while the task is In progress
    and are measured only while a console page is open. Paid tokens include cache reads (the router counts them as input). */
+/*kh-mode:begin*/
+var KH_UI2R={free:"free",paid:"paid",mixed:"auto",safe:"safe"};
+function khModeToRouter(ui){return Object.prototype.hasOwnProperty.call(KH_UI2R,ui)?KH_UI2R[ui]:null;}
+function khModeToUi(m){return m==="free"?"free":m==="auto"?"mixed":(m==="paid"||m==="plan")?"paid":m==="safe"?"safe":null;}
+function khSetMode(base,ui,fetchFn){var m=khModeToRouter(ui);if(!m)return Promise.resolve({ok:false,error:"Unknown mode"});
+  return fetchFn(base+"/router/settings",{method:"POST",headers:{"Content-Type":"application/json","X-Router-Action":"1"},body:JSON.stringify({mode:m})}).then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||(j&&j.error))return {ok:false,error:String((j&&j.error)||("HTTP "+r.status))};return {ok:true,mode:m};});}).catch(function(){return {ok:false,error:"The router did not answer."};});}
+/*kh-mode:end*/
 (function(){
   if(document.getElementById("khRoute"))return;
   var R="http://127.0.0.1:8787",K="kh-route-v3";
@@ -943,10 +951,11 @@ setInterval(tick, 1000);
   function load(){try{return JSON.parse(localStorage.getItem(K))||{};}catch(e){return {};}}
   function save(o){try{localStorage.setItem(K,JSON.stringify(o));}catch(e){}}
   var box=document.createElement("div");box.id="khRoute";box.className="khr";
-  box.innerHTML='<span class="khp" id="khPaid"><span class="d"></span>PAID <b id="khPaidN">0</b></span><span class="khp" id="khFree"><span class="d"></span>FREE <b id="khFreeN">0</b></span><span class="khm" id="khMode">router: reading&hellip;</span><span id="khSince"></span><button type="button" id="khReset" title="Start the count again from now">&#8634; restart count</button>';
+  box.innerHTML='<span class="khp" id="khPaid"><span class="d"></span>PAID <b id="khPaidN">0</b></span><span class="khp" id="khFree"><span class="d"></span>FREE <b id="khFreeN">0</b></span><span class="khm" id="khMode">router: reading&hellip;</span><span class="khs" id="khSeg"><button type="button" data-v="free" title="Free models only">Free</button><button type="button" data-v="paid" title="Your Claude plan only">Paid</button><button type="button" data-v="mixed" title="Plan first, then free">Mixed</button><button type="button" data-v="safe" title="Free work, plan safety checks" style="font-size:10px;opacity:.8">Safe</button></span><span id="khSince"></span><button type="button" id="khReset" title="Start the count again from now">&#8634; restart count</button>';
   var kh=document.getElementById("kitHead");
   if(kh&&kh.parentNode)kh.parentNode.insertBefore(box,kh.nextSibling);else{var host=document.querySelector("main,.wrap")||document.body;host.insertBefore(box,host.firstChild);}
   var CUR=null;
+  Array.prototype.forEach.call(box.querySelectorAll("#khSeg button"),function(b){b.onclick=function(){khSetMode(R,b.dataset.v,fetch).then(function(x){if(!x.ok){var m=document.getElementById("khMode");m.textContent="mode not changed: "+x.error;}poll();});};});
   /* v2: the router reports a ROLLING 72 h window, so totals can go down while new tokens come in (old hours drop out) and the old
      "total minus base" stayed at 0. Now every model adds only its positive change since the last poll, so the count only grows. */
   function accum(S,o){o.acc=o.acc||{paid:0,free:0};var seen=o.seen||{},first=!o.seen,nx={};
@@ -983,6 +992,7 @@ setInterval(tick, 1000);
     else if(mode==="auto"){m.className="khm mixed";m.textContent="mode: MIXED (paid first, then free)";}
     else if(mode==="plan"){m.className="khm paid";m.textContent="mode: PAID only (router not in the path)";}else if(mode==="safe"){m.className="khm mixed";m.textContent="mode: SAFE (free work, plan checks)";}
     else{m.className="khm";m.textContent="mode: "+mode;}
+    var u=khModeToUi(mode);Array.prototype.forEach.call(document.querySelectorAll("#khSeg button"),function(b){b.className=b.getAttribute("data-v")===u?"on":"";});
     CUR=cur;o.last=cur;tasks(o,cur);save(o);
   }
   function poll(){if(document.hidden)return;fetch(R+"/router/state",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(S){paint(S,!S);}).catch(function(){paint(null,true);});}
