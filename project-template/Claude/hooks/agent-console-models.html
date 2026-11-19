@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- kit-console-rev: 4 -->
+<!-- kit-console-rev: 5 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -133,7 +133,7 @@ p,.hint,.desc,.sub{max-width:65ch;}
   <div class="md-row"><div class="md-t"><b>Free models</b><span>Router on or off.</span></div><label class="md-sw"><input type="checkbox" id="enabled"><i></i></label></div>
   <div class="md-row"><div class="md-t"><b>Spread the load</b><span>Working providers take turns.</span></div><label class="md-sw"><input type="checkbox" id="spread"><i></i></label></div>
   <div class="md-row"><div class="md-t"><b>Accept edits (Free only)</b><span>No safety checks, but asks before unlisted commands.</span></div><label class="md-sw"><input type="checkbox" id="acceptEdits"><i></i></label></div>
-  <div class="md-row" style="flex-wrap:wrap"><div class="md-t"><b>How Cod works</b><span id="modeHelp"></span></div><div class="md-seg" id="def"><button data-v="auto">Plan, then free</button><button data-v="plan">Plan only</button><button data-v="free">Free only</button></div></div>
+  <div class="md-row" style="flex-wrap:wrap"><div class="md-t"><b>How Cod works</b><span id="modeHelp"></span></div><div class="md-seg" id="def"><button data-v="auto">Plan, then free</button><button data-v="safe" title="Work on free models, only the safety check uses your plan">Safe</button><button data-v="plan">Plan only</button><button data-v="free">Free only</button></div></div>
   <div class="md-row" style="flex-wrap:wrap"><div class="md-t"><b>Safety check</b><span>Short: your messages + recent steps only.</span></div><div class="md-seg" id="safe"><button data-v="short">Short</button><button data-v="full">Full</button></div></div>
   <div class="md-msg" id="msg"></div>
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px"><button class="md-fold" id="provFold" aria-expanded="true" aria-controls="provBody"><span class="md-caret">&#9662;</span><h2 style="margin:0">Providers and keys</h2></button><button class="md-btn md-pri" id="testKeys">Test keys</button></div><div class="md-provsum" id="provSum" hidden></div><div id="provBody"><div class="md-msg" id="testMsg"></div><div id="provs"></div>
@@ -156,7 +156,7 @@ function post(path,body){return fetch(R+path,{method:"POST",headers:{"Content-Ty
 function say(t){$("msg").textContent=t;setTimeout(function(){if($("msg").textContent===t)$("msg").textContent=""},4000)}
 function setSettings(b){busy=true;post("/router/settings",b).then(function(){say("Saved.");busy=false;load()}).catch(function(){say("The router did not answer.");busy=false})}
 $("enabled").onchange=function(){setSettings({enabled:this.checked})};
-var HELP={auto:"Plan first, free models at the limit (same session).",plan:"Claude plan only, no router.",free:"Free models only: the plan is never used."};
+var HELP={auto:"Plan first, free models at the limit (same session).",plan:"Claude plan only, no router.",free:"Free models only: the plan is never used.",safe:"Safe: all work on free models, only the short safety check of each action goes to your plan. Keeps your login, so Cod is never blocked."};
 Array.prototype.forEach.call(document.querySelectorAll("#def button"),function(b){b.onclick=function(){setSettings({mode:b.dataset.v})}});
 Array.prototype.forEach.call(document.querySelectorAll("#safe button"),function(b){b.onclick=function(){setSettings({safety_check:b.dataset.v})}});
 $("acceptEdits").onchange=function(){setSettings({free_accept_edits:this.checked})};
@@ -552,7 +552,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
     pd.className="khp"+(live&&paid?" live":"");fr.className="khp"+(live&&!paid?" live":"");
     if(mode==="free"){m.className="khm free";m.textContent="mode: FREE only";}
     else if(mode==="auto"){m.className="khm mixed";m.textContent="mode: MIXED (paid first, then free)";}
-    else if(mode==="plan"){m.className="khm paid";m.textContent="mode: PAID only (router not in the path)";}
+    else if(mode==="plan"){m.className="khm paid";m.textContent="mode: PAID only (router not in the path)";}else if(mode==="safe"){m.className="khm mixed";m.textContent="mode: SAFE (free work, plan checks)";}
     else{m.className="khm";m.textContent="mode: "+mode;}
     CUR=cur;o.last=cur;tasks(o,cur);save(o);
   }

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- kit-console-rev: 4 -->
+<!-- kit-console-rev: 5 -->
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -2174,7 +2174,7 @@ setInterval(tickTimers, 1000);
     pd.className="khp"+(live&&paid?" live":"");fr.className="khp"+(live&&!paid?" live":"");
     if(mode==="free"){m.className="khm free";m.textContent="mode: FREE only";}
     else if(mode==="auto"){m.className="khm mixed";m.textContent="mode: MIXED (paid first, then free)";}
-    else if(mode==="plan"){m.className="khm paid";m.textContent="mode: PAID only (router not in the path)";}
+    else if(mode==="plan"){m.className="khm paid";m.textContent="mode: PAID only (router not in the path)";}else if(mode==="safe"){m.className="khm mixed";m.textContent="mode: SAFE (free work, plan checks)";}
     else{m.className="khm";m.textContent="mode: "+mode;}
     CUR=cur;o.last=cur;tasks(o,cur);save(o);
   }
