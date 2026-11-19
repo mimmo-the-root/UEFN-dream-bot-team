@@ -1354,6 +1354,10 @@ def route(req):
               note_perf(name + "/" + model, True, int((time.time() - t0) * 1000))
               out = to_anthropic(resp, req, "%s/%s" % (name, model))
               record_usage(name, model, out["usage"]["input_tokens"], out["usage"]["output_tokens"])
+              # T-023: pin the model that answered for this package, so the next call of the
+              # same package uses it again; the pin ends with the package
+              if package_key and not pinned_model:
+                  _pin_model_for_package(package_key, name, model)
               return out, "%s/%s" % (name, model), errors
           except ProviderError as e:
               errors.append("%s/%s: %s %s" % (name, model, e.kind, e.detail[:120]))
