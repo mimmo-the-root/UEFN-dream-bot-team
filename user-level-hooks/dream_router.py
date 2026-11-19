@@ -41,6 +41,42 @@ HOME = os.environ.get("DREAM_ROUTER_HOME") or os.path.join(os.path.expanduser("~
 
 # Built-in free providers (all speak the OpenAI chat format). "prefer" = model id patterns tried in order against the
 # provider's live /models list; the first match is used. "models" = fixed ids used when the list cannot be read.
+# Cloudflare Workers AI context windows in tokens (T-104), conservative: first matching pattern wins; a model that matches none
+# gets the provider's "context_default". A request bigger than the window skips the model (Cloudflare answers HTTP 413).
+CLOUDFLARE_CONTEXT = [(r"qwen2\.5-coder", 32000), (r"llama-3\.3-70b", 24000), (r"llama-4", 131000), (r"gpt-oss", 128000),
+                      (r"deepseek-r1", 80000), (r"qwen3", 32000), (r"mistral-small", 128000)]
+
+
+def cloudflare_messages(messages):
+    """Pure: chat messages with plain string content only (Cloudflare answers HTTP 400 to array parts or null content)."""
+    out = []
+    for m in messages or []:
+        m = dict(m)
+        c = m.get("content")
+        if c is None:
+            c = ""
+        elif isinstance(c, list):
+            c = "\n".join(str(b.get("text", "")) if isinstance(b, dict) and b.get("type", "text") == "text" else
+                          ("" if isinstance(b, dict) else str(b)) for b in c)
+            c = "\n".join(x for x in c.split("\n") if x != "") if c.strip() else ""
+        elif not isinstance(c, str):
+            c = str(c)
+        m["content"] = c
+        out.append(m)
+    return out
+
+
+def model_context_limit(prov, model):
+    """Context window (tokens) known for this model of a provider, or None when the provider has no table."""
+    table = prov.get("context_windows")
+    if not table:
+        return None
+    for rx, n in table:
+        if re.search(rx, str(model), re.I):
+            return int(n)
+    return int(prov["context_default"]) if prov.get("context_default") else None
+
+
 PROVIDERS = {
     "gemini": {"label": "Google Gemini", "signup": "https://aistudio.google.com/apikey", "base": "https://generativelanguage.googleapis.com/v1beta/openai", "key": "GEMINI_API_KEY",
                "prefer": [r"gemini-[0-9.]+-flash$", r"gemini-.*flash(?!.*(lite|image|tts|live))", r"gemini-.*pro$"],
@@ -72,7 +108,8 @@ PROVIDERS = {
     "cloudflare": {"label": "Cloudflare Workers AI", "signup": "https://dash.cloudflare.com/profile/api-tokens",
                    "base": "https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1", "key": "CLOUDFLARE_API_KEY",   # a token, or ACCOUNT_ID:TOKEN
                    "models_url": "https://api.cloudflare.com/client/v4/accounts/{account}/ai/models/search?task=Text%20Generation&per_page=200",
-                   "prefer": [r"qwen.*coder", r"llama-4", r"gpt-oss-120b", r"llama-3\.3-70b", r"deepseek"], "models": ["@cf/openai/gpt-oss-120b"], "max_tokens": 8192},
+                   "prefer": [r"qwen.*coder", r"llama-4", r"gpt-oss-120b", r"llama-3\.3-70b", r"deepseek"], "models": ["@cf/openai/gpt-oss-120b"], "max_tokens": 8192,
+                   "adapter": "cloudflare", "context_windows": CLOUDFLARE_CONTEXT, "context_default": 32000},
     "zenmux": {"label": "ZenMux (paid, per token)", "signup": "https://zenmux.ai", "base": "https://zenmux.ai/api/v1", "key": "ZENMUX_API_KEY",
                "prefer": [r"free", r"qwen3-coder", r"glm-[0-9.]+", r"kimi-k[0-9]", r"deepseek-v[0-9]", r"minimax"], "models": ["z-ai/glm-4.6"], "max_tokens": 8192,
                "paid": True, "timeout": 240},   # pay-as-you-go key: after the free ones, like DeepSeek
@@ -636,6 +673,8 @@ def to_openai(req, model, prov):
             out["tool_choice"] = {"type": "function", "function": {"name": to_w.get(tc.get("name"), tc.get("name"))}}
         elif tc.get("type") == "none":
             out["tool_choice"] = "none"
+    if prov.get("adapter") == "cloudflare":
+        out["messages"] = cloudflare_messages(out["messages"])
     return out
 
 
@@ -1408,6 +1447,10 @@ def route(req):
             continue
         limited = 0
         for model in models:
+          win = model_context_limit(prov, model)
+          if win and need > win:
+              errors.append("%s/%s: request of about %d tokens is over its context window of %d" % (name, model, need, win))
+              continue
           try:
               b, t = endpoint(prov, key)
               t0 = time.time()
