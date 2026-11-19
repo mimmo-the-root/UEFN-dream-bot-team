@@ -1190,9 +1190,11 @@ def _safe_pure(action_text):
             return True, "unclear command"
         head = toks[0]
         if head == "git" and len(toks) > 1 and toks[1] in SAFE_GIT and "push" not in toks:
-            pass
+            if any(t in ("-d", "-D", "--delete", "-f", "--force", "--hard") or t.startswith("--force") for t in toks[2:]):
+                return True, "git deletion or force is not allowlisted"
         elif head in SAFE_RUN or head == "cd":
-            pass
+            if head in SAFE_RUN and any(t in ("-c", "-e", "-p", "--eval", "--print", "-i") for t in toks[1:]):
+                return True, "inline code is not allowlisted"
         else:
             return True, "command not in the allowlist"
         if any(not _safe_path(t) for t in toks[1:] if t.startswith(("/", "~", "$")) or ".." in t):

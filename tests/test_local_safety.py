@@ -22,6 +22,7 @@ BLOCK = [
     "Write: /tmp/x.txt", "Write: ../x.txt", "Read: D:/data/b.txt", "Edit: .claude/settings.local.json", "Write: settings.json",
     "Bash: python3 -c \"print(1)\" $(whoami)", "Bash: ls", "Bash: docker run x", "Bash: git -C /other status", "Read: tokens.txt",
     "Bash: python3 ~/x.py", "Mystery: do something", "", "Bash: git status `rm x`",
+    "Bash: python -c \"import os; os.system('x')\"", "Bash: node -e \"process.exit()\"", "Bash: git branch -D release", "Bash: git checkout --force main", "Bash: git tag -d t1",
 ]
 
 
