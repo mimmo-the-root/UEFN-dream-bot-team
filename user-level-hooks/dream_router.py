@@ -17,7 +17,7 @@ What it aggregates (ideas and logic rewritten in Python; see THIRD-PARTY-NOTICES
 
 Files (all outside any project and outside the kit repo), in %USERPROFILE%/.dream-router/ (override: DREAM_ROUTER_HOME):
   keys.env        OPENROUTER_API_KEY=..., GEMINI_API_KEY=..., GROQ_API_KEY=..., NVIDIA_API_KEY=...  (never logged)
-  routing.json    {"enabled": true, "mode": "auto" | "plan" | "free", "chain": [...]}
+  routing.json    {"enabled": true, "mode": "auto" | "plan" | "free" | "safe" | "paid", "chain": [...]}
                   auto = the owner's plan, passed through untouched, and free models in the SAME session when the plan is at its limit
   providers.json  optional: extra or changed providers (same shape as PROVIDERS below)
   usage.json      tokens per model, written by the router; read by the console page "Models"
@@ -119,7 +119,8 @@ PROVIDERS = {
 }
 UPSTREAM = os.environ.get("DREAM_ROUTER_UPSTREAM", "https://api.anthropic.com")
 FREE_TOKEN = "dream-router-local"
-MODES = ("auto", "plan", "free", "safe")  # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only;
+MODES = ("auto", "plan", "free", "safe", "paid")  # paid (T-059) = stays in the path, forwards ONLY to the paid plan with the session login, never free models;
+# auto = my plan, then free models at the limit (same session); plan = plan only; free = free only;
 # safe (T-083) = the work goes to free models, only the auto-mode safety check goes to the plan (while it has credit), else a local verdict
 DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False,
                     "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "cloudflare", "deepseek", "zenmux"]}
@@ -1545,6 +1546,7 @@ def router_env(mode, enabled=True):
     because the router waits for a whole free answer and may try several providers before the first byte."""
     if not enabled or mode == "plan":
         return {}
+    # "paid" (T-059) gets the same env as auto/safe (router in the path, login kept), so switching modes needs no restart
     env = {"ANTHROPIC_BASE_URL": "http://127.0.0.1:%d" % PORT, "CLAUDE_CODE_AUTO_MODE_SERVER": "0", "ENABLE_TOOL_SEARCH": "true",
            "CLAUDE_ENABLE_STREAM_WATCHDOG": "0", "CLAUDE_ENABLE_BYTE_WATCHDOG": "0", "API_TIMEOUT_MS": "900000"}
     if mode == "free":
@@ -1837,6 +1839,8 @@ class Handler(BaseHTTPRequestHandler):
                                     "idle": int(time.time() - STATE.get("idle_since", STATE["started"]))})
         if p == "/router/state":
             return self._json(200, state_view())
+        if p == "/router/mode":   # T-060: read the mode (local origins only, like /router/state)
+            return self._json(200, {"mode": settings()["mode"], "modes": list(MODES)})
         if p == "/router/candidates":
             q = re.search(r"[?&]n=(\d+)", self.path)
             return self._json(200, {"models": candidates(int(q.group(1)) if q else 20)})
@@ -1847,7 +1851,7 @@ class Handler(BaseHTTPRequestHandler):
     def _other(self, raw):
         """Any other Claude Code call (for example the server-side safety check of auto mode): with the plan's own login it
         goes to Claude untouched; with free models only there is nothing to answer it, so the reason is logged and returned."""
-        if plan_credentials(self.headers) and settings()["mode"] in ("auto", "plan"):
+        if plan_credentials(self.headers) and settings()["mode"] in ("auto", "plan", "paid"):
             if forward_plan(self, raw, "") == "done":
                 return
         log_error("claude-code", self.path.split("?")[0], ProviderError("not_served", 404, "Claude Code asked for %s %s, which only Claude itself can answer (free mode has no plan login)" % (self.command, self.path.split("?")[0])), {})
@@ -1892,6 +1896,19 @@ class Handler(BaseHTTPRequestHandler):
             st_now = settings()
             STATE["claude_env"] = apply_mode_to_claude(st_now["mode"], st_now.get("enabled", True))
             return self._json(200, {"ok": True, "settings": settings()})
+        if p == "/router/mode":   # T-060: set the mode; same origin check and X-Router-Action header as /router/settings
+            if not ALLOWED_ORIGINS.match(self.headers.get("Origin") or "http://127.0.0.1") or self.headers.get("X-Router-Action") != "1":
+                return self._json(403, {"ok": False})
+            body = self._body() or {}
+            if body.get("mode") not in MODES:
+                return self._json(400, {"ok": False, "error": "unknown mode", "modes": list(MODES)})
+            cur = _read_json("routing.json", {})
+            cur["mode"] = body["mode"]
+            cur.pop("default", None); cur.pop("continue_on_limit", None)
+            _write_json("routing.json", cur)
+            st_now = settings()
+            STATE["claude_env"] = apply_mode_to_claude(st_now["mode"], st_now.get("enabled", True))
+            return self._json(200, {"ok": True, "mode": st_now["mode"], "modes": list(MODES)})
         if p == "/router/quit":
             if self.client_address[0] not in ("127.0.0.1", "::1") or self.headers.get("X-Router-Action") != "1":
                 return self._json(403, {"ok": False})
@@ -1958,7 +1975,7 @@ class Handler(BaseHTTPRequestHandler):
         mode = settings()["mode"]
         if p == "/v1/messages":
             note_size(req)
-        if p == "/v1/messages" and mode in ("auto", "safe"):
+        if p == "/v1/messages" and mode in ("auto", "safe", "paid"):
             STATE["plan_login_seen"] = plan_credentials(self.headers)
         local_msg = None
         if mode == "safe" and p == "/v1/messages" and is_safety_check(req):   # T-083: only the safety check may use the plan
@@ -1967,6 +1984,12 @@ class Handler(BaseHTTPRequestHandler):
                 if forward_plan(self, raw, req.get("model", "")) == "done":
                     return
             local_msg = local_safety_message(req)
+        if mode == "paid" and p in ("/v1/messages", "/v1/messages/count_tokens"):   # T-059: plan only, never a free model, never a blind pass
+            if not plan_credentials(self.headers):
+                return self._json(401, {"type": "error", "error": {"type": "authentication_error", "message": "Mode Paid needs the session's own Claude login, and this request has none. Log in to Claude in this session, or pick another mode."}})
+            if forward_plan(self, raw, req.get("model", "")) == "done":
+                return
+            return self._json(503, {"type": "error", "error": {"type": "api_error", "message": "Your Claude plan is not reachable through the router (" + STATE.get("plan_why", "") + ") and the mode is Paid."}})
         if p in ("/v1/messages", "/v1/messages/count_tokens") and mode in ("auto", "plan") and plan_credentials(self.headers) and not pinned(req):
             if mode == "plan" or plan_available():
                 if forward_plan(self, raw, req.get("model", "")) == "done":
