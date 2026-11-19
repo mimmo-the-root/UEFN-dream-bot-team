@@ -193,6 +193,14 @@ def check(project, fix=False):
     ls = load_on_startup_check()
     if ls:
         add(*ls)
+    try:  # lab-only permission block (T-085): warn when opted in but missing
+        sys.path.insert(0, os.path.join(HERE, "..", "..", "..", "tools"))
+        import lab_permissions
+        w = lab_permissions.check_missing(project)
+        if w:
+            add("NOTE", w)
+    except Exception:  # tools/ is absent in an installed project: skip silently
+        pass
     try:
         for s, tx in five_needs(project):
             add(s, tx)
