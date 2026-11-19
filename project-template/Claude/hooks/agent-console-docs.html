@@ -1140,6 +1140,20 @@ function renderHeroInner(roadmap, bugs, status){
 
 // Delivery standard (v1.88): Release "Later"/"Backlog" = not planned into a release yet.
 function isBacklogRow(r){ return /^(later|backlog)$/i.test((r.release || "").trim()); }
+// Backlog pager: BACKLOG_PAGE rows per page, previous / next buttons, "page x of y" (owner request 2026-11-19).
+const BACKLOG_PAGE = 10;
+let backlogRows = [], backlogPage = 0;
+function drawBacklogPage(){
+  const total = backlogRows.length, pages = Math.max(1, Math.ceil(total / BACKLOG_PAGE));
+  const from = backlogPage * BACKLOG_PAGE, shown = backlogRows.slice(from, from + BACKLOG_PAGE);
+  const btn = (label, delta, off) => '<button type="button" ' + (off ? 'disabled ' : '') + 'onclick="backlogGo(' + delta + ')" style="background:transparent;border:1px solid var(--line);color:' + (off ? 'var(--dim)' : 'var(--blue)') + ';border-radius:6px;padding:2px 10px;cursor:' + (off ? 'default' : 'pointer') + ';font-size:11.5px;">' + label + '</button>';
+  const pager = pages > 1 ? '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;color:var(--dim);">' +
+    btn('&larr; Previous', -1, backlogPage <= 0) + '<span>Page ' + (backlogPage + 1) + ' of ' + pages + ' &middot; tasks ' + (from + 1) + '-' + (from + shown.length) + ' of ' + total + '</span>' + btn('Next &rarr;', 1, backlogPage >= pages - 1) + '</div>' : "";
+  document.getElementById('backlogList').innerHTML = '<table class="datatable"><tr><th style="width:56px;">ID</th><th>Feature</th><th style="width:70px;">Priority</th></tr>' +
+    shown.map(r => '<tr><td><b>' + inlineEsc(r.id || "") + '</b></td><td><div class="clamp" title="' + inlineEsc(r.feature || "") + '">' + inlineEsc(r.feature || "") + '</div></td><td>' + inlineEsc(r.priority || "") + '</td></tr>').join("") +
+    '</table>' + pager;
+}
+function backlogGo(d){ backlogPage = Math.max(0, backlogPage + d); drawBacklogPage(); }
 async function renderPhasesAndBacklog(){
   const roadmap = await fetchDoc('roadmap');
   const pbox = document.getElementById('phasesBox'), bbox = document.getElementById('backlogBox');
@@ -1161,10 +1175,10 @@ async function renderPhasesAndBacklog(){
     if (back.length){
       bbox.style.display = "";
       document.getElementById('backlogCount').textContent = "— " + back.length + " task" + (back.length === 1 ? "" : "s") + " not planned into a release";
-      const shown = back.slice(0, 15);
-      document.getElementById('backlogList').innerHTML = '<table class="datatable"><tr><th style="width:56px;">ID</th><th>Feature</th><th style="width:70px;">Priority</th></tr>' +
-        shown.map(r => '<tr><td><b>' + inlineEsc(r.id || "") + '</b></td><td><div class="clamp" title="' + inlineEsc(r.feature || "") + '">' + inlineEsc(r.feature || "") + '</div></td><td>' + inlineEsc(r.priority || "") + '</td></tr>').join("") +
-        '</table>' + (back.length > shown.length ? '<div style="color:var(--dim);margin-top:6px;">+ ' + (back.length - shown.length) + ' more in ROADMAP.md</div>' : "");
+      backlogRows = back;
+      const maxPage = Math.max(0, Math.ceil(back.length / BACKLOG_PAGE) - 1);
+      if (backlogPage > maxPage) backlogPage = maxPage;
+      drawBacklogPage();
     } else { bbox.style.display = "none"; }
   } catch(e){ pbox.style.display = "none"; bbox.style.display = "none"; }
 }
@@ -1307,7 +1321,7 @@ async function renderRoadmapTaskList(){
   // Most-incomplete-work-first is less useful than release order as written in the file (file
   // order tracks chronology), so keep first-seen order; within a release: active/blocked, then
   // MVP before other priorities, then by id.
-  const rank = r => { const b = statusBucket(r.status); return b === "active" ? 0 : b === "blocked" ? 1 : b === "todo" ? 2 : 3; };  /* owner 2026-11-18: in progress, blocked, to do, closed */
+  const rank = r => { const b = statusBucket(r.status); return (b === "active" || b === "blocked") ? 0 : 1; };
   const priRank = r => priorityPill(r.priority).label === "MVP" ? 0 : 1;
   let shown = 0;
   el.innerHTML = groups.map(g => {
@@ -1351,7 +1365,7 @@ async function renderStatusTasks(){
   const isOpenT = r => { const b = statusBucket(r.status); return b === "todo" || b === "active" || b === "blocked"; };
   const PER = 12, slides = [];
   relOrder(groupByRelease(rows)).forEach(g => {
-    const stRank = r => { const k = statusBucket(r.status); return k === "active" ? 0 : k === "blocked" ? 1 : k === "todo" ? 2 : 3; }; const rs = g.rows.slice().sort((x, y) => (stRank(x) - stRank(y)) || idNum(x.id) - idNum(y.id));
+    const rs = g.rows.slice().sort((x, y) => (isOpenT(y) - isOpenT(x)) || idNum(x.id) - idNum(y.id));
     const d = rs.filter(r => statusBucket(r.status) === "done").length, open = rs.filter(isOpenT).length, pages = Math.max(1, Math.ceil(rs.length / PER));
     for (let k = 0; k < pages; k++){
       const ttl = '<b>' + escH(g.name) + '</b> · ' + d + ' of ' + rs.length + ' done' + (open ? ' · ' + open + ' open' : ' · finished') + (pages > 1 ? ' · page ' + (k + 1) + '/' + pages : '');

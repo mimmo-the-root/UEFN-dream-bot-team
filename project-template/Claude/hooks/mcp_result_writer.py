@@ -28,7 +28,16 @@ from datetime import datetime, timezone
 if sys.platform == "win32":
     import msvcrt
     def lock_file(f, exclusive=True):
-        msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK if exclusive else msvcrt.LK_NBRLCK, 1)
+        # LK_NBLCK raises at once when another process holds the lock (a lost result): retry for up to 30 s
+        import time
+        for _ in range(300):
+            try:
+                f.seek(0)
+                msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+                return
+            except OSError:
+                time.sleep(0.1)
+        raise OSError("tests.json lock busy for 30 s")
     def unlock_file(f):
         msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
 else:
@@ -126,9 +135,10 @@ def write_result(
 
             existing = data["results"].get(tool_name)
             if existing == "ok" and value != "ok":
-                # Never overwrite an ok without keeping it in history
+                # A tool that once worked keeps its ok; the worse result goes to history only
                 history = data["history"].setdefault(tool_name, [])
-                history.append("ok")
+                history.append("%s %s" % (now_iso, value))
+                value = "ok"
 
             data["results"][tool_name] = value
             if args_hash:
