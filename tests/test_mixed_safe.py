@@ -48,6 +48,7 @@ threading.Thread(target=router.serve_forever, daemon=True).start()
 R = "http://127.0.0.1:%d" % router.server_port
 SAFETY = {"model": "claude-x", "max_tokens": 64, "system": "You are a security monitor. <transcript>User: fix it\nBash: git status</transcript>",
           "messages": [{"role": "user", "content": "decide"}]}
+SAFETY_PUSH = dict(SAFETY, system="You are a security monitor. <transcript>User: fix it\nBash: git push origin main</transcript>")
 WORK = {"model": "claude-x", "max_tokens": 64, "tools": [{"name": "Read", "description": "r", "input_schema": {"type": "object"}}],
         "messages": [{"role": "user", "content": "hello"}]}
 
@@ -108,7 +109,7 @@ def test_no_credit_gets_local_fail_closed_verdict():
     setmode()
     dr._plan_pause(600, "limit")
     del SEEN[:]
-    code, body = post(SAFETY)
+    code, body = post(SAFETY_PUSH)
     assert code == 200 and "<block>yes</block>" in body and "local-check" in body, (code, body)
     assert not SEEN, SEEN
 
@@ -116,7 +117,7 @@ def test_no_credit_gets_local_fail_closed_verdict():
 def test_no_login_gets_local_verdict():
     setmode()
     del SEEN[:]
-    code, body = post(SAFETY, token=dr.FREE_TOKEN)
+    code, body = post(SAFETY_PUSH, token=dr.FREE_TOKEN)
     assert code == 200 and "<block>yes</block>" in body and not SEEN, (code, body, SEEN)
 
 

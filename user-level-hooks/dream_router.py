@@ -1151,10 +1151,66 @@ def _save_safety_sample(req):
         pass
 
 
+SAFE_GIT = ("status", "add", "commit", "checkout", "merge", "tag", "branch", "diff", "log")
+SAFE_RUN = ("python", "python3", "node")
+SAFE_FILE_TOOLS = ("read", "write", "edit")
+SAFE_DENY_RX = re.compile(r"keys\.env|\.ssh|token|password|passwd|secret|credential|settings(\.local)?\.json|permission|\.env\b|id_rsa|\.pem", re.I)
+
+
+def _safe_path(tok):
+    """A project-relative path only: no absolute path, home, variable, parent folder or substitution."""
+    t = tok.strip("'\"")
+    return bool(t) and not (t[0] in "/~\\$`" or re.match(r"[A-Za-z]:", t) or ".." in t or "$(" in t or "`" in t)
+
+
+def _safe_pure(action_text):
+    """Deterministic allowlist (T-082), no LLM. Returns (block, reason). Unknown = block."""
+    text = (action_text or "").strip()
+    if not text:
+        return True, "empty action"
+    if SAFE_DENY_RX.search(text):
+        return True, "touches credentials or settings"
+    m = re.match(r"^\s*(\w+)\s*[:(]\s*(.*?)\)?\s*$", text, re.S)
+    tool, rest = (m.group(1).lower(), m.group(2)) if m else ("bash", text)
+    if tool in SAFE_FILE_TOOLS:
+        return (False, "file work inside the project") if _safe_path(rest) and " " not in rest.strip() else (True, "path outside the project or unclear")
+    if tool != "bash":
+        return True, "unknown action"
+    if re.search(r"\$\(|`|<\(|\beval\b|\|\s*\w|\bcurl\b|\bwget\b", rest):
+        return True, "pipe, substitution or download"
+    for seg in re.split(r"&&|\|\||;|\n", rest):
+        toks = seg.split()
+        if not toks:
+            continue
+        for t in re.findall(r">>?\s*(\S+)", seg):
+            if not _safe_path(t):
+                return True, "writes outside the project"
+        toks = [t for t in toks if not re.match(r"^\d?>>?", t) and not re.match(r"^\d?>>?\S", t)] if ">" in seg else toks
+        if not toks:
+            return True, "unclear command"
+        head = toks[0]
+        if head == "git" and len(toks) > 1 and toks[1] in SAFE_GIT and "push" not in toks:
+            if any(t in ("-d", "-D", "--delete", "-f", "--force", "--hard") or t.startswith("--force") for t in toks[2:]):
+                return True, "git deletion or force is not allowlisted"
+        elif head in SAFE_RUN or head == "cd":
+            if head in SAFE_RUN and any(t in ("-c", "-e", "-p", "--eval", "--print", "-i") for t in toks[1:]):
+                return True, "inline code is not allowlisted"
+        else:
+            return True, "command not in the allowlist"
+        if any(not _safe_path(t) for t in toks[1:] if t.startswith(("/", "~", "$")) or ".." in t):
+            return True, "path outside the project"
+    return False, "allowlisted"
+
+
 def local_safety_verdict(req):
-    """T-082 will fill this with a deterministic allowlist. Until the real format of the action is known (samples), it FAILS CLOSED:
-    never a blind allow. Returns (block, reason)."""
-    return True, "the paid plan has no credit or no login right now and the local allowlist is not enabled: the owner decides"
+    """T-082: deterministic local verdict, no LLM. Takes the action text, or the safety-check request (the last action line of
+    its <transcript> is judged). Returns (block, reason); anything unknown blocks."""
+    if isinstance(req, dict):
+        parts = [_text_of(req.get("system") or "")] + [_text_of(m.get("content")) for m in req.get("messages", [])]
+        m = TRANSCRIPT_RX.search("\n".join(parts))
+        lines = [x for x in (m.group(1) if m else "").split("\n") if x.strip()]
+        return _safe_pure(lines[-1] if lines else "")
+    return _safe_pure(req)
 
 
 def local_safety_message(req):
