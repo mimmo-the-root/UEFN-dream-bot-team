@@ -22,6 +22,7 @@ import tempfile
 import time
 
 PREFIXES = ("r1/", "r2/")
+_CHILD = [None]  # test process currently running, killed if this run is terminated
 TID = re.compile(r"\bT-\d{1,4}\b")
 
 
@@ -94,6 +95,78 @@ def discover(repo, target):
     return found
 
 
+def kill_group(proc):
+    """Kill the whole process group of a child started with start_new_session."""
+    try:
+        if os.name != "nt":
+            os.killpg(proc.pid, signal.SIGKILL)
+        else:
+            proc.kill()
+    except OSError:
+        pass
+
+
+def pid_alive(pid):
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except OSError:
+        return True
+    return True
+
+
+def acquire_lock(repo):
+    """Create <git-common-dir>/integrate.lock holding our pid. Returns lock path, or None when
+    another live run holds it. A lock whose pid is dead is taken over."""
+    gd = out(repo, "rev-parse", "--git-common-dir")
+    gd = gd if os.path.isabs(gd) else os.path.join(repo, gd)
+    path = os.path.join(gd, "integrate.lock")
+    for _ in range(3):
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            try:
+                with open(path, encoding="utf-8", errors="replace") as f:
+                    pid = int(f.read().strip() or 0)
+            except (OSError, ValueError):
+                pid = 0
+            if pid and pid_alive(pid):
+                return None
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
+            continue
+        with os.fdopen(fd, "w") as f:
+            f.write("%d\n" % os.getpid())
+        return path
+    return None
+
+
+def prune_stale(repo, log):
+    """Remove leftover temp worktrees (<tmp>/integrate-*/wt) of killed runs, then git worktree prune."""
+    tmp = os.path.realpath(tempfile.gettempdir())
+    for path, _ in worktrees(repo):
+        if not path:
+            continue
+        rp = os.path.realpath(path)
+        base = os.path.dirname(rp)
+        if (os.path.basename(rp) == "wt" and os.path.basename(base).startswith("integrate-")
+                and os.path.dirname(base) == tmp):
+            git(repo, "worktree", "unlock", path)
+            git(repo, "worktree", "remove", "--force", "--force", path)
+            shutil.rmtree(base, ignore_errors=True)
+            log("removed stale worktree %s" % path)
+    git(repo, "worktree", "prune")
+
+
+def _terminate(signum, frame):
+    raise SystemExit(128 + signum)
+
+
 def run_tests(cmd, cwd, timeout):
     argv = shlex.split(cmd)
     if argv and argv[0] in ("python", "python3") and not shutil.which(argv[0]):
@@ -104,18 +177,18 @@ def run_tests(cmd, cwd, timeout):
                                 start_new_session=(os.name != "nt"))
     except OSError as e:
         return False, "test command could not start: %s" % e
+    _CHILD[0] = proc
     try:
         text, _ = proc.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
-        try:
-            if os.name != "nt":
-                os.killpg(proc.pid, signal.SIGKILL)
-            else:
-                proc.kill()
-        except OSError:
-            pass
+        kill_group(proc)
         proc.communicate()
         return False, "tests timed out after %ss" % timeout
+    except BaseException:
+        kill_group(proc)
+        raise
+    finally:
+        _CHILD[0] = None
     if proc.returncode == 0:
         return True, ""
     tail = " / ".join([l.strip() for l in (text or "").splitlines() if l.strip()][-2:])
@@ -294,6 +367,32 @@ def main(argv=None):
     if blocked:
         log("unfinished merge in %s: resolve or abort it first; nothing done" % blocked)
         return finish([], 1)
+    lock = None
+    if not args.dry_run:
+        lock = acquire_lock(repo)
+        if lock is None:
+            print("integrate: another run is active")
+            return 0
+    old_handlers = {}
+    try:
+        for sg in (signal.SIGTERM, signal.SIGINT):
+            old_handlers[sg] = signal.signal(sg, _terminate)
+        if not args.dry_run:
+            prune_stale(repo, log)
+        return run_all(repo, args, lab, log, finish)
+    finally:
+        if _CHILD[0] is not None:
+            kill_group(_CHILD[0])
+        for sg, h in old_handlers.items():
+            signal.signal(sg, h)
+        if lock:
+            try:
+                os.unlink(lock)
+            except OSError:
+                pass
+
+
+def run_all(repo, args, lab, log, finish):
     results, code = [], 0
     for br in discover(repo, args.target):
         tip = out(repo, "rev-parse", "--short=9", br)
