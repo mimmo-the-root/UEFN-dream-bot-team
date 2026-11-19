@@ -114,6 +114,22 @@ def test_no_credit_gets_local_fail_closed_verdict():
     assert not SEEN, SEEN
 
 
+def test_budget_governor_says_free_gets_local_verdict():
+    """T-083: the plan has no 429 yet, but the budget governor says the credit is used up: no plan call, local verdict."""
+    setmode()
+    bf = os.path.join(home, "budget_state.json")
+    with open(bf, "w") as f:
+        json.dump({"limit": {"state": "hit", "resets_at": "2099-01-01T00:00:00+00:00"}}, f)
+    try:
+        del SEEN[:]
+        code, body = post(SAFETY_PUSH)
+        assert code == 200 and "<block>yes</block>" in body and not SEEN, (code, body, SEEN)
+    finally:
+        os.remove(bf)
+    code, body = post(SAFETY)   # state file gone = the plan is used again
+    assert code == 200 and SEEN, (code, body, SEEN)
+
+
 def test_no_login_gets_local_verdict():
     setmode()
     del SEEN[:]

@@ -129,6 +129,10 @@ assert "BUSY_KEY" not in dr.keys()
 # 9. mode auto: the plan request passes through untouched; at the plan limit the SAME request goes to the free models
 post("/router/settings", {"mode": "auto"}, {"X-Router-Action": "1"})
 assert dr.settings()["mode"] == "auto"
+post("/router/settings", {"safety_samples": True}, {"X-Router-Action": "1"})  # T-081: the debug flag can be turned on from the console
+assert dr.settings()["safety_samples"] is True
+post("/router/settings", {"safety_samples": False}, {"X-Router-Action": "1"})
+assert dr.settings()["safety_samples"] is False
 out, h = post("/v1/messages?beta=true", {"model": "claude-sonnet", "max_tokens": 10, "stream": True, "messages": [{"role": "user", "content": "hi"}]}, {"Authorization": "Bearer plan-login-abc"})
 assert h["X-Routed-Via"] == "claude-plan/claude-sonnet" and "message_delta" in out and PLAN["seen"][-1] == "Bearer plan-login-abc", h
 PLAN["status"] = 429

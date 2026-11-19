@@ -1651,6 +1651,21 @@ def plan_available():
     return STATE.get("plan_until", 0) <= time.time()
 
 
+def budget_allows_plan():
+    """T-083: the budget governor (tools/budget_governor.py) says whether the plan still has credit. The state is read from
+    budget_state.json in the router's own folder (written by the budget tools). No governor module, no file, or any error
+    = True: the plan's own 429 handling (plan_available) stays the last guard, and the local verdict covers the rest."""
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        for d in (here, os.path.join(here, "..", "tools"), os.path.join(here, "tools")):
+            if os.path.isfile(os.path.join(d, "budget_governor.py")) and d not in sys.path:
+                sys.path.append(d)
+        import budget_governor
+        return budget_governor.governor(_read_json("budget_state.json", {})) != "free"
+    except Exception:
+        return True
+
+
 def _plan_pause(seconds, why):
     STATE["plan_until"] = time.time() + max(60, seconds)
     STATE["plan_why"] = why
@@ -1867,6 +1882,8 @@ class Handler(BaseHTTPRequestHandler):
                 cur["spread"] = body["spread"]
             if isinstance(body.get("pinning"), bool):
                 cur["pinning"] = body["pinning"]
+            if isinstance(body.get("safety_samples"), bool):  # T-081 debug flag
+                cur["safety_samples"] = body["safety_samples"]
             if body.get("safety_check") in ("short", "full"):
                 cur["safety_check"] = body["safety_check"]
             if isinstance(body.get("chain"), list) and all(isinstance(x, str) for x in body["chain"]):
@@ -1946,7 +1963,7 @@ class Handler(BaseHTTPRequestHandler):
         local_msg = None
         if mode == "safe" and p == "/v1/messages" and is_safety_check(req):   # T-083: only the safety check may use the plan
             _save_safety_sample(req)
-            if plan_credentials(self.headers) and plan_available():
+            if plan_credentials(self.headers) and plan_available() and budget_allows_plan():
                 if forward_plan(self, raw, req.get("model", "")) == "done":
                     return
             local_msg = local_safety_message(req)
