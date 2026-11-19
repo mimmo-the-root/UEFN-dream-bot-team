@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic status flip for ROADMAP.md rows (no model needed).
-Usage: python Claude/hooks/task_status.py T-015 "In progress" ["short note"]
+Usage: python Claude/hooks/task_status.py T-015 "In progress" ["short note"] [--pct 40]
+(--pct writes "40% - note" in front of the note; the console shows it as a progress bar on the task)
 Allowed: "To do", "In progress", "Blocked", "Done" (Done only with --gate-pass, set by the gate/planner-docs).
 Keeps the row, only rewrites the Status cell (3rd column), keeps rows ordered In progress, Blocked, To do, Done
 inside the tasks table, then runs docs_lint. Logs one line in Claude/logs/task-status.log."""
@@ -42,7 +43,14 @@ def _main(a):
     if len(a) < 2:
         print(__doc__); return 2
     tid, st = a[0], a[1]
-    note = " ".join(x for x in a[2:] if x != "--gate-pass")
+    rest = list(a[2:]); pct = None
+    if "--pct" in rest:
+        k = rest.index("--pct")
+        try: pct = max(0, min(100, int(rest[k + 1])))
+        except (IndexError, ValueError): print("--pct needs a number 0-100"); return 2
+        del rest[k:k + 2]
+    note = " ".join(x for x in rest if x != "--gate-pass")
+    if pct is not None: note = ("%d%%" % pct) + ((" - " + note) if note else "")
     if st not in OK:
         print("status must be one of", OK); return 2
     if st == "Done" and "--gate-pass" not in a:
