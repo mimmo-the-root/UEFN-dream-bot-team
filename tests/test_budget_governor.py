@@ -51,7 +51,33 @@ def test_default_plan():
     assert governor(mkstate()) == "plan", "no state => plan"
 
 
+def test_flip_both_ways_on_a_temp_copy():
+    """T-025: a simulated limit hit and a reset flip routing.json both ways; other keys kept; one log line per flip; no restart."""
+    import json, tempfile, time
+    from budget_governor import flip
+    d = tempfile.mkdtemp()
+    routing = os.path.join(d, "routing.json")
+    log = os.path.join(d, "budget-governor.log")
+    json.dump({"mode": "plan", "spread": True, "chain": ["a", "b"], "KEEP": 1}, open(routing, "w"))
+    now = int(time.time())
+    hit = {"limit": {"state": "hit", "resets_at": now + 3600}, "budget": {"weekly_used_pct": 10}}
+    assert flip(d, routing, log, hit) == ("plan", "free", True)
+    cfg = json.load(open(routing))
+    assert cfg["mode"] == "free" and cfg["KEEP"] == 1 and cfg["chain"] == ["a", "b"], cfg
+    assert flip(d, routing, log, hit) == ("free", "free", False), "no change = no flip and no log line"
+    reset = {"limit": {"state": "hit", "resets_at": now - 60}, "budget": {"weekly_used_pct": 10}}
+    assert flip(d, routing, log, reset) == ("free", "plan", True), "back to plan at the reset"
+    lines = open(log).read().strip().split("\n")
+    assert len(lines) == 2 and "plan -> free" in lines[0] and "free -> plan" in lines[1], lines
+    for mode in ("safe", "auto"):  # the owner's choice is never overridden
+        json.dump({"mode": mode}, open(routing, "w"))
+        assert flip(d, routing, log, hit)[2] is False
+        assert json.load(open(routing))["mode"] == mode
+    assert not os.path.exists(routing + ".tmp")
+
+
 if __name__ == "__main__":
+    test_flip_both_ways_on_a_temp_copy()
     test_hit_before_reset_free()
     test_hit_after_reset_plan()
     test_weekly_over_50_free()
