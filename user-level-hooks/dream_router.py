@@ -1839,6 +1839,8 @@ class Handler(BaseHTTPRequestHandler):
                                     "idle": int(time.time() - STATE.get("idle_since", STATE["started"]))})
         if p == "/router/state":
             return self._json(200, state_view())
+        if p == "/router/mode":   # T-060: read the mode (local origins only, like /router/state)
+            return self._json(200, {"mode": settings()["mode"], "modes": list(MODES)})
         if p == "/router/candidates":
             q = re.search(r"[?&]n=(\d+)", self.path)
             return self._json(200, {"models": candidates(int(q.group(1)) if q else 20)})
@@ -1894,6 +1896,19 @@ class Handler(BaseHTTPRequestHandler):
             st_now = settings()
             STATE["claude_env"] = apply_mode_to_claude(st_now["mode"], st_now.get("enabled", True))
             return self._json(200, {"ok": True, "settings": settings()})
+        if p == "/router/mode":   # T-060: set the mode; same origin check and X-Router-Action header as /router/settings
+            if not ALLOWED_ORIGINS.match(self.headers.get("Origin") or "http://127.0.0.1") or self.headers.get("X-Router-Action") != "1":
+                return self._json(403, {"ok": False})
+            body = self._body() or {}
+            if body.get("mode") not in MODES:
+                return self._json(400, {"ok": False, "error": "unknown mode", "modes": list(MODES)})
+            cur = _read_json("routing.json", {})
+            cur["mode"] = body["mode"]
+            cur.pop("default", None); cur.pop("continue_on_limit", None)
+            _write_json("routing.json", cur)
+            st_now = settings()
+            STATE["claude_env"] = apply_mode_to_claude(st_now["mode"], st_now.get("enabled", True))
+            return self._json(200, {"ok": True, "mode": st_now["mode"], "modes": list(MODES)})
         if p == "/router/quit":
             if self.client_address[0] not in ("127.0.0.1", "::1") or self.headers.get("X-Router-Action") != "1":
                 return self._json(403, {"ok": False})
