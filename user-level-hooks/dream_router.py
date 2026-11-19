@@ -84,7 +84,7 @@ UPSTREAM = os.environ.get("DREAM_ROUTER_UPSTREAM", "https://api.anthropic.com")
 FREE_TOKEN = "dream-router-local"
 MODES = ("auto", "plan", "free", "safe")  # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only;
 # safe (T-083) = the work goes to free models, only the auto-mode safety check goes to the plan (while it has credit), else a local verdict
-DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False,
+DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False,
                     "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "cloudflare", "deepseek", "zenmux"]}
 LOCK = threading.Lock()
 STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time(), "pinned": {}}  # pinned[package_key] = (provider, model)
@@ -1252,7 +1252,7 @@ def route(req):
     # Package/session pinning (T-023): with spread on, pin model per package/session
     package_key = None
     pinned_model = None
-    if s.get("spread", True) and not pin:
+    if s.get("spread", True) and s.get("pinning", True) and not pin:  # T-080: "pinning": false = the old behaviour
         package_key = _get_package_key(req, {})
         if package_key:
             pinned_model = _get_pinned_model(package_key)
@@ -1738,6 +1738,8 @@ class Handler(BaseHTTPRequestHandler):
                 cur["free_accept_edits"] = body["free_accept_edits"]
             if isinstance(body.get("spread"), bool):
                 cur["spread"] = body["spread"]
+            if isinstance(body.get("pinning"), bool):
+                cur["pinning"] = body["pinning"]
             if body.get("safety_check") in ("short", "full"):
                 cur["safety_check"] = body["safety_check"]
             if isinstance(body.get("chain"), list) and all(isinstance(x, str) for x in body["chain"]):
