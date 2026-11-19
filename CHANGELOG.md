@@ -1,5 +1,14 @@
 # Changelog
 
+## ibrido-0 (local slices, not released: no version bump)
+
+- [feature] **ibrido-0.1-misura** - runs.jsonl records the real provider and model on every run; `check_runs.py` fails on a new row that says unknown (T-022, T-075).
+- [feature] **ibrido-0.2-pin** - spread picks a model once per work package and keeps it until the package ends; `pinning` flag in routing.json, default on (T-023, T-080).
+- [feature] **ibrido-0.3-livelli** - one tier table (T1 small free, T2 best free, T3 paid) covers all 86 skills and agents, the router reads it (T-024, T-051, T-052, T-053).
+- [feature] **ibrido-0.4-budget** - `budget_governor.flip()` writes plan or free into routing.json from LIMIT.json and the weekly percent, back to plan at the reset (T-025, T-054, T-055).
+- [feature] **ibrido-0.5-pacchetti** - work-package template, validator and NOFIT parser (T-026, T-056, T-057, T-058).
+- [fix] A damaged or locked usage.json no longer freezes the token counters; mode safe keeps the plan login and uses a deterministic local verdict when the plan has no credit (T-081..T-083).
+
 ## v1.124.57 — Free models busy: Cod waits and tries again by itself; Cohere, Cloudflare, ZenMux
 
 - [fix] **Cod stopped when every free model was busy at once** (all the quotas used for a while) and waited for the owner. Now:
