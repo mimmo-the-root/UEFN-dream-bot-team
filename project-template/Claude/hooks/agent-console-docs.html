@@ -140,7 +140,7 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
 .nowstrip{font-size:12px;margin:0 0 10px;padding:6px 10px;border-radius:6px;background:rgba(224,160,48,.1);}
 .sdot{display:inline-block;width:11px;height:11px;border-radius:50%;flex:none;vertical-align:middle;margin-right:7px;box-sizing:border-box;background:var(--dim);}
 .sdot.done{background:var(--green);}
-.sdot.active{background:var(--amber);box-shadow:0 0 8px var(--amber);animation:sblink 1s ease-in-out infinite;}
+.sdot.active{background:var(--amber);box-shadow:0 0 8px var(--amber);animation:dotb 1.1s ease-in-out infinite;}
 .sdot.blocked{background:var(--red);box-shadow:0 0 8px rgba(255,77,94,.6);}
 .sdot.outOfScope{background:transparent;border:2px dashed var(--dim);opacity:.5;}
 @keyframes sblink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.2;transform:scale(.65);}}
@@ -162,7 +162,10 @@ main{padding:26px 34px 40px;max-width:1180px;margin:0 auto;}
 .rmpg{display:flex;align-items:center;justify-content:space-between;margin-top:8px;color:var(--dim);}
 .pbar{height:6px;border-radius:3px;background:#182338;overflow:hidden;margin:5px 0 2px;}
 .pbar i{display:block;height:100%;background:var(--amber);transition:width .6s;}
-.pbar.ind i{background:repeating-linear-gradient(45deg,var(--amber) 0 8px,transparent 8px 16px);opacity:.55;animation:sblink 1.4s ease-in-out infinite;}
+.pbar{position:relative;}
+.pbar.ind i{position:absolute;top:0;left:0;width:30%;background:var(--amber);opacity:.85;animation:pingpong 1.5s ease-in-out infinite alternate;}
+@keyframes pingpong{from{left:0;}to{left:70%;}}
+@keyframes dotb{0%,100%{opacity:1;}50%{opacity:.25;}}
 .pnote{color:var(--dim);font-size:11px;}
 .pnote b{color:var(--amber);}
 .rmcols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:start;}
@@ -2209,14 +2212,14 @@ function kindTable(st, k){
 const RM_PER = 8, RMP = {}, RM_ROWS = [];
 function taskPct(r){ const s = String(r.status || ""); let m = /(\d{1,3})\s*%/.exec(s); if (m) return Math.min(100, +m[1]); m = /\b(\d+)\s*\/\s*(\d+)\s*steps?\b/i.exec(s); if (m && +m[2] > 0) return Math.min(100, Math.round(100 * m[1] / m[2])); return null; }
 function taskNote(r){ return String(r.status || "").replace(/^\s*in progress\s*-?\s*/i, "").replace(/^\s*\d{1,3}\s*%\s*-?\s*/, "").replace(/^\s*\d+\s*\/\s*\d+\s*steps?\s*-?\s*/i, "").slice(0, 140); }
-function pctBar(r){ if (statusBucket(r.status) !== "active") return ""; const p = taskPct(r); return '<div class="pbar' + (p === null ? " ind" : "") + '"><i style="width:' + (p === null ? 100 : p) + '%"></i></div><div class="pnote"><b>' + (p === null ? "in progress &middot; no % reported" : p + "%") + '</b> ' + escH(taskNote(r)) + '</div>'; }
+function pctBar(r){ if (statusBucket(r.status) !== "active") return ""; const p = taskPct(r); return '<div class="pbar' + (p === null ? " ind" : "") + '"><i style="width:' + (p === null ? 100 : p) + '%"></i></div><div class="pnote"><b>' + (p === null ? "in progress &middot; no % reported" : p + "%") + '</b> ' + escH(taskNote(r)) + '</div><div class="pnote tk" data-tk="' + escH((r.id || "").trim()) + '"></div>'; }
 function rmRank(t){ const b = statusBucket(t.status); return b === "active" ? 0 : b === "blocked" ? 1 : b === "todo" ? 2 : 3; }
 function rmBody(k){
   const rs = RM_ROWS[k] || [], pages = Math.max(1, Math.ceil(rs.length / RM_PER));
   if ((RMP[k] || 0) > pages - 1) RMP[k] = pages - 1;
   const pg = RMP[k] || 0, from = pg * RM_PER, shown = rs.slice(from, from + RM_PER);
   const btn = (label, d, off) => '<button type="button"' + (off ? ' disabled' : '') + ' onclick="rmGo(' + k + ',' + d + ')">' + label + '</button>';
-  return shown.map(t => '<div class="rmtask' + (statusBucket(t.status) === "done" ? " isdone" : "") + '"><span class="sdot ' + statusBucket(t.status) + '" title="' + escH(String(t.status || "").slice(0, 160)) + '"></span><div style="flex:1;min-width:0;"><b>' + escH(t.id || "?") + '</b>' + escH((t.feature || "").replace(/~~/g, "")) + pctBar(t) + '</div></div>').join("") +
+  return shown.map(t => '<div class="rmtask' + (statusBucket(t.status) === "done" ? " isdone" : "") + '"><span class="sdot ' + statusBucket(t.status) + '" title="' + escH(String(t.status || "").slice(0, 160)) + '"></span><div style="flex:1;min-width:0;"><b>' + escH(t.id || "?") + '</b>' + escH((t.feature || "").replace(/~~/g, "")) + pctBar(t) + (statusBucket(t.status) === "done" && typeof khTaskTokens === "function" && khTaskTokens(t.id) ? '<div class="pnote">' + escH(khTaskTokens(t.id)) + '</div>' : "") + '</div></div>').join("") +
     (pages > 1 ? '<div class="rmpg">' + btn('&larr; Previous', -1, pg <= 0) + '<span>Page ' + (pg + 1) + ' of ' + pages + ' &middot; ' + (from + 1) + '-' + (from + shown.length) + ' of ' + rs.length + '</span>' + btn('Next &rarr;', 1, pg >= pages - 1) + '</div>' : "");
 }
 function rmGo(k, d){ RMP[k] = Math.max(0, (RMP[k] || 0) + d); const el = document.querySelector('[data-rmb="' + k + '"]'); if (el) el.innerHTML = rmBody(k); }
@@ -2500,6 +2503,73 @@ setInterval(refreshDocs, 5000);
 })();
 </script>
 <!-- kit-head:end -->
+<!-- route-chips:begin -->
+<style>
+.khr{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 4px 12px;font-size:11px;color:var(--dim,#9a90d4);}
+.khp{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line,#2b2468);border-radius:999px;padding:3px 11px;color:var(--dim,#9a90d4);}
+.khp .d{width:9px;height:9px;border-radius:50%;background:var(--dim,#6b7385);flex:none;}
+.khp b{color:var(--text,#e8e2ff);font-weight:600;}
+.khp.live{border-color:var(--green,#38e08a);color:var(--text,#e8e2ff);}
+.khp.live .d{background:var(--green,#38e08a);animation:khbreathe 2.2s ease-in-out infinite;}
+.khm{border-radius:999px;padding:3px 11px;border:1px solid var(--line,#2b2468);}
+.khm.free{color:var(--green,#38e08a);border-color:var(--green,#38e08a);}
+.khm.mixed{color:var(--amber,#f0b429);border-color:var(--amber,#f0b429);}
+.khm.paid{color:var(--red,#ff4d5e);border-color:var(--red,#ff4d5e);}
+.khr button{background:transparent;border:1px solid var(--line,#2b2468);color:var(--blue,#7aa7ff);border-radius:6px;padding:1px 8px;cursor:pointer;font-size:11px;}
+@keyframes khbreathe{0%,100%{opacity:1;}50%{opacity:.25;}}
+</style>
+<script>
+/* Route chips (owner request 2026-11-19): two pills in the header, PAID and FREE, with the tokens used since the count was started,
+   green + breathing when the last call went that way, grey when idle; plus the router mode so a forgotten "free" is visible.
+   Numbers come from the router (GET /router/state, models of the last 72 h); per-task numbers are the change of those totals while the task is In progress
+   and are measured only while a console page is open. Paid tokens include cache reads (the router counts them as input). */
+(function(){
+  if(document.getElementById("khRoute"))return;
+  var R="http://127.0.0.1:8787",K="kh-route-v1";
+  function n(x){x=+x||0;return x>=1e6?(x/1e6).toFixed(2)+"M":x>=1e3?(x/1e3).toFixed(1)+"k":String(Math.round(x));}
+  function load(){try{return JSON.parse(localStorage.getItem(K))||{};}catch(e){return {};}}
+  function save(o){try{localStorage.setItem(K,JSON.stringify(o));}catch(e){}}
+  var box=document.createElement("div");box.id="khRoute";box.className="khr";
+  box.innerHTML='<span class="khp" id="khPaid"><span class="d"></span>PAID <b id="khPaidN">0</b></span><span class="khp" id="khFree"><span class="d"></span>FREE <b id="khFreeN">0</b></span><span class="khm" id="khMode">router: reading&hellip;</span><span id="khSince"></span><button type="button" id="khReset" title="Start the count again from now">&#8634; restart count</button>';
+  var kh=document.getElementById("kitHead");
+  if(kh&&kh.parentNode)kh.parentNode.insertBefore(box,kh.nextSibling);else{var host=document.querySelector("main,.wrap")||document.body;host.insertBefore(box,host.firstChild);}
+  var CUR=null;
+  function totals(S){var p=0,f=0;(S.models||[]).forEach(function(m){var t=(+m.input||0)+(+m.output||0);if(m.provider==="claude-plan")p+=t;else f+=t;});return {paid:p,free:f};}
+  window.khTaskTokens=function(id){var o=load(),r=(o.tasks||{})[id];if(!r)return "";var t=r.tot||(r.end?null:null);return t?"tokens · paid "+n(t.paid)+" · free "+n(t.free):"";};
+  function tasks(o,cur){
+    o.tasks=o.tasks||{};var seen={};
+    Array.prototype.forEach.call(document.querySelectorAll(".tk[data-tk]"),function(e){
+      var id=e.getAttribute("data-tk");seen[id]=1;var r=o.tasks[id];
+      if(!r||r.end){r=o.tasks[id]={s:{paid:cur.paid,free:cur.free},acc:r&&r.tot?r.tot:{paid:0,free:0}};}
+      var p=Math.max(0,cur.paid-r.s.paid)+r.acc.paid,f=Math.max(0,cur.free-r.s.free)+r.acc.free;
+      e.textContent="tokens · paid "+n(p)+" · free "+n(f);
+    });
+    Object.keys(o.tasks).forEach(function(id){var r=o.tasks[id];if(!seen[id]&&r&&!r.end&&document.readyState==="complete"&&document.querySelector("#currentBanner")){
+      r.end=true;r.tot={paid:Math.max(0,cur.paid-r.s.paid)+r.acc.paid,free:Math.max(0,cur.free-r.s.free)+r.acc.free};}});
+  }
+  function paint(S,off){
+    var m=document.getElementById("khMode"),pd=document.getElementById("khPaid"),fr=document.getElementById("khFree");
+    if(off||!S){m.className="khm";m.textContent="router off (no traffic seen)";pd.className="khp";fr.className="khp";return;}
+    var cur=totals(S),o=load();
+    if(!o.base){o.base={t:Date.now(),paid:cur.paid,free:cur.free};}
+    var dp=Math.max(0,cur.paid-o.base.paid),df=Math.max(0,cur.free-o.base.free);
+    document.getElementById("khPaidN").textContent=n(dp);document.getElementById("khFreeN").textContent=n(df);
+    document.getElementById("khSince").textContent="since "+new Date(o.base.t).toLocaleString([], {day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    var mode=(S.settings&&S.settings.mode)||"?",L=S.last||{},live=L.at&&(Date.now()/1000-L.at)<90,paid=L.provider==="claude-plan";
+    pd.className="khp"+(live&&paid?" live":"");fr.className="khp"+(live&&!paid?" live":"");
+    if(mode==="free"){m.className="khm free";m.textContent="mode: FREE only";}
+    else if(mode==="auto"){m.className="khm mixed";m.textContent="mode: MIXED (paid first, then free)";}
+    else if(mode==="plan"){m.className="khm paid";m.textContent="mode: PAID only (router not in the path)";}
+    else{m.className="khm";m.textContent="mode: "+mode;}
+    CUR=cur;tasks(o,cur);save(o);
+  }
+  function poll(){if(document.hidden)return;fetch(R+"/router/state",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(S){paint(S,!S);}).catch(function(){paint(null,true);});}
+  document.getElementById("khReset").onclick=function(){var o=load();if(CUR){o.base={t:Date.now(),paid:CUR.paid,free:CUR.free};save(o);poll();}};
+  poll();setInterval(poll,3000);
+})();
+</script>
+<!-- route-chips:end -->
+
 <!-- tab-counts:begin -->
 <style>.tabcnt{display:inline-block;min-width:16px;margin-left:6px;padding:1px 6px;border-radius:999px;background:var(--amber,#ffb454);color:#1a1033;font-size:10px;font-weight:700;line-height:1.5;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:0}.tabcnt[hidden]{display:none}</style>
 <script>
