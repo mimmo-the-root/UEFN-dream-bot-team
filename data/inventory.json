@@ -1,0 +1,493 @@
+{
+  "skills": [
+    {
+      "name": "brand-collections-uefn",
+      "kind": "skill",
+      "path": "user-level-skills\\brand-collections-uefn\\SKILL.md"
+    },
+    {
+      "name": "camera-audio-uefn",
+      "kind": "skill",
+      "path": "user-level-skills\\camera-audio-uefn\\SKILL.md"
+    },
+    {
+      "name": "console-ui",
+      "kind": "skill",
+      "path": "user-level-skills\\console-ui\\SKILL.md"
+    },
+    {
+      "name": "discover-retention",
+      "kind": "skill",
+      "path": "user-level-skills\\discover-retention\\SKILL.md"
+    },
+    {
+      "name": "dream-illustration",
+      "kind": "skill",
+      "path": "user-level-skills\\dream-illustration\\SKILL.md"
+    },
+    {
+      "name": "economy-sim",
+      "kind": "skill",
+      "path": "user-level-skills\\economy-sim\\SKILL.md"
+    },
+    {
+      "name": "fab-product",
+      "kind": "skill",
+      "path": "user-level-skills\\fab-product\\SKILL.md"
+    },
+    {
+      "name": "fortnite-analytics-coach",
+      "kind": "skill",
+      "path": "user-level-skills\\fortnite-analytics-coach\\SKILL.md"
+    },
+    {
+      "name": "fortnite-competitor-analyzer",
+      "kind": "skill",
+      "path": "user-level-skills\\fortnite-competitor-analyzer\\SKILL.md"
+    },
+    {
+      "name": "fortnite-growth-lessons",
+      "kind": "skill",
+      "path": "user-level-skills\\fortnite-growth-lessons\\SKILL.md"
+    },
+    {
+      "name": "fortnite-marketing-launch",
+      "kind": "skill",
+      "path": "user-level-skills\\fortnite-marketing-launch\\SKILL.md"
+    },
+    {
+      "name": "fortnite-retention-gamedesign",
+      "kind": "skill",
+      "path": "user-level-skills\\fortnite-retention-gamedesign\\SKILL.md"
+    },
+    {
+      "name": "fortnite-social-trailer",
+      "kind": "skill",
+      "path": "user-level-skills\\fortnite-social-trailer\\SKILL.md"
+    },
+    {
+      "name": "fortnite-thumbnail-pro",
+      "kind": "skill",
+      "path": "user-level-skills\\fortnite-thumbnail-pro\\SKILL.md"
+    },
+    {
+      "name": "fortnite-title-description",
+      "kind": "skill",
+      "path": "user-level-skills\\fortnite-title-description\\SKILL.md"
+    },
+    {
+      "name": "fortnite-update-writer",
+      "kind": "skill",
+      "path": "user-level-skills\\fortnite-update-writer\\SKILL.md"
+    },
+    {
+      "name": "game-ai-uefn",
+      "kind": "skill",
+      "path": "user-level-skills\\game-ai-uefn\\SKILL.md"
+    },
+    {
+      "name": "game-feel-uefn",
+      "kind": "skill",
+      "path": "user-level-skills\\game-feel-uefn\\SKILL.md"
+    },
+    {
+      "name": "game-ui-designer",
+      "kind": "skill",
+      "path": "user-level-skills\\game-ui-designer\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\adventure-rpg\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\deathrun-platformer\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\llm-npc-conversations\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\materials\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\mechanics\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\party-mini-games\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\roguelike\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\shooter\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\simulation-tycoon\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\sports-racing\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\strategy\\SKILL.md"
+    },
+    {
+      "name": "genre",
+      "kind": "skill",
+      "path": "user-level-skills\\genre\\survival\\SKILL.md"
+    },
+    {
+      "name": "level-design-uefn",
+      "kind": "skill",
+      "path": "user-level-skills\\level-design-uefn\\SKILL.md"
+    },
+    {
+      "name": "mcp-tool-contracts",
+      "kind": "skill",
+      "path": "user-level-skills\\mcp-tool-contracts\\SKILL.md"
+    },
+    {
+      "name": "performance-uefn-checklist",
+      "kind": "skill",
+      "path": "user-level-skills\\performance-uefn-checklist\\SKILL.md"
+    },
+    {
+      "name": "project-scoring",
+      "kind": "skill",
+      "path": "user-level-skills\\project-scoring\\SKILL.md"
+    },
+    {
+      "name": "second-brain-query",
+      "kind": "skill",
+      "path": "user-level-skills\\second-brain-query\\SKILL.md"
+    },
+    {
+      "name": "token-aware-coding",
+      "kind": "skill",
+      "path": "user-level-skills\\token-aware-coding\\SKILL.md"
+    },
+    {
+      "name": "uefn-asset-budget",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-asset-budget\\SKILL.md"
+    },
+    {
+      "name": "uefn-assets-data",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-assets-data\\SKILL.md"
+    },
+    {
+      "name": "uefn-create-use-remove-one-script",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-create-use-remove-one-script\\SKILL.md"
+    },
+    {
+      "name": "uefn-device-gotchas",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-device-gotchas\\SKILL.md"
+    },
+    {
+      "name": "uefn-disciplines",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-disciplines\\SKILL.md"
+    },
+    {
+      "name": "uefn-editor-logs",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-editor-logs\\SKILL.md"
+    },
+    {
+      "name": "uefn-epic-skills",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-epic-skills\\SKILL.md"
+    },
+    {
+      "name": "uefn-lessons",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-lessons\\SKILL.md"
+    },
+    {
+      "name": "uefn-level-devices",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-level-devices\\SKILL.md"
+    },
+    {
+      "name": "uefn-materials",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-materials\\SKILL.md"
+    },
+    {
+      "name": "uefn-mcp-heavy-calls",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-mcp-heavy-calls\\SKILL.md"
+    },
+    {
+      "name": "uefn-mcp-lab-guard",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-mcp-lab-guard\\SKILL.md"
+    },
+    {
+      "name": "uefn-pcg",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-pcg\\SKILL.md"
+    },
+    {
+      "name": "uefn-physics-mesh",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-physics-mesh\\SKILL.md"
+    },
+    {
+      "name": "uefn-profiling",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-profiling\\SKILL.md"
+    },
+    {
+      "name": "uefn-quests",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-quests\\SKILL.md"
+    },
+    {
+      "name": "uefn-scripting-batch",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-scripting-batch\\SKILL.md"
+    },
+    {
+      "name": "uefn-session-regression",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-session-regression\\SKILL.md"
+    },
+    {
+      "name": "uefn-ui-widgets",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-ui-widgets\\SKILL.md"
+    },
+    {
+      "name": "uefn-validation-failure-diagnosis",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-validation-failure-diagnosis\\SKILL.md"
+    },
+    {
+      "name": "uefn-verse-build",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-verse-build\\SKILL.md"
+    },
+    {
+      "name": "uefn-version-upgrade",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-version-upgrade\\SKILL.md"
+    },
+    {
+      "name": "uefn-vfx-niagara",
+      "kind": "skill",
+      "path": "user-level-skills\\uefn-vfx-niagara\\SKILL.md"
+    },
+    {
+      "name": "verse-patterns",
+      "kind": "skill",
+      "path": "user-level-skills\\verse-patterns\\SKILL.md"
+    },
+    {
+      "name": "verse-ui-kit",
+      "kind": "skill",
+      "path": "user-level-skills\\verse-ui-kit\\SKILL.md"
+    }
+  ],
+  "agents": [
+    {
+      "name": "Explore",
+      "kind": "agent",
+      "path": "user-level-agents\\Explore.md"
+    },
+    {
+      "name": "asset-builder",
+      "kind": "agent",
+      "path": "user-level-agents\\asset-builder.md"
+    },
+    {
+      "name": "cinematics",
+      "kind": "agent",
+      "path": "user-level-agents\\cinematics.md"
+    },
+    {
+      "name": "codebase-auditor",
+      "kind": "agent",
+      "path": "user-level-agents\\codebase-auditor.md"
+    },
+    {
+      "name": "coder",
+      "kind": "agent",
+      "path": "user-level-agents\\coder.md"
+    },
+    {
+      "name": "coder-prep",
+      "kind": "agent",
+      "path": "user-level-agents\\coder-prep.md"
+    },
+    {
+      "name": "compliance-reviewer",
+      "kind": "agent",
+      "path": "user-level-agents\\compliance-reviewer.md"
+    },
+    {
+      "name": "device-builder",
+      "kind": "agent",
+      "path": "user-level-agents\\device-builder.md"
+    },
+    {
+      "name": "entity-builder",
+      "kind": "agent",
+      "path": "user-level-agents\\entity-builder.md"
+    },
+    {
+      "name": "env-builder",
+      "kind": "agent",
+      "path": "user-level-agents\\env-builder.md"
+    },
+    {
+      "name": "fx-audio",
+      "kind": "agent",
+      "path": "user-level-agents\\fx-audio.md"
+    },
+    {
+      "name": "growth-manager",
+      "kind": "agent",
+      "path": "user-level-agents\\growth-manager.md"
+    },
+    {
+      "name": "intent-gate",
+      "kind": "agent",
+      "path": "user-level-agents\\intent-gate.md"
+    },
+    {
+      "name": "intent-reviewer",
+      "kind": "agent",
+      "path": "user-level-agents\\intent-reviewer.md"
+    },
+    {
+      "name": "learn-slicer",
+      "kind": "agent",
+      "path": "user-level-agents\\learn-slicer.md"
+    },
+    {
+      "name": "materials-expert",
+      "kind": "agent",
+      "path": "user-level-agents\\materials-expert.md"
+    },
+    {
+      "name": "mcp-build",
+      "kind": "agent",
+      "path": "user-level-agents\\mcp-build.md"
+    },
+    {
+      "name": "mcp-level",
+      "kind": "agent",
+      "path": "user-level-agents\\mcp-level.md"
+    },
+    {
+      "name": "mcp-material-vfx",
+      "kind": "agent",
+      "path": "user-level-agents\\mcp-material-vfx.md"
+    },
+    {
+      "name": "mcp-session",
+      "kind": "agent",
+      "path": "user-level-agents\\mcp-session.md"
+    },
+    {
+      "name": "mcp-ui-assets",
+      "kind": "agent",
+      "path": "user-level-agents\\mcp-ui-assets.md"
+    },
+    {
+      "name": "perf-profiler",
+      "kind": "agent",
+      "path": "user-level-agents\\perf-profiler.md"
+    },
+    {
+      "name": "piece-orchestrator",
+      "kind": "agent",
+      "path": "user-level-agents\\piece-orchestrator.md"
+    },
+    {
+      "name": "planner-docs",
+      "kind": "agent",
+      "path": "user-level-agents\\planner-docs.md"
+    },
+    {
+      "name": "project-bootstrap",
+      "kind": "agent",
+      "path": "user-level-agents\\project-bootstrap.md"
+    },
+    {
+      "name": "qa-regression",
+      "kind": "agent",
+      "path": "user-level-agents\\qa-regression.md"
+    },
+    {
+      "name": "release-gate",
+      "kind": "agent",
+      "path": "user-level-agents\\release-gate.md"
+    },
+    {
+      "name": "scene-scout",
+      "kind": "agent",
+      "path": "user-level-agents\\scene-scout.md"
+    },
+    {
+      "name": "second-brain-librarian",
+      "kind": "agent",
+      "path": "user-level-agents\\second-brain-librarian.md"
+    },
+    {
+      "name": "second-brain-scout",
+      "kind": "agent",
+      "path": "user-level-agents\\second-brain-scout.md"
+    },
+    {
+      "name": "second-brain-trainer",
+      "kind": "agent",
+      "path": "user-level-agents\\second-brain-trainer.md"
+    },
+    {
+      "name": "skill-reflector",
+      "kind": "agent",
+      "path": "user-level-agents\\skill-reflector.md"
+    },
+    {
+      "name": "template-reader",
+      "kind": "agent",
+      "path": "user-level-agents\\template-reader.md"
+    },
+    {
+      "name": "ui-builder",
+      "kind": "agent",
+      "path": "user-level-agents\\ui-builder.md"
+    },
+    {
+      "name": "verse-dev",
+      "kind": "agent",
+      "path": "user-level-agents\\verse-dev.md"
+    }
+  ],
+  "total_skills": 62,
+  "total_agents": 35
+}
