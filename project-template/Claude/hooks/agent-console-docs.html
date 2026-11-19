@@ -2222,7 +2222,7 @@ function ktBody(k){
 function ktGo(k, d){ KTP[k] = Math.max(0, (KTP[k] || 0) + d); const el = document.querySelector('[data-ktb="' + k + '"]'); if (el) el.innerHTML = ktBody(k); }
 function kindTable(st, k){
   const rows = (st.tasks || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "outOfScope");   // v1.124.57: every release, so the number on the tab is the number of rows below
-  if (!rows.length) return "";
+  if (!rows.length) return '<div class="card" style="margin-bottom:12px;"><div class="label" style="margin-bottom:6px;">' + KINDS[k] + ' tasks · none yet</div><table class="datatable"><tr><th style="width:62px;">ID</th><th>Task</th><th style="width:96px;">Priority</th><th style="width:130px;">Status</th></tr><tr><td colspan="4" style="color:var(--dim);font-style:italic;padding:12px 8px;">No ' + escH(k) + ' tasks in the roadmap. They appear here with status dot, priority and progress as soon as one is added.</td></tr></table></div>';
   const open = rows.filter(t => statusBucket(t.status) !== "done").length, rn = st.rel0 ? st.rel0.cur.name : "";
   const isCur = t => (t.release || "").trim() === rn;
   rows.sort((a, b) => ((statusBucket(b.status) !== "done") - (statusBucket(a.status) !== "done")) || (rmRank(a) - rmRank(b)) || (isCur(b) - isCur(a)) || idNum(a.id) - idNum(b.id));
