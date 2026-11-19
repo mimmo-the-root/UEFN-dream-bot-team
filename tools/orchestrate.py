@@ -123,6 +123,8 @@ def plan_run(lab):
 
 def run_integrate(args, lab):
     kit = os.path.dirname(os.path.abspath(__file__))
+    if args.integrate_cmd is not None and not args.integrate_cmd.strip():
+        return "integrate: disabled (empty --integrate-cmd)"
     if args.integrate_cmd:
         cmd = shlex.split(args.integrate_cmd)
     else:
@@ -207,7 +209,7 @@ def main(argv=None):
     if args.dry_run:
         for s, d, f in p["moves"]:
             print("would move %s: %s -> %s" % (f, s, d))
-        print("would run integrate" if (args.integrate_cmd or os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "integrate.py"))) else "integrate: not installed")
+        print("would run integrate" if (args.integrate_cmd or (args.integrate_cmd is None and os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "integrate.py")))) else "integrate: not installed")
         print(section_body(p, now, "integrate: (dry run)"))
         return 0
     for s, d, f in p["moves"]:
