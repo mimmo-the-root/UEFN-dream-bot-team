@@ -133,11 +133,12 @@ class T(unittest.TestCase):
         self.assertEqual(run(lab2).returncode, 1)
         self.assertIn("unreadable", open(os.path.join(lab2, "logs", "orchestrator.log")).read())
 
-    def test_integrate_missing_logged(self):
+    def test_integrate_result_logged(self):
         lab = make_lab([row(1, "To do")], [])
-        r = subprocess.run([sys.executable, SCRIPT, "--lab", lab], capture_output=True, text=True, cwd=ROOT)
+        fake = '"%s" -c "pass"' % sys.executable  # never the real integrator: it would run the whole suite
+        r = subprocess.run([sys.executable, SCRIPT, "--lab", lab, "--integrate-cmd", fake], capture_output=True, text=True, cwd=ROOT)
         self.assertEqual(r.returncode, 0)
-        self.assertIn("integrate:", r.stdout)
+        self.assertIn("integrate: ok", r.stdout)
 
 
 if __name__ == "__main__":
