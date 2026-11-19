@@ -1499,18 +1499,25 @@ async function renderBugBacklog(){
   // Strictly by severity (blocking → major → medium → minor → unspecified), then by id ascending.
   const bid = r => idNum(r.title || r.id || "");
   open.sort((a, b) => bugSeverityInfo(a.severity).rank - bugSeverityInfo(b.severity).rank || bid(a) - bid(b));
-  el.innerHTML = '<table class="datatable" data-kind="bug"><tr><th style="width:56px;">ID</th><th style="width:78px;">Severity</th><th style="width:96px;">Status</th><th>Description</th></tr>' +
-    open.map(r => {
+  BUGP.rows = open; BUGP.pg = Math.min(BUGP.pg, Math.max(0, Math.ceil(open.length / BUGP.per) - 1)); drawBugPage(); }
+const BUGP = {rows: [], pg: 0, per: 10};
+function bugGo(d){ BUGP.pg = Math.max(0, BUGP.pg + d); drawBugPage(); }
+function drawBugPage(){
+  const el = document.getElementById('bugBacklogList'), open = BUGP.rows, pages = Math.max(1, Math.ceil(open.length / BUGP.per)), from = BUGP.pg * BUGP.per, shown = open.slice(from, from + BUGP.per);
+  const btn = (label, d, off) => '<button type="button"' + (off ? ' disabled' : '') + ' onclick="bugGo(' + d + ')">' + label + '</button>';
+  el.innerHTML = '<table class="datatable" data-kind="bug"><tr><th style="width:62px;">ID</th><th style="width:78px;">Priority</th><th style="width:96px;">Status</th><th>Description</th></tr>' +
+    shown.map(r => {
       const sev = bugSeverityInfo(r.severity), badge = bugStatusBadge(r.status);
       // Real BUGS.md rows are "B-032: short title" in a "title" column, or ID/title in separate cells.
       const t = (r.title || r.id || "").trim();
       const m = /^([A-Za-z]{1,4}-\d+)\s*[:\-—]?\s*(.*)$/.exec(t);
       const id = m ? m[1] : (r.id || "?"), desc = m ? (m[2] || r.description || r.symptom || "") : t;
-      return '<tr data-id="' + escH(id) + '"><td><b>' + escH(id) + '</b></td>' +
+      const dk = /^in progress|^in corso|^wip/i.test((r.status || "").trim()) ? "active" : /blocking/i.test(r.severity || "") && !/non-blocking/i.test(r.severity || "") ? "blocked" : "todo";
+      return '<tr data-id="' + escH(id) + '"><td style="white-space:nowrap;"><span class="sdot ' + dk + '"></span><b>' + escH(id) + '</b></td>' +
         '<td><span class="pill ' + sev.cls + '" title="' + escH(r.severity || "") + '">' + escH(sev.label) + '</span></td>' +
         '<td><span class="badge ' + badge.cls + '" title="' + escH(r.status || "") + '"><span class="dot"></span>' + escH(badge.label.split(/\s+/)[0].replace(/:$/, "")) + '</span><span class="lbslot"></span></td>' +
         '<td><div class="clamp" title="' + escH(desc) + '">' + escH(desc || "(untitled)") + '</div></td></tr>';
-    }).join("") + '</table>';
+    }).join("") + '</table>' + (pages > 1 ? '<div class="rmpg">' + btn('&larr; Previous', -1, BUGP.pg <= 0) + '<span>Page ' + (BUGP.pg + 1) + ' of ' + pages + ' &middot; ' + (from + 1) + '-' + (from + shown.length) + ' of ' + open.length + '</span>' + btn('Next &rarr;', 1, BUGP.pg >= pages - 1) + '</div>' : '');
   applyLiveBadges();
 }
 
@@ -2196,15 +2203,30 @@ function paintLoopBar(st, ss){
   place(); requestAnimationFrame(place);
 }
 // v1.120: every piece of work is a task; the Bugs, Audit and Performance tabs show the current release's tasks of their kind first.
+// Bug / audit / perf tabs (owner request 2026-11-19): same look as the roadmap: status dot (grey to do, green done, amber blinking in progress, red blocked),
+// Priority column, % bar for tasks in progress, and pages of 8 rows. Open work first, the release in progress first inside it.
+const KT_PER = 8, KTP = {}, KT_ROWS = {};
+function prioShort(r){ const x = String(r.priority || "").replace(/\s+/g, " ").trim(); return x.length > 16 ? x.slice(0, 15) + "…" : x; }
+function ktBody(k){
+  const rs = KT_ROWS[k] || [], pages = Math.max(1, Math.ceil(rs.length / KT_PER));
+  if ((KTP[k] || 0) > pages - 1) KTP[k] = pages - 1;
+  const pg = KTP[k] || 0, from = pg * KT_PER, shown = rs.slice(from, from + KT_PER);
+  const btn = (label, d, off) => '<button type="button"' + (off ? ' disabled' : '') + ' onclick="ktGo(\'' + k + '\',' + d + ')">' + label + '</button>';
+  return '<table class="datatable"><tr><th style="width:62px;">ID</th><th>Task</th><th style="width:96px;">Priority</th><th style="width:130px;">Status</th></tr>' +
+    shown.map(r => { const b = taskBadge(r), rid = (r.id || "").trim(), bk = statusBucket(r.status);
+      return '<tr><td style="white-space:nowrap;"><span class="sdot ' + bk + '" title="' + escH(String(r.status || "").slice(0, 160)) + '"></span><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "").replace(/~~/g, "")) + (r.source ? ' <small style="color:var(--dim);">' + escH(r.source) + '</small>' : '') + ((r.release || "").trim() ? ' <small style="color:var(--dim);">· ' + escH(r.release.trim()) + '</small>' : '') + (rid && bk !== "done" ? ' ' + fixBtn([rid], "Fix this", false) : '') + pctBar(r) + '</td><td><span title="' + escH(r.priority || "") + '">' + escH(prioShort(r)) + '</span></td><td><span class="badge ' + b.cls + '"><span class="dot"></span>' + b.label + '</span></td></tr>'; }).join("") + '</table>' +
+    (pages > 1 ? '<div class="rmpg">' + btn('&larr; Previous', -1, pg <= 0) + '<span>Page ' + (pg + 1) + ' of ' + pages + ' &middot; ' + (from + 1) + '-' + (from + shown.length) + ' of ' + rs.length + '</span>' + btn('Next &rarr;', 1, pg >= pages - 1) + '</div>' : "");
+}
+function ktGo(k, d){ KTP[k] = Math.max(0, (KTP[k] || 0) + d); const el = document.querySelector('[data-ktb="' + k + '"]'); if (el) el.innerHTML = ktBody(k); }
 function kindTable(st, k){
   const rows = (st.tasks || []).filter(t => taskKind(t) === k && statusBucket(t.status) !== "outOfScope");   // v1.124.57: every release, so the number on the tab is the number of rows below
   if (!rows.length) return "";
   const open = rows.filter(t => statusBucket(t.status) !== "done").length, rn = st.rel0 ? st.rel0.cur.name : "";
   const isCur = t => (t.release || "").trim() === rn;
-  rows.sort((a, b) => ((statusBucket(b.status) !== "done") - (statusBucket(a.status) !== "done")) || (isCur(b) - isCur(a)) || idNum(a.id) - idNum(b.id));
+  rows.sort((a, b) => ((statusBucket(b.status) !== "done") - (statusBucket(a.status) !== "done")) || (rmRank(a) - rmRank(b)) || (isCur(b) - isCur(a)) || idNum(a.id) - idNum(b.id));
+  KT_ROWS[k] = rows;
   const ids = rows.filter(t => statusBucket(t.status) !== "done").map(t => (t.id || "").trim()).filter(Boolean);
-  return '<div class="card" style="margin-bottom:12px;"><div class="label" style="margin-bottom:6px;">' + KINDS[k] + ' tasks · ' + open + ' open of ' + rows.length + (ids.length ? ' ' + fixBtn(ids, "Fix all " + ids.length, true) : '') + '</div><table class="datatable"><tr><th style="width:56px;">ID</th><th>Task</th><th style="width:130px;">Status</th></tr>' +
-    rows.map(r => { const b = taskBadge(r), rid = (r.id || "").trim(); return '<tr><td><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "").replace(/~~/g, "")) + (r.source ? ' <small style="color:var(--dim);">' + escH(r.source) + '</small>' : '') + ((r.release || "").trim() ? ' <small style="color:var(--dim);">· ' + escH(r.release.trim()) + '</small>' : '') + (rid && statusBucket(r.status) !== "done" ? ' ' + fixBtn([rid], "Fix this", false) : '') + '</td><td><span class="badge ' + b.cls + '"><span class="dot"></span>' + b.label + '</span></td></tr>'; }).join("") + '</table></div>';
+  return '<div class="card" style="margin-bottom:12px;"><div class="label" style="margin-bottom:6px;">' + KINDS[k] + ' tasks · ' + open + ' open of ' + rows.length + (ids.length ? ' ' + fixBtn(ids, "Fix all " + ids.length, true) : '') + '</div><div data-ktb="' + k + '">' + ktBody(k) + '</div></div>';
 }
 // Roadmap tab (owner request 2026-11-19): every baseline (release) is always visible in a sideways slider, the release in progress first,
 // then queued ones, then Later (backlog), then finished ones dimmed. Tasks never disappear: each shows its status dot (grey to do, green done,
