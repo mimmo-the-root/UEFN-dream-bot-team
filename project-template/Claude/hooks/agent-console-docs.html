@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- kit-console-rev: 7 -->
+<!-- kit-console-rev: 8 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1053,8 +1053,10 @@ function relOrder(groups){
   const later = g => /^(later|backlog)$/i.test(g.name) || g.name === "(no release set)";
   const open = g => g.rows.some(t => { const b = statusBucket(t.status); return b === "todo" || b === "active" || b === "blocked"; });
   const nat = (a, b) => String(a.name).localeCompare(String(b.name), undefined, {numeric: true});
+  // owner 2026-11-19: the ACTIVE release (one with a task In progress) goes first; when it completes it falls back to its natural place
+  const active = g => g.rows.some(t => statusBucket(t.status) === "active");
   const body = groups.filter(g => !later(g));
-  return body.filter(open).sort(nat).concat(body.filter(g => !open(g)).sort(nat), groups.filter(later));
+  return body.filter(active).sort(nat).concat(body.filter(g => open(g) && !active(g)).sort(nat), body.filter(g => !open(g)).sort(nat), groups.filter(later));
 }
 const SL = {};
 function slGo(id, d){
