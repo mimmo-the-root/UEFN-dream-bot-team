@@ -129,24 +129,36 @@ def lookup_tier(name):
 
 
 class StateReadError(Exception):
-    """A state file exists but cannot be read right now (locked by Windows, half written): never treat it as empty."""
+    """A state file exists but cannot be read right now (locked by Windows, half written): never treat it as empty.
+    .corrupt is True when the file opens but is not valid JSON (damaged), False when it is only locked."""
+    corrupt = False
 
 
 def _read_json(name, default, keep=False):
     """keep=True for files that are added to (usage, history): if the file exists but cannot be read after a few tries,
     raise instead of returning the empty default, so the caller does not write an empty file over the owner's data
     (1.124.51: usage-72h.json was emptied that way while files were locked)."""
+    bad_json = False
     for i in range(6):
         try:
             with open(_path(name), encoding="utf-8") as f:
                 v = json.load(f)
-            return v if isinstance(v, type(default)) else default
+            if not isinstance(v, type(default)):
+                bad_json = True  # valid JSON of the wrong kind: damaged for our purpose
+                break
+            return v
         except FileNotFoundError:
             return default
-        except (OSError, ValueError):
+        except ValueError:
+            bad_json = True
+            time.sleep(0.05 * (i + 1))
+        except OSError:
+            bad_json = False
             time.sleep(0.05 * (i + 1))
     if keep:
-        raise StateReadError(name)
+        e = StateReadError(name)
+        e.corrupt = bad_json
+        raise e
     return default
 
 
@@ -309,19 +321,35 @@ def record_usage(provider, model, tin, tout, ok=True):
 
 
 def _record_usage(provider, model, tin, tout, ok=True):
+    """1.124.58: the monthly file and the 72 hour file are updated independently. A damaged usage.json used to stop ALL
+    counting silently (the Models page and the console chips froze); now it is kept aside as usage.json.bad-<time> and a
+    new one is started, and a file that is only locked never blocks the 72 hour counters."""
     with LOCK:
-        u = _read_json("usage.json", {"models": {}, "month": time.strftime("%Y-%m")}, keep=True)
-        if u.get("month") != time.strftime("%Y-%m"):
-            u = {"models": {}, "month": time.strftime("%Y-%m"), "previous": u.get("models", {})}
         k = provider + "/" + model
-        m = u["models"].setdefault(k, {"provider": provider, "model": model, "input": 0, "output": 0, "requests": 0, "errors": 0})
-        m["input"] += int(tin or 0)
-        m["output"] += int(tout or 0)
-        m["requests"] += 1
-        if not ok:
-            m["errors"] += 1
-        m["last"] = time.time()
-        _write_json("usage.json", u)
+        try:
+            u = _read_json("usage.json", {"models": {}, "month": time.strftime("%Y-%m")}, keep=True)
+            if u.get("month") != time.strftime("%Y-%m"):
+                u = {"models": {}, "month": time.strftime("%Y-%m"), "previous": u.get("models", {})}
+            m = u["models"].setdefault(k, {"provider": provider, "model": model, "input": 0, "output": 0, "requests": 0, "errors": 0})
+            m["input"] += int(tin or 0)
+            m["output"] += int(tout or 0)
+            m["requests"] += 1
+            if not ok:
+                m["errors"] += 1
+            m["last"] = time.time()
+            _write_json("usage.json", u)
+            STATE.pop("usage_error", None)
+        except StateReadError as e:
+            if e.corrupt:
+                try:
+                    os.replace(_path("usage.json"), _path("usage.json.bad-%d" % int(time.time())))  # keep the damaged file, start a new one
+                    STATE["usage_error"] = "usage.json was damaged: kept as usage.json.bad-*, counting restarted"
+                except OSError:
+                    STATE["usage_error"] = "usage.json is damaged and cannot be moved"
+            else:
+                STATE["usage_error"] = "usage.json is locked: monthly counters skipped, 72 hour counters go on"
+        except OSError as e:
+            STATE["usage_error"] = "usage.json write failed: %s" % e
         # last 72 hours, by hour (the Models page lists only these): its own file, so a new month does not empty it
         r = _read_json("usage-72h.json", {}, keep=True)
         h, cut = str(int(time.time() // 3600)), int(time.time() // 3600) - RECENT_HOURS
@@ -1641,7 +1669,7 @@ def state_view():
     return {"version": VERSION, "running": True, "settings": s, "providers": pv, "models": recent_models(), "models_month": len(rows), "active": sorted(STATE.get("active", {})),
             "learned": {"tried": len(STATE.get("perf", {})), "answering": sum(1 for v in STATE.get("perf", {}).values() if v.get("ok")), "explored": STATE.get("explored", 0)}, "safety": STATE.get("safety"), "recent_hours": RECENT_HOURS, "plan": plan, "errors": errs, "sizes": size_summary(), "shape": STATE.get("shape"),
             "trim": {"requests": TRIM_STATE["requests"], "chars_before": TRIM_STATE["chars_before"], "chars_after": TRIM_STATE["chars_after"]},
-            "month": u.get("month"), "last": STATE["last"], "uptime": int(now - STATE["started"])}
+            "month": u.get("month"), "last": STATE["last"], "usage_error": STATE.get("usage_error"), "uptime": int(now - STATE["started"])}
 
 
 # ---------- HTTP ----------
