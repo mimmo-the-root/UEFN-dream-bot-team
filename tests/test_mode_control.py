@@ -8,7 +8,7 @@ node = shutil.which("node")
 if not node:
     print("test_mode_control: skipped (node not found)")
     sys.exit(0)
-pages = [os.path.join(HOOKS, "agent-console-models.html")]
+pages = sorted(glob.glob(os.path.join(HOOKS, "agent-console*.html")))
 blocks = set()
 for p in pages:
     html = open(p, encoding="utf-8").read()
