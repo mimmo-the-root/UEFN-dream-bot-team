@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- kit-console-rev: 5 -->
+<!-- kit-console-rev: 6 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -133,7 +133,7 @@ p,.hint,.desc,.sub{max-width:65ch;}
   <div class="md-row"><div class="md-t"><b>Free models</b><span>Router on or off.</span></div><label class="md-sw"><input type="checkbox" id="enabled"><i></i></label></div>
   <div class="md-row"><div class="md-t"><b>Spread the load</b><span>Working providers take turns.</span></div><label class="md-sw"><input type="checkbox" id="spread"><i></i></label></div>
   <div class="md-row"><div class="md-t"><b>Accept edits (Free only)</b><span>No safety checks, but asks before unlisted commands.</span></div><label class="md-sw"><input type="checkbox" id="acceptEdits"><i></i></label></div>
-  <div class="md-row" style="flex-wrap:wrap"><div class="md-t"><b>How Cod works</b><span id="modeHelp"></span></div><div class="md-seg" id="def"><button data-v="auto">Plan, then free</button><button data-v="safe" title="Work on free models, only the safety check uses your plan">Safe</button><button data-v="plan">Plan only</button><button data-v="free">Free only</button></div></div>
+  <div class="md-row" style="flex-wrap:wrap"><div class="md-t"><b>How Cod works</b><span id="modeHelp"></span></div><div class="md-seg" id="def"><button data-v="free" title="Free models only: the plan is never used">Free</button><button data-v="paid" title="Your Claude plan only">Paid (plan)</button><button data-v="mixed" title="Plan first, then free models at the limit">Mixed (plan then free)</button><button data-v="safe" title="Work on free models, only the safety check uses your plan" style="font-size:10px;opacity:.8">Safe</button></div></div>
   <div class="md-row" style="flex-wrap:wrap"><div class="md-t"><b>Safety check</b><span>Short: your messages + recent steps only.</span></div><div class="md-seg" id="safe"><button data-v="short">Short</button><button data-v="full">Full</button></div></div>
   <div class="md-msg" id="msg"></div>
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px"><button class="md-fold" id="provFold" aria-expanded="true" aria-controls="provBody"><span class="md-caret">&#9662;</span><h2 style="margin:0">Providers and keys</h2></button><button class="md-btn md-pri" id="testKeys">Test keys</button></div><div class="md-provsum" id="provSum" hidden></div><div id="provBody"><div class="md-msg" id="testMsg"></div><div id="provs"></div>
@@ -156,8 +156,8 @@ function post(path,body){return fetch(R+path,{method:"POST",headers:{"Content-Ty
 function say(t){$("msg").textContent=t;setTimeout(function(){if($("msg").textContent===t)$("msg").textContent=""},4000)}
 function setSettings(b){busy=true;post("/router/settings",b).then(function(){say("Saved.");busy=false;load()}).catch(function(){say("The router did not answer.");busy=false})}
 $("enabled").onchange=function(){setSettings({enabled:this.checked})};
-var HELP={auto:"Plan first, free models at the limit (same session).",plan:"Claude plan only, no router.",free:"Free models only: the plan is never used.",safe:"Safe: all work on free models, only the short safety check of each action goes to your plan. Keeps your login, so Cod is never blocked."};
-Array.prototype.forEach.call(document.querySelectorAll("#def button"),function(b){b.onclick=function(){setSettings({mode:b.dataset.v})}});
+var HELP={auto:"Plan first, free models at the limit (same session).",plan:"Paid: Claude plan only, no router.",paid:"Paid: Claude plan only, no router.",free:"Free models only: the plan is never used.",safe:"Safe: all work on free models, only the short safety check of each action goes to your plan. Keeps your login, so Cod is never blocked."};
+Array.prototype.forEach.call(document.querySelectorAll("#def button"),function(b){b.onclick=function(){busy=true;khSetMode(R,b.dataset.v,fetch).then(function(x){say(x.ok?"Saved.":"Mode not changed: "+x.error);busy=false;load()})}});
 Array.prototype.forEach.call(document.querySelectorAll("#safe button"),function(b){b.onclick=function(){setSettings({safety_check:b.dataset.v})}});
 $("acceptEdits").onchange=function(){setSettings({free_accept_edits:this.checked})};
 $("spread").onchange=function(){setSettings({spread:this.checked})};
@@ -217,7 +217,7 @@ function load(){fetch(R+"/router/state").then(function(r){return r.json()}).then
     $("dot").className="md-dot md-"+(st.settings.enabled&&ready?"ok":"bad");
     var bad=(st.providers||[]).filter(function(p){return p.status==="failed"}).length;$("stat").textContent=!st.settings.enabled?"The free router is switched off.":ready?"The free router is running: "+ready+" provider"+(ready>1?"s":"")+" ready"+(bad?", "+bad+" not working.":"."):"The free router is running but no provider is ready: add a key below.";
     if(!busy){$("enabled").checked=!!st.settings.enabled;
-      Array.prototype.forEach.call(document.querySelectorAll("#def button"),function(b){b.classList.toggle("md-on",b.dataset.v===st.settings.mode)});
+      Array.prototype.forEach.call(document.querySelectorAll("#def button"),function(b){b.classList.toggle("md-on",b.dataset.v===khModeToUi(st.settings.mode))});
       $("acceptEdits").checked=st.settings.free_accept_edits===true;
       $("spread").checked=st.settings.spread!==false;
       Array.prototype.forEach.call(document.querySelectorAll("#safe button"),function(b){b.classList.toggle("md-on",b.dataset.v===(st.settings.safety_check||"short"))});
@@ -503,6 +503,13 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 @keyframes khbreathe{0%,100%{opacity:1;}50%{opacity:.25;}}
 </style>
 <script>
+/*kh-mode:begin*/
+var KH_UI2R={free:"free",paid:"paid",mixed:"auto",safe:"safe"};
+function khModeToRouter(ui){return Object.prototype.hasOwnProperty.call(KH_UI2R,ui)?KH_UI2R[ui]:null;}
+function khModeToUi(m){return m==="free"?"free":m==="auto"?"mixed":(m==="paid"||m==="plan")?"paid":m==="safe"?"safe":null;}
+function khSetMode(base,ui,fetchFn){var m=khModeToRouter(ui);if(!m)return Promise.resolve({ok:false,error:"Unknown mode"});
+  return fetchFn(base+"/router/settings",{method:"POST",headers:{"Content-Type":"application/json","X-Router-Action":"1"},body:JSON.stringify({mode:m})}).then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||(j&&j.error))return {ok:false,error:String((j&&j.error)||("HTTP "+r.status))};return {ok:true,mode:m};});}).catch(function(){return {ok:false,error:"The router did not answer."};});}
+/*kh-mode:end*/
 /* Route chips (owner request 2026-11-19): two pills in the header, PAID and FREE, with the tokens used since the count was started,
    green + breathing when the last call went that way, grey when idle; plus the router mode so a forgotten "free" is visible.
    Numbers come from the router (GET /router/state, models of the last 72 h); per-task numbers are the change of those totals while the task is In progress

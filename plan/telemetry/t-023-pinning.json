@@ -1,0 +1,9 @@
+{
+ "test": "T-023 pinning",
+ "packages_tested": 20,
+ "calls_per_package": 3,
+ "model_switches_between_packages": 19,
+ "packages_with_single_model": 20,
+ "spread_enabled": true,
+ "timestamp": 1795127553.4705677
+}
