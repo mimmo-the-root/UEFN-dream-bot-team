@@ -96,39 +96,34 @@ def _path(name):
 
 def _tier_path():
     """Path to data/tiers.json (outside kit repo, in the router's home)."""
-    return os.path.join(os.path.dirname(__file__), "data", "tiers.json")
+    return os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "tiers.json")
 
 
 def lookup_tier(name):
     """Return the tier for a skill or agent name, or 'T2' if not found.
 
-    This function reads data/tiers.json (built in pkg-211) and returns the tier
-    for a given skill/agent name, with a fallback to 'T2' for unknown names.
-
-    Args:
-        name: The name of the skill or agent to look up.
-
-    Returns:
-        The tier string (e.g., 'T1', 'T2', 'T3') or 'T2' as fallback.
+    Reads data/tiers.json (built in pkg-211) and returns the tier for a given
+    skill/agent name, falling back to 'T2' for unknown names or when the file
+    is missing or unreadable.
     """
-    # Read tiers.json (the file is outside any project, in the router's home)
     try:
         with open(_tier_path(), encoding="utf-8") as f:
             tiers = json.load(f)
     except FileNotFoundError:
-        # pkg-211 hasn't been applied yet: fallback to T2
         return "T2"
-    except (OSError, ValueError) as e:
-        # File exists but cannot be read (locked, corrupted): fallback to T2
+    except (OSError, ValueError):
+        # File exists but cannot be read (locked, corrupted)
         return "T2"
+
+    # pkg-211 nests the table under a top-level "tiers" key; also accept a flat table.
+    data = tiers.get("tiers", tiers) if isinstance(tiers, dict) else {}
 
     # Look up in skills or agents
     for category in ("skills", "agents"):
-        if category in tiers:
-            if name in tiers[category]:
-                return tiers[category][name]
+        if category in data and name in data[category]:
+            return data[category][name]
 
-    # Not found: fallback to T2 (pkg-211 not applied or name not in table)
+    # Not found: fallback to T2
     return "T2"
 
 
