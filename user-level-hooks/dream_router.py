@@ -86,12 +86,50 @@ MODES = ("auto", "plan", "free")  # auto = my plan, then free models at the limi
 DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True,
                     "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "cloudflare", "deepseek", "zenmux"]}
 LOCK = threading.Lock()
-STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time()}
+STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time(), "pinned": {}}
 
 
 # ---------- files ----------
 def _path(name):
     return os.path.join(HOME, name)
+
+
+def _tier_path():
+    """Path to data/tiers.json (outside kit repo, in the router's home)."""
+    return os.path.join(os.path.dirname(__file__), "data", "tiers.json")
+
+
+def lookup_tier(name):
+    """Return the tier for a skill or agent name, or 'T2' if not found.
+
+    This function reads data/tiers.json (built in pkg-211) and returns the tier
+    for a given skill/agent name, with a fallback to 'T2' for unknown names.
+
+    Args:
+        name: The name of the skill or agent to look up.
+
+    Returns:
+        The tier string (e.g., 'T1', 'T2', 'T3') or 'T2' as fallback.
+    """
+    # Read tiers.json (the file is outside any project, in the router's home)
+    try:
+        with open(_tier_path(), encoding="utf-8") as f:
+            tiers = json.load(f)
+    except FileNotFoundError:
+        # pkg-211 hasn't been applied yet: fallback to T2
+        return "T2"
+    except (OSError, ValueError) as e:
+        # File exists but cannot be read (locked, corrupted): fallback to T2
+        return "T2"
+
+    # Look up in skills or agents
+    for category in ("skills", "agents"):
+        if category in tiers:
+            if name in tiers[category]:
+                return tiers[category][name]
+
+    # Not found: fallback to T2 (pkg-211 not applied or name not in table)
+    return "T2"
 
 
 class StateReadError(Exception):
@@ -878,6 +916,11 @@ def recent_errors(n=120, hours=6):
 
 PIN = "dream:"
 KEY_OK = re.compile(r"^[A-Za-z0-9_\-.:+/=]{8,1000}$")  # base64 tokens (LLM7: 150+ characters with + / =) are fine; spaces and quotes are not
+
+
+def _session_key(headers):
+    """Extract a session/package key from the HTTP headers: X-Claude-Session header, or client IP as fallback."""
+    return headers.get("X-Claude-Session") or headers.get("x-claude-session", "default")
 
 
 def pinned(req):
