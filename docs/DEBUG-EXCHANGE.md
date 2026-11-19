@@ -43,4 +43,4 @@ Two small logs of work state:
 - `Claude/logs/task-status.log`: written by `Claude/hooks/task_status.py` only, one line `<date time> <T-id> -> <state> <note>`; the planner and the console read it. Never edit by hand.
 
 ## Templates
-A new project gets empty files with headers for `FEEDBACK-FROM-COD.md`, `PROBLEMS-FROM-COD.md` and `PENDING-TESTS.md` under `Claude/plan/` (see `project-template/Claude/plan/`). `NUDGE.md` and `ANSWERS.md` are created by the planner when the first order is written.
+A new project gets empty files with headers for `FEEDBACK-FROM-COD.md`, `PROBLEMS-FROM-COD.md` and `PENDING-TESTS.md`, and an `ANSWERS.md` that carries the debug-flags rule, under `Claude/plan/` (see `project-template/Claude/plan/`). `NUDGE.md` is created by the planner when the first order is written.
