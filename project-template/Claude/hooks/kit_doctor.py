@@ -30,6 +30,27 @@ def load_on_startup_check(path=None):
             "Set Editor Preferences > Loading & Saving > Load on Startup to Most Recent Project (or, with UEFN closed: python Claude/hooks/uefn_session.py set-load-on-startup LastProject).")
 
 
+DEBUG_FLAGS = ["exchange_log", "problems_log", "pending_tests", "task_status_log", "router_error_log", "safety_samples"]
+DEBUG_DEFAULTS = {"exchange_log": True, "problems_log": True, "pending_tests": True, "task_status_log": True, "router_error_log": True, "safety_samples": False}
+
+
+def debug_flags_check(project):
+    """T-091: prints the six debug flags of Claude/config/kit-settings.json (missing or broken file = defaults). Returns (status, text)."""
+    flags, note = dict(DEBUG_DEFAULTS), ""
+    p = os.path.join(project, "Claude", "config", "kit-settings.json")
+    if os.path.isfile(p):
+        try:
+            dbg = json.load(open(p, encoding="utf-8")).get("debug", {})
+            for k in DEBUG_FLAGS:
+                if isinstance(dbg.get(k), bool):
+                    flags[k] = dbg[k]
+        except (ValueError, OSError, AttributeError):
+            note = " (settings file is broken, defaults shown)"
+    else:
+        note = " (no settings file, defaults shown)"
+    return ("NOTE" if "broken" in note else "OK", "Debug flags: " + ", ".join("%s=%s" % (k, "on" if flags[k] else "off") for k in DEBUG_FLAGS) + note)
+
+
 def check(project, fix=False):
     out = []  # (status, text)
     add = lambda s, t: out.append((s, t))
@@ -206,6 +227,7 @@ def check(project, fix=False):
             add(s, tx)
     except Exception:  # never break the doctor
         pass
+    add(*debug_flags_check(project))
     return out
 
 
