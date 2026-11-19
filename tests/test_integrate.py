@@ -105,6 +105,80 @@ try:
     ok(p.returncode == 1 and "unfinished merge" in p.stdout, "unfinished merge is reported")
     os.remove(os.path.join(repo, ".git", "MERGE_HEAD"))
 
+    # --- T-116: cleanup, lock, stale lock (own tmp dir, fake slow test command) ---
+    import signal
+    import time
+    tmpd = os.path.join(base, "tmp")
+    os.makedirs(tmpd)
+    env = dict(os.environ, TMPDIR=tmpd, TEMP=tmpd, TMP=tmpd)
+    slow = os.path.join(base, "slow.py")
+    write(slow, "import os,sys,time\nopen(sys.argv[1],'w').write(str(os.getpid()))\ntime.sleep(60)\n")
+    marker = os.path.join(base, "started")
+    slow_cmd = '"%s" "%s" "%s"' % (sys.executable, slow, marker)
+    git(repo, "checkout", "-q", "main")
+    commit_on(repo, "r2/slow", "slow.txt", "s\n", "T-504: slow package", base="main")
+
+    def start(*extra):
+        return subprocess.Popen([sys.executable, TOOL, "--repo", repo, "--target", "main", "--lab", lab,
+                                 "--test-cmd", slow_cmd] + list(extra), stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT, text=True, env=env)
+
+    def wait_marker():
+        t0 = time.time()
+        while not os.path.exists(marker) and time.time() - t0 < 30:
+            time.sleep(0.1)
+        ok(os.path.exists(marker), "fake test command started")
+        time.sleep(0.2)
+        return int(open(marker).read() or 0)
+
+    def temp_leftovers():
+        return [d for d in os.listdir(tmpd) if d.startswith("integrate-")]
+
+    # stale leftover from a killed run is pruned at start (locked, under the temp dir, named integrate-*)
+    stale = os.path.join(tmpd, "integrate-old")
+    os.makedirs(stale)
+    git(repo, "worktree", "add", "--detach", os.path.join(stale, "wt"), "main")
+    git(repo, "worktree", "lock", os.path.join(stale, "wt"))
+    other = os.path.join(base, "keep-wt")
+    git(repo, "worktree", "add", "--detach", other, "main")
+
+    p1 = start()
+    child = wait_marker()
+    ok("integrate-old" not in git(repo, "worktree", "list"), "stale locked integrate-* worktree pruned at start")
+    ok(os.path.isdir(other) and "keep-wt" in git(repo, "worktree", "list"), "unrelated worktree untouched")
+    ok(len(temp_leftovers()) == 1, "run is using one temp worktree")
+    lockf = os.path.join(repo, ".git", "integrate.lock")
+    ok(open(lockf).read().strip() == str(p1.pid), "lock file holds the pid")
+
+    t0 = time.time()
+    p2 = subprocess.run([sys.executable, TOOL, "--repo", repo, "--target", "main", "--lab", lab,
+                         "--test-cmd", slow_cmd], capture_output=True, text=True, env=env, timeout=20)
+    ok(p2.returncode == 0 and "integrate: another run is active" in p2.stdout and time.time() - t0 < 10,
+       "second concurrent run exits 0 at once")
+    ok(open(lockf).read().strip() == str(p1.pid), "second run left the lock alone")
+
+    p1.send_signal(signal.SIGTERM)
+    p1.communicate(timeout=30)
+    ok(not os.path.exists(lockf), "lock released after SIGTERM")
+    ok(temp_leftovers() == [], "killed run leaves no temp dir")
+    ok(git(repo, "worktree", "list").count("\n") == 1, "killed run leaves no worktree (only main and keep-wt)")
+    time.sleep(0.3)
+    try:
+        os.kill(child, 0)
+        alive = True
+    except OSError:
+        alive = False
+    ok(not alive, "test command process killed with the run")
+
+    # stale lock (dead pid) is taken over
+    dead = subprocess.Popen([sys.executable, "-c", "pass"])
+    dead.wait()
+    write(lockf, "%d\n" % dead.pid)
+    git(repo, "worktree", "remove", "--force", other)
+    p = run(repo, lab, "--json")
+    ok(p.returncode == 0 and not os.path.exists(lockf) and "another run" not in p.stdout,
+       "stale lock taken over and released: rc=%s" % p.returncode)
+
     p = subprocess.run([sys.executable, TOOL, "--bogus"], capture_output=True, text=True)
     ok(p.returncode == 2, "usage error exits 2")
 finally:
