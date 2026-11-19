@@ -82,11 +82,12 @@ PROVIDERS = {
 }
 UPSTREAM = os.environ.get("DREAM_ROUTER_UPSTREAM", "https://api.anthropic.com")
 FREE_TOKEN = "dream-router-local"
-MODES = ("auto", "plan", "free")  # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only
-DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True,
+MODES = ("auto", "plan", "free", "safe")  # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only;
+# safe (T-083) = the work goes to free models, only the auto-mode safety check goes to the plan (while it has credit), else a local verdict
+DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False,
                     "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "cloudflare", "deepseek", "zenmux"]}
 LOCK = threading.Lock()
-STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time(), "pinned": {}}
+STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time(), "pinned": {}}  # pinned[package_key] = (provider, model)
 
 
 # ---------- files ----------
@@ -927,6 +928,43 @@ def pinned(req):
     return None
 
 
+def _get_package_key(req, headers):
+    """Extract package/session key from request headers or metadata.
+    Only returns a key if explicitly provided (X-Package-ID, X-Session-ID, X-Claude-Session headers,
+    or metadata.package_id/session_id/task_id).
+    Returns None if no explicit key is present (pinning is opt-in, not automatic)."""
+    pkg = headers.get("X-Package-ID") or headers.get("X-Session-ID") or headers.get("X-Claude-Session") or headers.get("x-claude-session")
+    if pkg:
+        return pkg.strip()
+    meta = req.get("metadata") if isinstance(req.get("metadata"), dict) else None
+    if meta:
+        pkg = meta.get("package_id") or meta.get("session_id") or meta.get("task_id")
+        if pkg:
+            return str(pkg)
+    return None
+
+
+def _get_pinned_model(package_key):
+    """Get pinned (provider, model) for package if exists. Returns None otherwise."""
+    with LOCK:
+        pin = STATE.get("pinned", {}).get(package_key)
+        if pin:
+            return pin["provider"], pin["model"]
+    return None
+
+
+def _pin_model_for_package(package_key, provider, model):
+    """Pin a model to a package key."""
+    with LOCK:
+        STATE.setdefault("pinned", {})[package_key] = {"provider": provider, "model": model}
+
+
+def _clear_package_pin(package_key):
+    """Clear pin for a package (when package ends)."""
+    with LOCK:
+        STATE.get("pinned", {}).pop(package_key, None)
+
+
 PER_MODEL_LIMITS = {"openrouter", "kilo", "nvidia", "llm7", "ollama", "groq", "zenmux", "cloudflare"}  # gateways where a 429 belongs to ONE model, not the account
 MODEL_TRIES = 20  # models of the same provider tried in one request before moving to the next provider (a 429 answers in a second)
 
@@ -1059,12 +1097,52 @@ def _sample_safety_check(req):
         pass
 
 
+SAFE_SECRET_RX = re.compile(r"(sk-[A-Za-z0-9_\-]{10,}|Bearer\s+[A-Za-z0-9._\-]{10,}|[A-Za-z0-9+/_\-]{40,})")
+
+
+def _save_safety_sample(req):
+    """T-081: with the debug flag safety_samples ON (default off) keep the last 5 safety checks (the tail of the session, secrets cut)
+    in safety-samples.jsonl, to learn the real format of the action under review. Never raises."""
+    try:
+        if not settings().get("safety_samples"):
+            return
+        parts = [_text_of(req.get("system") or "")] + [_text_of(m.get("content")) for m in req.get("messages", [])]
+        full = "\n".join(t for t in parts if "<transcript>" in t) or "\n".join(parts)
+        m = TRANSCRIPT_RX.search(full)
+        body = m.group(1) if m else full
+        line = json.dumps({"at": time.strftime("%Y-%m-%d %H:%M:%S"), "chars": len(body), "mode": settings().get("mode"),
+                           "tail": SAFE_SECRET_RX.sub("[cut]", body[-2500:])})
+        path = _path("safety-samples.jsonl")
+        old = []
+        if os.path.isfile(path):
+            with open(path, encoding="utf-8") as f:
+                old = [x for x in f.read().split("\n") if x.strip()]
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("\n".join((old + [line])[-5:]) + "\n")
+    except Exception:
+        pass
+
+
+def local_safety_verdict(req):
+    """T-082 will fill this with a deterministic allowlist. Until the real format of the action is known (samples), it FAILS CLOSED:
+    never a blind allow. Returns (block, reason)."""
+    return True, "the paid plan has no credit or no login right now and the local allowlist is not enabled: the owner decides"
+
+
+def local_safety_message(req):
+    block, reason = local_safety_verdict(req)
+    text = "<block>no</block>" if not block else "<block>yes</block><category>local-check</category><reason>%s</reason>" % reason
+    return {"id": "msg_local_safety", "type": "message", "role": "assistant", "model": "local-safety", "content": [{"type": "text", "text": text}],
+            "stop_reason": "end_turn", "stop_sequence": None, "usage": {"input_tokens": 0, "output_tokens": 0}}
+
+
 def shrink_safety_check(req):
     """The safety check of auto mode re-sends the whole session (~45k tokens) for every action. Free models get the owner's
     messages and the most recent part only: same question, a fraction of the tokens. Plan requests are never touched."""
     out = dict(req)
     msgs, before, after = [], 0, 0
     _sample_safety_check(req)
+    _save_safety_sample(req)
     sysm = req.get("system")   # the session can also travel in the instructions (owner's log: 35k of 42k there)
     if isinstance(sysm, str) and "<transcript>" in sysm:
         before += len(sysm)
@@ -1170,24 +1248,36 @@ def route(req):
     pin = pinned(req)
     if pin:
         chain = [pin[0]]
-    last = STATE.get("last_ok")
+
+    # Package/session pinning (T-023): with spread on, pin model per package/session
+    package_key = None
+    pinned_model = None
     if s.get("spread", True) and not pin:
-        # Spread the load (1.124.37): the providers that answered in the last 30 minutes take turns, so no single free
-        # quota is used up first; the others follow in their usual order as fallbacks.
-        # 1.124.45: every provider that has a key and is not resting takes its turn (before: only the ones that had answered
-        # in the last 30 minutes, so one fast provider took everything and the others never got a chance to answer)
-        ks0, pv0 = keys(), providers()
-        good = [n for n in chain if n in pv0 and provider_key(pv0[n], ks0) is not None and available(n) and n not in STATE["bad"]]
-        if len(good) > 1:
-            STATE["turn"] = (STATE.get("turn", -1) + 1) % len(good)
-            first = good[STATE["turn"]:] + good[:STATE["turn"]]
-            chain = first + [n for n in chain if n not in first]
-        elif last in chain and available(last):
+        package_key = _get_package_key(req, {})
+        if package_key:
+            pinned_model = _get_pinned_model(package_key)
+            if pinned_model:
+                chain = [pinned_model[0]]
+                req["_pinned_model"] = pinned_model
+    if not pinned_model:
+        last = STATE.get("last_ok")
+        if s.get("spread", True) and not pin:
+            # Spread the load (1.124.37): the providers that answered in the last 30 minutes take turns, so no single free
+            # quota is used up first; the others follow in their usual order as fallbacks.
+            # 1.124.45: every provider that has a key and is not resting takes its turn (before: only the ones that had answered
+            # in the last 30 minutes, so one fast provider took everything and the others never got a chance to answer)
+            ks0, pv0 = keys(), providers()
+            good = [n for n in chain if n in pv0 and provider_key(pv0[n], ks0) is not None and available(n) and n not in STATE["bad"]]
+            if len(good) > 1:
+                STATE["turn"] = (STATE.get("turn", -1) + 1) % len(good)
+                first = good[STATE["turn"]:] + good[:STATE["turn"]]
+                chain = first + [n for n in chain if n not in first]
+            elif last in chain and available(last):
+                chain.remove(last)
+                chain.insert(0, last)
+        elif last in chain and available(last):  # the provider that answered last goes first: no minutes lost on the ones that keep failing
             chain.remove(last)
             chain.insert(0, last)
-    elif last in chain and available(last):  # the provider that answered last goes first: no minutes lost on the ones that keep failing
-        chain.remove(last)
-        chain.insert(0, last)
     for name in chain:
         prov = provs.get(name)
         key = provider_key(prov, ks) if prov else None
@@ -1200,7 +1290,11 @@ def route(req):
         if prov.get("max_input_tokens") and need > int(prov["max_input_tokens"]):
             errors.append("%s: request of about %d tokens is over its free limit of %s" % (name, need, prov["max_input_tokens"]))
             continue
-        if pin:
+        # Package/session pinning (T-023): use pinned model if available for this package
+        if package_key and pinned_model and name == pinned_model[0]:
+            # We're using the pinned provider, use the pinned model
+            models = [pinned_model[1]]
+        elif pin:
             models = [pin[1]]
         else:
             # several free models of this provider in turn (1.124.41): on gateways a rate limit belongs to one model, and the
@@ -1255,6 +1349,10 @@ def route(req):
               note_perf(name + "/" + model, True, int((time.time() - t0) * 1000))
               out = to_anthropic(resp, req, "%s/%s" % (name, model))
               record_usage(name, model, out["usage"]["input_tokens"], out["usage"]["output_tokens"])
+              # T-023: pin the model that answered for this package, so the next call of the
+              # same package uses it again; the pin ends with the package
+              if package_key and not pinned_model:
+                  _pin_model_for_package(package_key, name, model)
               return out, "%s/%s" % (name, model), errors
           except ProviderError as e:
               errors.append("%s/%s: %s %s" % (name, model, e.kind, e.detail[:120]))
@@ -1714,8 +1812,15 @@ class Handler(BaseHTTPRequestHandler):
         mode = settings()["mode"]
         if p == "/v1/messages":
             note_size(req)
-        if p == "/v1/messages" and mode == "auto":
+        if p == "/v1/messages" and mode in ("auto", "safe"):
             STATE["plan_login_seen"] = plan_credentials(self.headers)
+        local_msg = None
+        if mode == "safe" and p == "/v1/messages" and is_safety_check(req):   # T-083: only the safety check may use the plan
+            _save_safety_sample(req)
+            if plan_credentials(self.headers) and plan_available():
+                if forward_plan(self, raw, req.get("model", "")) == "done":
+                    return
+            local_msg = local_safety_message(req)
         if p in ("/v1/messages", "/v1/messages/count_tokens") and mode in ("auto", "plan") and plan_credentials(self.headers) and not pinned(req):
             if mode == "plan" or plan_available():
                 if forward_plan(self, raw, req.get("model", "")) == "done":
@@ -1728,7 +1833,10 @@ class Handler(BaseHTTPRequestHandler):
         if p != "/v1/messages":
             return self._other(raw)
         try:
-            msg, routed, _ = route_patiently(req)
+            if local_msg is not None:
+                msg, routed = local_msg, "local-safety"
+            else:
+                msg, routed, _ = route_patiently(req)
         except ProviderError as e:
             kind = {"limit": "rate_limit_error", "off": "api_error", "no_keys": "authentication_error", "all_failed": "overloaded_error"}.get(e.kind, "api_error")
             extra = {"retry-after": "5"} if e.kind == "all_failed" else None

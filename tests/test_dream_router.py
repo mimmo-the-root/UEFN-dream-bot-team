@@ -331,6 +331,84 @@ for _ in range(4):
     dr.route({"model": "x", "max_tokens": 5, "messages": [{"role": "user", "content": "hi"}]})
 dr._http = real_http
 assert seen[:4] in (["busy", "ok", "busy", "ok"], ["ok", "busy", "ok", "busy"]), seen
+
+# 24b. T-023 pinning: with spread on, model chosen once per package/session key and kept until that package ends
+# Test: 20 packages, model chosen once per package, count switches inside/outside packages
+dr._write_json("routing.json", dict(dr._read_json("routing.json", {}), enabled=True, spread=True, chain=["busy", "ok"]))
+dr.save_key("BUSY_KEY", "busy-key-123456")
+dr.save_key("OK_KEY", "ok-key-1234567")
+
+# Clear any prior pinning state
+dr.STATE["pinned"] = {}
+dr.STATE["last_ok"] = None
+
+# Mock HTTP for this test
+real_http_pin = dr._http
+dr._http = lambda url, key, payload=None, timeout=180: ({"choices": [{"message": {"content": "hi"}, "finish_reason": "stop"}], "usage": {"input_tokens": 5, "output_tokens": 5}})
+
+pkg_calls_per_package = 3  # how many route calls per package
+pkg_model_counts = {}  # package_key -> model
+
+for pkg_idx in range(20):
+    pkg_key = "pkg-%d" % pkg_idx
+    req = {"model": "x", "max_tokens": 5, "messages": [{"role": "user", "content": "hi"}],
+           "metadata": {"package_id": pkg_key}}
+    # Make multiple calls within the same package - model should stay pinned
+    chosen_model = None
+    for _ in range(pkg_calls_per_package):
+        out, via, errors = dr.route(req)
+        if via:
+            m = via.split("/")[-1] if "/" in via else via
+            if chosen_model is None:
+                chosen_model = m
+            else:
+                assert m == chosen_model, "Model switched inside package %s: %s then %s" % (pkg_key, chosen_model, m)
+    # Record what model was pinned for this package
+    pinned = dr.STATE.get("pinned", {}).get(pkg_key)
+    if pinned and chosen_model:
+        pkg_model_counts[pkg_key] = pinned["model"]
+
+# Restore HTTP
+dr._http = real_http_pin
+
+# Count switches between packages
+pkg_switches = 0
+pkg_keys_sorted = sorted(pkg_model_counts.keys())
+prev_model = None
+for k in pkg_keys_sorted:
+    m = pkg_model_counts[k]
+    if prev_model is not None and m != prev_model:
+        pkg_switches += 1
+    prev_model = m
+
+# Assert: each package has exactly one model pinned
+for k, m in pkg_model_counts.items():
+    pin_entry = dr.STATE.get("pinned", {}).get(k)
+    assert pin_entry is not None, "Package %s has no pin entry" % k
+    assert pin_entry["model"] == m, "Package %s pinned model changed" % k
+
+# Assert: there should be switches between packages (spread is working across packages)
+assert pkg_switches > 0, "Expected some model switches between packages with spread=True, but none occurred"
+
+print("T-023 Pinning test PASSED: model pinned per package, switches between packages = %d" % pkg_switches)
+
+# Store numbers in plan/telemetry (as task requires)
+import os
+telemetry_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "plan", "telemetry")
+os.makedirs(telemetry_dir, exist_ok=True)
+telemetry_file = os.path.join(telemetry_dir, "t-023-pinning.json")
+telemetry_data = {
+    "test": "T-023 pinning",
+    "packages_tested": 20,
+    "calls_per_package": pkg_calls_per_package,
+    "model_switches_between_packages": pkg_switches,
+    "packages_with_single_model": len(pkg_model_counts),
+    "spread_enabled": True,
+    "timestamp": time.time()
+}
+dr._write_json(telemetry_file, telemetry_data)
+print("Telemetry written to %s" % telemetry_file)
+
 # 25. on a gateway a rate limit rests ONE model: the next models of the same provider are tried before the next provider
 dr.PER_MODEL_LIMITS.add("busy"); dr.STATE["last_ok"] = None; dr.STATE["cooldown"].clear(); dr.STATE["breaker"].clear(); dr.STATE["mcool"] = {}
 dr.STATE.setdefault("lists", {})["busy"] = (["good-a", "good-b", "good-c", "good-d"], time.time())

@@ -69,6 +69,20 @@ def _walk(root):
             yield os.path.relpath(full, root).replace(os.sep, "/"), full
 
 
+REV_RE = re.compile(r"kit-console-rev:\s*(\d+)")
+SKIPPED_OLDER = []
+
+
+def _rev(path):
+    """Console pages carry `kit-console-rev: N`. 0 = no marker."""
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            m = REV_RE.search(f.read())
+        return int(m.group(1)) if m else 0
+    except OSError:
+        return 0
+
+
 def _newer(a, b):
     def t(v):
         return tuple(int(x) for x in re.findall(r"\d+", v)[:4]) or (0,)
@@ -90,6 +104,10 @@ def sync_files(project, tpl):
         dst = os.path.join(project, *rel.split("/"))
         exists = os.path.isfile(dst)
         if exists and (create_only or _norm_hash(src) == _norm_hash(dst)):
+            continue
+        if exists and rel.endswith(".html") and _rev(dst) > _rev(src):
+            # T-103 (2026-11-19): an older template page must never replace a newer project page (the 10:29 restart did exactly that).
+            SKIPPED_OLDER.append(rel)
             continue
         if exists:
             if backup is None:

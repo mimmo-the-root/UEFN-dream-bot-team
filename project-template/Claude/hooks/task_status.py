@@ -2,7 +2,8 @@
 """Deterministic status flip for ROADMAP.md rows (no model needed).
 Usage: python Claude/hooks/task_status.py T-015 "In progress" ["short note"] [--pct 40]
 (--pct writes "40% - note" in front of the note; the console shows it as a progress bar on the task)
-Allowed: "To do", "In progress", "Blocked", "Done" (Done only with --gate-pass, set by the gate/planner-docs).
+Allowed: "To do", "In progress" (always with --pct), "Blocked", "Done" (Done only with --gate-pass, set by the gate/planner-docs).
+Milestones for --pct: 10 started, 30 code written, 60 test written, 80 test passing, 90 gate running, 100 only with Done --gate-pass.
 Keeps the row, only rewrites the Status cell (3rd column), keeps rows ordered In progress, Blocked, To do, Done
 inside the tasks table, then runs docs_lint. Logs one line in Claude/logs/task-status.log."""
 import os, re, sys, time, subprocess
@@ -53,6 +54,9 @@ def _main(a):
     if pct is not None: note = ("%d%%" % pct) + ((" - " + note) if note else "")
     if st not in OK:
         print("status must be one of", OK); return 2
+    if st == "In progress" and pct is None:
+        print("In progress needs --pct (the console shows it). Milestones: 10 started, 30 code written, "
+              "60 test written, 80 test passing, 90 gate running; 100 only with Done --gate-pass."); return 2
     if st == "Done" and "--gate-pass" not in a:
         print("Done needs --gate-pass (only the gate / planner-docs)"); return 2
     L = open(ROAD, encoding="utf8").read().split("\n")
