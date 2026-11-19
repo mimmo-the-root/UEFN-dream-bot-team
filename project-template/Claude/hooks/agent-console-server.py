@@ -161,6 +161,9 @@ MCP_FILE = os.path.join(LOGS_DIR, "agent-console-mcp.jsonl")
 SESSION_FILE = os.path.join(LOGS_DIR, "agent-console-session.json")
 DOCS_DIR = os.path.join(_DATA, "docs")
 ACTIVE_TASK_FILE = os.path.join(DOCS_DIR, ".active-task")
+LEDGER_FILE = os.path.join(LOGS_DIR, "token-ledger.json")
+ROUTER_STATE_URL = "http://127.0.0.1:8787/router/state"
+LEDGER_POLL_SECONDS = 15
 # Whitelist of the real project docs the Docs & Status console (agent-console-docs.html) is
 # allowed to read via /doc?name=<key> — deliberately NOT an arbitrary-path read. Added v1.78.0:
 # that page used to show hardcoded sample markdown for every one of these regardless of what (if
@@ -480,6 +483,100 @@ def ensure_router():
         pass
 
 
+# ---- T-105: server-side token ledger -------------------------------------------------------------
+# The pages measure tokens per task only while a browser tab is open. This ledger polls the router
+# every LEDGER_POLL_SECONDS and adds the positive change of each model's input+output counter to the
+# active task (paid = provider "claude-plan", free = everything else). Pure functions first (tested
+# in tests/test_token_ledger.py), the thread and the HTTP endpoint below use them.
+def ledger_totals(models):
+    """{"provider/model": input+output} for every row of the router's per-model list."""
+    out = {}
+    for m in models or []:
+        if not isinstance(m, dict):
+            continue
+        try:
+            out[str(m.get("provider", "")) + "/" + str(m.get("model", ""))] = int(m.get("input") or 0) + int(m.get("output") or 0)
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def ledger_deltas(prev, cur):
+    """Return (paid, free) added since prev. A counter that is new or went down (router restart,
+    72 h window rollover) only re-baselines: it never yields a negative number or a bogus jump."""
+    paid = free = 0
+    for key, now in cur.items():
+        if key not in prev or now < prev[key]:
+            continue
+        d = now - prev[key]
+        if key.startswith("claude-plan/"):
+            paid += d
+        else:
+            free += d
+    return paid, free
+
+
+def ledger_apply(ledger, models, task_id, now_iso=None):
+    """Fold one router sample into the ledger dict (in place) and return it."""
+    ledger.setdefault("total", {"paid": 0, "free": 0})
+    ledger.setdefault("tasks", {})
+    cur = ledger_totals(models)
+    paid, free = ledger_deltas(ledger.get("last") or {}, cur)
+    ledger["last"] = cur
+    ledger["active_task"] = task_id or ""
+    ledger["updated"] = now_iso or datetime.now(timezone.utc).isoformat()
+    ledger["total"]["paid"] += paid
+    ledger["total"]["free"] += free
+    if (paid or free) and task_id:
+        t = ledger["tasks"].setdefault(task_id, {"paid": 0, "free": 0})
+        t["paid"] += paid
+        t["free"] += free
+    return ledger
+
+
+def ledger_load(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def ledger_save(path, ledger):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(ledger, f)
+    os.replace(tmp, path)
+
+
+def _active_task_id():
+    try:
+        with open(ACTIVE_TASK_FILE, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except OSError:
+        return ""
+
+
+def ledger_poll_once(path=None, fetch=None, task_id=None):
+    """One poll: fetch router state, update and save the ledger. Returns the ledger or None on error."""
+    path = path or LEDGER_FILE
+    try:
+        state = (fetch or (lambda: _http_get_json(ROUTER_STATE_URL, timeout=5)))()
+        ledger = ledger_apply(ledger_load(path), (state or {}).get("models"), _active_task_id() if task_id is None else task_id)
+        ledger_save(path, ledger)
+        return ledger
+    except Exception:
+        return None  # router down or file locked: try again at the next poll
+
+
+def _ledger_loop():
+    while True:
+        ledger_poll_once()
+        time.sleep(LEDGER_POLL_SECONDS)
+
+
 class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass  # keep the terminal quiet — the browser polls this every second
@@ -495,6 +592,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/log"):
             self._send_json_bytes(json.dumps(_read_jsonl(LOG_FILE)).encode("utf-8"))
+        elif self.path.startswith("/api/token-ledger"):
+            self._send_json_bytes(json.dumps(ledger_load(LEDGER_FILE) or {"total": {"paid": 0, "free": 0}, "tasks": {}}).encode("utf-8"))
         elif self.path.startswith("/tokens"):
             self._send_json_bytes(_read_json_object(TOKENS_FILE, "{}").encode("utf-8"))
         elif self.path.startswith("/mcp"):
@@ -963,6 +1062,8 @@ if __name__ == "__main__":
         daemon_threads = True
 
     ensure_router()
+    import threading
+    threading.Thread(target=_ledger_loop, daemon=True).start()
     server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print(f"Agent Console running at http://127.0.0.1:{PORT}/  (Ctrl+C to stop)")
     try:
