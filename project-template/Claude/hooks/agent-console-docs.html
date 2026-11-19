@@ -1395,12 +1395,12 @@ async function renderStatusTasks(){
   if (KF !== "all") rows = rows.filter(r => taskKind(r) === KF);
   if (!allRows.length){ empty('No tasks yet. After the plan is approved, <code>/task-list</code> fills this table: one row per task with its status.'); return; }
   const trow = r => { const badge = taskBadge(r), pri = priorityPill(r.priority);
-    return '<tr data-id="' + escH((r.id || "").trim()) + '"><td><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "(untitled)").replace(/~~/g, "")) + ' <span class="tkind ' + taskKind(r) + '">' + KINDS[taskKind(r)] + '</span>' + (r.source ? ' <small style="color:var(--dim);">' + escH(r.source) + '</small>' : '') + (statusBucket(r.status) === "todo" || statusBucket(r.status) === "active" || statusBucket(r.status) === "blocked" ? ' ' + fixBtn([(r.id || "").trim()], "Fix this", false) : '') + '</td><td><span class="badge ' + badge.cls + '" title="' + escH(r.status || "") + '"><span class="dot"></span>' + escH(badge.label) + '</span></td><td><span class="pill ' + pri.cls + '">' + escH(pri.label) + '</span></td></tr>'; };
+    return '<tr data-id="' + escH((r.id || "").trim()) + '"><td style="white-space:nowrap;"><span class="sdot ' + statusBucket(r.status) + '" title="' + escH(String(r.status || "").slice(0, 160)) + '"></span><b>' + escH(r.id || "?") + '</b></td><td>' + escH((r.feature || "(untitled)").replace(/~~/g, "")) + ' <span class="tkind ' + taskKind(r) + '">' + KINDS[taskKind(r)] + '</span>' + (r.source ? ' <small style="color:var(--dim);">' + escH(r.source) + '</small>' : '') + (statusBucket(r.status) === "todo" || statusBucket(r.status) === "active" || statusBucket(r.status) === "blocked" ? ' ' + fixBtn([(r.id || "").trim()], "Fix this", false) : '') + pctBar(r) + '</td><td><span class="badge ' + badge.cls + '" title="' + escH(r.status || "") + '"><span class="dot"></span>' + escH(badge.label) + '</span></td><td><span class="pill ' + pri.cls + '">' + escH(pri.label) + '</span></td></tr>'; };
   const h2 = '<table class="datatable"><tr><th style="width:56px;">ID</th><th>Task</th><th style="width:150px;">Status</th><th style="width:70px;">Priority</th></tr>';
   const isOpenT = r => { const b = statusBucket(r.status); return b === "todo" || b === "active" || b === "blocked"; };
-  const PER = 12, slides = [];
+  const PER = 8, slides = [];
   relOrder(groupByRelease(rows)).forEach(g => {
-    const rs = g.rows.slice().sort((x, y) => (isOpenT(y) - isOpenT(x)) || idNum(x.id) - idNum(y.id));
+    const rs = g.rows.slice().sort((x, y) => (isOpenT(y) - isOpenT(x)) || (rmRank(x) - rmRank(y)) || idNum(x.id) - idNum(y.id));
     const d = rs.filter(r => statusBucket(r.status) === "done").length, open = rs.filter(isOpenT).length, pages = Math.max(1, Math.ceil(rs.length / PER));
     for (let k = 0; k < pages; k++){
       const ttl = '<b>' + escH(g.name) + '</b> · ' + d + ' of ' + rs.length + ' done' + (open ? ' · ' + open + ' open' : ' · finished') + (pages > 1 ? ' · page ' + (k + 1) + '/' + pages : '');
