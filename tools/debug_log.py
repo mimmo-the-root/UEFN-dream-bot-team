@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """debug_log.py - one place that writes the kit's debug lines, only when the matching flag is on.
 
-API: debug_line(kind, text, project=None, path=None) -> True if a line was written, False if the flag is off or the write failed.
+API: debug_line(kind, text, project=None, path=None, error=False) -> True if a line was written, False if the flag is off or the write failed.
 kinds: "task_status"   (flag task_status_log,  Claude/logs/task-status.log)
        "router_error"  (flag router_error_log, needs path=, the router's errors.log)
        "problems"      (flag problems_log,     Claude/plan/PROBLEMS-FROM-COD.md)
        "pending_tests" (flag pending_tests,    Claude/plan/PENDING-TESTS.md)
+Levels (kit_config.level): off writes nothing, errors writes only when error=True (kind "router_error" is always an error), full writes all.
+debug.all_off=true silences every kind. Old booleans still work (true = full).
 Every flag defaults to on (kit_config.is_on), so nothing changes until the owner turns one off. Never raises. Stdlib only.
 """
 import os, sys
@@ -21,12 +23,15 @@ KINDS = {
 }
 
 
-def debug_line(kind, text, project=None, path=None):
+def debug_line(kind, text, project=None, path=None, error=False):
     try:
         if kind not in KINDS:
             return False
         flag, rel = KINDS[kind]
-        if not kit_config.is_on(flag, project):
+        lv = kit_config.level(flag, project)
+        if lv == "off":
+            return False
+        if lv == "errors" and not (error or kind == "router_error"):
             return False
         target = path or (os.path.join(kit_config.project_dir(project), rel) if rel else None)
         if not target:
