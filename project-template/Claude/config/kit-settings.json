@@ -14,10 +14,26 @@
     "description": "Placeholder: model routing settings."
   },
   "budget": {
-    "description": "Placeholder: token and cost budget settings."
+    "description": "Token budget. weekly_used_pct is OWNER-ONLY data (null = unknown): the kit never writes it. The three *_pct thresholds say at which weekly_used_pct the governor warns, throttles (free tiers only) and blocks paid work. release_token_budget = tokens one release may spend (0 = no limit).",
+    "weekly_used_pct": null,
+    "warn_pct": 70,
+    "throttle_pct": 85,
+    "block_pct": 95,
+    "release_token_budget": 0
   },
   "agents": {
-    "description": "Placeholder: agent limits and behaviour."
+    "description": "Agent limits. max_parallel = agents the relay planner runs at once (1-6, default 3). tier_by_task_kind = model tier per kind of task (T0 free local, T1 free cloud, T2 cheap paid, T3 strong paid). lab_permission_block = true keeps the Lab permission block (T-085) on.",
+    "max_parallel": 3,
+    "tier_by_task_kind": {
+      "default": "T2",
+      "plan": "T3",
+      "code": "T2",
+      "test": "T1",
+      "docs": "T1",
+      "review": "T2",
+      "research": "T1"
+    },
+    "lab_permission_block": true
   },
   "console": {
     "description": "Placeholder: Agent Console settings."
