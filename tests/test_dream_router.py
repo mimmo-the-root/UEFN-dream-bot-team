@@ -204,7 +204,7 @@ assert r["content"][0]["text"] == "<block>no" and r["stop_reason"] == "stop_sequ
 r = dr.to_anthropic({"choices": [{"message": {"content": "<block>yes"}, "finish_reason": "stop"}]}, {"stop_sequences": ["</block>"]}, "x")
 assert r["stop_reason"] == "stop_sequence" and r["stop_sequence"] == "</block>"
 P = dr.PROVIDERS
-assert len(dr.DEFAULT_SETTINGS["chain"]) == 12 and set(dr.DEFAULT_SETTINGS["chain"]) == set(P) and "mistral" not in P and "longcat" not in P, "ten free providers + DeepSeek and ZenMux (paid, last)"
+assert len(dr.DEFAULT_SETTINGS["chain"]) == 14 and set(dr.DEFAULT_SETTINGS["chain"]) == set(P) and "mistral" not in P and "longcat" not in P, "twelve free providers (airforce and orcarouter included) + DeepSeek and ZenMux (paid, last)"
 assert dr.DEFAULT_SETTINGS["chain"][-2:] == ["deepseek", "zenmux"] and P["zenmux"]["paid"] and P["deepseek"]["paid"]
 dr.STATE.setdefault("cf_acct", {})["cfut_tok"] = "acct9"   # 1.124.57: a Cloudflare token alone; the account is looked up once
 assert dr.endpoint(P["cloudflare"], "cfut_tok") == ("https://api.cloudflare.com/client/v4/accounts/acct9/ai/v1", "cfut_tok")
