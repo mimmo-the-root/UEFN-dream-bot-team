@@ -7,7 +7,10 @@ Global switch: debug.all_off = true turns every debug function off whatever its 
 Keys are dotted paths such as "debug.exchange_log"; is_on("exchange_log") means "debug.exchange_log".
 Rules: unknown keys are kept, missing keys fall back to defaults, a broken file falls back to defaults and says so
 (load returns the note; the file is never overwritten by a read). Stdlib only.
-CLI: python tools/kit_config.py [get KEY | set KEY VALUE | validate] [--project DIR]
+Layers (T-096): defaults < global file < project file. The global file is ~/.dream-bot-team/kit-settings.json (override with env
+KIT_GLOBAL_SETTINGS); a key in the project file wins over the same key in the global file. source(key) says "project", "global" or "default";
+reset(key) removes the key from the project file (scope="global" for the global one) so the next layer shows through; set(..., scope="global") writes the global file.
+CLI: python tools/kit_config.py [get KEY | set KEY VALUE [--global] | source KEY | reset KEY [--global] | validate] [--project DIR]
 """
 import copy, json, os, sys
 
@@ -44,6 +47,26 @@ def project_dir(project=None):
 
 def path(project=None):
     return os.path.join(project_dir(project), REL)
+
+
+def global_path():
+    return os.environ.get("KIT_GLOBAL_SETTINGS") or os.path.join(os.path.expanduser("~"), ".dream-bot-team", "kit-settings.json")
+
+
+def _scope_path(project, scope):
+    if scope not in ("project", "global"):
+        raise ValueError("scope must be 'project' or 'global'")
+    return global_path() if scope == "global" else path(project)
+
+
+def _read_global():
+    """Global file data or None (missing or broken: ignored, never an error)."""
+    try:
+        with open(global_path(), encoding="utf-8") as f:
+            data = json.load(f)
+    except (ValueError, OSError):
+        return None
+    return data if isinstance(data, dict) else None
 
 
 def _merge(base, over):
@@ -93,9 +116,12 @@ def _read(project):
 def load(project=None):
     """Returns (settings, note). Bad values (wrong type for a known flag) fall back to the default for that key."""
     data, note = _read(project)
-    if data is None:
+    g = _read_global()
+    if data is None and g is None:
         return defaults(), note
-    cfg = _merge(_DEFAULTS, data)
+    if data is None and not note.startswith("settings file"):
+        note = ""  # no project file but a global one: nothing to complain about
+    cfg = _merge(_merge(_DEFAULTS, g or {}), data or {})
     probs = validate(cfg)
     if probs:
         d = defaults()
@@ -112,6 +138,27 @@ def load(project=None):
             cfg.setdefault("debug", {})["max_lines"] = d["debug"]["max_lines"]
         note = "settings problem(s), defaults used for them: " + "; ".join(probs)
     return cfg, note
+
+
+_MISSING = object()
+
+
+def _has(data, key):
+    cur = data
+    for part in key.split("."):
+        if not isinstance(cur, dict) or part not in cur:
+            return False
+        cur = cur[part]
+    return True
+
+
+def source(key, project=None):
+    """Where the value of a dotted key comes from: 'project', 'global' or 'default'."""
+    if _has(_read(project)[0], key):
+        return "project"
+    if _has(_read_global(), key):
+        return "global"
+    return "default"
 
 
 def get(key, project=None, default=None):
@@ -153,14 +200,17 @@ def level(flag, project=None):
     return lv
 
 
-def set(key, value, project=None):  # noqa: A001  public API name asked by the package
+def set(key, value, project=None, scope="project"):  # noqa: A001  public API name asked by the package
     """Write one key, keeping every other key (unknown ones too). A broken file is saved as .broken first."""
-    p = path(project)
-    data, note = _read(project)
+    p = _scope_path(project, scope)
+    if scope == "global":
+        data = _read_global()
+    else:
+        data, note = _read(project)
     if data is None:
         if os.path.isfile(p):
             os.replace(p, p + ".broken")
-        data = defaults()
+        data = {} if (scope == "global" or _read_global() is not None) else defaults()
     parts = key.split(".")
     cur = data
     for part in parts[:-1]:
@@ -177,6 +227,31 @@ def set(key, value, project=None):  # noqa: A001  public API name asked by the p
     return data
 
 
+def reset(key, project=None, scope="project"):
+    """Reset to default: remove the key from the project file (or the global one), so the next layer shows through.
+    Returns True when something was removed. A missing or broken file is left alone."""
+    p = _scope_path(project, scope)
+    data = _read_global() if scope == "global" else _read(project)[0]
+    if data is None:
+        return False
+    parts = key.split(".")
+    chain = [data]
+    for part in parts[:-1]:
+        nxt = chain[-1].get(part)
+        if not isinstance(nxt, dict):
+            return False
+        chain.append(nxt)
+    if parts[-1] not in chain[-1]:
+        return False
+    del chain[-1][parts[-1]]
+    tmp = p + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    os.replace(tmp, p)
+    return True
+
+
 def _parse(v):
     try:
         return json.loads(v)
@@ -190,11 +265,19 @@ def main(argv):
         i = argv.index("--project")
         project = argv[i + 1]
         argv = argv[:i] + argv[i + 2:]
+    scope = "project"
+    if "--global" in argv:
+        argv = [a for a in argv if a != "--global"]
+        scope = "global"
     cmd = argv[0] if argv else "validate"
     if cmd == "get" and len(argv) == 2:
         print(json.dumps(get(argv[1], project)))
     elif cmd == "set" and len(argv) == 3:
-        set(argv[1], _parse(argv[2]), project)
+        set(argv[1], _parse(argv[2]), project, scope)
+    elif cmd == "source" and len(argv) == 2:
+        print(source(argv[1], project))
+    elif cmd == "reset" and len(argv) == 2:
+        print("reset" if reset(argv[1], project, scope) else "nothing to reset")
     elif cmd == "validate":
         cfg, note = load(project)
         print(note or "settings OK")
