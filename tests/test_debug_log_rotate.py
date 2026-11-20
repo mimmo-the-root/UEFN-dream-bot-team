@@ -20,7 +20,7 @@ with tempfile.TemporaryDirectory() as d:
     kc.set("debug.max_lines", 5, d)
     check(kc.get("debug.max_lines", d) == 5, "setting is saved")
     lg = os.path.join(d, "Claude", "logs", "task-status.log")
-    os.makedirs(os.path.dirname(lg))
+    os.makedirs(os.path.dirname(lg), exist_ok=True)
     with open(lg, "w", newline="\n") as f:
         f.write("".join("line %d\n" % i for i in range(12)))
     pl = os.path.join(d, "Claude", "plan", "PENDING-TESTS.md")

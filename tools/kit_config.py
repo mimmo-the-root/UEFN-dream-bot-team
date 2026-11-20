@@ -10,11 +10,16 @@ Rules: unknown keys are kept, missing keys fall back to defaults, a broken file 
 Layers (T-096): defaults < global file < project file. The global file is ~/.dream-bot-team/kit-settings.json (override with env
 KIT_GLOBAL_SETTINGS); a key in the project file wins over the same key in the global file. source(key) says "project", "global" or "default";
 reset(key) removes the key from the project file (scope="global" for the global one) so the next layer shows through; set(..., scope="global") writes the global file.
-CLI: python tools/kit_config.py [get KEY | set KEY VALUE [--global] | source KEY | reset KEY [--global] | validate] [--project DIR]
+History and safety (T-097): every set/reset/undo appends one JSON line (time, key, old, new, scope) to Claude/logs/config-changes.log;
+history(n) lists the last n changes (newest last); undo(key) restores the previous value of that key. RISKY_KEYS (permissions, safety_check
+and everything under them) make set/reset/undo raise PermissionError unless confirm=True (CLI --confirm).
+CLI: python tools/kit_config.py [get KEY | set KEY VALUE [--global] [--confirm] | source KEY | reset KEY [--global] [--confirm] | history [N] | undo KEY [--confirm] | validate] [--project DIR]
 """
-import copy, json, os, sys
+import copy, json, os, sys, time
 
 REL = os.path.join("Claude", "config", "kit-settings.json")
+LOG_REL = os.path.join("Claude", "logs", "config-changes.log")
+RISKY_KEYS = ("permissions", "safety_check")
 LEVELS = ("off", "errors", "full")
 DEBUG_FLAGS = ["exchange_log", "problems_log", "pending_tests", "task_status_log", "router_error_log", "safety_samples"]
 _DEFAULTS = {
@@ -200,7 +205,7 @@ def level(flag, project=None):
     return lv
 
 
-def set(key, value, project=None, scope="project"):  # noqa: A001  public API name asked by the package
+def _set_raw(key, value, project=None, scope="project"):
     """Write one key, keeping every other key (unknown ones too). A broken file is saved as .broken first."""
     p = _scope_path(project, scope)
     if scope == "global":
@@ -227,7 +232,7 @@ def set(key, value, project=None, scope="project"):  # noqa: A001  public API na
     return data
 
 
-def reset(key, project=None, scope="project"):
+def _reset_raw(key, project=None, scope="project"):
     """Reset to default: remove the key from the project file (or the global one), so the next layer shows through.
     Returns True when something was removed. A missing or broken file is left alone."""
     p = _scope_path(project, scope)
@@ -252,6 +257,101 @@ def reset(key, project=None, scope="project"):
     return True
 
 
+def log_path(project=None):
+    return os.path.join(project_dir(project), LOG_REL)
+
+
+def is_risky(key):
+    return any(key == r or key.startswith(r + ".") or key.endswith("." + r) or ("." + r + ".") in key for r in RISKY_KEYS)
+
+
+def _check_confirm(key, confirm):
+    if is_risky(key) and confirm is not True:
+        raise PermissionError("'%s' is a risky setting (permissions / safety check): pass confirm=True (CLI --confirm) to change it" % key)
+
+
+def _value_of(key, project, scope):
+    """(is_set, value) of a key inside one scope's file."""
+    data = _read_global() if scope == "global" else _read(project)[0]
+    cur = data
+    for part in key.split("."):
+        if not isinstance(cur, dict) or part not in cur:
+            return False, None
+        cur = cur[part]
+    return True, copy.deepcopy(cur)
+
+
+def _log(key, old, new, scope, project):
+    """Append one change line; logging must never break a settings write."""
+    entry = {"time": time.strftime("%Y-%m-%dT%H:%M:%S"), "key": key, "scope": scope,
+             "old": old[1] if old[0] else None, "old_set": old[0],
+             "new": new[1] if new[0] else None, "new_set": new[0]}
+    try:
+        lp = log_path(project)
+        os.makedirs(os.path.dirname(lp), exist_ok=True)
+        with open(lp, "a", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+
+
+def set(key, value, project=None, scope="project", confirm=False):  # noqa: A001  public API name asked by the package
+    """Write one key and log the change. Risky keys need confirm=True (PermissionError otherwise)."""
+    _check_confirm(key, confirm)
+    old = _value_of(key, project, scope)
+    data = _set_raw(key, value, project, scope)
+    _log(key, old, (True, value), scope, project)
+    return data
+
+
+def reset(key, project=None, scope="project", confirm=False):
+    """Reset to default (see _reset_raw) and log it. Risky keys need confirm=True."""
+    _check_confirm(key, confirm)
+    old = _value_of(key, project, scope)
+    done = _reset_raw(key, project, scope)
+    if done:
+        _log(key, old, (False, None), scope, project)
+    return done
+
+
+def history(n=20, project=None):
+    """The last n logged changes as dicts, oldest first. Broken lines are skipped."""
+    out = []
+    try:
+        with open(log_path(project), encoding="utf-8") as f:
+            for line in f:
+                try:
+                    e = json.loads(line)
+                except ValueError:
+                    continue
+                if isinstance(e, dict) and "key" in e:
+                    out.append(e)
+    except OSError:
+        return []
+    return out[-n:] if n > 0 else []
+
+
+def undo(key, project=None, confirm=False):
+    """Restore the value the key had before its last logged change (removes the key when it was not set then).
+    Returns the entry that was undone, or None when the key has no history. The undo is logged too."""
+    _check_confirm(key, confirm)
+    last = None
+    for e in history(10 ** 9, project):
+        if e.get("key") == key:
+            last = e
+    if last is None:
+        return None
+    scope = last.get("scope", "project")
+    old = _value_of(key, project, scope)
+    if last.get("old_set"):
+        _set_raw(key, last.get("old"), project, scope)
+        _log(key, old, (True, last.get("old")), scope, project)
+    else:
+        _reset_raw(key, project, scope)
+        _log(key, old, (False, None), scope, project)
+    return last
+
+
 def _parse(v):
     try:
         return json.loads(v)
@@ -269,15 +369,30 @@ def main(argv):
     if "--global" in argv:
         argv = [a for a in argv if a != "--global"]
         scope = "global"
+    confirm = "--confirm" in argv
+    argv = [a for a in argv if a != "--confirm"]
     cmd = argv[0] if argv else "validate"
+    try:
+        return _run(cmd, argv, project, scope, confirm)
+    except PermissionError as e:
+        print(str(e))
+        return 3
+
+
+def _run(cmd, argv, project, scope, confirm):
     if cmd == "get" and len(argv) == 2:
         print(json.dumps(get(argv[1], project)))
     elif cmd == "set" and len(argv) == 3:
-        set(argv[1], _parse(argv[2]), project, scope)
+        set(argv[1], _parse(argv[2]), project, scope, confirm)
     elif cmd == "source" and len(argv) == 2:
         print(source(argv[1], project))
     elif cmd == "reset" and len(argv) == 2:
-        print("reset" if reset(argv[1], project, scope) else "nothing to reset")
+        print("reset" if reset(argv[1], project, scope, confirm) else "nothing to reset")
+    elif cmd == "history" and len(argv) <= 2:
+        for e in history(int(argv[1]) if len(argv) == 2 else 20, project):
+            print(json.dumps(e, ensure_ascii=False))
+    elif cmd == "undo" and len(argv) == 2:
+        print("undone" if undo(argv[1], project, confirm) else "nothing to undo")
     elif cmd == "validate":
         cfg, note = load(project)
         print(note or "settings OK")
