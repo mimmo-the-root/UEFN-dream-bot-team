@@ -48,6 +48,7 @@ except Exception:
     router_errors = None
 
 VERSION = "1.124.57"
+TRACE = threading.local()  # T-033: attempts made for the request being served by this thread (router_v2 trace header)
 PORT = int(os.environ.get("DREAM_ROUTER_PORT", "8787"))
 HOME = os.environ.get("DREAM_ROUTER_HOME") or os.path.join(os.path.expanduser("~"), ".dream-router")
 
@@ -1491,6 +1492,11 @@ def route(req):
         elif last in chain and available(last):  # the provider that answered last goes first: no minutes lost on the ones that keep failing
             chain.remove(last)
             chain.insert(0, last)
+    v2 = bool(router_errors and s.get("router_v2"))
+    if v2 and not pin:  # T-033: providers inside their backoff / retry-after window leave the chain for now
+        rest = router_errors.chain_after(chain, STATE.setdefault("v2skip", {}))
+        errors.extend("%s: resting" % n for n in chain if n not in rest and n in provs and provider_key(provs[n], ks) is not None)
+        chain = rest
     for name in chain:
         prov = provs.get(name)
         key = provider_key(prov, ks) if prov else None
@@ -1553,6 +1559,7 @@ def route(req):
               with LOCK:
                   act = STATE.setdefault("active", {})
                   act[ak] = act.get(ak, 0) + 1
+              TRACE.attempts = getattr(TRACE, "attempts", 0) + 1
               try:
                   resp = _http(b + "/chat/completions", t, to_openai(req, model, prov), timeout=int(prov.get("timeout", 120)))
               finally:
@@ -1564,6 +1571,7 @@ def route(req):
                   e = resp["error"]
                   raise ProviderError(classify(int(e.get("code") or 400) if str(e.get("code", "")).isdigit() else 400, json.dumps(e)), 400, redact(json.dumps(e))[:300])
               STATE["breaker"][name] = {"fails": 0}
+              STATE.get("v2skip", {}).pop(name, None)
               STATE["bad"].pop(name, None)
               STATE["last_ok"] = name
               STATE.setdefault("ok_at", {})[name] = time.time()
@@ -1583,6 +1591,8 @@ def route(req):
           except ProviderError as e:
               if router_errors and s.get("router_v2") and e.kind == "bad_request" and router_errors.classify_status(e.status) == "timeout_conflict":
                   e.kind = "server"  # T-033: 408/409 are retryable, like a 5xx
+              if v2 and e.kind in ("limit", "server") and not (e.kind == "limit" and name in PER_MODEL_LIMITS and not pin):  # T-033: rest the provider with retry-after (429) or exponential backoff 1-30 s
+                  router_errors.mark_failure(STATE.setdefault("v2skip", {}), name, e.status, e.retry_after, STATE.get("breaker", {}).get(name, {}).get("fails", 0))
               errors.append("%s/%s: %s %s" % (name, model, e.kind, e.detail[:120]))
               log_error(name, model, e, req)
               record_usage(name, model, 0, 0, ok=False)
@@ -1639,6 +1649,14 @@ def route(req):
 USAGE_RX = re.compile(rb'"(input_tokens|output_tokens|cache_read_input_tokens|cache_creation_input_tokens)"\s*:\s*(\d+)')
 SKIP_IN = {"host", "content-length", "accept-encoding", "connection", "keep-alive", "transfer-encoding"}
 SKIP_OUT = {"content-length", "transfer-encoding", "connection", "content-encoding", "keep-alive"}
+
+
+def trace_headers(routed):
+    """T-033: X-Router-Provider / -Model / -Attempts on a routed answer; only with router_v2 ON, never a key or token."""
+    if not (router_errors and settings().get("router_v2")) or "/" not in (routed or ""):
+        return {}
+    prov, model = routed.split("/", 1)
+    return {"X-Router-Provider": redact(prov)[:80], "X-Router-Model": redact(model)[:120], "X-Router-Attempts": str(max(1, getattr(TRACE, "attempts", 1)))}
 
 
 def router_env(mode, enabled=True):
@@ -2107,6 +2125,7 @@ class Handler(BaseHTTPRequestHandler):
             if local_msg is not None:
                 msg, routed = local_msg, "local-safety"
             else:
+                TRACE.attempts = 0
                 msg, routed, _ = route_patiently(req)
         except ProviderError as e:
             kind = {"limit": "rate_limit_error", "off": "api_error", "no_keys": "authentication_error", "all_failed": "overloaded_error"}.get(e.kind, "api_error")
@@ -2117,12 +2136,14 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/event-stream")
             self.send_header("Cache-Control", "no-cache")
             self.send_header("X-Routed-Via", routed)
+            for k, v in trace_headers(routed).items():
+                self.send_header(k, v)
             self.end_headers()
             for chunk in sse_events(msg):
                 self.wfile.write(chunk)
                 self.wfile.flush()
             return
-        self._json(200, msg, {"X-Routed-Via": routed})
+        self._json(200, msg, dict({"X-Routed-Via": routed}, **trace_headers(routed)))
 
 
 class QuietServer(ThreadingHTTPServer):
