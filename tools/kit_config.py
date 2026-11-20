@@ -25,6 +25,8 @@ TIERS = ("T0", "T1", "T2", "T3")
 LANGUAGES = ("it", "en")
 PALETTES = ("dark", "light", "contrast")
 LEARN_MODES = ("every-change", "gated")
+ROUTER_MODES = ("auto", "plan", "free", "safe", "paid")
+SAFETY_CHECK_MODES = ("off", "short", "mixed-safe")
 BUDGET_PCT_KEYS = ("warn_pct", "throttle_pct", "block_pct")
 DEBUG_FLAGS = ["exchange_log", "problems_log", "pending_tests", "task_status_log", "router_error_log", "safety_samples"]
 _DEFAULTS = {
@@ -39,7 +41,14 @@ _DEFAULTS = {
         "all_off": False,
         "max_lines": 2000,
     },
-    "routing": {"description": "Placeholder: model routing settings."},
+    "routing": {
+        "description": "Model routing, pushed to the router (POST /router/settings). mode = auto | plan | free | safe | paid. safety_check = off | short | mixed-safe (RISKY: changing it needs confirm). free_accept_edits = true lets free models apply edits. spread = true spreads load over the free models. chain = ordered list of provider names ([] = router default). Invalid values fall back to the default with a note.",
+        "mode": "auto",
+        "safety_check": "short",
+        "free_accept_edits": False,
+        "spread": True,
+        "chain": [],
+    },
     "budget": {
         "description": "Token budget. weekly_used_pct is OWNER-ONLY data (null = unknown): the kit never writes it. The three *_pct thresholds say at which weekly_used_pct the governor warns, throttles (free tiers only) and blocks paid work. release_token_budget = tokens one release may spend (0 = no limit).",
         "weekly_used_pct": None,
@@ -177,6 +186,18 @@ def _bad_keys(data):
         ps = c.get("page_size")
         if "page_size" in c and (not _is_int(ps) or not 5 <= ps <= 200):
             bad["console.page_size"] = "console.page_size must be a whole number from 5 to 200"
+    r = data.get("routing")
+    if isinstance(r, dict):
+        if "mode" in r and r["mode"] not in ROUTER_MODES:
+            bad["routing.mode"] = "routing.mode must be one of: " + ", ".join(ROUTER_MODES)
+        if "safety_check" in r and r["safety_check"] not in SAFETY_CHECK_MODES:
+            bad["routing.safety_check"] = "routing.safety_check must be one of: " + ", ".join(SAFETY_CHECK_MODES)
+        for fl in ("free_accept_edits", "spread"):
+            if fl in r and not isinstance(r[fl], bool):
+                bad["routing." + fl] = "routing.%s must be true or false" % fl
+        ch = r.get("chain")
+        if "chain" in r and (not isinstance(ch, list) or any(not isinstance(x, str) or not x.strip() for x in ch)):
+            bad["routing.chain"] = "routing.chain must be a list of provider names (text)"
     k = data.get("skills")
     if isinstance(k, dict):
         en = k.get("enabled")
