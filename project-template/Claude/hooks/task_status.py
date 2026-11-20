@@ -63,8 +63,19 @@ def _reorder_rows(L):
         rows.sort(key=lambda r: (RANK[bucket(r.split("|")[3])], int(re.search(r"T-(\d+)", r).group(1))))
         L[idx[0]:idx[-1] + 1] = rows
 
+def _flag_on(flag="task_status_log"):
+    """debug.<flag> in Claude/config/kit-settings.json; default on when the file or key is missing or broken."""
+    try:
+        import json
+        with open(os.path.join(HERE, "..", "config", "kit-settings.json"), encoding="utf-8") as f:
+            return json.load(f).get("debug", {}).get(flag, True) is not False
+    except Exception:
+        return True
+
 def _log_update(tid, st, note, pct):
-    """Log a single update."""
+    """Log a single update (skipped when debug.task_status_log is off)."""
+    if not _flag_on():
+        return
     os.makedirs(os.path.dirname(LOG), exist_ok=True)
     note_text = ("%d%%" % pct) + ((" - " + note) if note else "") if pct is not None else ((" - " + note) if note else "")
     open(LOG, "a", encoding="utf8").write("%s %s -> %s %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S"), tid, st, note_text))
