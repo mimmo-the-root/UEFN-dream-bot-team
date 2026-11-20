@@ -72,6 +72,11 @@ Fourteen skills built from the 388 tools of Epic's MCP, tested in a lab project.
 | `uefn-assets-data` | Create, find, copy, move and delete assets and data tables through the MCP. |
 | `uefn-editor-logs` | Read only the NEW editor log lines after an action; log filters and the client-log limits. |
 | `uefn-level-devices` | Place and edit actors and devices, tags, folders, event bindings, entities and device properties. |
+| `uefn-editor-dispatch` | One checked door for editor writes: check the island, name the touched resource, serialize clashes, read back. |
+| `uefn-plan-verify` | Small task leaves with a written Done.when check, then Diagnose, Fix, Verify with independent evidence. |
+| `uefn-private-publish` | Upload a private island build, keep the access code, and verify it on a client before calling it publishable. |
+| `uefn-safe-verification` | Verify a build or script in a disposable state; read back the result and leave no trace in the owner's project. |
+| `uefn-agent-discipline` | Efficiency and evidence rules: batch reads, search once, keep your lane, use mapped tools first, prove the result. |
 | `uefn-verse-build` | Read, write, build and fix Verse through the MCP: the write, BuildAll, read errors, fix loop. |
 | `uefn-session-regression` | Play-in-editor smoke test: StartSession, StartGame readiness, log verdict, StopGame, StopSession. |
 | `uefn-scripting-batch` | Run five or more MCP calls in one server-side script, and the traps (no rollback, guard blind inside scripts). |
