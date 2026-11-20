@@ -15,7 +15,7 @@ news = re.sub(r"<!-- tab-counts:begin -->.*?<!-- tab-counts:end -->", "", news, 
 news = re.sub(r"<!-- micro-life:begin -->.*?<!-- micro-life:end -->", "", news, flags=re.S)  # the shared micro-animation helper (console-ui) is not the page logic
 news = re.sub(r"<!-- kit-music:begin -->.*?<!-- kit-music:end -->", "", news, flags=re.S)  # the shared background music switch (v1.124.40)
 news = re.sub(r"<script>\s*/\* Route chips.*?</script>", "", news, flags=re.S)  # the shared PAID/FREE route chips script (2026-11-19) is not the page logic
-news_core = re.sub(r"<!-- kit-head:begin -->.*?<!-- kit-head:end -->", "", re.sub(r"<!-- fab-tab:begin -->.*?<!-- fab-tab:end -->", "", news, flags=re.S), flags=re.S)  # the Fab-only Checklist tab snippet (v1.110) is shared by all pages
+news_core = re.sub(r"<!-- kit-head:begin -->.*?<!-- kit-head:end -->", "", re.sub(r"<!-- config-tab:begin -->.*?<!-- config-tab:end -->", "", re.sub(r"<!-- fab-tab:begin -->.*?<!-- fab-tab:end -->", "", news, flags=re.S), flags=re.S), flags=re.S)  # the Fab-only Checklist tab snippet (v1.110) is shared by all pages
 ok(len(re.findall(r"\bfunction render\(", news_core)) == 1 and news_core.count("<script>") == 2, "one render function, no external script")
 ok("agent-console-news.html" in rd("agent-console-server.py") and "/news" in rd("agent-console-server.py"), "the Python server serves the page")
 ok("agent-console-news.html" in rd("agent-console-server.ps1") and "NewsHtmlPath" in rd("agent-console-server.ps1"), "the PowerShell server serves the page")

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- kit-console-rev: 6 -->
+<!-- kit-console-rev: 7 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -638,5 +638,61 @@ function khSetMode(base,ui,fetchFn){var m=khModeToRouter(ui);if(!m)return Promis
   (function retry(n){ if (!mount() && n < 200) setTimeout(function(){ retry(n + 1); }, n < 20 ? 150 : 1500); })(0);
 })();
 </script><!-- kit-music:end -->
+<!-- config-tab:begin -->
+<script>
+/* Configurazione tab (T-090): GET /config shows the kit settings as cards; the Debug card has one switch per flag (POST /config, header X-Router-Action: 1). The other cards are read-only. */
+(function(){
+  var DBG=[["exchange_log","plan/FEEDBACK-FROM-COD.md","Exchange log: the agent's decisions and feedback to the planner."],
+    ["problems_log","plan/PROBLEMS-FROM-COD.md","Problems log: what blocked the agent and why."],
+    ["pending_tests","plan/PENDING-TESTS.md","Pending tests: commands the agent could not run itself."],
+    ["task_status_log","Claude/logs/task-status.log","Task status log: one line per task state change."],
+    ["router_error_log","router error log","Router error log: provider errors seen by the model router."],
+    ["safety_samples","safety check samples","Safety samples: keeps short samples of safety-check answers."]];
+  var SEC=[["routing","Routing"],["budget","Budget"],["agents","Agents"],["console","Console"],["skills","Skills"]];
+  var OWNER="budget.weekly_used_pct";
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function show(v){return v===null||v===undefined?"-":(typeof v==="object"?JSON.stringify(v):String(v));}
+  var panel=null,data=null;
+  function css(){if(document.getElementById("cfgCss"))return;var s=document.createElement("style");s.id="cfgCss";
+    s.textContent="#cfgPanel{max-width:1100px;margin:14px auto;padding:0 14px;font-family:var(--sans,system-ui,sans-serif);color:var(--text,#e8e2ff)}#cfgPanel .cc{background:var(--panel,#16123a);border:1px solid var(--line,#2b2468);border-radius:10px;padding:10px 16px;margin:0 0 12px}#cfgPanel h2{font-size:15px;margin:2px 0 8px}#cfgPanel .cr{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line-soft,#352d7a);font-size:12.5px}#cfgPanel .cd{color:var(--dim,#9a90d4);font-size:11px;margin-top:2px}#cfgPanel .cv{font-family:var(--mono,monospace);color:var(--dim,#9a90d4);text-align:right;word-break:break-all}#cfgPanel .sw{cursor:pointer;border:1px solid var(--line,#2b2468);border-radius:20px;padding:2px 12px;font-size:11px;background:none;color:var(--dim,#9a90d4)}#cfgPanel .sw.on{color:var(--green,#39ff88);border-color:rgba(57,255,136,.5)}#cfgPanel .sw[disabled]{opacity:.55;cursor:default}#cfgPanel .ok{color:var(--green,#39ff88);font-size:11px}#cfgPanel .er{color:var(--red,#ff6b6b);font-size:11px}#cfgPanel .soon{font-size:10px;color:var(--amber,#ffb454);border:1px solid rgba(255,180,84,.5);border-radius:20px;padding:1px 8px;margin-left:8px}";
+    document.head.appendChild(s);}
+  function setting(k){var l=data&&data.settings||[];for(var i=0;i<l.length;i++)if(l[i].key===k)return l[i];return null;}
+  function lvl(v){return v===true?"full":(v===false?"off":String(v));}
+  function render(err){
+    if(!panel)return;var h='<div class="cc"><h2>Configurazione</h2><div class="cd">Kit settings from the console server (GET /config).'+(data&&data.note?" "+esc(data.note):"")+'</div></div>';
+    if(err){panel.innerHTML=h+'<div class="cc er">Cannot read /config: '+esc(err)+'</div>';return;}
+    h+='<div class="cc"><h2>Debug</h2>';
+    var all=setting("debug.all_off");if(all&&all.value===true)h+='<div class="er">debug.all_off is on: every flag is silenced.</div>';
+    DBG.forEach(function(d){var s=setting("debug."+d[0]),v=s?lvl(s.value):"?",on=v!=="off"&&v!=="?";
+      h+='<div class="cr"><div><b>'+esc(d[0])+'</b> <span class="cd">'+esc(d[1])+'</span><div class="cd">'+esc(d[2])+'</div></div><div><button class="sw'+(on?" on":"")+'" data-k="debug.'+d[0]+'" data-v="'+(on?"off":"full")+'"'+(s?"":" disabled")+'>'+esc(v)+'</button> <span class="ok" id="cs_'+d[0]+'"></span></div></div>';});
+    h+='</div>';
+    SEC.forEach(function(sc){var l=(data.settings||[]).filter(function(s){return s.key.indexOf(sc[0]+".")===0;});
+      h+='<div class="cc"><h2>'+esc(sc[1])+'<span class="soon">coming soon</span></h2>';
+      if(!l.length)h+='<div class="cd">No keys.</div>';
+      l.forEach(function(s){var ro=s.key===OWNER?"owner-only":(s.risky?"risky":"read-only");
+        h+='<div class="cr"><div><b>'+esc(s.key)+'</b><div class="cd">'+esc(s.description)+'</div></div><div class="cv">'+esc(show(s.value))+' <button class="sw" disabled>'+ro+'</button></div></div>';});
+      h+='</div>';});
+    panel.innerHTML=h;
+    Array.prototype.forEach.call(panel.querySelectorAll("button.sw[data-k]"),function(b){b.onclick=function(){save(b);};});
+  }
+  function save(b){var k=b.getAttribute("data-k"),v=b.getAttribute("data-v"),m=document.getElementById("cs_"+k.slice(6));b.disabled=true;if(m){m.className="cd";m.textContent="saving...";}
+    fetch("/config",{method:"POST",headers:{"Content-Type":"application/json","X-Router-Action":"1"},body:JSON.stringify({key:k,value:v})}).then(function(r){return r.json().catch(function(){return{ok:false,error:"HTTP "+r.status};});}).then(function(res){
+      if(res&&res.ok){load(function(){var n=document.getElementById("cs_"+k.slice(6));if(n){n.className="ok";n.textContent="saved: "+lvl(res.value);}});}
+      else{b.disabled=false;if(m){m.className="er";m.textContent="error: "+((res&&res.error)||"not saved");}}}).catch(function(e){b.disabled=false;if(m){m.className="er";m.textContent="error: "+e;}});}
+  function load(cb){fetch("/config").then(function(r){return r.json();}).then(function(j){if(!j||!j.ok)throw new Error((j&&j.error)||"bad answer");data=j;render();if(cb)cb();}).catch(function(e){render(String(e&&e.message||e));});}
+  function open(on){css();var link=document.querySelector("[data-config-tab]");if(!link)return;
+    var wrap=link.closest(".wrap")||document.body,top=link;while(top.parentNode&&top.parentNode!==wrap)top=top.parentNode;
+    if(!panel){panel=document.createElement("div");panel.id="cfgPanel";top.parentNode.insertBefore(panel,top.nextSibling);}
+    panel.style.display=on?"block":"none";
+    Array.prototype.forEach.call(wrap.children,function(c){if(c===top||c===panel||c.tagName==="SCRIPT"||c.tagName==="STYLE")return;c.style.display=on?"none":"";});
+    var app=document.getElementById("app");if(app&&app.parentNode!==wrap)app.style.display=on?"none":"";
+    link.classList.toggle("on",on);if(on)load();}
+  function init(){var m=document.querySelector('a[href="agent-console-models.html"]');if(!m||document.querySelector("[data-config-tab]"))return;
+    var a=document.createElement("a");a.href="#configurazione";a.setAttribute("data-config-tab","1");a.textContent="Configurazione";if(m.className&&m.className!=="on")a.className=m.className;
+    a.onclick=function(e){e.preventDefault();open(!(panel&&panel.style.display==="block"));};m.parentNode.appendChild(a);if(location.hash==="#configurazione")open(true);}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(init,0);});else setTimeout(init,0);
+})();
+</script>
+<!-- config-tab:end -->
 </body>
 </html>
