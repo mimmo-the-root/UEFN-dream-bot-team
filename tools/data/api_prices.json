@@ -1,0 +1,12 @@
+{
+  "_note": "EXAMPLE REFERENCE PRICES ONLY. They are NOT real prices. The owner must set real API-equivalent prices (USD per million tokens) before any dollar figure is shown as a saving.",
+  "owner_set": false,
+  "currency": "USD",
+  "unit": "per_million_tokens",
+  "prices": {
+    "example-small":  {"label": "EXAMPLE small model (not a real price)",  "input": 0.5,  "output": 1.5},
+    "example-medium": {"label": "EXAMPLE medium model (not a real price)", "input": 3.0,  "output": 15.0},
+    "example-large":  {"label": "EXAMPLE large model (not a real price)",  "input": 15.0, "output": 75.0}
+  },
+  "default": "example-medium"
+}
