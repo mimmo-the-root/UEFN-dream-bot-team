@@ -22,6 +22,9 @@ LOG_REL = os.path.join("Claude", "logs", "config-changes.log")
 RISKY_KEYS = ("permissions", "safety_check")
 LEVELS = ("off", "errors", "full")
 TIERS = ("T0", "T1", "T2", "T3")
+LANGUAGES = ("it", "en")
+PALETTES = ("dark", "light", "contrast")
+LEARN_MODES = ("every-change", "gated")
 BUDGET_PCT_KEYS = ("warn_pct", "throttle_pct", "block_pct")
 DEBUG_FLAGS = ["exchange_log", "problems_log", "pending_tests", "task_status_log", "router_error_log", "safety_samples"]
 _DEFAULTS = {
@@ -51,8 +54,18 @@ _DEFAULTS = {
         "tier_by_task_kind": {"default": "T2", "plan": "T3", "code": "T2", "test": "T1", "docs": "T1", "review": "T2", "research": "T1"},
         "lab_permission_block": True,
     },
-    "console": {"description": "Placeholder: Agent Console settings."},
-    "skills": {"description": "Placeholder: skill loading settings."},
+    "console": {
+        "description": "Agent Console look. language = it | en. palette = dark | light | contrast. page_size = rows per page in console lists (5-200). Invalid values fall back to the default with a note.",
+        "language": "en",
+        "palette": "dark",
+        "page_size": 20,
+    },
+    "skills": {
+        "description": "Skill loading. enabled = list of skill names that are on ([] = none switched on). learn_mode = every-change (learn from each change) | gated (learn only when a gate passes). second_brain = true keeps the second brain on.",
+        "enabled": [],
+        "learn_mode": "gated",
+        "second_brain": False,
+    },
 }
 
 
@@ -127,7 +140,7 @@ def _is_num(v):
 
 
 def _bad_keys(data):
-    """Dict {dotted key: problem} for the budget and agents settings that are present but invalid."""
+    """Dict {dotted key: problem} for the budget, agents, console and skills settings that are present but invalid."""
     bad = {}
     b = data.get("budget")
     if isinstance(b, dict):
@@ -155,6 +168,24 @@ def _bad_keys(data):
                 bad["agents.tier_by_task_kind"] = "agents.tier_by_task_kind must map task kinds to T0, T1, T2 or T3"
         if "lab_permission_block" in a and not isinstance(a["lab_permission_block"], bool):
             bad["agents.lab_permission_block"] = "agents.lab_permission_block must be true or false"
+    c = data.get("console")
+    if isinstance(c, dict):
+        if "language" in c and c["language"] not in LANGUAGES:
+            bad["console.language"] = "console.language must be \"it\" or \"en\""
+        if "palette" in c and c["palette"] not in PALETTES:
+            bad["console.palette"] = "console.palette must be one of: " + ", ".join(PALETTES)
+        ps = c.get("page_size")
+        if "page_size" in c and (not _is_int(ps) or not 5 <= ps <= 200):
+            bad["console.page_size"] = "console.page_size must be a whole number from 5 to 200"
+    k = data.get("skills")
+    if isinstance(k, dict):
+        en = k.get("enabled")
+        if "enabled" in k and (not isinstance(en, list) or any(not isinstance(x, str) or not x.strip() for x in en)):
+            bad["skills.enabled"] = "skills.enabled must be a list of skill names (text)"
+        if "learn_mode" in k and k["learn_mode"] not in LEARN_MODES:
+            bad["skills.learn_mode"] = "skills.learn_mode must be \"every-change\" or \"gated\""
+        if "second_brain" in k and not isinstance(k["second_brain"], bool):
+            bad["skills.second_brain"] = "skills.second_brain must be true or false"
     return bad
 
 
