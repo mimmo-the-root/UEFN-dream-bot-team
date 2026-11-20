@@ -38,6 +38,10 @@ try:  # bandit routing (T-036): optional, a router without it still starts
     import bandit_routing
 except Exception:
     bandit_routing = None
+try:  # shadow sampling (T-039): optional, a router without it still starts
+    import shadow_sampling
+except Exception:
+    shadow_sampling = None
 
 VERSION = "1.124.57"
 PORT = int(os.environ.get("DREAM_ROUTER_PORT", "8787"))
@@ -132,7 +136,7 @@ FREE_TOKEN = "dream-router-local"
 MODES = ("auto", "plan", "free", "safe", "paid")  # paid (T-059) = stays in the path, forwards ONLY to the paid plan with the session login, never free models;
 # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only;
 # safe (T-083) = the work goes to free models, only the auto-mode safety check goes to the plan (while it has credit), else a local verdict
-DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False, "bandit": False,
+DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False, "bandit": False, "shadow_sampling": False, "shadow_rate": 0.10, "shadow_daily_cap": 20,
                     "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "airforce", "orcarouter", "cloudflare", "deepseek", "zenmux"]}
 LOCK = threading.Lock()
 STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time(), "pinned": {}}  # pinned[package_key] = (provider, model)
@@ -1383,6 +1387,59 @@ def note_weekly_vault():
         pass
 
 
+SHADOW_JUDGE = None   # callable(req, out) -> loss 0..1 or None; None = the default judge (paid key from keys.env, else no judge)
+SHADOW_SYNC = False   # tests: judge in the calling thread
+
+
+def _default_shadow_judge(req, out):
+    """Asks the paid model (ANTHROPIC_API_KEY in keys.env) whether the free answer is acceptable: 0 = yes, 1 = no. None = cannot judge."""
+    key = keys().get("ANTHROPIC_API_KEY")
+    if not key:
+        return None
+    task = json.dumps(req.get("messages") or [])[-6000:]
+    ans = json.dumps(out.get("content") or [])[:6000]
+    body = {"model": os.environ.get("DREAM_SHADOW_MODEL", "claude-haiku-4-5"), "max_tokens": 5,
+            "messages": [{"role": "user", "content": "TASK:\n%s\n\nANSWER:\n%s\n\nIs the answer acceptable? Reply only YES or NO." % (task, ans)}]}
+    rq = urllib.request.Request("https://api.anthropic.com/v1/messages", data=json.dumps(body).encode("utf-8"), method="POST",
+                                headers={"x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"})
+    with urllib.request.urlopen(rq, timeout=60) as r:
+        txt = json.loads(r.read().decode("utf-8"))["content"][0]["text"].strip().upper()
+    return 0.0 if txt.startswith("YES") else 1.0
+
+
+def _shadow_note(req, out, s):
+    """T-039: sometimes judge a free answer on the paid model; never when the budget governor says free-only."""
+    try:
+        if is_safety_check(req):
+            return
+        with LOCK:
+            st = shadow_sampling.load()
+            go = shadow_sampling.decide(st, _package_type(req), free_only=not budget_allows_plan(), rate=float(s.get("shadow_rate", 0.10)),
+                                        cap=int(s.get("shadow_daily_cap", 20)))
+            if go:
+                shadow_sampling.save(st)
+        if not go:
+            return
+
+        def judge():
+            try:
+                loss = (SHADOW_JUDGE or _default_shadow_judge)(req, out)
+                if loss is None:
+                    return
+                with LOCK:
+                    st2 = shadow_sampling.load()
+                    shadow_sampling.record(st2, _package_type(req), loss)
+                    shadow_sampling.save(st2)
+            except Exception:
+                pass
+        if SHADOW_SYNC:
+            judge()
+        else:
+            threading.Thread(target=judge, daemon=True).start()
+    except Exception:
+        pass
+
+
 def route(req):
     s = settings()
     if not s.get("enabled"):
@@ -1508,6 +1565,8 @@ def route(req):
               note_perf(name + "/" + model, True, int((time.time() - t0) * 1000))
               out = to_anthropic(resp, req, "%s/%s" % (name, model))
               record_usage(name, model, out["usage"]["input_tokens"], out["usage"]["output_tokens"])
+              if s.get("shadow_sampling") and shadow_sampling:  # T-039: off by default
+                  _shadow_note(req, out, s)
               if s.get("bandit") and bandit_routing:
                   _bandit_note(req, model, True, out["usage"]["input_tokens"] + out["usage"]["output_tokens"])
               # T-023: pin the model that answered for this package, so the next call of the
