@@ -117,6 +117,33 @@ with tempfile.TemporaryDirectory() as d:
           "weekly_used_pct never written by the kit")
     check(not kc.is_risky("agents.max_parallel") and not kc.is_risky("budget.warn_pct"), "budget/agents not risky")
 
+# T-100: console and skills settings
+with tempfile.TemporaryDirectory() as d:
+    c, k = kc.defaults()["console"], kc.defaults()["skills"]
+    check((c["language"], c["palette"], c["page_size"]) == ("en", "dark", 20), "console defaults")
+    check(k["enabled"] == [] and k["learn_mode"] == "gated" and k["second_brain"] is False, "skills defaults")
+    for bad in ({"console": {"language": "fr"}}, {"console": {"palette": "pink"}}, {"console": {"page_size": 4}},
+                {"console": {"page_size": 201}}, {"console": {"page_size": True}}, {"skills": {"enabled": "a"}},
+                {"skills": {"enabled": ["a", 3]}}, {"skills": {"enabled": [""]}}, {"skills": {"learn_mode": "always"}},
+                {"skills": {"second_brain": "on"}}):
+        check(kc.validate(bad), "validate rejects %r" % (bad,))
+    for ok in ({"console": {"language": "it", "palette": "light", "page_size": 50}},
+               {"skills": {"enabled": ["a", "b"], "learn_mode": "every-change", "second_brain": True}}):
+        check(not kc.validate(ok), "validate accepts %r" % (ok,))
+    write(d, json.dumps({"console": {"language": "it", "palette": "neon", "page_size": 9999},
+                         "skills": {"enabled": ["x", "y"], "learn_mode": "nope", "second_brain": True}}))
+    cfg, note = kc.load(d)
+    check(cfg["console"]["language"] == "it" and cfg["console"]["palette"] == "dark" and cfg["console"]["page_size"] == 20
+          and "console.palette" in note and "console.page_size" in note, "bad console values -> default with a note, good kept")
+    check(cfg["skills"]["enabled"] == ["x", "y"] and cfg["skills"]["learn_mode"] == "gated" and cfg["skills"]["second_brain"] is True,
+          "bad learn_mode -> default, good skills kept")
+    kc.set("console.palette", "light", d)
+    kc.set("skills.enabled", ["a"], d)
+    check(kc.get("console.palette", d) == "light" and kc.get("skills.enabled", d) == ["a"] and kc.source("skills.enabled", d) == "project", "set/get/source")
+    check(kc.undo("console.palette", d) and kc.get("console.palette", d) == "dark", "undo console.palette")
+    check(kc.reset("skills.enabled", d) and kc.get("skills.enabled", d) == [], "reset skills.enabled")
+    check(not kc.is_risky("skills.second_brain") and not kc.is_risky("console.language"), "console/skills not risky")
+
 if fails:
     print("FAIL: " + "\n".join(fails))
     sys.exit(1)

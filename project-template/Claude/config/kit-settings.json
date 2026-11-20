@@ -36,9 +36,15 @@
     "lab_permission_block": true
   },
   "console": {
-    "description": "Placeholder: Agent Console settings."
+    "description": "Agent Console look. language = it | en. palette = dark | light | contrast. page_size = rows per page in console lists (5-200). Invalid values fall back to the default with a note.",
+    "language": "en",
+    "palette": "dark",
+    "page_size": 20
   },
   "skills": {
-    "description": "Placeholder: skill loading settings."
+    "description": "Skill loading. enabled = list of skill names that are on ([] = none switched on). learn_mode = every-change (learn from each change) | gated (learn only when a gate passes). second_brain = true keeps the second brain on.",
+    "enabled": [],
+    "learn_mode": "gated",
+    "second_brain": false
   }
 }
