@@ -68,6 +68,29 @@ with tempfile.TemporaryDirectory() as d:
     check(cfg["debug"]["exchange_log"] is True and note, "bad flag type -> default and a note")
     check(kc.validate({"debug": {"exchange_log": 1}}) and kc.validate([]), "validate reports problems")
 
+# T-096: global versus project layers (temp dirs only)
+with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as g:
+    os.environ["KIT_GLOBAL_SETTINGS"] = os.path.join(g, "global.json")
+    check(kc.source("debug.max_lines", d) == "default", "source: default")
+    kc.set("debug.max_lines", 500, d, scope="global")
+    kc.set("debug.exchange_log", "errors", d, scope="global")
+    check(kc.get("debug.max_lines", d) == 500 and kc.source("debug.max_lines", d) == "global", "global value shows, source global")
+    check(kc.level("exchange_log", d) == "errors", "global level used")
+    kc.set("debug.max_lines", 100, d)
+    check(kc.get("debug.max_lines", d) == 100 and kc.source("debug.max_lines", d) == "project", "project overrides global")
+    check(kc.source("debug.exchange_log", d) == "global", "other key still global")
+    check(kc.load(d)[1] == "", "no note when layers are fine")
+    check(kc.reset("debug.max_lines", d) is True and kc.get("debug.max_lines", d) == 500, "reset project -> global value back")
+    check(kc.reset("debug.max_lines", d, scope="global") is True and kc.get("debug.max_lines", d) == 2000
+          and kc.source("debug.max_lines", d) == "default", "reset global -> default")
+    check(kc.reset("debug.max_lines", d) is False, "reset of an absent key is a no-op")
+    kc.set("debug.all_off", True, d)
+    check(kc.level("exchange_log", d) == "off", "all_off in project still works with a global layer")
+    with open(os.environ["KIT_GLOBAL_SETTINGS"], "w") as f:
+        f.write("{broken")
+    check(kc.get("debug.max_lines", d) == 2000, "broken global file is ignored")
+    del os.environ["KIT_GLOBAL_SETTINGS"]
+
 if fails:
     print("FAIL: " + "\n".join(fails))
     sys.exit(1)
