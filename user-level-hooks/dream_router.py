@@ -42,6 +42,10 @@ try:  # shadow sampling (T-039): optional, a router without it still starts
     import shadow_sampling
 except Exception:
     shadow_sampling = None
+try:  # router v2 error classes and backoff (T-033): optional, a router without it still starts
+    import router_errors
+except Exception:
+    router_errors = None
 
 VERSION = "1.124.57"
 PORT = int(os.environ.get("DREAM_ROUTER_PORT", "8787"))
@@ -136,7 +140,7 @@ FREE_TOKEN = "dream-router-local"
 MODES = ("auto", "plan", "free", "safe", "paid")  # paid (T-059) = stays in the path, forwards ONLY to the paid plan with the session login, never free models;
 # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only;
 # safe (T-083) = the work goes to free models, only the auto-mode safety check goes to the plan (while it has credit), else a local verdict
-DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False, "bandit": False, "shadow_sampling": False, "shadow_rate": 0.10, "shadow_daily_cap": 20,
+DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False, "bandit": False, "shadow_sampling": False, "shadow_rate": 0.10, "shadow_daily_cap": 20, "router_v2": False,
                     "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "airforce", "orcarouter", "cloudflare", "deepseek", "zenmux"]}
 LOCK = threading.Lock()
 STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time(), "pinned": {}}  # pinned[package_key] = (provider, model)
@@ -887,6 +891,8 @@ def pause_seconds(e):
     or whose daily quota is gone would otherwise be tried first on every request, and a free answer from the next one in
     the chain only arrives after minutes of waiting: pause it for a few minutes instead of a few seconds."""
     if e.kind == "limit":
+        if router_errors and settings().get("router_v2") and e.retry_after:  # T-033: retry-after clamped to 1-60 s
+            return router_errors.parse_retry_after(e.retry_after)
         return e.retry_after or (600 if "quota" in (e.detail or "").lower() else 60)
     if e.kind == "server" and e.status == 0:
         return 600
@@ -1575,6 +1581,8 @@ def route(req):
                   _pin_model_for_package(package_key, name, model)
               return out, "%s/%s" % (name, model), errors
           except ProviderError as e:
+              if router_errors and s.get("router_v2") and e.kind == "bad_request" and router_errors.classify_status(e.status) == "timeout_conflict":
+                  e.kind = "server"  # T-033: 408/409 are retryable, like a 5xx
               errors.append("%s/%s: %s %s" % (name, model, e.kind, e.detail[:120]))
               log_error(name, model, e, req)
               record_usage(name, model, 0, 0, ok=False)

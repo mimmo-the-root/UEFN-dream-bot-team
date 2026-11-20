@@ -49,6 +49,7 @@ copy /Y "%SRC%user-level-hooks\dream_router.py" "%DST%\hooks\dream_router.py" >n
 copy /Y "%SRC%user-level-hooks\model_history.py" "%DST%\hooks\model_history.py" >nul
 copy /Y "%SRC%user-level-hooks\bandit_routing.py" "%DST%\hooks\bandit_routing.py" >nul
 copy /Y "%SRC%user-level-hooks\shadow_sampling.py" "%DST%\hooks\shadow_sampling.py" >nul
+copy /Y "%SRC%user-level-hooks\router_errors.py" "%DST%\hooks\router_errors.py" >nul
 copy /Y "%SRC%user-level-hooks\dream-router.cmd" "%DST%\hooks\dream-router.cmd" >nul
 copy /Y "%SRC%user-level-hooks\cod.cmd" "%DST%\hooks\cod.cmd" >nul
 py -3 "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py" || python "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py"
