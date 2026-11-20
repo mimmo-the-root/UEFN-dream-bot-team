@@ -13,7 +13,7 @@ Every package command file MUST list exactly these seven fields (in this order):
 - `risk:`        `low | medium | high` — shipping risk of the change
 - `needs_owner:` `yes | no` — whether the package requires an owner decision before it can run
 - `needs_mcp:`   `yes | no` — whether the package requires a live UEFN MCP editor connection
-- `do:`          the imperative instruction text describing what to do (goal, files to read,
+- `do:`          the imperative instruction text describing what to do (goal, files to read (V/wiki/hot.md first),
                  output path, acceptance command, max attempts, tier, token estimate, after)
 - `report:`      what the result report must contain (e.g. "max 2 lines: output path, acceptance
                  result, PASS gate")
