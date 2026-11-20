@@ -47,6 +47,7 @@ copy /Y "%SRC%user-level-hooks\map_trace.py" "%DST%\hooks\map_trace.py" >nul
 rem v1.124.0: Dream Router (free models for Cod) and the cod.cmd launcher
 copy /Y "%SRC%user-level-hooks\dream_router.py" "%DST%\hooks\dream_router.py" >nul
 copy /Y "%SRC%user-level-hooks\model_history.py" "%DST%\hooks\model_history.py" >nul
+copy /Y "%SRC%user-level-hooks\bandit_routing.py" "%DST%\hooks\bandit_routing.py" >nul
 copy /Y "%SRC%user-level-hooks\dream-router.cmd" "%DST%\hooks\dream-router.cmd" >nul
 copy /Y "%SRC%user-level-hooks\cod.cmd" "%DST%\hooks\cod.cmd" >nul
 py -3 "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py" || python "%SRC%tool\install-global-hook.py" "%DST%\settings.json" "%DST%\hooks\kit-sync-global.py"

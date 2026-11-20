@@ -34,6 +34,10 @@ try:  # the model history (v1.124.52): optional, a router without it still start
     import model_history
 except Exception:
     model_history = None
+try:  # bandit routing (T-036): optional, a router without it still starts
+    import bandit_routing
+except Exception:
+    bandit_routing = None
 
 VERSION = "1.124.57"
 PORT = int(os.environ.get("DREAM_ROUTER_PORT", "8787"))
@@ -128,7 +132,7 @@ FREE_TOKEN = "dream-router-local"
 MODES = ("auto", "plan", "free", "safe", "paid")  # paid (T-059) = stays in the path, forwards ONLY to the paid plan with the session login, never free models;
 # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only;
 # safe (T-083) = the work goes to free models, only the auto-mode safety check goes to the plan (while it has credit), else a local verdict
-DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False,
+DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False, "bandit": False,
                     "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "airforce", "orcarouter", "cloudflare", "deepseek", "zenmux"]}
 LOCK = threading.Lock()
 STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time(), "pinned": {}}  # pinned[package_key] = (provider, model)
@@ -1002,6 +1006,22 @@ def pinned(req):
     return None
 
 
+def _package_type(req):
+    meta = req.get("metadata") if isinstance(req.get("metadata"), dict) else {}
+    return str(meta.get("package_type") or "default")
+
+
+def _bandit_note(req, model, accepted, tokens):
+    """T-036: one try into bandit.json (accepted = the provider answered; cost = thousands of tokens)."""
+    try:
+        with LOCK:
+            st = bandit_routing.load()
+            bandit_routing.record(st, _package_type(req), model, accepted, max(tokens, 1) / 1000.0)
+            bandit_routing.save(st)
+    except Exception:
+        pass
+
+
 def _get_package_key(req, headers):
     """Extract package/session key from request headers or metadata.
     Only returns a key if explicitly provided (X-Package-ID, X-Session-ID, X-Claude-Session headers,
@@ -1448,6 +1468,11 @@ def route(req):
                 if extra and not is_safety_check(req) and random.random() < float(s.get("explore", 0.05) or 0):
                     models = [extra[0]] + [m for m in models if m != extra[0]]
                     STATE["explored"] = STATE.get("explored", 0) + 1
+            if s.get("bandit") and bandit_routing and len(models) > 1 and not is_safety_check(req):  # T-036: off by default
+                try:
+                    models = bandit_routing.rank(bandit_routing.load(), _package_type(req), models)
+                except Exception:
+                    pass
             models = models[:MODEL_TRIES if name in PER_MODEL_LIMITS else 1]
         if not models:
             errors.append("%s: no free model left for now" % name)
@@ -1483,6 +1508,8 @@ def route(req):
               note_perf(name + "/" + model, True, int((time.time() - t0) * 1000))
               out = to_anthropic(resp, req, "%s/%s" % (name, model))
               record_usage(name, model, out["usage"]["input_tokens"], out["usage"]["output_tokens"])
+              if s.get("bandit") and bandit_routing:
+                  _bandit_note(req, model, True, out["usage"]["input_tokens"] + out["usage"]["output_tokens"])
               # T-023: pin the model that answered for this package, so the next call of the
               # same package uses it again; the pin ends with the package
               if package_key and not pinned_model:
@@ -1493,6 +1520,8 @@ def route(req):
               log_error(name, model, e, req)
               record_usage(name, model, 0, 0, ok=False)
               note_perf(name + "/" + model, False)
+              if s.get("bandit") and bandit_routing:
+                  _bandit_note(req, model, False, 0)
               if e.kind == "limit" and name in PER_MODEL_LIMITS and not pin:
                   STATE.setdefault("mcool", {})[name + "/" + model] = time.time() + max(60, pause_seconds(e))
               elif e.kind == "limit":
