@@ -1,0 +1,104 @@
+[
+  {
+    "metric": "console.cache_read",
+    "value": 0,
+    "source": "Claude/logs/agent-console-tokens.json",
+    "note": "Always zero, discrepancy with router input field"
+  },
+  {
+    "metric": "console.cache_creation",
+    "value": 0,
+    "source": "Claude/logs/agent-console-tokens.json",
+    "note": "Always zero, discrepancy with router input field"
+  },
+  {
+    "metric": "router.input_includes_cache",
+    "value": true,
+    "source": "dream_router.py line 1850",
+    "note": "Router combines cache_read+cache_creation into 'input'"
+  },
+  {
+    "metric": "total_tokens_today",
+    "value": 149293965,
+    "source": "Claude/logs/agent-console-tokens.json",
+    "note": "148744042 input + 549923 output + 0 cache"
+  },
+  {
+    "metric": "gemini.error_rate",
+    "value": 0,
+    "source": "usage.json",
+    "note": "0 errors on 2 requests"
+  },
+  {
+    "metric": "baidu.error_rate",
+    "value": 0,
+    "source": "usage.json",
+    "note": "0 errors on 2 requests"
+  },
+  {
+    "metric": "claude.error_rate",
+    "value": 0,
+    "source": "usage.json",
+    "note": "0 errors on 1017 requests"
+  },
+  {
+    "metric": "zai.error_rate",
+    "value": 0.453,
+    "source": "usage.json",
+    "note": "72 errors on 159 requests (45.3%)"
+  },
+  {
+    "metric": "kilo.error_rate",
+    "value": 0.284,
+    "source": "usage.json",
+    "note": "54 errors on 190 requests (28.4%)"
+  },
+  {
+    "metric": "openrouter_inclusionai.error_rate",
+    "value": 0.981,
+    "source": "usage.json",
+    "note": "151 errors on 154 requests (98.1%)"
+  },
+  {
+    "metric": "openrouter_baidu.error_rate",
+    "value": 0,
+    "source": "usage.json",
+    "note": "0 errors on 2 requests"
+  },
+  {
+    "metric": "avg_input_output_ratio",
+    "value": 270,
+    "source": "calculated from tokens.json",
+    "note": "148.7M input / 550K output"
+  },
+  {
+    "metric": "provider_count",
+    "value": 5,
+    "source": "usage.json",
+    "note": "Claude Plan, Zai, Kilo, Gemini, OpenRouter"
+  },
+  {
+    "metric": "total_models",
+    "value": 6,
+    "source": "usage.json",
+    "note": "1 per provider (except OpenRouter with 2)"
+  },
+  {
+    "metric": "router.uptime_min",
+    "value": 6,
+    "source": "router state",
+    "note": "uptime > 6 minutes"
+  },
+  {
+    "metric": "router.chain_length",
+    "value": 10,
+    "source": "router state",
+    "note": "chain of 10 with airforce and orcarouter"
+  },
+  {
+    "metric": "router.mode",
+    "value": "safe",
+    "source": "router state",
+    "note": "mode safe"
+  }
+]
