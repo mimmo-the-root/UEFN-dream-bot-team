@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """kit_config.py - read and write the kit settings file Claude/config/kit-settings.json.
 
-API: defaults(), load(project), get(key, project, default), set(key, value, project), is_on(flag, project), validate(data).
+API: defaults(), load(project), get(key, project, default), set(key, value, project), is_on(flag, project), level(flag, project), validate(data).
+Debug levels (T-095): each debug.<flag> is "off", "errors" (errors only) or "full". Old booleans still work: true = "full", false = "off".
+Global switch: debug.all_off = true turns every debug function off whatever its own level (default false).
 Keys are dotted paths such as "debug.exchange_log"; is_on("exchange_log") means "debug.exchange_log".
 Rules: unknown keys are kept, missing keys fall back to defaults, a broken file falls back to defaults and says so
 (load returns the note; the file is never overwritten by a read). Stdlib only.
@@ -10,16 +12,18 @@ CLI: python tools/kit_config.py [get KEY | set KEY VALUE | validate] [--project 
 import copy, json, os, sys
 
 REL = os.path.join("Claude", "config", "kit-settings.json")
+LEVELS = ("off", "errors", "full")
 DEBUG_FLAGS = ["exchange_log", "problems_log", "pending_tests", "task_status_log", "router_error_log", "safety_samples"]
 _DEFAULTS = {
     "debug": {
-        "description": "Which debug files the agent writes (see docs/DEBUG-EXCHANGE.md). true = write, false = skip.",
+        "description": "Which debug files the agent writes (see docs/DEBUG-EXCHANGE.md). Each flag: off | errors | full (true = full, false = skip). all_off = true silences all.",
         "exchange_log": True,
         "problems_log": True,
         "pending_tests": True,
         "task_status_log": True,
         "router_error_log": True,
         "safety_samples": False,
+        "all_off": False,
         "max_lines": 2000,
     },
     "routing": {"description": "Placeholder: model routing settings."},
@@ -61,8 +65,10 @@ def validate(data):
     dbg = data.get("debug")
     if isinstance(dbg, dict):
         for f in DEBUG_FLAGS:
-            if f in dbg and not isinstance(dbg[f], bool):
-                out.append("debug.%s must be true or false" % f)
+            if f in dbg and _norm_level(dbg[f]) is None:
+                out.append("debug.%s must be true, false, \"off\", \"errors\" or \"full\"" % f)
+        if "all_off" in dbg and not isinstance(dbg["all_off"], bool):
+            out.append("debug.all_off must be true or false")
         ml = dbg.get("max_lines")
         if "max_lines" in dbg and (isinstance(ml, bool) or not isinstance(ml, int) or ml < 1):
             out.append("debug.max_lines must be a whole number of 1 or more")
@@ -94,11 +100,13 @@ def load(project=None):
     if probs:
         d = defaults()
         for f in DEBUG_FLAGS:
-            if not isinstance(cfg.get("debug", {}).get(f), bool):
+            if _norm_level(cfg.get("debug", {}).get(f)) is None:
                 cfg.setdefault("debug", {})[f] = d["debug"][f]
         for sec in _DEFAULTS:
             if not isinstance(cfg.get(sec), dict):
                 cfg[sec] = d[sec]
+        if not isinstance(cfg.get("debug", {}).get("all_off"), bool):
+            cfg.setdefault("debug", {})["all_off"] = False
         ml = cfg.get("debug", {}).get("max_lines")
         if isinstance(ml, bool) or not isinstance(ml, int) or ml < 1:
             cfg.setdefault("debug", {})["max_lines"] = d["debug"]["max_lines"]
@@ -116,8 +124,33 @@ def get(key, project=None, default=None):
 
 
 def is_on(flag, project=None):
+    """True when the flag writes anything (level errors or full). Non-debug keys keep the plain true/false meaning."""
     key = flag if "." in flag else "debug." + flag
+    if key.startswith("debug.") and key[6:] in DEBUG_FLAGS:
+        return level(key[6:], project) != "off"
     return get(key, project, False) is True
+
+
+def _norm_level(v):
+    """bool or level string -> 'off'/'errors'/'full', or None when not a valid value."""
+    if v is True:
+        return "full"
+    if v is False:
+        return "off"
+    if isinstance(v, str) and v.strip().lower() in LEVELS:
+        return v.strip().lower()
+    return None
+
+
+def level(flag, project=None):
+    """Effective level of one debug function: 'off', 'errors' or 'full'. debug.all_off forces 'off'."""
+    flag = flag[6:] if flag.startswith("debug.") else flag
+    if get("debug.all_off", project, False) is True:
+        return "off"
+    lv = _norm_level(get("debug." + flag, project))
+    if lv is None:
+        lv = _norm_level(_DEFAULTS["debug"].get(flag, False)) or "off"
+    return lv
 
 
 def set(key, value, project=None):  # noqa: A001  public API name asked by the package

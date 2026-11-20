@@ -1,12 +1,13 @@
 {
   "debug": {
-    "description": "Which debug files the agent writes (see docs/DEBUG-EXCHANGE.md). true = write, false = skip.",
+    "description": "Which debug files the agent writes (see docs/DEBUG-EXCHANGE.md). Each flag: off | errors | full (true = full, false = skip). all_off = true silences all.",
     "exchange_log": true,
     "problems_log": true,
     "pending_tests": true,
     "task_status_log": true,
     "router_error_log": true,
     "safety_samples": false,
+    "all_off": false,
     "max_lines": 2000
   },
   "routing": {
