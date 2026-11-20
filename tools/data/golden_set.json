@@ -1,0 +1,165 @@
+{
+ "version": 1,
+ "packages": [
+  {
+   "id": "arith-add",
+   "prompt": "Compute 17 + 25. Reply with only the number.",
+   "check": {
+    "type": "number",
+    "value": "42"
+   }
+  },
+  {
+   "id": "arith-mul",
+   "prompt": "Compute 12 * 12. Reply with only the number.",
+   "check": {
+    "type": "number",
+    "value": "144"
+   }
+  },
+  {
+   "id": "arith-div",
+   "prompt": "Compute 144 / 8. Reply with only the number.",
+   "check": {
+    "type": "number",
+    "value": "18"
+   }
+  },
+  {
+   "id": "capital-it",
+   "prompt": "What is the capital of Italy? One word.",
+   "check": {
+    "type": "equals",
+    "value": "rome"
+   }
+  },
+  {
+   "id": "reverse",
+   "prompt": "Reverse the string 'verse'. Reply with only the result.",
+   "check": {
+    "type": "equals",
+    "value": "esrev"
+   }
+  },
+  {
+   "id": "upper",
+   "prompt": "Uppercase the word 'fortnite'. Reply with only the result.",
+   "check": {
+    "type": "equals",
+    "value": "FORTNITE"
+   }
+  },
+  {
+   "id": "count-letters",
+   "prompt": "How many letters are in the word 'island'? Only the number.",
+   "check": {
+    "type": "number",
+    "value": "6"
+   }
+  },
+  {
+   "id": "sort-nums",
+   "prompt": "Sort ascending: 5, 3, 9, 1. Reply as comma separated numbers.",
+   "check": {
+    "type": "regex",
+    "value": "^\\s*1\\s*,\\s*3\\s*,\\s*5\\s*,\\s*9\\s*$"
+   }
+  },
+  {
+   "id": "max-list",
+   "prompt": "What is the largest of 7, 19, 4, 11? Only the number.",
+   "check": {
+    "type": "number",
+    "value": "19"
+   }
+  },
+  {
+   "id": "json-key",
+   "prompt": "Reply with a JSON object with key \"ok\" set to true and nothing else.",
+   "check": {
+    "type": "json_key",
+    "value": "ok=true"
+   }
+  },
+  {
+   "id": "json-sum",
+   "prompt": "Reply with JSON {\"sum\": N} where N is 20 + 22. Nothing else.",
+   "check": {
+    "type": "json_key",
+    "value": "sum=42"
+   }
+  },
+  {
+   "id": "verse-func",
+   "prompt": "Write a Verse function header named Add taking two int and returning int.",
+   "check": {
+    "type": "contains_all",
+    "value": "Add|int"
+   }
+  },
+  {
+   "id": "verse-var",
+   "prompt": "In Verse, how do you declare a mutable int variable named Score set to 0? One line.",
+   "check": {
+    "type": "regex",
+    "value": "var\\s+Score\\s*:\\s*int\\s*=\\s*0"
+   }
+  },
+  {
+   "id": "verse-import",
+   "prompt": "Which Verse using line gives access to the Fortnite.com devices? Reply with the line.",
+   "check": {
+    "type": "contains",
+    "value": "/Fortnite.com/Devices"
+   }
+  },
+  {
+   "id": "verse-log",
+   "prompt": "Which Verse function prints text to the log? Reply with only the function name.",
+   "check": {
+    "type": "contains",
+    "value": "Print"
+   }
+  },
+  {
+   "id": "not-contains",
+   "prompt": "Name one primary color. Do not use the word 'purple'.",
+   "check": {
+    "type": "regex",
+    "value": "(?i)\\b(red|blue|yellow)\\b"
+   }
+  },
+  {
+   "id": "weekday",
+   "prompt": "What day comes after Monday? One word.",
+   "check": {
+    "type": "equals",
+    "value": "tuesday"
+   }
+  },
+  {
+   "id": "month-days",
+   "prompt": "How many days in a non-leap February? Only the number.",
+   "check": {
+    "type": "number",
+    "value": "28"
+   }
+  },
+  {
+   "id": "bool-logic",
+   "prompt": "Is (true AND false) true or false? One word.",
+   "check": {
+    "type": "equals",
+    "value": "false"
+   }
+  },
+  {
+   "id": "prefix-echo",
+   "prompt": "Reply exactly with: READY-7",
+   "check": {
+    "type": "equals_exact",
+    "value": "READY-7"
+   }
+  }
+ ]
+}
