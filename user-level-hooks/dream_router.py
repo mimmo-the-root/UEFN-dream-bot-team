@@ -101,6 +101,12 @@ PROVIDERS = {
                  "timeout": 240},  # not free: about 0.3 USD per million input tokens; last in the chain, used when the free ones fail
     "llm7": {"label": "LLM7.io", "signup": "https://dash.llm7.io", "base": "https://api.llm7.io/v1", "key": "LLM7_API_KEY",  # free token required since 2026
              "prefer": [r"qwen.*coder", r"deepseek-v", r"gpt-oss-120b", r"kimi", r"llama-3\.3-70b"], "models": ["deepseek-v3.1"], "max_tokens": 8192},
+    "airforce": {"label": "api.airforce (free plan)", "signup": "https://api.airforce/", "base": "https://api.airforce/v1", "key": "AIRFORCE_API_KEY",
+                 "prefer": [r":free$"], "only_prefer": True,  # T-118: ONLY the :free models, the rest of the catalogue is pay-as-you-go and must never be picked
+                 "models": ["grok-4.1-mini:free"], "max_tokens": 8192},   # free plan: about 1 request a minute and 1,000 a day
+    "orcarouter": {"label": "OrcaRouter (free router)", "signup": "https://www.orcarouter.ai/", "base": "https://api.orcarouter.ai/v1", "key": "ORCAROUTER_API_KEY",
+                   "prefer": [r"^orcarouter/free$"], "only_prefer": True,  # T-118: orcarouter/free routes only to zero-price models and never touches the wallet
+                   "models": ["orcarouter/free"], "max_tokens": 8192},
     "cohere": {"label": "Cohere (trial key)", "signup": "https://dashboard.cohere.com/api-keys", "base": "https://api.cohere.ai/compatibility/v1", "key": "COHERE_API_KEY",
                "models_url": "https://api.cohere.ai/v1/models?endpoint=chat&page_size=100",   # 1.124.57: the compatibility API has no /models
                "prefer": [r"^command-a(?!.*(vision|translate|reasoning|embed|rerank))", r"^command-r-plus", r"^command-r"], "only_prefer": True,
@@ -123,7 +129,7 @@ MODES = ("auto", "plan", "free", "safe", "paid")  # paid (T-059) = stays in the 
 # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only;
 # safe (T-083) = the work goes to free models, only the auto-mode safety check goes to the plan (while it has credit), else a local verdict
 DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False,
-                    "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "cloudflare", "deepseek", "zenmux"]}
+                    "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "airforce", "orcarouter", "cloudflare", "deepseek", "zenmux"]}
 LOCK = threading.Lock()
 STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time(), "pinned": {}}  # pinned[package_key] = (provider, model)
 
