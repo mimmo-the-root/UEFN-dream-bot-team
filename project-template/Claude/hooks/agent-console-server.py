@@ -389,6 +389,10 @@ def _get_island_info():
         return stale if stale else {"error": "could not reach the Fortnite API"}
 
 
+def _now_stamp():
+    """Timestamp for debug bundle filenames: YYYYMMDD-HHMMSS"""
+    return datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+
 def _read_jsonl(path):
     entries = []
     if os.path.exists(path):
@@ -627,6 +631,22 @@ def _config_get(kc):
     return {"ok": True, "note": note, "settings": items}
 
 
+def _config_history(kc, n=20):
+    """GET /config/history?n= — returns last n changes via kit_config.history()."""
+    try:
+        n = max(1, min(int(n), 200))
+    except (ValueError, TypeError):
+        n = 20
+    return {"ok": True, "history": kc.history(n, PROJECT_DIR)}
+
+
+def _config_source(kc, key):
+    """GET /config/source?key= — returns where a key's value comes from via kit_config.source()."""
+    if not key:
+        return {"ok": False, "error": "key required"}
+    return {"ok": True, "source": kc.source(key, PROJECT_DIR)}
+
+
 def _config_set(kc, body):
     """Returns (http code, answer). One key per call; unknown key 400, invalid value 400, risky key without confirm=true 403."""
     key = body.get("key")
@@ -677,6 +697,24 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if kc is None:
                 return self._send_json_status(503, {"ok": False, "error": "kit_config.py not found"})
             return self._send_json_bytes(json.dumps(_config_get(kc)).encode("utf-8"))
+        if self.path.startswith("/config/history"):
+            from urllib.parse import urlparse, parse_qs
+            kc = _kit_config_mod()
+            if kc is None:
+                return self._send_json_status(503, {"ok": False, "error": "kit_config.py not found"})
+            qs = parse_qs(urlparse(self.path).query)
+            n = (qs.get("n") or [20])[0]
+            return self._send_json_bytes(json.dumps(_config_history(kc, n)).encode("utf-8"))
+        if self.path.startswith("/config/source"):
+            from urllib.parse import urlparse, parse_qs
+            kc = _kit_config_mod()
+            if kc is None:
+                return self._send_json_status(503, {"ok": False, "error": "kit_config.py not found"})
+            qs = parse_qs(urlparse(self.path).query)
+            key = (qs.get("key") or [""])[0]
+            return self._send_json_bytes(json.dumps(_config_source(kc, key)).encode("utf-8"))
+        if self.path.split("?")[0] == "/problems":
+            return self._problems_get()
         if self.path.startswith("/log"):
             self._send_json_bytes(json.dumps(_read_jsonl(LOG_FILE)).encode("utf-8"))
         elif self.path.startswith("/api/token-ledger"):
@@ -879,6 +917,86 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _debug_bundle_post(self):
+        """T-093: POST /debug-bundle — creates a debug bundle via debug_bundle.build_bundle()."""
+        port = self.server.server_address[1]
+        if self.headers.get("Origin") not in (None, "http://127.0.0.1:%d" % port, "http://localhost:%d" % port) or self.headers.get("X-Router-Action") != "1":
+            return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
+        n = int(self.headers.get("Content-Length") or 0)
+        if n > 65536:
+            return self._send_json_status(413, {"ok": False, "error": "body too large"})
+        try:
+            body = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
+        except (ValueError, TypeError):
+            return self._send_json_status(400, {"ok": False, "error": "body must be a JSON object"})
+        if not isinstance(body, dict):
+            return self._send_json_status(400, {"ok": False, "error": "body must be a JSON object"})
+        dest = body.get("dest")
+        import sys
+        tools_dir = os.path.join(os.path.dirname(__file__), "..", "..", "tools")
+        sys.path.insert(0, tools_dir)
+        try:
+            import debug_bundle
+        except ImportError:
+            return self._send_json_status(503, {"ok": False, "error": "debug_bundle not found"})
+        result = debug_bundle.build_bundle(PROJECT_DIR, dest)
+        if result.get("error"):
+            self._send_json_status(500, {"ok": False, "error": result["error"]})
+        else:
+            self._send_json_status(200, {"ok": True, "zip": result.get("path")})
+
+    def _problems_get(self):
+        """T-093: GET /problems — returns problems from plan/ as {open, closed, items: [{id, text, age_days, handled}]} via problems_summary.summarize()."""
+        import sys
+        tools_dir = os.path.join(os.path.dirname(__file__), "..", "..", "tools")
+        sys.path.insert(0, tools_dir)
+        try:
+            import problems_summary
+        except ImportError:
+            self._send_json_bytes(json.dumps({"open": 0, "closed": 0, "items": []}).encode("utf-8"))
+            return
+        plan_dir = os.path.join(PROJECT_DIR, "plan")
+        try:
+            result = problems_summary.summarize(plan_dir)
+        except (OSError, IOError):
+            result = {"open": 0, "closed": 0, "items": []}
+        # Flatten items across files to match the expected console format
+        flat_items = []
+        for file_data in result.get("files", {}).values():
+            for item in file_data.get("items", []):
+                flat_items.append(item)
+        self._send_json_bytes(json.dumps({
+            "open": result.get("open", 0),
+            "closed": result.get("closed", 0),
+            "items": flat_items
+        }).encode("utf-8"))
+
+    def _problems_handled_post(self):
+        """T-093: POST /problems/handled — marks a problem line as handled via problems_summary.mark_handled()."""
+        port = self.server.server_address[1]
+        if self.headers.get("Origin") not in (None, "http://127.0.0.1:%d" % port, "http://localhost:%d" % port) or self.headers.get("X-Router-Action") != "1":
+            return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
+        n = int(self.headers.get("Content-Length") or 0)
+        if n > 65536:
+            return self._send_json_status(413, {"ok": False, "error": "body too large"})
+        try:
+            body = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
+        except (ValueError, TypeError):
+            return self._send_json_status(400, {"ok": False, "error": "body must be a JSON object"})
+        line_id = body.get("line_id")
+        if not line_id:
+            return self._send_json_status(400, {"ok": False, "error": "line_id required"})
+        import sys
+        tools_dir = os.path.join(os.path.dirname(__file__), "..", "..", "tools")
+        sys.path.insert(0, tools_dir)
+        try:
+            import problems_summary
+        except ImportError:
+            return self._send_json_status(503, {"ok": False, "error": "problems_summary not found"})
+        path = os.path.join(PROJECT_DIR, "plan", "PROBLEMS-FROM-COD.md")
+        ok = problems_summary.mark_handled(path, line_id)
+        self._send_json_status(200, {"ok": True, "marked": ok})
+
     def _config_post(self):
         # T-089: same-origin + X-Router-Action: 1 header, like the router POSTs; one key per call, written through kit_config (logs the change).
         port = self.server.server_address[1]
@@ -899,9 +1017,75 @@ class Handler(http.server.BaseHTTPRequestHandler):
         code, res = _config_set(kc, body)
         self._send_json_status(code, res)
 
+    def _config_guard_and_body(self):
+        """T-093: shared guard (origin + X-Router-Action) + JSON body parse for config POST endpoints."""
+        port = self.server.server_address[1]
+        if self.headers.get("Origin") not in (None, "http://127.0.0.1:%d" % port, "http://localhost:%d" % port) or self.headers.get("X-Router-Action") != "1":
+            return 403, {"ok": False, "error": "forbidden origin"}, None
+        n = int(self.headers.get("Content-Length") or 0)
+        if n > 65536:
+            return 413, {"ok": False, "error": "body too large"}, None
+        try:
+            body = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
+            if not isinstance(body, dict):
+                return 400, {"ok": False, "error": "body must be a JSON object"}, None
+        except (ValueError, TypeError) as e:
+            return 400, {"ok": False, "error": str(e)}, None
+        return 200, None, body
+
+    def _config_undo_post(self):
+        """T-093: POST /config/undo body {"key": ..., "confirm": true} — kit_config.undo()."""
+        code, err, body = self._config_guard_and_body()
+        if err is not None:
+            return self._send_json_status(code, err)
+        kc = _kit_config_mod()
+        if kc is None:
+            return self._send_json_status(503, {"ok": False, "error": "kit_config.py not found"})
+        key = body.get("key")
+        if not key:
+            return self._send_json_status(400, {"ok": False, "error": "key required"})
+        confirm = bool(body.get("confirm"))
+        try:
+            undone = kc.undo(key, PROJECT_DIR, confirm=confirm)
+        except PermissionError as e:
+            return self._send_json_status(409, {"ok": False, "error": str(e)})
+        except (ValueError, KeyError, TypeError, OSError) as e:
+            return self._send_json_status(400, {"ok": False, "error": str(e)})
+        self._send_json_status(200, {"ok": True, "undone": undone, "value": kc.get(key, PROJECT_DIR)})
+
+    def _config_reset_post(self):
+        """T-093: POST /config/reset body {"key": ..., "scope": "project"|"user"} — kit_config.reset(confirm=True)."""
+        code, err, body = self._config_guard_and_body()
+        if err is not None:
+            return self._send_json_status(code, err)
+        kc = _kit_config_mod()
+        if kc is None:
+            return self._send_json_status(503, {"ok": False, "error": "kit_config.py not found"})
+        key = body.get("key")
+        if not key:
+            return self._send_json_status(400, {"ok": False, "error": "key required"})
+        scope = body.get("scope") or "project"
+        if scope not in ("project", "user"):
+            return self._send_json_status(400, {"ok": False, "error": "scope must be 'project' or 'user'"})
+        try:
+            kc.reset(key, PROJECT_DIR, scope=scope, confirm=True)
+        except PermissionError as e:
+            return self._send_json_status(409, {"ok": False, "error": str(e)})
+        except (ValueError, KeyError, TypeError, OSError) as e:
+            return self._send_json_status(400, {"ok": False, "error": str(e)})
+        self._send_json_status(200, {"ok": True, "value": kc.get(key, PROJECT_DIR), "source": kc.source(key, PROJECT_DIR)})
+
     def do_POST(self):
         if self.path.split("?")[0] == "/config":
             return self._config_post()
+        if self.path.split("?")[0] == "/config/undo":
+            return self._config_undo_post()
+        if self.path.split("?")[0] == "/config/reset":
+            return self._config_reset_post()
+        if self.path.split("?")[0] == "/debug-bundle":
+            return self._debug_bundle_post()
+        if self.path.split("?")[0] == "/problems/handled":
+            return self._problems_handled_post()
         if self.path.startswith("/quit"):  # v1.110: lets a newer fab_lab.py replace an out-of-date console of the same product
             if self.client_address[0] not in ("127.0.0.1", "::1"):
                 return self._send_json_status(403, {"ok": False})
