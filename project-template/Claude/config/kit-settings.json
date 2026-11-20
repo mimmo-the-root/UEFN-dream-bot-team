@@ -11,7 +11,12 @@
     "max_lines": 2000
   },
   "routing": {
-    "description": "Placeholder: model routing settings."
+    "description": "Model routing, pushed to the router (POST /router/settings). mode = auto | plan | free | safe | paid. safety_check = off | short | mixed-safe (RISKY: changing it needs confirm). free_accept_edits = true lets free models apply edits. spread = true spreads load over the free models. chain = ordered list of provider names ([] = router default). Invalid values fall back to the default with a note.",
+    "mode": "auto",
+    "safety_check": "short",
+    "free_accept_edits": false,
+    "spread": true,
+    "chain": []
   },
   "budget": {
     "description": "Token budget. weekly_used_pct is OWNER-ONLY data (null = unknown): the kit never writes it. The three *_pct thresholds say at which weekly_used_pct the governor warns, throttles (free tiers only) and blocks paid work. release_token_budget = tokens one release may spend (0 = no limit).",
