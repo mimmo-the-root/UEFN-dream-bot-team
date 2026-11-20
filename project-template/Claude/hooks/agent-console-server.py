@@ -577,6 +577,88 @@ def _ledger_loop():
         time.sleep(LEDGER_POLL_SECONDS)
 
 
+# T-089: GET/POST /config, the kit settings (tools/kit_config.py) for the Configurazione page.
+def _kit_config_mod():
+    """kit_config.py: next to this file, in the project's tools/, or in the kit repo's tools/. None when missing."""
+    for d in (ROOT, os.path.join(PROJECT_DIR, "tools"), os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(ROOT))), "tools")):
+        if os.path.isfile(os.path.join(d, "kit_config.py")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+            import kit_config
+            return kit_config
+    return None
+
+
+def _config_leaves(kc, cfg):
+    """{dotted key: description} of every setting the console may change: the defaults' leaves plus keys already set under a risky section."""
+    out = {}
+    for sec, vals in kc.defaults().items():
+        if not isinstance(vals, dict):
+            continue
+        desc = vals.get("description", "")
+        for k in vals:
+            if k != "description":
+                out["%s.%s" % (sec, k)] = desc
+
+    def walk(prefix, node, desc):
+        for k, v in node.items():
+            key = prefix + k
+            if isinstance(v, dict):
+                walk(key + ".", v, desc)
+            else:
+                out.setdefault(key, desc)
+    for r in kc.RISKY_KEYS:
+        if isinstance(cfg.get(r), dict):
+            walk(r + ".", cfg[r], "Risky setting (changing it needs confirm=true).")
+    return out
+
+
+def _config_get(kc):
+    cfg, note = kc.load(PROJECT_DIR)
+    items = []
+    for key, desc in sorted(_config_leaves(kc, cfg).items()):
+        cur = cfg
+        for part in key.split("."):
+            cur = cur.get(part) if isinstance(cur, dict) else None
+        dflt = kc.defaults()
+        for part in key.split("."):
+            dflt = dflt.get(part) if isinstance(dflt, dict) else None
+        items.append({"key": key, "value": cur, "default": dflt, "source": kc.source(key, PROJECT_DIR), "description": desc, "risky": kc.is_risky(key)})
+    return {"ok": True, "note": note, "settings": items}
+
+
+def _config_set(kc, body):
+    """Returns (http code, answer). One key per call; unknown key 400, invalid value 400, risky key without confirm=true 403."""
+    key = body.get("key")
+    if not isinstance(key, str) or "value" not in body:
+        return 400, {"ok": False, "error": "body must be {\"key\": ..., \"value\": ...}"}
+    cfg, _note = kc.load(PROJECT_DIR)
+    if key not in _config_leaves(kc, cfg):
+        return 400, {"ok": False, "error": "unknown setting '%s'" % key}
+    if key == "budget.weekly_used_pct":
+        return 400, {"ok": False, "error": "budget.weekly_used_pct is owner-only data, the kit never writes it"}
+    value = body["value"]
+    dflt = kc.defaults()
+    for part in key.split("."):
+        dflt = dflt.get(part) if isinstance(dflt, dict) else None
+    if not key.startswith("debug.") and dflt is not None and type(dflt) is not type(value):
+        return 400, {"ok": False, "error": "'%s' must be of type %s" % (key, type(dflt).__name__)}
+    trial = json.loads(json.dumps(cfg))
+    cur = trial
+    parts = key.split(".")
+    for part in parts[:-1]:
+        cur = cur.setdefault(part, {})
+    cur[parts[-1]] = value
+    probs = [x for x in kc.validate(trial) if x not in kc.validate(cfg)]
+    if probs:
+        return 400, {"ok": False, "error": "; ".join(probs)}
+    if kc.is_risky(key) and body.get("confirm") is not True:
+        return 403, {"ok": False, "error": "'%s' is a risky setting: send confirm=true to change it" % key, "needs_confirm": True}
+    old = kc.get(key, PROJECT_DIR)
+    kc.set(key, value, PROJECT_DIR, confirm=body.get("confirm") is True)
+    return 200, {"ok": True, "key": key, "old": old, "value": kc.get(key, PROJECT_DIR)}
+
+
 class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass  # keep the terminal quiet — the browser polls this every second
@@ -590,6 +672,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        if self.path.split("?")[0] == "/config":
+            kc = _kit_config_mod()
+            if kc is None:
+                return self._send_json_status(503, {"ok": False, "error": "kit_config.py not found"})
+            return self._send_json_bytes(json.dumps(_config_get(kc)).encode("utf-8"))
         if self.path.startswith("/log"):
             self._send_json_bytes(json.dumps(_read_jsonl(LOG_FILE)).encode("utf-8"))
         elif self.path.startswith("/api/token-ledger"):
@@ -792,7 +879,29 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _config_post(self):
+        # T-089: same-origin + X-Router-Action: 1 header, like the router POSTs; one key per call, written through kit_config (logs the change).
+        port = self.server.server_address[1]
+        if self.headers.get("Origin") not in (None, "http://127.0.0.1:%d" % port, "http://localhost:%d" % port) or self.headers.get("X-Router-Action") != "1":
+            return self._send_json_status(403, {"ok": False, "error": "forbidden origin"})
+        kc = _kit_config_mod()
+        if kc is None:
+            return self._send_json_status(503, {"ok": False, "error": "kit_config.py not found"})
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            if n > 65536:
+                return self._send_json_status(413, {"ok": False, "error": "body too large"})
+            body = json.loads(self.rfile.read(n).decode("utf-8") or "{}")
+            if not isinstance(body, dict):
+                raise ValueError("body must be a JSON object")
+        except (ValueError, TypeError) as e:
+            return self._send_json_status(400, {"ok": False, "error": str(e)})
+        code, res = _config_set(kc, body)
+        self._send_json_status(code, res)
+
     def do_POST(self):
+        if self.path.split("?")[0] == "/config":
+            return self._config_post()
         if self.path.startswith("/quit"):  # v1.110: lets a newer fab_lab.py replace an out-of-date console of the same product
             if self.client_address[0] not in ("127.0.0.1", "::1"):
                 return self._send_json_status(403, {"ok": False})
