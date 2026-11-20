@@ -20,6 +20,7 @@ _DEFAULTS = {
         "task_status_log": True,
         "router_error_log": True,
         "safety_samples": False,
+        "max_lines": 2000,
     },
     "routing": {"description": "Placeholder: model routing settings."},
     "budget": {"description": "Placeholder: token and cost budget settings."},
@@ -62,6 +63,9 @@ def validate(data):
         for f in DEBUG_FLAGS:
             if f in dbg and not isinstance(dbg[f], bool):
                 out.append("debug.%s must be true or false" % f)
+        ml = dbg.get("max_lines")
+        if "max_lines" in dbg and (isinstance(ml, bool) or not isinstance(ml, int) or ml < 1):
+            out.append("debug.max_lines must be a whole number of 1 or more")
     return out
 
 
@@ -95,6 +99,9 @@ def load(project=None):
         for sec in _DEFAULTS:
             if not isinstance(cfg.get(sec), dict):
                 cfg[sec] = d[sec]
+        ml = cfg.get("debug", {}).get("max_lines")
+        if isinstance(ml, bool) or not isinstance(ml, int) or ml < 1:
+            cfg.setdefault("debug", {})["max_lines"] = d["debug"]["max_lines"]
         note = "settings problem(s), defaults used for them: " + "; ".join(probs)
     return cfg, note
 

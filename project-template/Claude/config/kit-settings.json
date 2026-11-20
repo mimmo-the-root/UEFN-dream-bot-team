@@ -6,7 +6,8 @@
     "pending_tests": true,
     "task_status_log": true,
     "router_error_log": true,
-    "safety_samples": false
+    "safety_samples": false,
+    "max_lines": 2000
   },
   "routing": {
     "description": "Placeholder: model routing settings."
