@@ -91,6 +91,32 @@ with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as g:
     check(kc.get("debug.max_lines", d) == 2000, "broken global file is ignored")
     del os.environ["KIT_GLOBAL_SETTINGS"]
 
+# T-099: budget and agents settings
+with tempfile.TemporaryDirectory() as d:
+    b, a = kc.defaults()["budget"], kc.defaults()["agents"]
+    check(b["weekly_used_pct"] is None and (b["warn_pct"], b["throttle_pct"], b["block_pct"]) == (70, 85, 95), "budget defaults")
+    check(a["max_parallel"] == 3 and a["lab_permission_block"] is True and kc.tier_for("code", d) == "T2", "agents defaults")
+    check(kc.tier_for("nope", d) == "T2" and kc.tier_for("plan", d) == "T3", "tier_for falls back to default")
+    check(not kc.validate(kc.defaults()), "defaults valid")
+    for bad in ({"agents": {"max_parallel": 0}}, {"agents": {"max_parallel": 7}}, {"agents": {"max_parallel": True}},
+                {"agents": {"max_parallel": "3"}}, {"agents": {"tier_by_task_kind": {"code": "T9"}}},
+                {"agents": {"lab_permission_block": "on"}}, {"budget": {"weekly_used_pct": 120}},
+                {"budget": {"warn_pct": 90}}, {"budget": {"release_token_budget": -1}}):
+        check(kc.validate(bad), "validate rejects %r" % (bad,))
+    for ok in ({"agents": {"max_parallel": 1}}, {"agents": {"max_parallel": 6}}, {"budget": {"weekly_used_pct": 42.5}}):
+        check(not kc.validate(ok), "validate accepts %r" % (ok,))
+    write(d, json.dumps({"agents": {"max_parallel": 9, "lab_permission_block": False}, "budget": {"warn_pct": 50}}))
+    cfg, note = kc.load(d)
+    check(cfg["agents"]["max_parallel"] == 3 and cfg["agents"]["lab_permission_block"] is False and note, "bad max_parallel -> default, good key kept")
+    check(cfg["budget"]["warn_pct"] == 50 and not kc.validate(cfg), "valid override kept")
+    kc.reset("agents.max_parallel", d)
+    kc.set("agents.max_parallel", 5, d)
+    check(kc.get("agents.max_parallel", d) == 5 and kc.history(1, d)[0]["key"] == "agents.max_parallel", "set + history work")
+    check(kc.undo("agents.max_parallel", d) and kc.get("agents.max_parallel", d) == 3, "undo works")
+    check(kc.get("budget.weekly_used_pct", d, "x") is None and "weekly_used_pct" not in json.load(open(kc.path(d))).get("budget", {}),
+          "weekly_used_pct never written by the kit")
+    check(not kc.is_risky("agents.max_parallel") and not kc.is_risky("budget.warn_pct"), "budget/agents not risky")
+
 if fails:
     print("FAIL: " + "\n".join(fails))
     sys.exit(1)

@@ -21,6 +21,8 @@ REL = os.path.join("Claude", "config", "kit-settings.json")
 LOG_REL = os.path.join("Claude", "logs", "config-changes.log")
 RISKY_KEYS = ("permissions", "safety_check")
 LEVELS = ("off", "errors", "full")
+TIERS = ("T0", "T1", "T2", "T3")
+BUDGET_PCT_KEYS = ("warn_pct", "throttle_pct", "block_pct")
 DEBUG_FLAGS = ["exchange_log", "problems_log", "pending_tests", "task_status_log", "router_error_log", "safety_samples"]
 _DEFAULTS = {
     "debug": {
@@ -35,8 +37,20 @@ _DEFAULTS = {
         "max_lines": 2000,
     },
     "routing": {"description": "Placeholder: model routing settings."},
-    "budget": {"description": "Placeholder: token and cost budget settings."},
-    "agents": {"description": "Placeholder: agent limits and behaviour."},
+    "budget": {
+        "description": "Token budget. weekly_used_pct is OWNER-ONLY data (null = unknown): the kit never writes it. The three *_pct thresholds say at which weekly_used_pct the governor warns, throttles (free tiers only) and blocks paid work. release_token_budget = tokens one release may spend (0 = no limit).",
+        "weekly_used_pct": None,
+        "warn_pct": 70,
+        "throttle_pct": 85,
+        "block_pct": 95,
+        "release_token_budget": 0,
+    },
+    "agents": {
+        "description": "Agent limits. max_parallel = agents the relay planner runs at once (1-6, default 3). tier_by_task_kind = model tier per kind of task (T0 free local, T1 free cloud, T2 cheap paid, T3 strong paid). lab_permission_block = true keeps the Lab permission block (T-085) on.",
+        "max_parallel": 3,
+        "tier_by_task_kind": {"default": "T2", "plan": "T3", "code": "T2", "test": "T1", "docs": "T1", "review": "T2", "research": "T1"},
+        "lab_permission_block": True,
+    },
     "console": {"description": "Placeholder: Agent Console settings."},
     "skills": {"description": "Placeholder: skill loading settings."},
 }
@@ -100,7 +114,59 @@ def validate(data):
         ml = dbg.get("max_lines")
         if "max_lines" in dbg and (isinstance(ml, bool) or not isinstance(ml, int) or ml < 1):
             out.append("debug.max_lines must be a whole number of 1 or more")
+    out += _validate_budget_agents(data)
     return out
+
+
+def _is_int(v):
+    return isinstance(v, int) and not isinstance(v, bool)
+
+
+def _is_num(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
+def _bad_keys(data):
+    """Dict {dotted key: problem} for the budget and agents settings that are present but invalid."""
+    bad = {}
+    b = data.get("budget")
+    if isinstance(b, dict):
+        if "weekly_used_pct" in b and b["weekly_used_pct"] is not None and not (_is_num(b["weekly_used_pct"]) and 0 <= b["weekly_used_pct"] <= 100):
+            bad["budget.weekly_used_pct"] = "budget.weekly_used_pct must be null or a number from 0 to 100"
+        for k in BUDGET_PCT_KEYS:
+            if k in b and not (_is_num(b[k]) and 0 <= b[k] <= 100):
+                bad["budget." + k] = "budget.%s must be a number from 0 to 100" % k
+        t = [b.get(k, _DEFAULTS["budget"][k]) for k in BUDGET_PCT_KEYS]
+        if all(_is_num(x) for x in t) and not (t[0] <= t[1] <= t[2]) and not any(("budget." + k) in bad for k in BUDGET_PCT_KEYS):
+            for k in BUDGET_PCT_KEYS:
+                if k in b:
+                    bad["budget." + k] = "budget thresholds must satisfy warn_pct <= throttle_pct <= block_pct"
+        r = b.get("release_token_budget")
+        if "release_token_budget" in b and (not _is_int(r) or r < 0):
+            bad["budget.release_token_budget"] = "budget.release_token_budget must be a whole number of 0 or more (0 = no limit)"
+    a = data.get("agents")
+    if isinstance(a, dict):
+        m = a.get("max_parallel")
+        if "max_parallel" in a and (not _is_int(m) or not 1 <= m <= 6):
+            bad["agents.max_parallel"] = "agents.max_parallel must be a whole number from 1 to 6"
+        if "tier_by_task_kind" in a:
+            t = a["tier_by_task_kind"]
+            if not isinstance(t, dict) or any(not isinstance(k, str) or v not in TIERS for k, v in t.items()):
+                bad["agents.tier_by_task_kind"] = "agents.tier_by_task_kind must map task kinds to T0, T1, T2 or T3"
+        if "lab_permission_block" in a and not isinstance(a["lab_permission_block"], bool):
+            bad["agents.lab_permission_block"] = "agents.lab_permission_block must be true or false"
+    return bad
+
+
+def _validate_budget_agents(data):
+    return list(_bad_keys(data).values())
+
+
+def tier_for(kind, project=None):
+    """Tier for a task kind from agents.tier_by_task_kind (falls back to its 'default', then 'T2')."""
+    t = get("agents.tier_by_task_kind", project, {})
+    t = t if isinstance(t, dict) else {}
+    return t.get(kind) or t.get("default") or "T2"
 
 
 def _read(project):
@@ -141,6 +207,9 @@ def load(project=None):
         ml = cfg.get("debug", {}).get("max_lines")
         if isinstance(ml, bool) or not isinstance(ml, int) or ml < 1:
             cfg.setdefault("debug", {})["max_lines"] = d["debug"]["max_lines"]
+        for k in _bad_keys(cfg):
+            sec, name = k.split(".")
+            cfg[sec][name] = d[sec][name]
         note = "settings problem(s), defaults used for them: " + "; ".join(probs)
     return cfg, note
 
