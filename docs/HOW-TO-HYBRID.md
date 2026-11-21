@@ -19,6 +19,7 @@ Two more modes exist. `auto` is the default: plan first, free models at the limi
 ## Switch the mode
 
 - Console: page Models, box "How Cod works". It applies to the next Cod session.
+- Console: page Configurazione is shipped. It holds the settings (debug, routing, budget, agents, console, skills). Cards show where a value comes from and offer reset and undo. The owner still needs to see it in a browser.
 - cod.cmd: `cod.cmd --free`, `cod.cmd --plan`, `cod.cmd --safe`. No flag means the saved mode. See docs/START-COD.md. There is no `--paid` flag: use the Models page.
 - Local router address: `POST /router/mode` with `{"mode": "..."}`. `GET /router/mode` reads it.
 
@@ -47,10 +48,28 @@ If it never recovers, switch to Paid or auto on the Models page.
 ## Providers
 
 Order: gemini, zai, nvidia, openrouter, kilo, llm7, groq, ollama, cohere, airforce, orcarouter, cloudflare, deepseek, zenmux.
+- airforce and orcarouter are shipped in the router. Add `AIRFORCE_API_KEY` and `ORCAROUTER_API_KEY`; only free models are picked.
 - airforce: free models only (names ending `:free`). The rest of its catalogue is pay-as-you-go and is never picked.
 - orcarouter: only `orcarouter/free`, which routes to zero-price models.
 - deepseek and zenmux are not free. They are last, used when the free ones fail.
 - Where to get each key: docs/manual/free-models.md.
+
+## Settings that start off
+
+These switches are shipped but default off. Turn one on only when you want the measurement it makes:
+- `bandit` ranks models from past acceptance and cost (one line per package in `bandit.json`).
+- `shadow_sampling` runs or judges about 10% of free packages on the paid model to measure the loss; the judge needs a real paid key, so leave it off.
+- `router_v2` adds error classes, retry-after, backoff, chain skip and `X-Router-*` trace headers.
+
+The wiring is in the kit, but the measured results are not in yet. Turning them on for real work is planned.
+
+## Planned (not shipped)
+
+- Router v2 leftovers: the models.dev catalogue with cache and backup copy, keyless providers as data only, 11 probes with real model IDs, and per-provider counts in the router.
+- Console leftovers: subagent moons, provider rating, dollar saving and the keyless documentation page.
+- Safety-check leftovers: captured real samples and the full plan-based chain; the local verdict and the budget decision are in the kit.
+- Phone digest, the 2x2 free-versus-paid benchmark and the real-use check in Mixed mode.
+- The Configurazione page still needs a look in a real browser and its Lab copy is not updated yet.
 
 ## Logs and second brain
 

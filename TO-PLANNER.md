@@ -1,4 +1,4 @@
-# TO PLANNER - coder handoff for pkg-293
+# TO PLANNER - coder handoff for pkg-299
 
-COMMITTED T-038/T-040 r1/pkg-293-oc 37f95e569b4c2acd9df5433b321f8126af7a50c5 tests 193/193
-DECISION: each free model uses a built-in router /v1/messages HTTP call unless --model NAME=COMMAND overrides it; --previous defaults to the --out file before overwrite and a drop of more than 2 packages flags degradation.
+COMMITTED T-048/T-046 r1/pkg-299 342c0e59312909008140f37c152aa43e5bf604c8 tests 194/194
+DECISION: last released kit version read as v1.124.57 because CHANGELOG.md marks ibrido-0 as local slices, not released; the draft covers ibrido-0 and the later integrated commits.
