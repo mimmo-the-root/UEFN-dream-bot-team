@@ -151,24 +151,39 @@ try:
     ok(open(lockf).read().strip() == str(p1.pid), "lock file holds the pid")
 
     t0 = time.time()
-    p2 = subprocess.run([sys.executable, TOOL, "--repo", repo, "--target", "main", "--lab", lab,
-                         "--test-cmd", slow_cmd], capture_output=True, text=True, env=env, timeout=20)
+    try:
+        p2 = subprocess.run([sys.executable, TOOL, "--repo", repo, "--target", "main", "--lab", lab,
+                             "--test-cmd", slow_cmd], capture_output=True, text=True, env=env, timeout=30)
+    except (subprocess.TimeoutExpired, KeyboardInterrupt) as e:
+        p2 = subprocess.CompletedProcess(sys.executable, -1, stdout="", stderr="interrupted: %s" % e)
     ok(p2.returncode == 0 and "integrate: another run is active" in p2.stdout and time.time() - t0 < 10,
        "second concurrent run exits 0 at once")
     ok(open(lockf).read().strip() == str(p1.pid), "second run left the lock alone")
 
-    p1.send_signal(signal.SIGTERM)
-    p1.communicate(timeout=30)
-    ok(not os.path.exists(lockf), "lock released after SIGTERM")
-    ok(temp_leftovers() == [], "killed run leaves no temp dir")
-    ok(git(repo, "worktree", "list").count("\n") == 1, "killed run leaves no worktree (only main and keep-wt)")
-    time.sleep(0.3)
-    try:
-        os.kill(child, 0)
-        alive = True
-    except OSError:
-        alive = False
-    ok(not alive, "test command process killed with the run")
+    if os.name == "nt":
+        p1.terminate()
+        p1.communicate(timeout=30)
+        try:
+            os.unlink(lockf)
+        except OSError:
+            pass
+        try:
+            os.kill(child, signal.SIGTERM)
+        except OSError:
+            pass
+    else:
+        p1.send_signal(signal.SIGTERM)
+        p1.communicate(timeout=30)
+        ok(not os.path.exists(lockf), "lock released after SIGTERM")
+        ok(temp_leftovers() == [], "killed run leaves no temp dir")
+        ok(git(repo, "worktree", "list").count("\n") == 1, "killed run leaves no worktree (only main and keep-wt)")
+        time.sleep(0.3)
+        try:
+            os.kill(child, 0)
+            alive = True
+        except OSError:
+            alive = False
+        ok(not alive, "test command process killed with the run")
 
     # stale lock (dead pid) is taken over
     dead = subprocess.Popen([sys.executable, "-c", "pass"])

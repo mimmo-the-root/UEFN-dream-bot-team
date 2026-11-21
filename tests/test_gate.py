@@ -10,10 +10,11 @@ def check(name, cond):
     print(("ok   " if cond else "FAIL ") + name)
     ok = ok and cond
 
+PY = '"%s"' % sys.executable
 with tempfile.TemporaryDirectory() as d:
     plan = {"items": [
-        {"id": "T-1", "command": "python3 -c \"import sys; sys.exit(0)\""},
-        {"id": "T-2", "command": "python3 -c \"import sys; sys.exit(1)\"", "tier": "T1", "outputs": ["o.txt"]},
+        {"id": "T-1", "command": "%s -c \"import sys; sys.exit(0)\"" % PY},
+        {"id": "T-2", "command": "%s -c \"import sys; sys.exit(1)\"" % PY, "tier": "T1", "outputs": ["o.txt"]},
         {"id": "T-3", "command": "rm -rf /tmp/never"},
     ]}
     cs = gate.build_contracts(plan)
@@ -26,7 +27,7 @@ with tempfile.TemporaryDirectory() as d:
     check("counter in file", json.load(open(st))["T-2"] == 3)
     check("disallowed command fails", gate.gate(cs[2], st, cwd=d)[0] == "FAIL")
     open(os.path.join(d, "o.txt"), "w").close()
-    cs[1]["acceptance"] = "python3 -c pass"
+    cs[1]["acceptance"] = "%s -c pass" % PY
     check("blocked stays blocked", gate.gate(cs[1], st, cwd=d)[0] == "BLOCKED")
     cs[1]["id"] = "T-9"
     check("missing output then present", gate.gate(dict(cs[1], outputs=["nope"]), st, cwd=d)[0] == "FAIL"

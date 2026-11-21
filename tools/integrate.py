@@ -107,14 +107,23 @@ def kill_group(proc):
 
 
 def pid_alive(pid):
+    """Is this process running? Never use os.kill(pid, 0) on Windows: it ends the process."""
     if pid <= 0:
         return False
+    if os.name == "nt":
+        import ctypes
+        k = ctypes.windll.kernel32
+        h = k.OpenProcess(0x1000, False, pid)
+        if not h:
+            return False
+        code = ctypes.c_ulong()
+        ok = k.GetExitCodeProcess(h, ctypes.byref(code))
+        k.CloseHandle(h)
+        return bool(ok) and code.value == 259
     try:
         os.kill(pid, 0)
-    except ProcessLookupError:
-        return False
     except OSError:
-        return True
+        return False
     return True
 
 
@@ -163,7 +172,16 @@ def prune_stale(repo, log):
     git(repo, "worktree", "prune")
 
 
+_LOCK_PATH = [None]
+
+
 def _terminate(signum, frame):
+    path = _LOCK_PATH[0]
+    if path:
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
     raise SystemExit(128 + signum)
 
 
@@ -373,6 +391,7 @@ def main(argv=None):
         if lock is None:
             print("integrate: another run is active")
             return 0
+        _LOCK_PATH[0] = lock
     old_handlers = {}
     try:
         for sg in (signal.SIGTERM, signal.SIGINT):
@@ -390,6 +409,7 @@ def main(argv=None):
                 os.unlink(lock)
             except OSError:
                 pass
+        _LOCK_PATH[0] = None
 
 
 def run_all(repo, args, lab, log, finish):
