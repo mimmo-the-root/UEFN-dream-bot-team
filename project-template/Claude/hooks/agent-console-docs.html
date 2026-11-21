@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- kit-console-rev: 10 -->
+<!-- kit-console-rev: 11 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -2985,46 +2985,135 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 </script><!-- kit-music:end -->
 <!-- config-tab:begin -->
 <script>
-/* Configurazione tab (T-090): GET /config shows the kit settings as cards; the Debug card has one switch per flag (POST /config, header X-Router-Action: 1). The other cards are read-only. */
+/* Configurazione tab: GET /config lists kit settings; every card is editable through POST /config (T-098/T-099/T-100), with debug levels, source/reset, history/undo and max_lines. */
 (function(){
-  var DBG=[["exchange_log","plan/FEEDBACK-FROM-COD.md","Exchange log: the agent's decisions and feedback to the planner."],
-    ["problems_log","plan/PROBLEMS-FROM-COD.md","Problems log: what blocked the agent and why."],
-    ["pending_tests","plan/PENDING-TESTS.md","Pending tests: commands the agent could not run itself."],
-    ["task_status_log","Claude/logs/task-status.log","Task status log: one line per task state change."],
-    ["router_error_log","router error log","Router error log: provider errors seen by the model router."],
-    ["safety_samples","safety check samples","Safety samples: keeps short samples of safety-check answers."]];
-  var SEC=[["routing","Routing"],["budget","Budget"],["agents","Agents"],["console","Console"],["skills","Skills"]];
+  var DBG=["exchange_log","problems_log","pending_tests","task_status_log","router_error_log","safety_samples"];
+  var SEC=[["debug","Debug"],["routing","Routing"],["budget","Budget"],["agents","Agents"],["console","Console"],["skills","Skills"],["pipeline","Pipeline (read-only)"]];
+  var KEYS=["debug.exchange_log","debug.problems_log","debug.pending_tests","debug.task_status_log","debug.router_error_log","debug.safety_samples","debug.all_off","debug.max_lines",
+    "routing.mode","routing.safety_check","routing.free_accept_edits","routing.spread","routing.chain",
+    "budget.weekly_used_pct","budget.warn_pct","budget.throttle_pct","budget.block_pct","budget.release_token_budget",
+    "agents.max_parallel","agents.tier_by_task_kind","agents.tier_by_task_kind.default","agents.tier_by_task_kind.plan","agents.tier_by_task_kind.code","agents.tier_by_task_kind.test","agents.tier_by_task_kind.docs","agents.tier_by_task_kind.review","agents.tier_by_task_kind.research","agents.lab_permission_block",
+    "console.language","console.palette","console.page_size",
+    "skills.enabled","skills.learn_mode","skills.second_brain",
+    "pipeline.enabled","pipeline.interval_min","pipeline.components"];
+  var TIER="agents.tier_by_task_kind.";
   var OWNER="budget.weekly_used_pct";
+  var ENUM={
+    "routing.mode":["auto","plan","free","safe","paid"],
+    "routing.safety_check":["off","short","mixed-safe"],
+    "routing.free_accept_edits":["false","true"],
+    "routing.spread":["false","true"],
+    "console.language":["it","en"],
+    "console.palette":["dark","light","contrast"],
+    "skills.learn_mode":["every-change","gated"],
+    "skills.second_brain":["false","true"],
+    "agents.lab_permission_block":["false","true"],
+    "debug.all_off":["false","true"]
+  };
+  var NUM={"debug.max_lines":[1,100000,1],"budget.warn_pct":[0,100,1],"budget.throttle_pct":[0,100,1],"budget.block_pct":[0,100,1],
+    "budget.release_token_budget":[0,100000000,1],"agents.max_parallel":[1,6,1],"console.page_size":[5,200,1]};
+  var LIST={"routing.chain":1,"skills.enabled":1};
+  var LABEL={"false":"off","true":"on"};
+  DBG.forEach(function(f){ENUM["debug."+f]=["off","errors","full"];});
+  ["default","plan","code","test","docs","review","research"].forEach(function(k){ENUM[TIER+k]=["T0","T1","T2","T3"];});
+  var panel=null,data=null,hist=[],flash="",flashEr=false;
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
   function show(v){return v===null||v===undefined?"-":(typeof v==="object"?JSON.stringify(v):String(v));}
-  var panel=null,data=null;
+  function lvl(v){return v===true?"full":(v===false?"off":String(v));}
   function css(){if(document.getElementById("cfgCss"))return;var s=document.createElement("style");s.id="cfgCss";
-    s.textContent="#cfgPanel{max-width:1100px;margin:14px auto;padding:0 14px;font-family:var(--sans,system-ui,sans-serif);color:var(--text,#e8e2ff)}#cfgPanel .cc{background:var(--panel,#16123a);border:1px solid var(--line,#2b2468);border-radius:10px;padding:10px 16px;margin:0 0 12px}#cfgPanel h2{font-size:15px;margin:2px 0 8px}#cfgPanel .cr{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line-soft,#352d7a);font-size:12.5px}#cfgPanel .cd{color:var(--dim,#9a90d4);font-size:11px;margin-top:2px}#cfgPanel .cv{font-family:var(--mono,monospace);color:var(--dim,#9a90d4);text-align:right;word-break:break-all}#cfgPanel .sw{cursor:pointer;border:1px solid var(--line,#2b2468);border-radius:20px;padding:2px 12px;font-size:11px;background:none;color:var(--dim,#9a90d4)}#cfgPanel .sw.on{color:var(--green,#39ff88);border-color:rgba(57,255,136,.5)}#cfgPanel .sw[disabled]{opacity:.55;cursor:default}#cfgPanel .ok{color:var(--green,#39ff88);font-size:11px}#cfgPanel .er{color:var(--red,#ff6b6b);font-size:11px}#cfgPanel .soon{font-size:10px;color:var(--amber,#ffb454);border:1px solid rgba(255,180,84,.5);border-radius:20px;padding:1px 8px;margin-left:8px}";
+    s.textContent='#cfgPanel{max-width:1100px;margin:14px auto;padding:0 14px;font-family:var(--sans,system-ui,sans-serif);color:var(--text,#e8e2ff)}#cfgPanel .cc{background:var(--panel,#16123a);border:1px solid var(--line,#2b2468);border-radius:10px;padding:10px 16px;margin:0 0 12px}#cfgPanel h2{font-size:15px;margin:2px 0 8px}#cfgPanel .cr{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line-soft,#352d7a);font-size:12.5px}#cfgPanel .cd{color:var(--dim,#9a90d4);font-size:11px;margin-top:2px}#cfgPanel .cv{font-family:var(--mono,monospace);color:var(--dim,#9a90d4);text-align:right;word-break:break-all}#cfgPanel .ctl{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap}#cfgPanel select,#cfgPanel input[type=number],#cfgPanel textarea{background:var(--panel,#16123a);color:var(--text,#e8e2ff);border:1px solid var(--line,#2b2468);border-radius:6px;font-size:12px;padding:3px 6px;max-width:260px}#cfgPanel textarea{width:240px;font-family:var(--mono,monospace);vertical-align:top}#cfgPanel .sb{font-size:10px;border:1px solid var(--line,#2b2468);border-radius:20px;padding:1px 7px;color:var(--dim,#9a90d4)}#cfgPanel .s-project{color:var(--cyan,rgb(var(--acc,75,216,255)))}#cfgPanel .s-global{color:var(--amber,#ffb454)}#cfgPanel .sw{cursor:pointer;border:1px solid var(--line,#2b2468);border-radius:20px;padding:2px 10px;font-size:11px;background:none;color:var(--dim,#9a90d4)}#cfgPanel .sw[disabled]{opacity:.5;cursor:default}#cfgPanel .rk{font-size:10px;color:var(--amber,#ffb454)}#cfgPanel .ok{color:var(--green,#39ff88);font-size:11px}#cfgPanel .er{color:var(--red,#ff6b6b);font-size:11px}#cfgPanel .h{color:var(--dim,#9a90d4);font-family:var(--mono,monospace);font-size:11px}#cfgPanel :focus-visible{outline:2px solid rgb(var(--acc,75,216,255));outline-offset:2px}@media (prefers-reduced-motion:reduce){#cfgPanel *{animation:none!important;transition:none!important}}';
     document.head.appendChild(s);}
   function setting(k){var l=data&&data.settings||[];for(var i=0;i<l.length;i++)if(l[i].key===k)return l[i];return null;}
-  function lvl(v){return v===true?"full":(v===false?"off":String(v));}
-  function render(err){
-    if(!panel)return;var h='<div class="cc"><h2>Configurazione</h2><div class="cd">Kit settings from the console server (GET /config).'+(data&&data.note?" "+esc(data.note):"")+'</div></div>';
-    if(err){panel.innerHTML=h+'<div class="cc er">Cannot read /config: '+esc(err)+'</div>';return;}
-    h+='<div class="cc"><h2>Debug</h2>';
-    var all=setting("debug.all_off");if(all&&all.value===true)h+='<div class="er">debug.all_off is on: every flag is silenced.</div>';
-    DBG.forEach(function(d){var s=setting("debug."+d[0]),v=s?lvl(s.value):"?",on=v!=="off"&&v!=="?";
-      h+='<div class="cr"><div><b>'+esc(d[0])+'</b> <span class="cd">'+esc(d[1])+'</span><div class="cd">'+esc(d[2])+'</div></div><div><button class="sw'+(on?" on":"")+'" data-k="debug.'+d[0]+'" data-v="'+(on?"off":"full")+'"'+(s?"":" disabled")+'>'+esc(v)+'</button> <span class="ok" id="cs_'+d[0]+'"></span></div></div>';});
-    h+='</div>';
-    SEC.forEach(function(sc){var l=(data.settings||[]).filter(function(s){return s.key.indexOf(sc[0]+".")===0;});
-      h+='<div class="cc"><h2>'+esc(sc[1])+'<span class="soon">coming soon</span></h2>';
-      if(!l.length)h+='<div class="cd">No keys.</div>';
-      l.forEach(function(s){var ro=s.key===OWNER?"owner-only":(s.risky?"risky":"read-only");
-        h+='<div class="cr"><div><b>'+esc(s.key)+'</b><div class="cd">'+esc(s.description)+'</div></div><div class="cv">'+esc(show(s.value))+' <button class="sw" disabled>'+ro+'</button></div></div>';});
-      h+='</div>';});
-    panel.innerHTML=h;
-    Array.prototype.forEach.call(panel.querySelectorAll("button.sw[data-k]"),function(b){b.onclick=function(){save(b);};});
+  function parentKey(k){return k.indexOf(TIER)===0?TIER.slice(0,-1):k;}
+  function valueOf(k,s){
+    if(k.indexOf(TIER)===0)return s&&typeof s.value==="object"&&s.value!==null?s.value[k.slice(TIER.length)]:null;
+    if(k.indexOf("debug.")===0&&k!=="debug.all_off"&&k!=="debug.max_lines")return lvl(s&&s.value);
+    return s?s.value:null;
   }
-  function save(b){var k=b.getAttribute("data-k"),v=b.getAttribute("data-v"),m=document.getElementById("cs_"+k.slice(6));b.disabled=true;if(m){m.className="cd";m.textContent="saving...";}
-    fetch("/config",{method:"POST",headers:{"Content-Type":"application/json","X-Router-Action":"1"},body:JSON.stringify({key:k,value:v})}).then(function(r){return r.json().catch(function(){return{ok:false,error:"HTTP "+r.status};});}).then(function(res){
-      if(res&&res.ok){load(function(){var n=document.getElementById("cs_"+k.slice(6));if(n){n.className="ok";n.textContent="saved: "+lvl(res.value);}});}
-      else{b.disabled=false;if(m){m.className="er";m.textContent="error: "+((res&&res.error)||"not saved");}}}).catch(function(e){b.disabled=false;if(m){m.className="er";m.textContent="error: "+e;}});}
-  function load(cb){fetch("/config").then(function(r){return r.json();}).then(function(j){if(!j||!j.ok)throw new Error((j&&j.error)||"bad answer");data=j;render();if(cb)cb();}).catch(function(e){render(String(e&&e.message||e));});}
+  function field(k,v,dis){
+    var d=dis?" disabled":"";
+    if(k===OWNER)return '<span class="cv">'+esc(show(v))+' owner-only</span>';
+    if(k===TIER.slice(0,-1))return '<span class="cd">one select per task kind</span>';
+    if(ENUM[k]){var h='<select data-k="'+k+'"'+d+'>';ENUM[k].forEach(function(o){
+      var lab=k.indexOf("debug.")===0?o:(LABEL[o]||o);h+='<option value="'+o+'"'+(String(v)===o?" selected":"")+'>'+esc(lab)+'</option>';});return h+"</select>";}
+    if(NUM[k]){var n=NUM[k];return '<input type="number" data-k="'+k+'" min="'+n[0]+'" max="'+n[1]+'" step="'+n[2]+'" value="'+esc(v)+'"'+d+">";}
+    if(LIST[k])return '<textarea rows="2" data-list="'+k+'"'+d+'>'+esc(JSON.stringify(v||[]))+'</textarea> <button class="sw" data-save="'+k+'"'+d+'>save list</button>';
+    return '<span class="cv">'+esc(show(v))+"</span>";
+  }
+  function row(k,ro){
+    var s=setting(k)||setting(parentKey(k))||{},v=valueOf(k,s),src=s.source||"default",risky=!!s.risky;
+    var h='<div class="cr"><div><b>'+esc(k)+"</b>";
+    if(s.description)h+='<div class="cd">'+esc(s.description)+"</div>";
+    h+='</div><div class="ctl">'+field(k,v,ro)+' <span class="sb s-'+esc(src)+'">'+esc(src)+"</span>";
+    if(!ro&&k!==OWNER)h+=' <button class="sw" data-reset="'+esc(k)+'"'+(src==="project"?"":' disabled title="Only project overrides can be reset here"')+">reset</button>";
+    if(risky)h+=' <span class="rk">confirm required</span>';
+    return h+"</div></div>";
+  }
+  function historyHTML(){
+    var h='<div class="cc"><h2>Last 10 changes</h2>';
+    if(!hist.length)return h+'<div class="cd">No changes yet.</div></div>';
+    hist.slice(-10).reverse().forEach(function(e){
+      var k=String(e.key||""),s=setting(k)||setting(parentKey(k))||{},risky=!!s.risky;
+      h+='<div class="cr"><div><b>'+esc(k)+'</b><div class="h">'+esc(e.time||"")+" &middot; "+esc(e.scope||"project")+"</div><div class=\"cd\">"+esc(show(e.old))+" &rarr; "+esc(show(e.new))+"</div></div>";
+      h+='<button class="sw" data-undo="'+esc(k)+'" data-risky="'+(risky?"1":"")+'">undo</button></div>';});
+    return h+"</div>";
+  }
+  function render(err){
+    if(!panel)return;
+    var h='<div class="cc"><h2>Configurazione</h2><div class="cd">Kit settings from the console server (GET /config).'+(data&&data.note?" "+esc(data.note):"")+"</div>";
+    if(flash)h+='<div class="'+(flashEr?"er":"ok")+'">'+esc(flash)+"</div>";
+    h+="</div>";
+    if(err){panel.innerHTML=h+'<div class="cc er">Cannot read /config: '+esc(err)+"</div>";return;}
+    var all=setting("debug.all_off");
+    if(all&&all.value===true)h+='<div class="cc er">debug.all_off is on: every debug flag is silenced.</div>';
+    SEC.forEach(function(sc){
+      h+='<div class="cc"><h2>'+esc(sc[1])+"</h2>";
+      KEYS.filter(function(k){return k.indexOf(sc[0]+".")===0;}).forEach(function(k){h+=row(k,sc[0]==="pipeline");});
+      h+="</div>";});
+    h+=historyHTML();
+    panel.innerHTML=h;
+    Array.prototype.forEach.call(panel.querySelectorAll("select[data-k],input[type=number][data-k]"),function(el){
+      el.onchange=function(){saveValue(el.getAttribute("data-k"),el.value);};});
+    Array.prototype.forEach.call(panel.querySelectorAll("button[data-save]"),function(b){
+      b.onclick=function(){saveList(b.getAttribute("data-save"));};});
+    Array.prototype.forEach.call(panel.querySelectorAll("button[data-reset]"),function(b){
+      b.onclick=function(){resetKey(b.getAttribute("data-reset"));};});
+    Array.prototype.forEach.call(panel.querySelectorAll("button[data-undo]"),function(b){
+      b.onclick=function(){undoKey(b.getAttribute("data-undo"),b.getAttribute("data-risky")==="1");};});
+  }
+  function note(msg,isEr){flash=String(msg||"not saved");flashEr=!!isEr;render();}
+  function confirmChange(k){return window.confirm("Confirm change to risky setting "+k+"?");}
+  function post(url,body,ok){
+    fetch(url,{method:"POST",headers:{"Content-Type":"application/json","X-Router-Action":"1"},body:JSON.stringify(body)})
+      .then(function(r){return r.json().catch(function(){return{ok:false,error:"HTTP "+r.status};});})
+      .then(function(j){if(!j||!j.ok)throw new Error((j&&j.error)||"not saved");note("saved: "+(j.key||body.key),false);load(null,true).then(function(){if(ok)ok(j);});})
+      .catch(function(e){note(e&&e.message||e,true);});
+  }
+  function saveValue(k,v){
+    var s=setting(k)||setting(parentKey(k))||{};
+    if(s.risky&&!confirmChange(k))return;
+    var key=parentKey(k),value=v;
+    if(k.indexOf(TIER)===0){var obj=JSON.parse(JSON.stringify((setting(key)||{}).value||{}));obj[k.slice(TIER.length)]=v;value=obj;}
+    else if(NUM[k])value=Number(value);
+    else if(ENUM[k]&&ENUM[k].length===2&&ENUM[k][0]==="false"&&ENUM[k][1]==="true")value=v==="true";
+    post("/config",{key:key,value:value,confirm:!!s.risky});
+  }
+  function parseList(text){
+    var t=String(text||"").trim();
+    if(!t)return[];
+    if(t.charAt(0)==="["){var v=JSON.parse(t);if(!Array.isArray(v))throw new Error("a list is required");return v;}
+    return t.split(",").map(function(x){return x.trim();}).filter(Boolean);
+  }
+  function saveList(k){var el=panel.querySelector('textarea[data-list="'+k+'"]');if(!el)return;
+    try{var v=parseList(el.value);post("/config",{key:k,value:v,confirm:false});}catch(e){note(e.message||"invalid list",true);}}
+  function resetKey(k){var s=setting(k)||{};if(s.risky&&!confirmChange(k))return;
+    post("/config/reset",{key:k,scope:"project",confirm:true});}
+  function undoKey(k,risky){if(risky&&!confirmChange(k))return;post("/config/undo",{key:k,confirm:risky});}
+  function loadHistory(){return fetch("/config/history?n=10",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){hist=j&&j.history||[];}).catch(function(){hist=[];});}
+  function load(cb,silent){if(!silent){flash="";flashEr=false;}
+    return fetch("/config",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
+      if(!j||!j.ok)throw new Error((j&&j.error)||"bad answer");data=j;return loadHistory().then(function(){render();if(cb)cb();});})
+      .catch(function(e){render(String(e&&e.message||e));});}
   function open(on){css();var link=document.querySelector("[data-config-tab]");if(!link)return;
     var wrap=link.closest(".wrap")||document.body,top=link;while(top.parentNode&&top.parentNode!==wrap)top=top.parentNode;
     if(!panel){panel=document.createElement("div");panel.id="cfgPanel";top.parentNode.insertBefore(panel,top.nextSibling);}
@@ -3039,5 +3128,6 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 })();
 </script>
 <!-- config-tab:end -->
+
 </body>
 </html>
