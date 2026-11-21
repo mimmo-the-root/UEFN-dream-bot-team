@@ -27,7 +27,8 @@ if name == "bad":
 class Guardian(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp(prefix="pipeline-guardian-test-")
-        self.lab = os.path.join(self.tmp, "lab")
+        self.project = os.path.join(self.tmp, "project")
+        self.lab = os.path.join(self.project, "Claude")
         os.makedirs(self.lab)
         self.global_env = os.environ.get("KIT_GLOBAL_SETTINGS")
         os.environ["KIT_GLOBAL_SETTINGS"] = os.path.join(self.tmp, "global-settings.json")
@@ -51,7 +52,7 @@ class Guardian(unittest.TestCase):
             components.insert(1, {"name": "bad", "cmd": [sys.executable, self.step_script, "bad", self.step_log]})
         if boom:
             components.insert(2, {"name": "boom", "cmd": [os.path.join(self.tmp, "no-such-command")]})
-        settings = os.path.join(self.lab, "Claude", "config", "kit-settings.json")
+        settings = os.path.join(self.lab, "config", "kit-settings.json")
         os.makedirs(os.path.dirname(settings), exist_ok=True)
         with open(settings, "w", encoding="utf-8", newline="\n") as f:
             json.dump({"pipeline": {"enabled": enabled, "interval_min": 5, "components": components}}, f, indent=2)
@@ -138,6 +139,34 @@ class Guardian(unittest.TestCase):
             self.assertIsNone(pg.resolve_component("dc_auto", self.lab)[1])
         if pg.brain_hot_script(self.lab) is None:
             self.assertIsNone(pg.resolve_component("brain_hot_update", self.lab)[1])
+
+    def test_hook_passes_claude_lab_and_checks_claude_stop(self):
+        hook_path = os.path.join(ROOT, "project-template", "Claude", "hooks", "ensure-pipeline.ps1")
+        with open(hook_path, encoding="utf-8") as f:
+            hook = f.read()
+        self.assertTrue(os.path.isdir(self.lab))
+        self.assertIn('$lab = Join-Path $ProjectDir "Claude"', hook)
+        self.assertIn('--lab", "`"$lab`"")', hook)
+        self.assertNotIn('--lab", "`"$ProjectDir`"")', hook)
+        self.assertIn('(Join-Path $lab "STOP")', hook)
+        self.assertNotIn('(Join-Path $ProjectDir "STOP")', hook)
+        self.assertIn('$log = Join-Path $lab "logs\\console-start.log"', hook)
+        self.assertEqual(pg.project_dir(self.lab), self.project)
+        self.assertEqual(pg.project_dir(os.path.join(self.tmp, "other")), os.path.join(self.tmp, "other"))
+
+    def test_config_reads_real_lab_layout(self):
+        self.configure(["one"], enabled=False)
+        self.assertFalse(pg.config(self.lab)[0])
+        self.assertEqual(pg.log_path(self.lab), os.path.join(self.lab, "logs", "pipeline-guardian.log"))
+        self.assertEqual(pg.stop_path(self.lab), os.path.join(self.lab, "STOP"))
+
+    def test_brain_hot_script_uses_lab_hooks(self):
+        hooks = os.path.join(self.lab, "hooks")
+        os.makedirs(hooks, exist_ok=True)
+        script = os.path.join(hooks, "brain_hot_update.py")
+        with open(script, "w", encoding="utf-8", newline="\n") as f:
+            f.write("")
+        self.assertEqual(pg.brain_hot_script(self.lab), script)
 
     def test_kit_config_pipeline_keys(self):
         defaults = kc.defaults()["pipeline"]

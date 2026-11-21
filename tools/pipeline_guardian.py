@@ -40,6 +40,14 @@ def lab_dir(lab=None):
     return os.path.abspath(lab or env_lab or os.path.join(project, "Claude"))
 
 
+def project_dir(lab):
+    """Project root for a lab path (<project>/Claude -> <project>), for kit_config calls."""
+    normalized = os.path.normpath(lab)
+    if os.path.basename(normalized).lower() == "claude":
+        return os.path.dirname(normalized)
+    return lab
+
+
 def log_path(lab):
     return os.path.join(lab, "logs", "pipeline-guardian.log")
 
@@ -94,9 +102,9 @@ def config(lab):
         if TOOLS_DIR not in sys.path:
             sys.path.insert(0, TOOLS_DIR)
         import kit_config
-        enabled = kit_config.get("pipeline.enabled", lab, True)
-        interval = kit_config.get("pipeline.interval_min", lab, 5)
-        components = kit_config.get("pipeline.components", lab, DEFAULT_COMPONENTS)
+        enabled = kit_config.get("pipeline.enabled", project_dir(lab), True)
+        interval = kit_config.get("pipeline.interval_min", project_dir(lab), 5)
+        components = kit_config.get("pipeline.components", project_dir(lab), DEFAULT_COMPONENTS)
     except Exception:
         enabled, interval, components = True, 5, DEFAULT_COMPONENTS
     if not isinstance(interval, int) or isinstance(interval, bool) or not 1 <= interval <= 60:
@@ -130,7 +138,7 @@ def newer_version(found, running=VERSION):
 
 def brain_hot_script(lab):
     names = ("brain_hot_update.py", "brain_hot.py")
-    dirs = (os.path.join(lab, "Claude", "hooks"), HOOKS_DIR, os.path.join(ROOT, "hooks"), TOOLS_DIR)
+    dirs = (os.path.join(lab, "hooks"), HOOKS_DIR, os.path.join(ROOT, "hooks"), TOOLS_DIR)
     for d in dirs:
         for name in names:
             p = os.path.join(d, name)

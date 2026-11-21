@@ -7,14 +7,15 @@ param([string]$ProjectDir = "")
 try {
     if (-not $ProjectDir) { $ProjectDir = $env:CLAUDE_PROJECT_DIR }
     if (-not $ProjectDir) { exit 0 }
-    $log = Join-Path $ProjectDir "Claude\logs\console-start.log"
+    $lab = Join-Path $ProjectDir "Claude"
+    $log = Join-Path $lab "logs\console-start.log"
     function Log([string]$m) { if ($log) { try { Add-Content -LiteralPath $log -Value ("{0} pipeline: {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $m) } catch {} } }
-    $settings = Join-Path $ProjectDir "Claude\config\kit-settings.json"
+    $settings = Join-Path $lab "config\kit-settings.json"
     if (Test-Path $settings) {
         $cfg = Get-Content -LiteralPath $settings -Raw | ConvertFrom-Json
         if ($cfg -and $cfg.pipeline -and $cfg.pipeline.enabled -eq $false) { exit 0 }
     }
-    if (Test-Path (Join-Path $ProjectDir "STOP")) { exit 0 }
+    if (Test-Path (Join-Path $lab "STOP")) { exit 0 }
     $guard = $env:PIPELINE_GUARDIAN
     if (-not $guard -or -not (Test-Path $guard)) {
         $candidates = @(
@@ -33,8 +34,8 @@ try {
     })
     if ($guardians.Count -gt 0) { exit 0 }
     $py = Get-Command py -ErrorAction SilentlyContinue
-    if ($py) { Start-Process -FilePath $py.Source -ArgumentList @("-3", "`"$guard`"", "supervise", "--lab", "`"$ProjectDir`"") -WindowStyle Hidden }
-    else { Start-Process -FilePath "python" -ArgumentList @("`"$guard`"", "supervise", "--lab", "`"$ProjectDir`"") -WindowStyle Hidden }
+    if ($py) { Start-Process -FilePath $py.Source -ArgumentList @("-3", "`"$guard`"", "supervise", "--lab", "`"$lab`"") -WindowStyle Hidden }
+    else { Start-Process -FilePath "python" -ArgumentList @("`"$guard`"", "supervise", "--lab", "`"$lab`"") -WindowStyle Hidden }
     Log "guardian started (pipeline cycles every interval; restarts itself after an update)"
 } catch { }
 exit 0
