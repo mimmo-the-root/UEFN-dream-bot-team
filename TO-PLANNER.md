@@ -1,4 +1,5 @@
-# TO PLANNER - coder handoff for pkg-299
+# TO PLANNER - coder handoff for pkg-300r-oc
 
-COMMITTED T-048/T-046 r1/pkg-299 342c0e59312909008140f37c152aa43e5bf604c8 tests 194/194
-DECISION: last released kit version read as v1.124.57 because CHANGELOG.md marks ibrido-0 as local slices, not released; the draft covers ibrido-0 and the later integrated commits.
+COMMITTED T-081/T-082/T-083 r1/pkg-300r-oc 9bbcd54473ff515a7a4d2c8168d44eca0f1845bf tests 195/195
+DECISION: samples are JSONL objects with an action (action/text/tail; the router's tail uses its last non-empty transcript line) and the paid verdict (paid_verdict/model_verdict/verdict/response/block or inline <block>yes</block>=block, <block>no</block>=allow); the tool refuses >5 lines, bad JSON and any secret pattern before judging; the kit repo has no Claude/docs/ROADMAP.md (rows live in the Lab), so only the Lab console status was advanced and planner-docs closes the rows.
+python -c "import json,os,re,pathlib; s=pathlib.Path.home()/'.dream-router'/'safety-samples.jsonl'; d=pathlib.Path('plan/safety-samples-copy.jsonl'); r=re.compile(r'(sk-[A-Za-z0-9_-]{10,}|Bearer\s+[A-Za-z0-9._-]{10,}|[A-Za-z0-9+/_-]{40,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})',re.I); lines=[x for x in (s.read_text(encoding='utf-8').splitlines() if s.exists() else []) if x.strip()][-5:]; good=[x for x in lines if not r.search(x)]; d.parent.mkdir(parents=True,exist_ok=True); d.write_text('\n'.join(good)+'\n' if good else '',encoding='utf-8'); print('copied %d/%d lines'%(len(good),len(lines)))"
