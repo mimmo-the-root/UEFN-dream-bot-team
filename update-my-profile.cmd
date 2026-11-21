@@ -44,6 +44,10 @@ copy /Y "%SRC%user-level-hooks\fab_assets.py" "%DST%\hooks\fab_assets.py" >nul
 copy /Y "%SRC%user-level-hooks\fab_clean_cycle.py" "%DST%\hooks\fab_clean_cycle.py" >nul
 copy /Y "%SRC%user-level-hooks\fab_checklist.py" "%DST%\hooks\fab_checklist.py" >nul
 copy /Y "%SRC%user-level-hooks\map_trace.py" "%DST%\hooks\map_trace.py" >nul
+rem Second brain: session brief, free checks and hot update (no restart needed)
+copy /Y "%SRC%project-template\Claude\hooks\brain_brief.py" "%DST%\hooks\brain_brief.py" >nul
+copy /Y "%SRC%project-template\Claude\hooks\brain_upkeep.py" "%DST%\hooks\brain_upkeep.py" >nul
+copy /Y "%SRC%tools\brain_hot.py" "%DST%\hooks\brain_hot.py" >nul
 rem v1.124.0: Dream Router (free models for Cod) and the cod.cmd launcher
 copy /Y "%SRC%user-level-hooks\dream_router.py" "%DST%\hooks\dream_router.py" >nul
 copy /Y "%SRC%user-level-hooks\model_history.py" "%DST%\hooks\model_history.py" >nul
