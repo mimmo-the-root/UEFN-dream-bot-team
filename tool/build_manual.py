@@ -341,7 +341,18 @@ def build(out_dir):
 
 
 def tree(d):
-    return {f: open(os.path.join(d, f), "rb").read() for f in sorted(os.listdir(d)) if os.path.isfile(os.path.join(d, f))} if os.path.isdir(d) else {}
+    if not os.path.isdir(d):
+        return {}
+    out = {}
+    for f in sorted(os.listdir(d)):
+        p = os.path.join(d, f)
+        if not os.path.isfile(p):
+            continue
+        b = open(p, "rb").read()
+        if f.endswith((".html", ".css", ".xml", ".txt")):
+            b = b.replace(b"\r\n", b"\n")
+        out[f] = b
+    return out
 
 
 def main():

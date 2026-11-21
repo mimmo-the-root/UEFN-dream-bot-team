@@ -66,7 +66,7 @@ def main():
         bad = []
         for f, t in files.items():
             p = os.path.join(OUT, f)
-            if not os.path.isfile(p) or open(p, encoding="utf-8", newline="").read() != t:
+            if not os.path.isfile(p) or open(p, encoding="utf-8", newline="").read().replace("\r\n", "\n") != t:
                 bad.append(f)
         extra = [f for f in (os.listdir(OUT) if os.path.isdir(OUT) else []) if f not in files]
         for f in bad + extra:
