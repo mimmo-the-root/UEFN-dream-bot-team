@@ -1,5 +1,4 @@
-# TO PLANNER - coder handoff for pkg-300r-oc
-
-COMMITTED T-081/T-082/T-083 r1/pkg-300r-oc 9bbcd54473ff515a7a4d2c8168d44eca0f1845bf tests 195/195
-DECISION: samples are JSONL objects with an action (action/text/tail; the router's tail uses its last non-empty transcript line) and the paid verdict (paid_verdict/model_verdict/verdict/response/block or inline <block>yes</block>=block, <block>no</block>=allow); the tool refuses >5 lines, bad JSON and any secret pattern before judging; the kit repo has no Claude/docs/ROADMAP.md (rows live in the Lab), so only the Lab console status was advanced and planner-docs closes the rows.
-python -c "import json,os,re,pathlib; s=pathlib.Path.home()/'.dream-router'/'safety-samples.jsonl'; d=pathlib.Path('plan/safety-samples-copy.jsonl'); r=re.compile(r'(sk-[A-Za-z0-9_-]{10,}|Bearer\s+[A-Za-z0-9._-]{10,}|[A-Za-z0-9+/_-]{40,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})',re.I); lines=[x for x in (s.read_text(encoding='utf-8').splitlines() if s.exists() else []) if x.strip()][-5:]; good=[x for x in lines if not r.search(x)]; d.parent.mkdir(parents=True,exist_ok=True); d.write_text('\n'.join(good)+'\n' if good else '',encoding='utf-8'); print('copied %d/%d lines'%(len(good),len(lines)))"
+# TO-PLANNER
+T-114 second brain autostart (r1/pkg-303)
+COMMITTED T-114 r1/pkg-303 a0114e9d27d60c096612d3b4b8923cd4c41f17de tests 196/196
+DECISION: brain_brief.py and brain_upkeep.py were already shipped and identical to the Lab copies, so this package adds ensure-brain.ps1, brain_hot.py, short_cache.py, installer/settings wiring and the acceptance test without duplicating them.
