@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- kit-console-rev: 8 -->
+<!-- kit-console-rev: 9 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -725,6 +725,7 @@ function khSetMode(base,ui,fetchFn){var m=khModeToRouter(ui);if(!m)return Promis
       h+='<div class="cc"><h2>'+esc(sc[1])+"</h2>";
       KEYS.filter(function(k){return k.indexOf(sc[0]+".")===0;}).forEach(function(k){h+=row(k,sc[0]==="pipeline");});
       h+="</div>";});
+    h+=debugBundleHTML();
     h+=historyHTML();
     panel.innerHTML=h;
     Array.prototype.forEach.call(panel.querySelectorAll("select[data-k],input[type=number][data-k]"),function(el){
@@ -735,6 +736,20 @@ function khSetMode(base,ui,fetchFn){var m=khModeToRouter(ui);if(!m)return Promis
       b.onclick=function(){resetKey(b.getAttribute("data-reset"));};});
     Array.prototype.forEach.call(panel.querySelectorAll("button[data-undo]"),function(b){
       b.onclick=function(){undoKey(b.getAttribute("data-undo"),b.getAttribute("data-risky")==="1");};});
+    var dbg=panel.querySelector("button[data-debug-bundle]");
+    if(dbg)dbg.onclick=exportDebugBundle;
+  }
+  function debugBundleHTML(){
+    return '<div class="cc"><h2>Debug bundle</h2><div class="cd">Export a sanitized zip with logs, problems, config and versions (POST /debug-bundle).</div>'+
+      '<button class="sw" data-debug-bundle="1">Export debug bundle</button><div id="dbgBundleResult" class="cd"></div></div>';
+  }
+  function exportDebugBundle(){
+    var out=panel.querySelector("#dbgBundleResult");
+    if(out){out.textContent="Creating bundle...";out.className="cd";}
+    fetch("/debug-bundle",{method:"POST",headers:{"Content-Type":"application/json","X-Router-Action":"1"},body:"{}"})
+      .then(function(r){return r.json().catch(function(){return{ok:false,error:"HTTP "+r.status};});})
+      .then(function(j){if(out){out.textContent=(j&&j.ok?("Bundle: "+(j.zip||"created")):("Refused: "+((j&&j.error)||"unknown reason")));out.className=j&&j.ok?"ok":"er";}})
+      .catch(function(e){if(out){out.textContent="Refused: "+String(e&&e.message||e);out.className="er";}});
   }
   function note(msg,isEr){flash=String(msg||"not saved");flashEr=!!isEr;render();}
   function confirmChange(k){return window.confirm("Confirm change to risky setting "+k+"?");}
@@ -782,6 +797,59 @@ function khSetMode(base,ui,fetchFn){var m=khModeToRouter(ui);if(!m)return Promis
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(init,0);});else setTimeout(init,0);
 })();
 </script>
+<!-- problems-panel:begin -->
+<script>
+(function(){
+  var panel=null;
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function css(){if(document.getElementById("prbCss"))return;var s=document.createElement("style");s.id="prbCss";
+    s.textContent='#prbPanel{max-width:1100px;margin:14px auto;padding:0 14px;color:var(--text,#e8e2ff);font-family:var(--sans,system-ui,sans-serif)}#prbPanel .cc{background:var(--panel,#16123a);border:1px solid var(--line,#2b2468);border-radius:10px;padding:10px 16px;margin:0 0 12px}#prbPanel h2{font-size:15px;margin:2px 0 8px}#prbPanel .counts{display:flex;gap:16px;font-size:13px}#prbPanel .row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line-soft,#352d7a);font-size:12.5px}#prbPanel .age{color:var(--amber,#ffb454);font-family:var(--mono,monospace);font-size:11px}#prbPanel .cd{color:var(--dim,#9a90d4);font-size:11px}#prbPanel .sw{cursor:pointer;border:1px solid var(--line,#2b2468);border-radius:20px;padding:2px 10px;font-size:11px;background:none;color:var(--dim,#9a90d4)}#prbPanel .er{color:var(--red,#ff6b6b);font-size:11px}#prbPanel :focus-visible{outline:2px solid rgb(var(--acc,75,216,255));outline-offset:2px}@media (prefers-reduced-motion:reduce){#prbPanel *{animation:none!important;transition:none!important}}';
+    document.head.appendChild(s);}
+  function draw(d,err){
+    if(!panel)return;
+    var h='<div class="cc"><h2>Problemi</h2><div class="cd">Open and closed lines from the console server (GET /problems).</div>';
+    if(err){panel.innerHTML=h+'<div class="er">'+esc(err)+'</div></div>';return;}
+    h+='<div class="counts"><span>Open: <b>'+(d?d.open:0)+'</b></span><span>Closed: <b>'+(d?d.closed:0)+'</b></span></div></div>';
+    var items=(d&&d.items)||[];
+    h+='<div class="cc">';
+    if(!items.length)h+='<div class="cd">No problems.</div>';
+    items.forEach(function(it){
+      var age=it.age_days===null||it.age_days===undefined?"age -":"age "+esc(it.age_days)+" d";
+      h+='<div class="row"><div><b>'+esc(it.ref||it.line_id)+'</b> '+esc(it.text||"")+' <span class="age">'+age+'</span></div>';
+      h+=it.status==="open"?'<button class="sw" data-handled="'+esc(it.line_id)+'">Handled</button>':'<span class="cd">handled</span>';
+      h+='</div>';});
+    h+='</div>';
+    panel.innerHTML=h;
+    Array.prototype.forEach.call(panel.querySelectorAll("button[data-handled]"),function(b){
+      b.onclick=function(){mark(b.getAttribute("data-handled"));};});
+  }
+  function mark(id){
+    fetch("/problems/handled",{method:"POST",headers:{"Content-Type":"application/json","X-Router-Action":"1"},body:JSON.stringify({line_id:id})})
+      .then(function(r){return r.json().catch(function(){return{ok:false,error:"HTTP "+r.status};});})
+      .then(function(j){if(!j||!j.ok)throw new Error((j&&j.error)||"not marked");return load();})
+      .catch(function(e){draw(null,String(e&&e.message||e));});
+  }
+  function load(){return fetch("/problems",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){draw(j,null);})
+    .catch(function(e){draw(null,String(e&&e.message||e));});}
+  function open(on){css();var link=document.querySelector("[data-problems-tab]");if(!link)return;
+    var wrap=link.closest(".wrap")||document.body,top=link;while(top.parentNode&&top.parentNode!==wrap)top=top.parentNode;
+    if(!panel){panel=document.createElement("div");panel.id="prbPanel";top.parentNode.insertBefore(panel,top.nextSibling);}
+    panel.style.display=on?"block":"none";
+    Array.prototype.forEach.call(wrap.children,function(c){if(c===top||c===panel||c.tagName==="SCRIPT"||c.tagName==="STYLE")return;c.style.display=on?"none":"";});
+    var app=document.getElementById("app");if(app&&app.parentNode!==wrap)app.style.display=on?"none":"";
+    link.classList.toggle("on",on);if(on)load();}
+  function init(){if(document.querySelector("[data-problems-tab]"))return true;
+    var cfg=document.querySelector("[data-config-tab]");if(!cfg)return false;
+    var a=document.createElement("a");a.href="#problemi";a.setAttribute("data-problems-tab","1");a.textContent="Problemi";
+    if(cfg.className&&cfg.className!=="on")a.className=cfg.className;
+    cfg.parentNode.insertBefore(a,cfg);
+    a.onclick=function(e){e.preventDefault();open(!(panel&&panel.style.display==="block"));};
+    if(location.hash==="#problemi")open(true);
+    return true;}
+  (function retry(n){if(!init()&&n<100)setTimeout(function(){retry(n+1);},100);})(0);
+})();
+</script>
+<!-- problems-panel:end -->
 <!-- config-tab:end -->
 
 </body>
