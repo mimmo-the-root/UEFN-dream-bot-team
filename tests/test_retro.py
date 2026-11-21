@@ -85,6 +85,63 @@ def test_auto_rollback_when_worse():
         assert all(p["status"] == "proposed" for p in json.loads(pipe.read_text())["proposals"])
 
 
+def test_real_shape_and_golden():
+    with tempfile.TemporaryDirectory() as tmp:
+        base = Path(tmp)
+        tel = base / "plan" / "telemetry"
+        tel.mkdir(parents=True)
+        rt = base / "router"
+        rt.mkdir()
+        wj(tel / "t-023-pinning.json", {"packages_tested": 20, "packages_with_single_model": 16,
+                                        "spread_enabled": True, "calls": 100, "failures": 20})
+        wj(rt / "usage-72h.json", {
+            "zen/qwen": {"provider": "zen", "model": "qwen", "hours": {"h1": [100, 50, 20, 4]}},
+            "claude-plan/x": {"provider": "claude-plan", "model": "x", "hours": {"h1": [300, 100, 10, 0]}},
+        })
+        golden = base / "golden.json"
+        wj(golden, {"total": 20, "models": {"free/good": {"passed": 20, "total": 20},
+                                            "free/drop": {"passed": 16, "total": 20}},
+                    "comparison": {"degradation": [{"model": "free/drop", "previous": 20,
+                                                     "current": 16, "drop": 4}],
+                                   "deltas": {"free/drop": 4}, "degraded_models": ["free/drop"]}})
+        cfg = base / "cfg.json"
+        wj(cfg, {"router": {"disabled_models": []}})
+        cfg_before, golden_before = cfg.read_text(), golden.read_text()
+        pipe = base / "pipe.json"
+        rc, out, err = run("real", "--telemetry-dir", str(tel), "--usage-72h", str(rt / "usage-72h.json"),
+                           "--golden", str(golden), "--config", str(cfg), "--pipeline", str(pipe))
+        assert rc == 0, out + err
+        d = json.loads(pipe.read_text(encoding="utf-8"))
+        assert d["metrics"]["pinning_ratio"] == 0.8
+        assert abs(d["metrics"]["failure_rate"] - 4 / 30) < 1e-9
+        assert abs(d["metrics"]["paid_share"] - 400 / 550) < 1e-9
+        assert abs(d["metrics"]["golden_pass_rate"] - 36 / 40) < 1e-9
+        assert d["metrics"]["golden_degraded_count"] == 1
+        assert d["golden"]["degraded"] == ["free/drop"]
+        props = d["proposals"]
+        assert 1 <= len(props) <= 3
+        gp = [p for p in props if p["key"] == "router.disabled_models"][0]
+        assert gp["value"] == ["free/drop"] and gp["rollback_value"] == []
+        assert gp["baseline"] == 1 and gp["direction"] == "down" and gp["status"] == "proposed"
+        assert cfg.read_text() == cfg_before and golden.read_text() == golden_before
+        assert b"\r" not in pipe.read_bytes()
+
+        wj(golden, {"total": 20, "models": {"free/good": {"passed": 20, "total": 20},
+                                            "free/drop": {"passed": 16, "total": 20},
+                                            "free/worse": {"passed": 17, "total": 20}},
+                    "comparison": {"degradation": [{"model": "free/drop", "previous": 20,
+                                                     "current": 16, "drop": 4},
+                                                    {"model": "free/worse", "previous": 20,
+                                                     "current": 17, "drop": 3}],
+                                   "degraded_models": ["free/drop", "free/worse"]}})
+        rc, out, err = run("check", "--telemetry-dir", str(tel), "--golden", str(golden),
+                           "--pipeline", str(pipe))
+        assert rc == 0, out + err
+        st = {p["key"]: p["status"] for p in json.loads(pipe.read_text())["proposals"]}
+        assert st["router.disabled_models"] == "rolled_back", st
+        assert golden.read_text() != golden_before
+
+
 if __name__ == "__main__":
     for n, f in list(globals().items()):
         if n.startswith("test_"):
