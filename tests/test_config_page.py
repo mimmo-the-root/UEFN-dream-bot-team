@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""T-090: every agent-console page has the Configurazione tab, lists the debug switches of kit_config, and its scripts pass node --check."""
+"""T-090/T-098: every agent-console page has the Configurazione tab, lists every kit_config key, has editable cards, and its scripts pass node --check."""
 import glob, os, re, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -8,6 +8,26 @@ import kit_config  # noqa: E402
 
 HOOKS = os.path.join(ROOT, "project-template", "Claude", "hooks")
 pages = sorted(glob.glob(os.path.join(HOOKS, "agent-console*.html")))
+
+
+def leaves(node, prefix=""):
+    """Every writable leaf of kit_config.defaults(), as dotted keys."""
+    out = []
+    for key, value in node.items():
+        if key == "description":
+            continue
+        dotted = prefix + key
+        if isinstance(value, dict):
+            out.extend(leaves(value, dotted + "."))
+        else:
+            out.append(dotted)
+    return out
+
+
+KEYS = leaves(kit_config.defaults())
+MARKERS = ['type="number"', "data-list=", "routing.chain", "skills.enabled",
+           "/config/undo", "/config/reset", "/config/history?n=10", "window.confirm",
+           "off", "errors", "full"]
 bad = []
 if len(pages) != 9:
     bad.append("expected 9 agent-console pages, found %d" % len(pages))
@@ -25,6 +45,15 @@ for p in pages:
     for f in kit_config.DEBUG_FLAGS:
         if '"%s"' % f not in blk:
             bad.append("%s: debug switch %s missing" % (name, f))
+    for key in KEYS:
+        if '"%s"' % key not in blk:
+            bad.append("%s: kit_config key %s missing" % (name, key))
+    for marker in MARKERS:
+        if marker not in blk:
+            bad.append("%s: edit control %s missing" % (name, marker))
+    rev = re.search(r"<!-- kit-console-rev: (\d+) -->", t)
+    if not rev or int(rev.group(1)) < 8:
+        bad.append(name + ": kit-console-rev not bumped")
     if node:
         for i, s in enumerate(re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", t, re.S)):
             with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as fh:
