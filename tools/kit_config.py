@@ -75,6 +75,12 @@ _DEFAULTS = {
         "learn_mode": "gated",
         "second_brain": False,
     },
+    "pipeline": {
+        "description": "Pipeline guardian. enabled = true keeps the relay pipeline running. interval_min = minutes between cycles (1-60, default 5). components = ordered list of step names (or {name, cmd} command objects); dc_auto and brain_hot_update are skipped when absent.",
+        "enabled": True,
+        "interval_min": 5,
+        "components": ["orchestrate", "watchdog", "pm_routine", "dc_auto", "brain_hot_update"],
+    },
 }
 
 
@@ -207,6 +213,19 @@ def _bad_keys(data):
             bad["skills.learn_mode"] = "skills.learn_mode must be \"every-change\" or \"gated\""
         if "second_brain" in k and not isinstance(k["second_brain"], bool):
             bad["skills.second_brain"] = "skills.second_brain must be true or false"
+    p = data.get("pipeline")
+    if isinstance(p, dict):
+        if "enabled" in p and not isinstance(p["enabled"], bool):
+            bad["pipeline.enabled"] = "pipeline.enabled must be true or false"
+        iv = p.get("interval_min")
+        if "interval_min" in p and (not _is_int(iv) or not 1 <= iv <= 60):
+            bad["pipeline.interval_min"] = "pipeline.interval_min must be a whole number from 1 to 60"
+        cp = p.get("components")
+        if "components" in p and (not isinstance(cp, list) or any(
+                not (isinstance(x, str) and x.strip()) and not (
+                    isinstance(x, dict) and isinstance(x.get("cmd"), (str, list)) and x.get("cmd")
+                ) for x in cp)):
+            bad["pipeline.components"] = "pipeline.components must be a list of step names or {name, cmd} objects"
     return bad
 
 

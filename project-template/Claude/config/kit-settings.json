@@ -51,5 +51,11 @@
     "enabled": [],
     "learn_mode": "gated",
     "second_brain": false
+  },
+  "pipeline": {
+    "description": "Pipeline guardian. enabled = true keeps the relay pipeline running. interval_min = minutes between cycles (1-60, default 5). components = ordered list of step names (or {name, cmd} command objects); dc_auto and brain_hot_update are skipped when absent.",
+    "enabled": true,
+    "interval_min": 5,
+    "components": ["orchestrate", "watchdog", "pm_routine", "dc_auto", "brain_hot_update"]
   }
 }
