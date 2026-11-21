@@ -18,6 +18,7 @@ checks.append(("renderProviders has red md-bad count", "md-dot md-bad" in provid
 checks.append(("renderProviders has green md-ok count", "md-dot md-ok" in providers and "working" in providers))
 checks.append(("renderProviders has untested line", "untested" in providers))
 checks.append(("renderProviders has models fallback", " models</span>" in providers))
+checks.append(("fallback checks models_count too", 'typeof n!=="number"' in providers))
 checks.append(("renderProvSum has X and Y counts", "models_ok" in summary and "models_bad" in summary and "md-dot md-ok" in summary and "md-dot md-bad" in summary))
 rev = re.search(r"<!-- kit-console-rev: (\d+) -->", text)
 checks.append(("kit-console-rev >= 11", rev is not None and int(rev.group(1)) >= 11))
