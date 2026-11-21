@@ -1,4 +1,4 @@
-# TO PLANNER - coder handoff for pkg-292
+# TO PLANNER - coder handoff for pkg-293
 
-COMMITTED T-093/T-094 r1/pkg-292 403b99e3056b2f0847c704103a4ddc59d9f541d5 tests 192/192
-DECISION: package 292 edits only the nine project-template/Claude/hooks/agent-console*.html copies inside C:\oc-par-292 (Problemi panel, Configurazione debug-bundle export, kit-console-rev +1); no live/running console HTML page outside the worktree was touched.
+COMMITTED T-038/T-040 r1/pkg-293-oc 37f95e569b4c2acd9df5433b321f8126af7a50c5 tests 193/193
+DECISION: each free model uses a built-in router /v1/messages HTTP call unless --model NAME=COMMAND overrides it; --previous defaults to the --out file before overwrite and a drop of more than 2 packages flags degradation.
