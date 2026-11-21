@@ -48,6 +48,7 @@ $projectDir = if ($env:CLAUDE_PROJECT_DIR) { $env:CLAUDE_PROJECT_DIR } else { (G
 # they made a `claude -p` test answer about the mailbox instead of calling the tool it was asked to call.
 if ($env:UEFN_KIT_HEADLESS -eq "1" -or ("$env:CLAUDE_CODE_ENTRYPOINT" -like "sdk*")) {
     try { Start-Process powershell -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$(Join-Path $PSScriptRoot 'ensure-router.ps1')`"", "-ProjectDir", "`"$projectDir`"") -WindowStyle Hidden } catch {}
+    try { Start-Process powershell -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$(Join-Path $PSScriptRoot 'ensure-pipeline.ps1')`"", "-ProjectDir", "`"$projectDir`"") -WindowStyle Hidden } catch {}
     @{ hookSpecificOutput = @{ hookEventName = "SessionStart"; additionalContext = "One-shot run: do only what the prompt asks. Do not start /relay, the console or any learning." } } | ConvertTo-Json -Depth 5 -Compress
     exit 0
 }
@@ -105,6 +106,7 @@ if (Test-Path $consolePath) {
     # v1.124.15: the Dream Router (free models) is started first and WITHOUT waiting (a hidden process), so the 10-second
     # limit of this hook can never stop it: a Cod session in free mode needs it before its first request.
     try { Start-Process powershell -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$(Join-Path $PSScriptRoot 'ensure-router.ps1')`"", "-ProjectDir", "`"$projectDir`"") -WindowStyle Hidden } catch {}
+    try { Start-Process powershell -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$(Join-Path $PSScriptRoot 'ensure-pipeline.ps1')`"", "-ProjectDir", "`"$projectDir`"") -WindowStyle Hidden } catch {}
 
     # v1.124.15: kit-sync runs at the same time as this hook. Wait (max 6 s, the hook has 10) only while the project kit is
     # OLDER than the reference copy, so the console does not restart with old files. A newer or equal project never waits
