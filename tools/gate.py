@@ -45,6 +45,10 @@ def runnable(command):
         return None
     if parts and parts[0] in ALLOWED:
         return parts
+    if parts:
+        base = os.path.basename(parts[0]).lower().replace(".exe", "")
+        if base in ALLOWED:
+            return parts
     return None
 
 
