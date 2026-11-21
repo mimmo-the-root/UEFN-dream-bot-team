@@ -141,7 +141,7 @@ FREE_TOKEN = "dream-router-local"
 MODES = ("auto", "plan", "free", "safe", "paid")  # paid (T-059) = stays in the path, forwards ONLY to the paid plan with the session login, never free models;
 # auto = my plan, then free models at the limit (same session); plan = plan only; free = free only;
 # safe (T-083) = the work goes to free models, only the auto-mode safety check goes to the plan (while it has credit), else a local verdict
-DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False, "bandit": False, "shadow_sampling": False, "shadow_rate": 0.10, "shadow_daily_cap": 20, "router_v2": False,
+DEFAULT_SETTINGS = {"enabled": True, "mode": "auto", "safety_check": "short", "spread": True, "pinning": True, "explore": 0.05, "free_accept_edits": False, "trim_history": True, "safety_samples": False, "bandit": False, "shadow_sampling": False, "shadow_rate": 0.10, "shadow_daily_cap": 20, "router_v2": False, "scan_dir": "",
                     "chain": ["gemini", "zai", "nvidia", "openrouter", "kilo", "llm7", "groq", "ollama", "cohere", "airforce", "orcarouter", "cloudflare", "deepseek", "zenmux"]}
 LOCK = threading.Lock()
 STATE = {"cooldown": {}, "breaker": {}, "lockout": {}, "models": {}, "bad": {}, "checked": {}, "sigs": {}, "last": None, "started": time.time(), "pinned": {}}  # pinned[package_key] = (provider, model)
@@ -1884,6 +1884,49 @@ def size_summary():
                      "messages": avg("messages", side), "sample": STATE.get("side_sample")} if side else None}
 
 
+def _scan_model_status(name, s):
+    good, bad = set(), set()
+    root = s.get("scan_dir") or ""
+    if not root:
+        return good, bad
+    try:
+        with open(os.path.join(root, "provider-scan-%s.json" % name), encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return good, bad
+    if not isinstance(data, dict) or not isinstance(data.get("models"), list):
+        return good, bad
+    for row in data["models"]:
+        if not isinstance(row, dict) or not isinstance(row.get("model"), str) or not row["model"]:
+            continue
+        if row.get("status") == "working":
+            good.add(row["model"])
+        elif row.get("status") in ("auth_failed", "error"):
+            bad.add(row["model"])
+    return good, bad
+
+
+def _model_counts(name, count, s):
+    if name in STATE["bad"]:
+        return 0, (count or 0), 0
+    ok, bad = set(), set()
+    prefix = name + "/"
+    for key, v in STATE.get("perf", {}).items():
+        if not isinstance(key, str) or not key.startswith(prefix) or not isinstance(v, dict):
+            continue
+        model = key[len(prefix):]
+        if (v.get("ok") or 0) > 0:
+            ok.add(model)
+        elif (v.get("fail") or 0) > 0:
+            bad.add(model)
+    scan_ok, scan_bad = _scan_model_status(name, s)
+    ok.update(scan_ok)
+    bad.update(scan_bad)
+    bad.difference_update(ok)
+    n_ok, n_bad = len(ok), len(bad)
+    return n_ok, n_bad, None if count is None else max(0, count - n_ok - n_bad)
+
+
 def state_view():
     s, ks, provs = settings(), keys(), providers()
     u = _read_json("usage.json", {"models": {}})
@@ -1896,10 +1939,12 @@ def state_view():
         p = provs[name]
         st = "no key" if provider_key(p, ks) is None else ("failed" if name in STATE["bad"] else ("checking" if name not in STATE["checked"] else ("paused" if not available(name) else "ready")))
         until = max(STATE["cooldown"].get(name, 0), STATE["breaker"].get(name, {}).get("open_until", 0))
+        count = STATE.get("counts", {}).get(name)
+        n_ok, n_bad, n_untested = _model_counts(name, count, s)
         pv.append({"name": name, "status": st, "resume_in": max(0, int(until - now)) if st == "paused" else 0,
                    "model": (STATE["models"].get(name) or [None])[0], "key_name": p.get("key"), "why": STATE["bad"].get(name, ""), "label": p.get("label", name),
                    "key_hint": mask(ks.get(p.get("key", ""), "")), "keyless": bool(p.get("keyless")), "key_format": "ACCOUNT_ID:API_TOKEN" if "{account}" in p.get("base", "") else "",
-                   "models_count": STATE.get("counts", {}).get(name), "signup": p.get("signup", "")})
+                   "models_count": count, "models_ok": n_ok, "models_bad": n_bad, "models_untested": n_untested, "signup": p.get("signup", "")})
     errs = recent_errors()
     plan = {"login_seen": STATE.get("plan_login_seen"), "claude_env": STATE.get("claude_env", ""), "available": plan_available(), "resume_in": max(0, int(STATE.get("plan_until", 0) - now)), "why": STATE.get("plan_why", "")}
     return {"version": VERSION, "running": True, "settings": s, "providers": pv, "models": recent_models(), "models_month": len(rows), "active": sorted(STATE.get("active", {})),
